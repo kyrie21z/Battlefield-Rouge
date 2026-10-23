@@ -5,8 +5,11 @@ extends Node
 
 signal changed
 
-## Zones to clear for a win.
-const ZONE_COUNT := 2
+## One scene per zone, in play order. Clearing the last one wins the run.
+const ZONE_SCENES: Array[String] = [
+	"res://maps/zone_1.tscn",
+	"res://maps/zone_2.tscn",
+]
 
 var zone_index := 0
 var buffs: Array[Resource] = []
@@ -30,7 +33,7 @@ func add_buff(buff: Resource) -> void:
 
 ## Moves to the next zone. Returns false once the last zone is done.
 func advance_zone() -> bool:
-	if zone_index + 1 >= ZONE_COUNT:
+	if zone_index + 1 >= ZONE_SCENES.size():
 		return false
 	zone_index += 1
 	changed.emit()
@@ -38,4 +41,8 @@ func advance_zone() -> bool:
 
 
 func is_last_zone() -> bool:
-	return zone_index == ZONE_COUNT - 1
+	return zone_index == ZONE_SCENES.size() - 1
+
+
+func zone_scene() -> String:
+	return ZONE_SCENES[zone_index]

@@ -13,7 +13,8 @@
 | `zone/` | 战区控制（zone director）、据点 |
 | `buffs/` | 增益，每个增益一个 `.tres` |
 | `ui/` | HUD、三选一增益界面、结算界面 |
-| `maps/` | 场景 |
+| `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
+| `tools/` | 编辑器外的辅助脚本 |
 | `docs/adr/` | 架构决策记录 |
 
 ## 依赖规则
@@ -23,6 +24,17 @@
 3. 增益只修改 `Stats`，不直接改玩家或武器脚本。新增增益只需要加一个 `.tres`。
 4. 依赖方向只能是 `ui → zone → actors → components`，反过来要用信号。
 5. 从 `../origin/sheji` 迁移代码时，先删掉对 `GameState`、`VoiceManager`、突破模式、载具、商店的引用，再放进来。
+
+## 一个战区的流程
+
+由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。
+
+1. 烘焙导航网格，把 `RunState.buffs` 应用到玩家的 `Stats`，把玩家和掩体点交给每个敌人。
+2. 敌人全部死亡 → `Events.zone_cleared`，据点开放。
+3. 据点占满 → `Events.point_captured`。不是最后一个战区就暂停并弹出三选一；选完发 `Events.buff_chosen`（`RunState` 记下增益），`RunState.advance_zone()`，切到下一个战区场景。最后一个战区则发 `Events.run_won` 并显示胜利界面。
+4. 玩家死亡 → `Events.player_died`，`RunState` 清空本局，显示阵亡界面。重新开始回到第 1 个战区。
+
+新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。
 
 ## 碰撞层
 

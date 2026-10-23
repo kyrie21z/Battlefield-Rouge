@@ -16,6 +16,7 @@ background_mode = 2
 sky = SubResource("Sky_sky")
 ambient_light_source = 3
 tonemap_mode = 2
+glow_enabled = true
 
 [sub_resource type="StandardMaterial3D" id="Mat_grey"]
 albedo_color = Color(0.55, 0.56, 0.58, 1)

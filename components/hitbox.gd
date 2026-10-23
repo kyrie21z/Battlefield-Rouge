@@ -1,12 +1,12 @@
 class_name Hitbox
 extends StaticBody3D
 ## Body-part hitbox: rays hit this body and the damage goes to the nearest
-## Health above it, or the one at health_path. Uses collision layer 4.
+## Health above it, or the one at health_path. Lives on CollisionLayers.HITBOXES.
 ## Ported from origin/sheji/systems/hitbox.gd.
 
 enum BodyPart { HEAD, BODY, LIMB }
 
-const LAYER := 1 << 3
+const LAYER := CollisionLayers.HITBOXES
 
 @export var body_part := BodyPart.BODY
 @export var health_path: NodePath

@@ -15,8 +15,7 @@ signal hit_landed(headshot: bool, killed: bool)
 ## Degrees of camera kick for this shot. `manual` is the fraction that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
 
-## Everything except player and hitbox bodies' own owner. Layer 1 world, 4 hitboxes.
-const SHOOT_MASK := 1 | Hitbox.LAYER
+const SHOOT_MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
 
 @export var data: WeaponData
 @export var stats: Stats

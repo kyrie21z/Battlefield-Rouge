@@ -9,7 +9,6 @@ enum State { IDLE, CHASE, ENGAGE, COVER, DEAD }
 
 const EYE_HEIGHT := 1.55
 const AIM_HEIGHT := 1.3
-const WORLD_MASK := 1
 
 @export_category("Perception")
 @export var sight_range := 45.0
@@ -24,6 +23,9 @@ const WORLD_MASK := 1
 @export var burst_pause := 1.0
 ## Cone half-angle of each shot. At 20 m, 2.2 deg lands about 40% on a still player.
 @export var accuracy_deg := 2.2
+## Enemy bullets are slow, visible projectiles so the player can dodge them.
+## Shots aim at where the player is now, with no lead.
+@export var projectile_speed := 18.0
 ## Spread multiplier when the target moves faster than 3 m/s.
 @export var moving_target_penalty := 1.6
 @export var damage_min := 8.0
@@ -183,9 +185,9 @@ func _update_sight() -> void:
 		var forward := -global_basis.z
 		if forward.angle_to(Vector3(to_target.x, 0.0, to_target.z)) > deg_to_rad(sight_fov_deg * 0.5):
 			return
-	var query := PhysicsRayQueryParameters3D.create(_eye(), _target_point(), WORLD_MASK, _hitbox_rids)
+	var query := PhysicsRayQueryParameters3D.create(_eye(), _target_point(), CollisionLayers.WORLD)
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	_sees_target = hit.is_empty() or hit.collider == target
+	_sees_target = hit.is_empty()
 	if _sees_target:
 		_last_known = target.global_position
 
@@ -213,15 +215,9 @@ func _fire_shot() -> void:
 	_audio.play()
 	Events.gunshot.emit(global_position)
 
-	var exclude := _hitbox_rids.duplicate()
-	exclude.append(target.get_rid())
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * sight_range, WORLD_MASK | Hitbox.LAYER, exclude)
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	if hit.is_empty():
-		return
-	Impact.spawn(get_parent(), hit.position, hit.normal, hit.collider is Hitbox)
-	if hit.collider is Hitbox:
-		(hit.collider as Hitbox).apply_hit(randf_range(damage_min, damage_max), self)
+	var projectile := Projectile.spawn(get_parent(), origin + direction * 0.6, direction, self,
+		randf_range(damage_min, damage_max), projectile_speed, _hitbox_rids)
+	projectile.max_distance = sight_range
 
 
 func _try_take_cover() -> bool:
@@ -251,9 +247,8 @@ func _try_take_cover() -> bool:
 ## Whether a crouching enemy at `point` is out of the target's sight.
 func _is_hidden_at(point: Vector3) -> bool:
 	var from := point + Vector3.UP * 1.0
-	var query := PhysicsRayQueryParameters3D.create(from, _target_point(), WORLD_MASK, _hitbox_rids)
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	return not hit.is_empty() and hit.collider != target
+	var query := PhysicsRayQueryParameters3D.create(from, _target_point(), CollisionLayers.WORLD)
+	return not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
 func _leave_cover() -> void:

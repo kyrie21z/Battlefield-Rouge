@@ -24,6 +24,18 @@
 4. 依赖方向只能是 `ui → zone → actors → components`，反过来要用信号。
 5. 从 `../origin/sheji` 迁移代码时，先删掉对 `GameState`、`VoiceManager`、突破模式、载具、商店的引用，再放进来。
 
+## 碰撞层
+
+定义在 `components/collision_layers.gd`，代码里不要直接写数字。
+
+| 层 | 常量 | 放什么 |
+| --- | --- | --- |
+| 1 | `WORLD` | 场景几何和道具 |
+| 2 | `ACTORS` | 玩家和敌人的移动碰撞体 |
+| 4 | `HITBOXES` | 受击判定 |
+
+子弹（玩家的射线、敌人的慢速弹）只检测 `WORLD | HITBOXES`。角色的移动碰撞体和受击判定位置重叠，子弹如果检测 `ACTORS`，会先打在移动碰撞体上而打不到受击判定。
+
 ## 从旧工程迁移
 
 旧工程在 `../origin/sheji`，只当参考，不修改。迁移顺序和原因见 `docs/adr/0001-rebuild-on-clean-skeleton.md`。

@@ -25,10 +25,11 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	var health := _player.health
 	_health_label.text = "生命 %d / %d" % [ceili(health.health), ceili(health.max_health)]
-	# Spread in degrees to pixels at the current FOV.
+	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
-	var px_per_deg := get_viewport().get_visible_rect().size.y / camera.fov
-	_crosshair.gap = 4.0 + _player.weapon.spread_degrees() * px_per_deg
+	var half_height := get_viewport().get_visible_rect().size.y * 0.5
+	var spread := deg_to_rad(_player.weapon.spread_degrees())
+	_crosshair.gap = 4.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
 	_crosshair.visible = not _player.is_aiming()
 	_crosshair.queue_redraw()
 

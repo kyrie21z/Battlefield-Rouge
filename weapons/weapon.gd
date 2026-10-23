@@ -134,6 +134,7 @@ func try_fire() -> bool:
 	_view.position.z += 0.04
 	recoil.emit(data.camera_kick, data.camera_kick * _next_pattern_value(), data.recoil_manual)
 	fired.emit()
+	Events.gunshot.emit(global_position)
 	ammo_changed.emit(ammo, reserve)
 	if ammo == 0 and reserve > 0:
 		try_reload()

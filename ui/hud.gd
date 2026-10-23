@@ -12,6 +12,7 @@ var _player: Player
 @onready var _health_label: Label = $Health
 @onready var _ammo_label: Label = $Ammo
 @onready var _audio: AudioStreamPlayer = $HitAudio
+@onready var _damage_flash: ColorRect = $DamageFlash
 
 
 func _ready() -> void:
@@ -19,6 +20,7 @@ func _ready() -> void:
 	_player.weapon.ammo_changed.connect(_on_ammo_changed)
 	_player.weapon.reload_started.connect(func(_t): _ammo_label.text = "换弹中…")
 	_player.weapon.hit_landed.connect(_on_hit_landed)
+	_player.health.damaged.connect(_on_player_damaged)
 	_on_ammo_changed(_player.weapon.ammo, _player.weapon.reserve)
 
 
@@ -45,3 +47,8 @@ func _on_hit_landed(headshot: bool, killed: bool) -> void:
 	tween.tween_property(_hitmarker, "modulate:a", 0.0, 0.25).from(1.0)
 	_audio.stream = HIT_HEAD if headshot else HIT_BODY
 	_audio.play()
+
+
+func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:
+	var tween := create_tween()
+	tween.tween_property(_damage_flash, "color:a", 0.0, 0.4).from(clampf(amount / 40.0, 0.15, 0.45))

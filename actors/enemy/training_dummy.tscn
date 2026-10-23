@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://actors/enemy/training_dummy.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://components/hitbox.gd" id="3_hitbox"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.75, 0.35, 0.25, 1)
+
+[sub_resource type="CapsuleMesh" id="Mesh_body"]
+material = SubResource("Mat_body")
+radius = 0.3
+height = 1.4
+
+[sub_resource type="CapsuleShape3D" id="Shape_body"]
+radius = 0.3
+height = 1.4
+
+[sub_resource type="SphereMesh" id="Mesh_head"]
+material = SubResource("Mat_body")
+radius = 0.15
+height = 0.3
+
+[sub_resource type="SphereShape3D" id="Shape_head"]
+radius = 0.15
+
+[node name="TrainingDummy" type="Node3D"]
+script = ExtResource("1_dummy")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+
+[node name="Body" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+script = ExtResource("3_hitbox")
+
+[node name="Mesh" type="MeshInstance3D" parent="Body"]
+mesh = SubResource("Mesh_body")
+
+[node name="Shape" type="CollisionShape3D" parent="Body"]
+shape = SubResource("Shape_body")
+
+[node name="Head" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, 0)
+script = ExtResource("3_hitbox")
+body_part = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Head"]
+mesh = SubResource("Mesh_head")
+
+[node name="Shape" type="CollisionShape3D" parent="Head"]
+shape = SubResource("Shape_head")

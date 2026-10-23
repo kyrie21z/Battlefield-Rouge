@@ -1,6 +1,9 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://actors/enemy/training_dummy.tscn" id="2_dummy"]
+[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 
@@ -235,3 +238,17 @@ mesh = SubResource("Mesh_point")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 22)
+
+[node name="Dummy1" parent="." instance=ExtResource("2_dummy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 10)
+
+[node name="Dummy2" parent="." instance=ExtResource("2_dummy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 4)
+
+[node name="Dummy3" parent="." instance=ExtResource("2_dummy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+
+[node name="ZoneDirector" type="Node" parent="."]
+script = ExtResource("4_director")
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]

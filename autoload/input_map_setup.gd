@@ -13,6 +13,7 @@ var _bindings := {
 	"fire": [_mouse(MOUSE_BUTTON_LEFT)],
 	"aim": [_mouse(MOUSE_BUTTON_RIGHT)],
 	"reload": [_key(KEY_R)],
+	"grenade": [_key(KEY_G)],
 	"interact": [_key(KEY_F)],
 	"pause": [_key(KEY_ESCAPE)],
 }

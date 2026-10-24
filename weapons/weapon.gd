@@ -41,10 +41,12 @@ var _audio: AudioStreamPlayer
 var _gunshot: AudioStreamWAV
 var _reload_sound: AudioStreamWAV
 var _dry_sound: AudioStreamWAV
+var _known_capacity := 0
 
 
 func _ready() -> void:
-	ammo = magazine_capacity()
+	_known_capacity = magazine_capacity()
+	ammo = _known_capacity
 	reserve = data.reserve_ammo
 	_gunshot = ProceduralAudio.generate(data.gunshot_sound)
 	_reload_sound = ProceduralAudio.generate("reload")
@@ -57,7 +59,28 @@ func _ready() -> void:
 	_view.position = data.hip_position
 	_flash = _view.get_node_or_null("Muzzle/Flash")
 	if stats != null:
-		stats.changed.connect(func(): ammo_changed.emit(ammo, reserve))
+		stats.changed.connect(_on_stats_changed)
+
+
+func _on_stats_changed() -> void:
+	var capacity := magazine_capacity()
+	# The director applies carried buffs after the weapon has entered the zone.
+	# Keep an initially full magazine full; do not refill a partly fired one.
+	if ammo == _known_capacity and capacity > _known_capacity:
+		ammo = capacity
+	elif ammo > capacity:
+		reserve += ammo - capacity
+		ammo = capacity
+	_known_capacity = capacity
+	ammo_changed.emit(ammo, reserve)
+
+
+func add_reserve(amount: int, limit := 180) -> int:
+	var added := mini(maxi(amount, 0), maxi(limit - reserve, 0))
+	reserve += added
+	if added > 0:
+		ammo_changed.emit(ammo, reserve)
+	return added
 
 
 func magazine_capacity() -> int:
@@ -178,6 +201,12 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
+	elif collider.has_method("apply_damage"):
+		var distance := origin.distance_to(hit.position)
+		collider.apply_damage(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter)
+	elif collider.has_method("take_damage"):
+		var distance := origin.distance_to(hit.position)
+		collider.take_damage(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), hit.position)
 
 
 func _falloff(distance: float) -> float:

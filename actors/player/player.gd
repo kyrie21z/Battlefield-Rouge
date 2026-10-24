@@ -4,6 +4,16 @@ extends CharacterBody3D
 ## Stats.MOVE_SPEED; health and the weapon are child components. Tuning values
 ## are taken from origin/sheji/characters/player/player.gd.
 
+signal grenades_changed(remaining: int)
+
+const GRENADES_PER_ZONE := 3
+const GRENADE = preload("res://weapons/grenade.gd")
+const BATTLE_VFX = preload("res://weapons/effects/battle_vfx.gd")
+
+var grenades_remaining := GRENADES_PER_ZONE
+var _grenade_cooldown := 0.0
+var _grenade_effects: Node3D
+
 @export var jog_speed := 4.4
 @export var sprint_speed := 6.6
 @export var jump_velocity := 4.8
@@ -30,6 +40,11 @@ var _visual_kick := Vector2.ZERO
 
 
 func _ready() -> void:
+	_grenade_effects = BATTLE_VFX.new()
+	_grenade_effects.name = "BattleVFX"
+	add_child(_grenade_effects)
+	_grenade_effects.set_as_top_level(true)
+	grenades_changed.emit(grenades_remaining)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_camera.fov = base_fov
 	weapon.recoil.connect(_on_weapon_recoil)
@@ -52,8 +67,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_grenade_cooldown = maxf(_grenade_cooldown - delta, 0.0)
 	if health.is_dead():
 		return
+	if Input.is_action_just_pressed("grenade"):
+		throw_grenade()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	elif Input.is_action_just_pressed("jump"):
@@ -94,3 +112,35 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 
 func _on_died(_source: Node) -> void:
 	Events.player_died.emit()
+
+
+## A new Player is instantiated for each zone, resetting this inventory to three.
+func add_grenades(amount: int) -> int:
+	var added := mini(maxi(amount, 0), maxi(GRENADES_PER_ZONE - grenades_remaining, 0))
+	grenades_remaining += added
+	if added > 0:
+		grenades_changed.emit(grenades_remaining)
+	return added
+
+
+func throw_grenade() -> bool:
+	if health.is_dead() or grenades_remaining <= 0 or _grenade_cooldown > 0.0:
+		return false
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return false
+	var direction := -_camera.global_basis.z
+	var start := _camera.global_position + direction * 0.5 + _camera.global_basis.x * 0.15 - Vector3.UP * 0.1
+	# Prevent placing the grenade on the far side of a wall at close range.
+	var query := PhysicsRayQueryParameters3D.create(_camera.global_position, start, CollisionLayers.WORLD)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty():
+		start = hit.position + hit.normal * 0.13
+	var grenade := GRENADE.new()
+	var container := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+	container.add_child(grenade)
+	grenade.global_position = start
+	grenade.launch(self, direction * 14.0 + Vector3.UP * 2.5 + velocity * 0.35, _grenade_effects, stats.get_value(Stats.DAMAGE))
+	grenades_remaining -= 1
+	_grenade_cooldown = 0.5
+	grenades_changed.emit(grenades_remaining)
+	return true

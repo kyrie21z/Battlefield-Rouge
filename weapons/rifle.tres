@@ -32,4 +32,4 @@ reload_time_empty = 2.6
 ads_fov = 54.0
 ads_move_scale = 0.55
 hip_position = Vector3(0.16, -0.17, -0.32)
-ads_position = Vector3(0.0, -0.128, -0.3)
+ads_position = Vector3(0.0084, -0.1058, -0.3)

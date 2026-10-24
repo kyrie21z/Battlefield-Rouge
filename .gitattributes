@@ -4,3 +4,7 @@
 *.wav binary
 *.ogg binary
 *.glb binary
+
+# Preserve third-party source bytes and registered SHA256 values.
+assets/** -text
+addons/destruction/** -text

@@ -8,3 +8,7 @@ const WORLD := 1 << 0
 const ACTORS := 1 << 1
 ## Hitbox bodies that take damage. Layer 4.
 const HITBOXES := 1 << 3
+## Cosmetic rigid fragments: collide with WORLD, never with actors or shots.
+const DEBRIS := 1 << 4
+## Thrown grenade bodies, separate from hitboxes and fragments.
+const PROJECTILES := 1 << 5

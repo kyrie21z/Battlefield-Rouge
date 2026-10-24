@@ -11,3 +11,5 @@ signal zone_cleared(zone_index: int)
 signal point_captured(zone_index: int)
 signal buff_chosen(buff: Resource)
 signal run_won
+## Zone-owned prop event. Breaking a crate can spawn a local supply pickup.
+signal prop_destroyed(kind: StringName, position: Vector3)

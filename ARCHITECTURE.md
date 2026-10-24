@@ -51,3 +51,12 @@
 ## 从旧工程迁移
 
 旧工程在 `../origin/sheji`，只当参考，不修改。迁移顺序和原因见 `docs/adr/0001-rebuild-on-clean-skeleton.md`。
+
+
+## 2026-10-24 素材接入补充
+
+- `zone/city_dressing.gd`只布置真实模型和材质，不管理RunState；地图仍由gen_zones.py生成。
+- `components/breakable.gd`发`broken(kind,position)`，不自行找玩家或发奖励；`ZoneDirector`注入并监听，生成区域补给后按玩家身体进入结算。
+- 新增`CollisionLayers.DEBRIS = 1 << 4`（16）与`PROJECTILES = 1 << 5`（32）。DEBRIS只检测WORLD，角色/射线不检测DEBRIS；保留原HITBOXES=8。
+- 玩家暴露`grenades_remaining`、`grenades_changed`、`throw_grenade()`与`add_grenades()`，HUD只读取或订阅；手雷不访问RunState。
+- 可破坏物容器属于导航采集组，破坏后在删除生效后重烘焙，碎片的父容器在该组之外；首次导航同步后才启用敌人AI。薄墙仍放侧路，未增加建筑整体实时断裂。

@@ -22,6 +22,8 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _noise_burst(0.14, 30.0, 0.85, 0.15)
 		"gunshot_small":
 			return _noise_burst(0.1, 36.0, 0.5, 0.14)
+		"explosion_grenade":
+			return _noise_burst(0.65, 8.0, 0.95, 0.065)
 		"reload":
 			return _click_sequence([0.0, 0.13, 0.26, 0.38], 0.055)
 		"bolt":

@@ -6,6 +6,7 @@ const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
 const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 
 var _player: Player
+var _director: ZoneDirector
 
 @onready var _crosshair: Control = $Crosshair
 @onready var _hitmarker: Label = $Hitmarker
@@ -29,16 +30,17 @@ func _ready() -> void:
 	_player.health.damaged.connect(_on_player_damaged)
 	_on_ammo_changed(_player.weapon.ammo, _player.weapon.reserve)
 
-	var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
-	_zone_label.text = "战区 %d / %d" % [director.zone_index + 1, RunState.ZONE_SCENES.size()]
-	director.objective_changed.connect(_on_objective_changed)
-	director.phase_changed.connect(_on_phase_changed)
-	director.enemies_changed.connect(_on_enemies_changed)
-	_strike_bar.setup(director.capture_point)
-	_debug.setup(director)
-	director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
-	_on_enemies_changed(director.enemies_total, director.enemies_total)
-	_capture_bar.visible = false
+	_director = get_tree().get_first_node_in_group("zone_director") as ZoneDirector
+	_zone_label.text = "战区 %d / %d" % [_director.zone_index + 1, RunState.ZONE_SCENES.size()]
+	_director.objective_changed.connect(_on_objective_changed)
+	_director.phase_changed.connect(_on_phase_changed)
+	_director.enemies_changed.connect(_on_enemies_changed)
+	_strike_bar.setup(_director.capture_point)
+	_debug.setup(_director)
+	_director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
+	_objective_label.text = _director.objective
+	_on_enemies_changed(_director.enemies_total, _director.enemies_total)
+	_capture_bar.visible = _director.phase != ZoneDirector.Phase.CLEAR_GUARDS
 	var titles: PackedStringArray = []
 	for buff: Buff in RunState.buffs:
 		titles.append(buff.title)
@@ -76,7 +78,7 @@ func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) ->
 
 
 func _on_enemies_changed(alive: int, total: int) -> void:
-	if alive > 0:
+	if alive > 0 and _director.phase == ZoneDirector.Phase.CLEAR_GUARDS:
 		_objective_label.text = "消灭所有敌人（剩余 %d / %d）" % [alive, total]
 
 

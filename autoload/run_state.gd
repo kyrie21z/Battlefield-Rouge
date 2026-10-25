@@ -9,6 +9,7 @@ signal changed
 const ZONE_SCENES: Array[String] = [
 	"res://maps/zone_1.tscn",
 	"res://maps/zone_2.tscn",
+	"res://maps/boss.tscn",
 ]
 
 var zone_index := 0

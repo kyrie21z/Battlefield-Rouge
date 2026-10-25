@@ -7,11 +7,12 @@ extends CharacterBody3D
 
 enum State { IDLE, CHASE, ENGAGE, COVER, DEAD }
 
-const EYE_HEIGHT := 1.55
 const AIM_HEIGHT := 1.3
 
 @export_category("Perception")
 @export var sight_range := 45.0
+## Where it looks and shoots from, above its feet. A taller body raises this.
+@export var eye_height := 1.55
 @export var sight_fov_deg := 120.0
 @export var hearing_range := 35.0
 
@@ -326,7 +327,7 @@ func _update_animation() -> void:
 
 
 func _eye() -> Vector3:
-	return global_position + Vector3.UP * EYE_HEIGHT
+	return global_position + Vector3.UP * eye_height
 
 
 func _target_point() -> Vector3:

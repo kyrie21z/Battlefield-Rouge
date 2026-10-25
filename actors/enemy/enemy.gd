@@ -259,7 +259,7 @@ func _leave_cover() -> void:
 	if _cover != null and _cover.occupant == self:
 		_cover.occupant = null
 	_cover = null
-	_cover_ready_at = Time.get_ticks_msec() / 1000.0 + cover_cooldown
+	_cover_ready_at = SimClock.now() + cover_cooldown
 
 
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
@@ -268,7 +268,7 @@ func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
 	if state == State.IDLE:
 		_alert(source.global_position if source is Node3D else _target_point())
 		return
-	var cover_ready := Time.get_ticks_msec() / 1000.0 >= _cover_ready_at
+	var cover_ready := SimClock.now() >= _cover_ready_at
 	if state != State.COVER and cover_ready and randf() < cover_chance:
 		_try_take_cover()
 

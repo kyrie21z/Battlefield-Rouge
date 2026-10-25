@@ -9,5 +9,6 @@
 - 引擎：Godot 4.7.2（Forward+）。用编辑器导入本目录的 `project.godot`。
 - 当前操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键瞄准，R 换弹，E 挥锤（站到据点建筑旁，清完守卫后才有效，节拍条的标记进入金色区间是完美打击），F3 显示占点调试条（含配置文件路径），Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
 - 占点三个数（窗口 ±150ms、普通 +8%、完美 ×1.5）：`zone/capture_config.tres`。无界面检查：`godot --headless --path . res://tests/capture_hammer_test.tscn`、`res://tests/boss_test.tscn`。
+- 复现一局（AC-07）：`fixtures/` 里是命名起点 FX-001（新开一局）和 FX-002（Boss 起点）。游戏里用 `godot --path . -- --fixture=FX-002` 从该起点开始，F3 调试条显示起点和种子，死亡后重开回到同一起点。复现检查：`godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn`，机器人把每个起点打几遍并比较哈希，要加 `--fixed-fps 60`。做法和限制见 `docs/adr/0005-reproducible-runs.md`。
 - 当前战区：`maps/zone_1.tscn`、`maps/zone_2.tscn`、`maps/boss.tscn`，由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
 - 文档：`docs/GDD.md`、`docs/Core_Loop.md`、`docs/Priority_Backlog.md`、`docs/bible/`；架构：`ARCHITECTURE.md`；术语：`GLOSSARY.md`；决策：`docs/adr/`；待优化：`TODO.md`；贡献：`CONTRIBUTING.md`。

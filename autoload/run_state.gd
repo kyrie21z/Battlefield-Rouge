@@ -14,17 +14,43 @@ const ZONE_SCENES: Array[String] = [
 
 var zone_index := 0
 var buffs: Array[Resource] = []
+## Every random choice in a zone is drawn after the zone director seeds the
+## generator from this, so the same seed and the same inputs give the same run
+## (AC-07). An ordinary run gets a new one each time it starts.
+var run_seed := 0
+## The fixture this run started from, or null for an ordinary run. Starting
+## over after a death or a win goes back to the same fixture start.
+var fixture: RunFixture
 
 
 func _ready() -> void:
 	Events.player_died.connect(start_new_run)
 	Events.buff_chosen.connect(add_buff)
+	run_seed = randi()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--fixture="):
+			_start_from_command_line(arg.trim_prefix("--fixture="))
 
 
 func start_new_run() -> void:
+	if fixture != null:
+		_apply(fixture)
+		return
 	zone_index = 0
 	buffs.clear()
+	run_seed = randi()
 	changed.emit()
+
+
+## Puts the run at the fixture's starting point. The caller loads `zone_scene()`.
+func start_fixture(start: RunFixture) -> void:
+	fixture = start
+	_apply(start)
+
+
+## Drops the fixture, so the next start is an ordinary run again.
+func clear_fixture() -> void:
+	fixture = null
 
 
 func add_buff(buff: Resource) -> void:
@@ -47,3 +73,27 @@ func is_last_zone() -> bool:
 
 func zone_scene() -> String:
 	return ZONE_SCENES[zone_index]
+
+
+## The seed for the zone being played, so a zone's randomness does not depend
+## on how much the earlier zones drew.
+func zone_seed() -> int:
+	return ("%d/%d" % [run_seed, zone_index]).hash()
+
+
+func _apply(start: RunFixture) -> void:
+	zone_index = start.start_zone
+	buffs.assign(start.buffs)
+	run_seed = start.run_seed
+	changed.emit()
+
+
+## `--fixture=<id>` after `--` on the command line starts the game from that fixture.
+func _start_from_command_line(fixture_id: String) -> void:
+	var start := RunFixture.by_id(fixture_id)
+	if start == null:
+		push_error("No fixture with id '%s' in res://fixtures/" % fixture_id)
+		return
+	start_fixture(start)
+	if zone_index != 0:
+		get_tree().change_scene_to_file.call_deferred(zone_scene())

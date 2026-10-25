@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RunFixture" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://fixtures/run_fixture.gd" id="1_fixture"]
+[ext_resource type="Resource" path="res://buffs/rapid_fire.tres" id="2_rapid"]
+[ext_resource type="Resource" path="res://buffs/extended_mag.tres" id="3_mag"]
+
+[resource]
+script = ExtResource("1_fixture")
+id = "FX-002"
+description = "Boss 起点：直接进 Boss 关，带两条增益（急速射击、扩容弹匣）"
+run_seed = 2002
+start_zone = 2
+buffs = Array[Buff]([ExtResource("2_rapid"), ExtResource("3_mag")])

@@ -41,6 +41,20 @@ func is_aiming() -> bool:
 	return weapon.aiming
 
 
+## Turns to look at `point` in world space, the way moving the mouse would.
+## For bots and replays; a person uses the mouse.
+func aim_at(point: Vector3) -> void:
+	var to := point - _camera.global_position
+	rotation.y = atan2(-to.x, -to.z)
+	_pitch = clampf(atan2(to.y, Vector2(to.x, to.z).length()), deg_to_rad(-89.0), deg_to_rad(89.0))
+	_apply_look()
+
+
+func _apply_look() -> void:
+	_head.rotation.x = _pitch + deg_to_rad(_visual_kick.x)
+	_head.rotation.y = deg_to_rad(_visual_kick.y)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * mouse_sensitivity)
@@ -81,8 +95,7 @@ func _process(delta: float) -> void:
 	var target_fov := weapon.data.ads_fov if weapon.aiming else base_fov
 	_camera.fov = lerpf(_camera.fov, target_fov, minf(fov_lerp_speed * delta, 1.0))
 	_visual_kick = _visual_kick.lerp(Vector2.ZERO, minf(recoil_recovery * delta, 1.0))
-	_head.rotation.x = _pitch + deg_to_rad(_visual_kick.x)
-	_head.rotation.y = deg_to_rad(_visual_kick.y)
+	_apply_look()
 
 
 ## The manual share goes straight into the aim, so the player has to pull the

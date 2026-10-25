@@ -2,7 +2,8 @@ class_name CaptureDebug
 extends Label
 ## Debug bar for AC-03. Shows the capture state, which config file is in use
 ## with the numbers read from it, the live distance to the hit moment and the
-## last strike. F3 toggles it.
+## last strike. It also names the run's starting point (fixture id and seed,
+## AC-07). F3 toggles it.
 
 var _director: ZoneDirector
 var _point: CapturePoint
@@ -39,6 +40,7 @@ func _process(_delta: float) -> void:
 			String.num(snappedf(_point.progress * 100.0, 0.1)),
 			"是" if _point.player_in_reach else "否"],
 		"配置 %s" % config.resource_path,
+		"起点 %s   种子 %d" % [RunState.fixture.id if RunState.fixture != null else "普通局（无 fixture）", RunState.run_seed],
 		"窗口 ±%s ms   普通 +%s%%   完美 ×%s（= +%s%%）" % [
 			String.num(config.perfect_window_ms),
 			String.num(config.normal_progress_percent),

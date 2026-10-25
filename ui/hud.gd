@@ -17,6 +17,8 @@ var _player: Player
 @onready var _objective_label: Label = $Top/Objective
 @onready var _capture_bar: ProgressBar = $Top/Capture
 @onready var _buffs_label: Label = $Buffs
+@onready var _strike_bar: StrikeBar = $StrikeBar
+@onready var _debug: CaptureDebug = $CaptureDebug
 
 
 func _ready() -> void:
@@ -30,7 +32,10 @@ func _ready() -> void:
 	var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
 	_zone_label.text = "战区 %d / %d" % [director.zone_index + 1, RunState.ZONE_SCENES.size()]
 	director.objective_changed.connect(_on_objective_changed)
+	director.phase_changed.connect(_on_phase_changed)
 	director.enemies_changed.connect(_on_enemies_changed)
+	_strike_bar.setup(director.capture_point)
+	_debug.setup(director)
 	director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
 	_on_enemies_changed(director.enemies_total, director.enemies_total)
 	_capture_bar.visible = false
@@ -77,4 +82,7 @@ func _on_enemies_changed(alive: int, total: int) -> void:
 
 func _on_objective_changed(text: String) -> void:
 	_objective_label.text = text
-	_capture_bar.visible = text == "前往据点并占领"
+
+
+func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
+	_capture_bar.visible = phase != ZoneDirector.Phase.CLEAR_GUARDS

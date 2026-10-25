@@ -6,6 +6,7 @@ const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
 const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 
 var _player: Player
+var _director: ZoneDirector
 
 @onready var _crosshair: Control = $Crosshair
 @onready var _hitmarker: Label = $Hitmarker
@@ -16,6 +17,8 @@ var _player: Player
 @onready var _zone_label: Label = $Top/Zone
 @onready var _objective_label: Label = $Top/Objective
 @onready var _capture_bar: ProgressBar = $Top/Capture
+@onready var _boss_label: Label = $Top/BossLabel
+@onready var _boss_bar: ProgressBar = $Top/BossBar
 @onready var _buffs_label: Label = $Buffs
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _debug: CaptureDebug = $CaptureDebug
@@ -29,16 +32,22 @@ func _ready() -> void:
 	_player.health.damaged.connect(_on_player_damaged)
 	_on_ammo_changed(_player.weapon.ammo, _player.weapon.reserve)
 
-	var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
-	_zone_label.text = "战区 %d / %d" % [director.zone_index + 1, RunState.ZONE_SCENES.size()]
-	director.objective_changed.connect(_on_objective_changed)
-	director.phase_changed.connect(_on_phase_changed)
-	director.enemies_changed.connect(_on_enemies_changed)
-	_strike_bar.setup(director.capture_point)
-	_debug.setup(director)
-	director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
-	_on_enemies_changed(director.enemies_total, director.enemies_total)
-	_capture_bar.visible = false
+	_director = get_tree().get_first_node_in_group("zone_director") as ZoneDirector
+	_zone_label.text = "战区 %d / %d" % [_director.zone_index + 1, RunState.ZONE_SCENES.size()]
+	_director.objective_changed.connect(_on_objective_changed)
+	_director.phase_changed.connect(_on_phase_changed)
+	_director.enemies_changed.connect(_on_enemies_changed)
+	_strike_bar.setup(_director.capture_point)
+	_debug.setup(_director)
+	_director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
+	_objective_label.text = _director.objective
+	_on_enemies_changed(_director.enemies_total, _director.enemies_total)
+	_capture_bar.visible = _director.phase != ZoneDirector.Phase.CLEAR_GUARDS
+	if _director.boss != null:
+		_director.boss.health.damaged.connect(func(_amount, _part, _source): _refresh_boss())
+		_boss_label.visible = true
+		_boss_bar.visible = true
+		_refresh_boss()
 	var titles: PackedStringArray = []
 	for buff: Buff in RunState.buffs:
 		titles.append(buff.title)
@@ -75,8 +84,16 @@ func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) ->
 	tween.tween_property(_damage_flash, "color:a", 0.0, 0.4).from(clampf(amount / 40.0, 0.15, 0.45))
 
 
+func _refresh_boss() -> void:
+	var health := _director.boss.health
+	_boss_bar.max_value = health.max_health
+	_boss_bar.value = health.health
+	_boss_label.text = "Boss 已倒下" if health.is_dead() \
+			else "Boss  %d / %d" % [ceili(health.health), ceili(health.max_health)]
+
+
 func _on_enemies_changed(alive: int, total: int) -> void:
-	if alive > 0:
+	if alive > 0 and _director.phase == ZoneDirector.Phase.CLEAR_GUARDS:
 		_objective_label.text = "消灭所有敌人（剩余 %d / %d）" % [alive, total]
 
 

@@ -4,10 +4,10 @@
 
 设计以 [docs/MVP_Scope.md](docs/MVP_Scope.md) 和 [docs/Cut-001b.md](docs/Cut-001b.md) 为准（课程：腾讯游戏学堂《AI游戏进化论》EP.04）。验收是 AC-01 至 AC-08。临时默认：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。
 
-**现在能玩的构建：** `maps/zone_1.tscn`（4 个守卫）和 `maps/zone_2.tscn`（6 个守卫）是清守卫 → 用锤砸据点建筑 → 插旗（AC-01、AC-03）。增援、冲击波、进关选择、Boss、九条增益、三枪三近战还没做，所以还不能按 Cut-001b 全部验收。下面的操作描述的是这个可玩版本。
+**现在能玩的构建：** `maps/zone_1.tscn`（4 个守卫）和 `maps/zone_2.tscn`（6 个守卫）是清守卫 → 用锤砸据点建筑 → 插旗（AC-01、AC-03）。`maps/boss.tscn` 是 Boss 关：1 个大敌人加 6 个小敌人，城市核心开局就能砸，占满胜利，阵亡失败（AC-02）。增援、冲击波、进关选择、九条增益、三枪三近战还没做，所以还不能按 Cut-001b 全部验收。下面的操作描述的是这个可玩版本。
 
 - 引擎：Godot 4.7.2（Forward+）。用编辑器导入本目录的 `project.godot`。
 - 当前操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键瞄准，R 换弹，E 挥锤（站到据点建筑旁，清完守卫后才有效，节拍条的标记进入金色区间是完美打击），F3 显示占点调试条（含配置文件路径），Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
-- 占点三个数（窗口 ±150ms、普通 +8%、完美 ×1.5）：`zone/capture_config.tres`。无界面检查：`godot --headless --path . res://tests/capture_hammer_test.tscn`。
-- 当前战区：`maps/zone_1.tscn`、`maps/zone_2.tscn`，由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
+- 占点三个数（窗口 ±150ms、普通 +8%、完美 ×1.5）：`zone/capture_config.tres`。无界面检查：`godot --headless --path . res://tests/capture_hammer_test.tscn`、`res://tests/boss_test.tscn`。
+- 当前战区：`maps/zone_1.tscn`、`maps/zone_2.tscn`、`maps/boss.tscn`，由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
 - 文档：`docs/GDD.md`、`docs/Core_Loop.md`、`docs/Priority_Backlog.md`、`docs/bible/`；架构：`ARCHITECTURE.md`；术语：`GLOSSARY.md`；决策：`docs/adr/`；待优化：`TODO.md`；贡献：`CONTRIBUTING.md`。

@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="1_enemy"]
+
+[sub_resource type="CapsuleShape3D" id="Shape_boss"]
+radius = 0.63
+height = 3.24
+
+[node name="Boss" instance=ExtResource("1_enemy")]
+is_boss = true
+eye_height = 2.79
+burst_size = 4
+burst_pause = 0.9
+damage_min = 12.0
+damage_max = 18.0
+run_speed = 3.2
+strafe_speed = 1.2
+turn_speed = 5.0
+cover_chance = 0.0
+
+[node name="Health" parent="." index="0"]
+max_health = 600.0
+
+[node name="CollisionShape3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0)
+shape = SubResource("Shape_boss")
+
+[node name="Model" parent="." index="2"]
+transform = Transform3D(-1.44, 0, 0, 0, 1.44, 0, 0, 0, -1.44, 0, 0, 0)
+
+[node name="GunAudio" parent="." index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.34, 0)

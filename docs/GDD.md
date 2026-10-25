@@ -8,7 +8,7 @@
 - **引擎**：Godot 4.7.2（Forward+，Jolt），GDScript
 - **参照**：枪感与本局构筑靠拢《Deadzone Rogue 2》。差别是关卡流程。
 - **范围**： [MVP_Scope.md](MVP_Scope.md)、[Cut-001b](Cut-001b.md)。规则见 [03_rules.md](bible/03_rules.md)。
-- **现状**：`maps/zone_1.tscn`、`maps/zone_2.tscn` 已经是清守卫 → 锤砸占点 → 插旗（Issue #5）。增援、冲击波、进关选择、Boss、九条增益、三枪三近战还没做。
+- **现状**：`maps/zone_1.tscn`、`maps/zone_2.tscn` 已经是清守卫 → 锤砸占点 → 插旗（Issue #5）。`maps/boss.tscn` 是 Boss 关：1 个大敌人加 6 个小敌人，核心开局即可砸，占满胜利，阵亡失败（Issue #10，ADR 0004）。增援、冲击波、进关选择、九条增益、三枪三近战还没做。
 
 ## 一句话
 
@@ -74,7 +74,7 @@ Boss：一波城市核心，锤击和插旗用同一套配置，不另做「先�
 
 关卡选择只切换已解锁的关。顺序是小关 1 → 小关 2 → Boss，这是规则，不是 AC-01。小关没有正式名字。故事文案不在本阶段。Boss 的胜负是 AC-02。
 
-新关卡仍通过 `tools/gen_zones.py` 生成，再写入 `RunState.ZONE_SCENES`。现在脚本里的两张图是旧循环。
+新关卡仍通过 `tools/gen_zones.py` 生成，再写入 `RunState.ZONE_SCENES`。脚本里现在有两张小关图和一张 Boss 图。
 
 ## 胜负
 

@@ -1,30 +1,41 @@
-"""Generates the greybox zones maps/zone_1.tscn and maps/zone_2.tscn.
+"""Generates the greybox zones maps/zone_1.tscn, maps/zone_2.tscn and maps/boss.tscn.
 
 Edit the layouts in `zones` at the bottom, then run from the project root:
     python3 tools/gen_zones.py
-This overwrites both scenes, so make layout changes here, not in the editor.
+This overwrites all three scenes, so make layout changes here, not in the editor.
 Each box named Cover* gets four cover points around it.
+A layout with `boss` adds one big enemy there; `enemies` are then the small ones
+around it. A layout with `core` has a bigger objective, open from the start.
 """
 
-def zone(name, boxes, enemies, capture, spawn, grey):
+import math
+
+
+def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False):
     walls = [("Floor",(60,1,60),(0,-0.5,0)),("WallN",(60,4,1),(0,2,-30)),("WallS",(60,4,1),(0,2,30)),
              ("WallE",(1,4,60),(30,2,0)),("WallW",(1,4,60),(-30,2,0))]
     boxes = walls + boxes
+    # The city core of the boss zone: a bigger building with a wider hammer reach.
+    size = "Vector3(4.4, 3.5, 4.4)" if core else "Vector3(2.4, 2, 2.4)"
+    reach = 4.2 if core else 3.2
+    objective_y = 1.75 if core else 1
     ext = ['[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]',
            '[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]',
            '[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]',
            '[ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]',
            '[ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]',
            '[ext_resource type="Script" path="res://zone/capture_point.gd" id="6_capture"]']
+    if boss:
+        ext.append('[ext_resource type="PackedScene" path="res://actors/enemy/boss.tscn" id="7_boss"]')
     sub = ['[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]','',
            '[sub_resource type="Sky" id="Sky_sky"]','sky_material = SubResource("Sky_mat")','',
            '[sub_resource type="Environment" id="Env"]','background_mode = 2','sky = SubResource("Sky_sky")','ambient_light_source = 3','tonemap_mode = 2','glow_enabled = true','',
            '[sub_resource type="StandardMaterial3D" id="Mat_grey"]',f'albedo_color = Color({grey[0]}, {grey[1]}, {grey[2]}, 1)','',
            '[sub_resource type="NavigationMesh" id="NavMesh"]','geometry_parsed_geometry_type = 1','geometry_source_geometry_mode = 1','geometry_source_group_name = &"navigation_geometry"','cell_size = 0.25','cell_height = 0.25','agent_height = 1.75','agent_radius = 0.5','agent_max_climb = 0.25','',
            # Hammer reach around the objective building, and the building itself.
-           '[sub_resource type="CylinderShape3D" id="Shape_capture"]','height = 3.0','radius = 3.2','',
-           '[sub_resource type="BoxMesh" id="Mesh_objective"]','material = SubResource("Mat_grey")','size = Vector3(2.4, 2, 2.4)','',
-           '[sub_resource type="BoxShape3D" id="Shape_objective"]','size = Vector3(2.4, 2, 2.4)','']
+           '[sub_resource type="CylinderShape3D" id="Shape_capture"]','height = 3.0',f'radius = {reach}','',
+           '[sub_resource type="BoxMesh" id="Mesh_objective"]','material = SubResource("Mat_grey")',f'size = {size}','',
+           '[sub_resource type="BoxShape3D" id="Shape_objective"]',f'size = {size}','']
     for i,(n,s,p) in enumerate(boxes):
         v = 'Vector3(%s, %s, %s)' % s
         sub += [f'[sub_resource type="BoxMesh" id="Mesh_{i}"]','material = SubResource("Mat_grey")',f'size = {v}','',
@@ -49,17 +60,25 @@ def zone(name, boxes, enemies, capture, spawn, grey):
     nodes += ['[node name="CapturePoint" type="Area3D" parent="."]',f'transform = {T(capture[0],0,capture[1])}','script = ExtResource("6_capture")','',
               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint"]',f'transform = {T(0,1.5,0)}','shape = SubResource("Shape_capture")','',
               # In the navigation group so the baked mesh routes enemies around the building.
-              '[node name="Objective" type="StaticBody3D" parent="CapturePoint" groups=["navigation_geometry"]]',f'transform = {T(0,1,0)}','',
+              '[node name="Objective" type="StaticBody3D" parent="CapturePoint" groups=["navigation_geometry"]]',f'transform = {T(0,objective_y,0)}','',
               '[node name="Mesh" type="MeshInstance3D" parent="CapturePoint/Objective"]','mesh = SubResource("Mesh_objective")','',
               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint/Objective"]','shape = SubResource("Shape_objective")','',
               '[node name="Player" parent="." instance=ExtResource("1_player")]',f'transform = {T(spawn[0],0,spawn[1])}','']
     for i,(x,z) in enumerate(enemies):
         nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {x}, 0, {z})','']
-    nodes += ['[node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]','script = ExtResource("4_director")','navigation_region = NodePath("../NavigationRegion3D")','capture_point = NodePath("../CapturePoint")','',
+    if boss:
+        nodes += ['[node name="Boss" parent="." instance=ExtResource("7_boss")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {boss[0]}, 0, {boss[1]})','']
+    nodes += ['[node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]','script = ExtResource("4_director")','navigation_region = NodePath("../NavigationRegion3D")','capture_point = NodePath("../CapturePoint")'] \
+             + (['open_at_start = true'] if core else []) + ['',
               '[node name="HUD" parent="." instance=ExtResource("3_hud")]','']
     nsub = sum(1 for l in sub if l.startswith('[sub_resource'))
     out = [f'[gd_scene load_steps={nsub+len(ext)+1} format=3]',''] + ext + [''] + sub + nodes
     return "\n".join(out), k
+
+# The boss stands in front of the city core with six small enemies in a ring around it.
+BOSS_AT = (0, -19)
+RING = [(round(BOSS_AT[0] + 4 * math.cos(math.radians(a)), 2), round(BOSS_AT[1] + 4 * math.sin(math.radians(a)), 2))
+        for a in range(0, 360, 60)]
 
 zones = {
  "maps/zone_1.tscn": dict(name="Zone1", grey=(0.55,0.56,0.58), spawn=(0,22), capture=(0,-22),
@@ -75,8 +94,15 @@ zones = {
           ("Cover6",(3,1.2,1),(-5,0.6,-6)),("Cover7",(3,1.2,1),(5,0.6,-6)),
           ("Cover8",(2,2.5,2),(-10,1.25,-14)),("Cover9",(2,2.5,2),(10,1.25,-14)),
           ("Cover10",(5,1.2,1),(0,0.6,-15))]),
+ "maps/boss.tscn": dict(name="Boss", grey=(0.45,0.47,0.52), spawn=(0,26), capture=(0,-26.5),
+   enemies=RING, boss=BOSS_AT, core=True,
+   boxes=[("Cover1",(4,1.2,1),(-8,0.6,16)),("Cover2",(4,1.2,1),(8,0.6,16)),
+          ("Cover3",(1,2.5,5),(0,1.25,8)),
+          ("Cover4",(5,1.2,1),(-12,0.6,2)),("Cover5",(5,1.2,1),(12,0.6,2)),
+          ("Cover6",(2,2.5,2),(-6,1.25,-6)),("Cover7",(2,2.5,2),(6,1.25,-6)),
+          ("Cover8",(3,1.2,1),(-9,0.6,-12)),("Cover9",(3,1.2,1),(9,0.6,-12))]),
 }
 for path, z in zones.items():
     text, k = zone(**z)
     open(path, "w").write(text)
-    print(path, len(z["enemies"]), "enemies", k, "cover points")
+    print(path, len(z["enemies"]), "enemies" + (" + boss" if z.get("boss") else ""), k, "cover points")

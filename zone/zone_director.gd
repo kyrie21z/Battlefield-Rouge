@@ -2,7 +2,8 @@ class_name ZoneDirector
 extends Node
 ## Runs one zone from start to finish:
 ##   1. bakes navigation, applies the run's buffs, hands enemies their target;
-##   2. when every guard is dead, opens the capture building for hammering;
+##   2. when every guard is dead, opens the capture building for hammering
+##      (the boss zone opens it at once and its enemies do not gate it);
 ##   3. when the building is at 100% and the flag is planted, offers a buff and
 ##      loads the next zone, or wins the run;
 ##   4. on the player's death, shows the end screen and restarts from zone 1.
@@ -23,10 +24,15 @@ const FLAG_RAISE_TIME := 1.4
 
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
+## The boss zone: the city core opens as soon as the zone starts, and killing
+## its enemies changes nothing (Cut-001b: no "clear first" for the boss).
+@export var open_at_start := false
 
 var objective := ""
 var phase := Phase.CLEAR_GUARDS
 var enemies_total := 0
+## The zone's boss, if it has one. The HUD reads its health.
+var boss: Enemy
 ## Zone number and buff count when this zone started, for the end screen;
 ## RunState is already reset by the time player_died reaches us.
 var zone_index := 0
@@ -53,12 +59,18 @@ func _ready() -> void:
 	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 		enemy.setup(player, cover_points)
 		_alive.append(enemy)
+		if enemy.is_boss:
+			boss = enemy
 	enemies_total = _alive.size()
 
 	Events.enemy_killed.connect(_on_enemy_killed)
 	Events.player_died.connect(_on_player_died)
 	capture_point.captured.connect(_on_point_captured)
-	_set_phase(Phase.CLEAR_GUARDS, "消灭所有敌人")
+	if open_at_start:
+		capture_point.open()
+		_set_phase(Phase.HAMMER_POINT, "砸开城市核心，按 E 挥锤")
+	else:
+		_set_phase(Phase.CLEAR_GUARDS, "消灭所有敌人")
 
 
 func _on_enemy_killed(enemy: Node) -> void:
@@ -66,7 +78,7 @@ func _on_enemy_killed(enemy: Node) -> void:
 		return
 	_alive.erase(enemy)
 	enemies_changed.emit(_alive.size(), enemies_total)
-	if _alive.is_empty():
+	if _alive.is_empty() and phase == Phase.CLEAR_GUARDS:
 		Events.zone_cleared.emit(zone_index)
 		capture_point.open()
 		_set_phase(Phase.HAMMER_POINT, "前往据点，按 E 挥锤砸点")
@@ -80,7 +92,7 @@ func _on_point_captured() -> void:
 		return
 	if RunState.is_last_zone():
 		Events.run_won.emit()
-		_show_end("胜利", "攻下全部 %d 个战区" % RunState.ZONE_SCENES.size())
+		_show_end("胜利", "夺下城市核心，攻下全部 %d 个战区" % RunState.ZONE_SCENES.size())
 		return
 	_set_objective("选择一个增益")
 	var select := BUFF_SELECT.instantiate()

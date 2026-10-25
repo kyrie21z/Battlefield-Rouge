@@ -66,7 +66,7 @@ Godot 4.7.2 第一人称射击肉鸽：线性三关，小关先清零再砸点�
 
 - `zone/capture_point.gd` 是砸点占点，三个数在 `zone/capture_config.tres`（窗口 150ms、普通 8%、完美 ×1.5）。
 - `RunState.ZONE_SCENES` 现在是三张图：两张小关和 `maps/boss.tscn`。
-- `maps/boss.tscn`：1 个 Boss（600 生命）加 6 个小敌人，核心开局开放。这些数是临时默认（ADR 0004）。
+- `maps/boss.tscn`：1 个 Boss（600 生命）加 6 个小敌人，核心开局开放，HUD 有 Boss 血条。这些数是临时默认（ADR 0004）。
 - `weapons/rifle.tres` 是目前唯一的枪。
 - `BuffPool.ALL` 是六条旧增益：快速扳机、空尖弹、野战护甲、轻装上阵、扩容弹匣、快手。
 

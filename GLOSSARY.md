@@ -36,6 +36,6 @@
 | 九条增益 | 尚未实现 | 每派至少 3 条，共 9 条，图标不同（AC-08）。效果 Design-TBD。占位名见 `docs/bible/03_rules.md`。 |
 | 进关选择 | 尚未实现 | 进入每一关之前选 1 条，含 Boss（AC-04）。 |
 | 关末再选 | 尚未实现 | 小关结束后再选 1 条，本局叠加。Boss 结束后不选（AC-04）。 |
-| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.open_at_start` | 只有一波：1 个大敌人（Boss）加周围 6 个小敌人。城市核心开局就能砸，用同一套 `capture_config.tres`；敌人清不清零都不影响核心。占满即胜，死亡即负（AC-02）。见 ADR 0004。 |
+| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.open_at_start` | 只有一波：1 个大敌人（Boss）加周围 6 个小敌人。城市核心开局就能砸，用同一套 `capture_config.tres`；敌人清不清零都不影响核心。Boss 有血条（HUD，不改胜负）。占满即胜，死亡即负（AC-02）。见 ADR 0004。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |

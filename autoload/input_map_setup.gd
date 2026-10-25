@@ -13,7 +13,9 @@ var _bindings := {
 	"fire": [_mouse(MOUSE_BUTTON_LEFT)],
 	"aim": [_mouse(MOUSE_BUTTON_RIGHT)],
 	"reload": [_key(KEY_R)],
+	"hammer": [_key(KEY_E)],
 	"interact": [_key(KEY_F)],
+	"toggle_debug": [_key(KEY_F3)],
 	"pause": [_key(KEY_ESCAPE)],
 }
 

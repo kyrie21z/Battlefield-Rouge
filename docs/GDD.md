@@ -8,7 +8,7 @@
 - **引擎**：Godot 4.7.2（Forward+，Jolt），GDScript
 - **参照**：枪感与本局构筑靠拢《Deadzone Rogue 2》。差别是关卡流程。
 - **范围**： [MVP_Scope.md](MVP_Scope.md)、[Cut-001b](Cut-001b.md)。规则见 [03_rules.md](bible/03_rules.md)。
-- **现状**：`maps/zone_1.tscn`、`maps/zone_2.tscn` 仍可能是清敌后站圈占点。那是代码，不是本文件的目标。
+- **现状**：`maps/zone_1.tscn`、`maps/zone_2.tscn` 已经是清守卫 → 锤砸占点 → 插旗（Issue #5）。增援、冲击波、进关选择、Boss、九条增益、三枪三近战还没做。
 
 ## 一句话
 

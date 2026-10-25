@@ -10,7 +10,7 @@
 | `components/` | 可复用的小部件：生命值、受击判定、数值（Stats） |
 | `weapons/` | 武器数据（`.tres`）和开火逻辑 |
 | `actors/` | 玩家、敌人 |
-| `zone/` | 战区控制（zone director）、据点 |
+| `zone/` | 战区控制（zone director）、据点、占点配置（`capture_config.tres`） |
 | `buffs/` | 增益，每个增益一个 `.tres` |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
@@ -28,13 +28,13 @@
 
 ## 一个战区的流程
 
-本节是**现在代码**在做什么：清敌，再站圈占点。设计目标已改为 Cut-001b（`docs/Cut-001b.md`）：小关先清零再锤砸，完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。实现那套循环时再改本节，不要提前改掉下面的依赖规则。
+本节是**现在代码**在做什么：清守卫，再用锤砸据点建筑，插旗后三选一。设计目标见 Cut-001b（`docs/Cut-001b.md`）：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5，三个数在 `zone/capture_config.tres`。增援、冲击波、进关选择和 Boss 还没做；节拍周期、冷却等补充规则见 `docs/adr/0003-hammer-capture-timing.md`。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。
 
 1. 烘焙导航网格，把 `RunState.buffs` 应用到玩家的 `Stats`，把玩家和掩体点交给每个敌人。
-2. 敌人全部死亡 → `Events.zone_cleared`，据点开放。
-3. 据点占满 → `Events.point_captured`。不是最后一个战区就暂停并弹出三选一；选完发 `Events.buff_chosen`（`RunState` 记下增益），`RunState.advance_zone()`，切到下一个战区场景。最后一个战区则发 `Events.run_won` 并显示胜利界面。
+2. 守卫全部死亡 → `Events.zone_cleared`，据点开放，阶段变为 `HAMMER_POINT`。据点开放前挥锤不加进度。
+3. 玩家在锤程内按 E，`Hammer` 发 `swung`，`CapturePoint` 按节拍判定：普通锤击加 `normal_progress`，完美打击加 `normal_progress × perfect_multiplier`。进度只增不减。占满 → 升旗，阶段变为 `FLAG_PLANTED`，发 `Events.point_captured`，等 1.4 秒让旗升起，再：不是最后一个战区就暂停并弹出三选一；选完发 `Events.buff_chosen`（`RunState` 记下增益），`RunState.advance_zone()`，切到下一个战区场景。最后一个战区则发 `Events.run_won` 并显示胜利界面。
 4. 玩家死亡 → `Events.player_died`，`RunState` 清空本局，显示阵亡界面。重新开始回到第 1 个战区。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。

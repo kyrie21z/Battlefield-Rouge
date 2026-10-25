@@ -11,6 +11,7 @@
 | `weapons/` | 武器数据（`.tres`）和开火逻辑 |
 | `actors/` | 玩家、敌人 |
 | `zone/` | 战区控制（zone director）、据点、占点配置（`capture_config.tres`） |
+| `fixtures/` | 可复现的起点（`RunFixture` 资源，一个 id 一个 `.tres`），AC-07 |
 | `buffs/` | 增益，每个增益一个 `.tres`。流派身份是 `School`（图标和方向，不含效果数值） |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
@@ -24,7 +25,8 @@
 2. 只有 `RunState` 和 `zone/` 下的战区控制可以改本局状态。
 3. 增益只修改 `Stats`，不直接改玩家或武器脚本。新增增益只需要加一个 `.tres`。
 4. 依赖方向只能是 `ui → zone → actors → components`，反过来要用信号。
-5. 从 `../origin/sheji` 迁移代码时，先删掉对 `GameState`、`VoiceManager`、突破模式、载具、商店的引用，再放进来。
+5. 战区里的玩法代码可复现（AC-07）：不读墙钟，时间用 `SimClock`；不 `randomize()`，随机数用全局的 `randf()` 等，战区开头已经 `seed()`。细则见 `docs/adr/0005-reproducible-runs.md`。
+6. 从 `../origin/sheji` 迁移代码时，先删掉对 `GameState`、`VoiceManager`、突破模式、载具、商店的引用，再放进来。
 
 ## 一个战区的流程
 

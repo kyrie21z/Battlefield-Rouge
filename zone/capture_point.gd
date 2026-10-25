@@ -34,7 +34,7 @@ var progress := 0.0
 ## True while the player is within hammer reach of the building.
 var player_in_reach := false
 
-var _opened_msec := 0
+var _opened_at := 0.0
 var _material := StandardMaterial3D.new()
 var _flash_tween: Tween
 var _hit_sound := ProceduralAudio.generate("hammer_hit")
@@ -64,7 +64,7 @@ func _ready() -> void:
 
 func open() -> void:
 	locked = false
-	_opened_msec = Time.get_ticks_msec()
+	_opened_at = SimClock.now()
 	_update_color()
 
 
@@ -75,7 +75,7 @@ func is_captured() -> bool:
 ## Seconds on the beat clock. Hit moments fall on whole multiples of
 ## BEAT_PERIOD; the first one comes half a period after open().
 func beat_time() -> float:
-	return (Time.get_ticks_msec() - _opened_msec) / 1000.0 + BEAT_PERIOD * 0.5
+	return SimClock.now() - _opened_at + BEAT_PERIOD * 0.5
 
 
 ## Signed seconds from `time` to the nearest hit moment (negative = early).

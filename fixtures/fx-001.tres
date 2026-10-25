@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RunFixture" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://fixtures/run_fixture.gd" id="1_fixture"]
+
+[resource]
+script = ExtResource("1_fixture")
+id = "FX-001"
+description = "新开一局：战区 1，没有增益"
+run_seed = 1001
+start_zone = 0

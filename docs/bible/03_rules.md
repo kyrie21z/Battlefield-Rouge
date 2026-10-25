@@ -17,7 +17,7 @@
 
 Boss 与小关共用占点配置。清零之后才能砸，只约束小关。Boss 仍是一波城市核心，胜负由 AC-02 验收。
 
-同一起点要能再跑出一局。AC-07 不许口头通过，证明是 fixture id 或录屏路径。本文不编造 fixture id。
+同一起点要能再跑出一局。AC-07 不许口头通过，证明是 fixture id 或录屏路径。现有 fixture 是 FX-001（新开一局）和 FX-002（Boss 起点），做法和限制见 [ADR 0005](../adr/0005-reproducible-runs.md)。
 
 ## 解锁
 

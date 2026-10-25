@@ -16,6 +16,10 @@
 | 命中时刻 | `CapturePoint.BEAT_PERIOD`，`beat_offset()` | 据点开放后每 1 秒出现一次，首次在 0.5 秒后。挥锤时刻离最近的命中时刻有多远，决定是不是完美打击。见 ADR 0003。 |
 | 完美打击 | `CapturePoint.struck(perfect=true)` | 挥锤落在命中时刻 ±`perfect_window_ms` 内：本次进度 ×`perfect_multiplier`，金色音效、闪光和屏幕闪（AC-03）。窗口外是普通锤击：钝响，短促白光，只记普通进度。 |
 | 占点配置 | `CaptureConfig`，`zone/capture_config.tres` | AC-03 的三个数：窗口 150ms、普通 +8%、完美 ×1.5。试玩只改这个文件。节拍周期和冷却是规则，写在代码常量里。 |
+| 起点 | Fixture，`RunFixture`，`fixtures/*.tres` | 一局的可命名起点：开始的战区、已有增益、随机种子（AC-07）。现有 FX-001（新开一局）、FX-002（Boss 起点）。死亡或胜利后重开回到同一起点。`--fixture=<id>` 从命令行进入。见 ADR 0005。 |
+| 种子 | `RunState.run_seed`，`zone_seed()` | 一局所有随机数的来源。战区开头 `seed(zone_seed())`。普通局每次新开换一个，fixture 局固定。 |
+| 游戏时间 | `SimClock` | 从战区开头数起的物理 tick 时间，不读墙钟。节拍和掩体冷却用它，固定步长下每次运行相同。 |
+| 复现检查 | `tests/fixture_test.tscn`，`FixtureBot` | 机器人把每个 fixture 打若干遍，比较记录的哈希（AC-07 的证明）。需要 `--fixed-fps 60`。 |
 | 阶段 | `ZoneDirector.Phase` | `CLEAR_GUARDS` → `HAMMER_POINT` → `FLAG_PLANTED`，AC-01 的状态机。 |
 | 节拍条、调试条 | `StrikeBar`、`CaptureDebug`（F3） | 节拍条在锤程内显示金色窗口和移动的标记。调试条显示阶段、进度、配置文件路径和三个数、上一击（AC-03 的证明）。 |
 | 插旗 | `CapturePoint` 的 `Flag` 节点 | 进度 100% 时旗杆从建筑顶部升起，1.4 秒后才弹出选择或胜利界面。冲击波尚未实现。 |

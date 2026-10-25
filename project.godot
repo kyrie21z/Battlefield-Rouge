@@ -31,6 +31,11 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[navigation]
+
+world/map_use_async_iterations=false
+world/region_use_async_iterations=false
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

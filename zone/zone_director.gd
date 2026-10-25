@@ -46,6 +46,10 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	zone_index = RunState.zone_index
+	# Nothing has drawn a random number yet; everything the zone draws from here
+	# on follows from the run's seed, and every time in it counts from here (AC-07).
+	seed(RunState.zone_seed())
+	SimClock.restart()
 	if navigation_region != null:
 		navigation_region.bake_navigation_mesh(false)
 

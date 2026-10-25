@@ -21,8 +21,10 @@ def zone(name, boxes, enemies, capture, spawn, grey):
            '[sub_resource type="Environment" id="Env"]','background_mode = 2','sky = SubResource("Sky_sky")','ambient_light_source = 3','tonemap_mode = 2','glow_enabled = true','',
            '[sub_resource type="StandardMaterial3D" id="Mat_grey"]',f'albedo_color = Color({grey[0]}, {grey[1]}, {grey[2]}, 1)','',
            '[sub_resource type="NavigationMesh" id="NavMesh"]','geometry_parsed_geometry_type = 1','geometry_source_geometry_mode = 1','geometry_source_group_name = &"navigation_geometry"','cell_size = 0.25','cell_height = 0.25','agent_height = 1.75','agent_radius = 0.5','agent_max_climb = 0.25','',
-           '[sub_resource type="CylinderShape3D" id="Shape_capture"]','height = 3.0','radius = 4.0','',
-           '[sub_resource type="CylinderMesh" id="Mesh_capture"]','top_radius = 4.0','bottom_radius = 4.0','height = 0.1','']
+           # Hammer reach around the objective building, and the building itself.
+           '[sub_resource type="CylinderShape3D" id="Shape_capture"]','height = 3.0','radius = 3.2','',
+           '[sub_resource type="BoxMesh" id="Mesh_objective"]','material = SubResource("Mat_grey")','size = Vector3(2.4, 2, 2.4)','',
+           '[sub_resource type="BoxShape3D" id="Shape_objective"]','size = Vector3(2.4, 2, 2.4)','']
     for i,(n,s,p) in enumerate(boxes):
         v = 'Vector3(%s, %s, %s)' % s
         sub += [f'[sub_resource type="BoxMesh" id="Mesh_{i}"]','material = SubResource("Mat_grey")',f'size = {v}','',
@@ -46,7 +48,10 @@ def zone(name, boxes, enemies, capture, spawn, grey):
             nodes += [f'[node name="Cover{k:02d}" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]',f'transform = {T(round(p[0]+dx,2),0,round(p[2]+dz,2))}','script = ExtResource("5_cover")','']
     nodes += ['[node name="CapturePoint" type="Area3D" parent="."]',f'transform = {T(capture[0],0,capture[1])}','script = ExtResource("6_capture")','',
               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint"]',f'transform = {T(0,1.5,0)}','shape = SubResource("Shape_capture")','',
-              '[node name="Mesh" type="MeshInstance3D" parent="CapturePoint"]',f'transform = {T(0,0.05,0)}','mesh = SubResource("Mesh_capture")','',
+              # In the navigation group so the baked mesh routes enemies around the building.
+              '[node name="Objective" type="StaticBody3D" parent="CapturePoint" groups=["navigation_geometry"]]',f'transform = {T(0,1,0)}','',
+              '[node name="Mesh" type="MeshInstance3D" parent="CapturePoint/Objective"]','mesh = SubResource("Mesh_objective")','',
+              '[node name="Shape" type="CollisionShape3D" parent="CapturePoint/Objective"]','shape = SubResource("Shape_objective")','',
               '[node name="Player" parent="." instance=ExtResource("1_player")]',f'transform = {T(spawn[0],0,spawn[1])}','']
     for i,(x,z) in enumerate(enemies):
         nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {x}, 0, {z})','']

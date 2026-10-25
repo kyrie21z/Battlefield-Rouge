@@ -25,6 +25,7 @@ var _visual_kick := Vector2.ZERO
 @onready var stats: Stats = $Stats
 @onready var health: Health = $Health
 @onready var weapon: Weapon = $Head/Camera3D/Weapon
+@onready var hammer: Hammer = $Head/Camera3D/Hammer
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
 
@@ -93,4 +94,5 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 
 
 func _on_died(_source: Node) -> void:
+	hammer.set_process(false)
 	Events.player_died.emit()

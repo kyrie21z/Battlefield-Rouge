@@ -38,6 +38,10 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _knife_swing(0.34, 0.5, 0.4, 0.2)
 		"melee_hit":
 			return _knife_hit(0.15, 0.6)
+		"hammer_hit":
+			return _noise_burst(0.16, 22.0, 0.95, 0.07)
+		"hammer_perfect":
+			return _ping(0.55, [880.0, 1320.0, 1760.0], 7.0)
 	return _noise_burst(0.1, 30.0, 0.5, 0.15)
 
 
@@ -153,6 +157,26 @@ static func _knife_hit(duration: float, amp: float) -> AudioStreamWAV:
 		var value := int(clampf(thump + click, -1.0, 1.0) * 32767.0) & 0xFFFF
 		data[i * 2] = value & 0xFF
 		data[i * 2 + 1] = (value >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## Struck-metal ring: a few decaying sine partials over a short noise click.
+## Clearly tonal, so a perfect hammer strike never sounds like the dull thud of
+## an ordinary one.
+static func _ping(duration: float, partials: Array[float], decay: float) -> AudioStreamWAV:
+	var sample_count := int(duration * SAMPLE_RATE)
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + 7
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		var value := rng.randf_range(-1.0, 1.0) * exp(-t * 120.0) * 0.5
+		for k in partials.size():
+			value += sin(TAU * partials[k] * t) * exp(-t * decay * (1.0 + 0.4 * k)) * 0.8 / partials.size()
+		var sample := int(clampf(value, -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = sample & 0xFF
+		data[i * 2 + 1] = (sample >> 8) & 0xFF
 	return _make_wav(data)
 
 

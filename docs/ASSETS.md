@@ -11,7 +11,7 @@ MVP MUST prioritize these listed packs; any non-listed assets need Art + PM appr
 
 ## 风格
 
-Low-poly / Toon。写实军事风和体素风不进入 MVP。许可证默认 CC0 / 公有领域。清单里写明的例外只有 Kenney Starter Kit FPS 的代码（MIT，素材仍是 CC0）。其他许可证或清单外的包，先经 Art + PM 批准，再写回本文。
+Low-poly / Toon。写实军事风和体素风不进入 MVP。配色、剪影和可读性锁在 [STYLE.md](STYLE.md)。许可证默认 CC0 / 公有领域。清单里写明的例外只有 Kenney Starter Kit FPS 的代码（MIT，素材仍是 CC0）。其他许可证或清单外的包，先经 Art + PM 批准，再写回本文。
 
 ## MVP 优先清单
 

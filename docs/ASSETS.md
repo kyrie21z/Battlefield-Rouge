@@ -38,6 +38,8 @@ Low-poly / Toon。写实军事风和体素风不进入 MVP。配色、剪影和�
 | 完美打击成功 | 白闪，并有和失败分开的反馈 |
 | 完美打击失败 | 失败不用近白闪（现有成败反馈保留） |
 
+三派身份图标在下方「本项目原创」。效果数值仍 Design-TBD。AC-08 的九条增益图标不在这里。
+
 ## 署名
 
 Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quaternius 的通用许可证 QAL v1.0（2026-08-28）禁止把素材单独再分发，所以仓库里只放游戏实际用到的文件，不放整包。
@@ -60,3 +62,15 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 | --- | --- | --- |
 | 枪声、换弹声、空仓声 | `weapons/procedural_audio.gd`，运行时生成 | MIT，移植自 Ironline 1944 |
 | 准星 | `ui/crosshair.gd`，运行时绘制 | 本项目 |
+
+## 本项目原创
+
+AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [STYLE.md](STYLE.md)。本项目绘制，不是第三方包，也不从 `../origin/` 拷贝。随本仓库使用。
+
+| 仓库内文件 | 内容 | 许可证 |
+| --- | --- | --- |
+| `assets/ui/schools/berserker.svg` | 狂战士：`#E0242A` 底 + `#6E1218` 斧头剪影 | 本项目 |
+| `assets/ui/schools/arms_dealer.svg` | 军火大亨：`#F5C400` 底 + `#8A6800` 弹药剪影 | 本项目 |
+| `assets/ui/schools/hawkeye.svg` | 鹰眼：`#14C8D4` 底 + `#0A6670` 准星剪影 | 本项目 |
+
+游戏里由 `SchoolBadge`（`TextureRect`）画在增益选择界面的「流派方向」一排。竖切要显示某一派时调用 `SchoolBadge.setup(school)`。对照图：`docs/proof/issue-13/`。

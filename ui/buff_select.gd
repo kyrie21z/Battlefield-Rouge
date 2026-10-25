@@ -24,6 +24,37 @@ func setup(buffs: Array[Buff]) -> void:
 func _ready() -> void:
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_show_school_directions()
+
+
+## Identity row for the three schools. Not a buff offer and not the 9-entry pool.
+func _show_school_directions() -> void:
+	var box := $Center/Box as VBoxContainer
+	var block := VBoxContainer.new()
+	block.name = "Schools"
+	block.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	block.add_theme_constant_override("separation", 8)
+
+	var caption := Label.new()
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption.text = "流派方向"
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.add_theme_font_size_override("font_size", 22)
+	caption.add_theme_color_override("font_color", SchoolBadge.TEXT)
+	block.add_child(caption)
+
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 16)
+	for school in SchoolCatalog.all():
+		var badge := SchoolBadge.new()
+		badge.setup(school)
+		row.add_child(badge)
+	block.add_child(row)
+
+	box.add_child(block)
+	box.move_child(block, 1)
 
 
 func _unhandled_input(event: InputEvent) -> void:

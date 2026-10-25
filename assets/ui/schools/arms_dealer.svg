@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- AC-06 Arms Dealer. Original project art. Two cartridges, not arrows. Colors from docs/STYLE.md. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#F5C400" stroke="#1A1C22" stroke-width="6"/>
+  <g fill="#8A6800" stroke="#1A1C22" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M33 38 L42 20 L51 38 L51 80 L56 80 L56 94 L28 94 L28 80 L33 80 Z"/>
+    <path d="M77 42 L90 20 L103 42 L103 84 L110 84 L110 102 L70 102 L70 84 L77 84 Z"/>
+  </g>
+</svg>

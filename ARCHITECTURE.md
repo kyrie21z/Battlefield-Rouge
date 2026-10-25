@@ -11,7 +11,7 @@
 | `weapons/` | 武器数据（`.tres`）和开火逻辑 |
 | `actors/` | 玩家、敌人 |
 | `zone/` | 战区控制（zone director）、据点、占点配置（`capture_config.tres`） |
-| `buffs/` | 增益，每个增益一个 `.tres` |
+| `buffs/` | 增益，每个增益一个 `.tres`。流派身份是 `School`（图标和方向，不含效果数值） |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
 | `tools/` | 编辑器外的辅助脚本 |

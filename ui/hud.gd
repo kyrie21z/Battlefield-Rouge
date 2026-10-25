@@ -17,6 +17,8 @@ var _director: ZoneDirector
 @onready var _zone_label: Label = $Top/Zone
 @onready var _objective_label: Label = $Top/Objective
 @onready var _capture_bar: ProgressBar = $Top/Capture
+@onready var _boss_label: Label = $Top/BossLabel
+@onready var _boss_bar: ProgressBar = $Top/BossBar
 @onready var _buffs_label: Label = $Buffs
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _debug: CaptureDebug = $CaptureDebug
@@ -41,6 +43,11 @@ func _ready() -> void:
 	_objective_label.text = _director.objective
 	_on_enemies_changed(_director.enemies_total, _director.enemies_total)
 	_capture_bar.visible = _director.phase != ZoneDirector.Phase.CLEAR_GUARDS
+	if _director.boss != null:
+		_director.boss.health.damaged.connect(func(_amount, _part, _source): _refresh_boss())
+		_boss_label.visible = true
+		_boss_bar.visible = true
+		_refresh_boss()
 	var titles: PackedStringArray = []
 	for buff: Buff in RunState.buffs:
 		titles.append(buff.title)
@@ -75,6 +82,14 @@ func _on_hit_landed(headshot: bool, killed: bool) -> void:
 func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:
 	var tween := create_tween()
 	tween.tween_property(_damage_flash, "color:a", 0.0, 0.4).from(clampf(amount / 40.0, 0.15, 0.45))
+
+
+func _refresh_boss() -> void:
+	var health := _director.boss.health
+	_boss_bar.max_value = health.max_health
+	_boss_bar.value = health.health
+	_boss_label.text = "Boss 已倒下" if health.is_dead() \
+			else "Boss  %d / %d" % [ceili(health.health), ceili(health.max_health)]
 
 
 func _on_enemies_changed(alive: int, total: int) -> void:

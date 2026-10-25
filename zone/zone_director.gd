@@ -31,6 +31,8 @@ const FLAG_RAISE_TIME := 1.4
 var objective := ""
 var phase := Phase.CLEAR_GUARDS
 var enemies_total := 0
+## The zone's boss, if it has one. The HUD reads its health.
+var boss: Enemy
 ## Zone number and buff count when this zone started, for the end screen;
 ## RunState is already reset by the time player_died reaches us.
 var zone_index := 0
@@ -57,6 +59,8 @@ func _ready() -> void:
 	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 		enemy.setup(player, cover_points)
 		_alive.append(enemy)
+		if enemy.is_boss:
+			boss = enemy
 	enemies_total = _alive.size()
 
 	Events.enemy_killed.connect(_on_enemy_killed)

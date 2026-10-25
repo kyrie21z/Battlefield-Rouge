@@ -57,6 +57,21 @@ func _run() -> void:
 	for enemy: Enemy in enemies:
 		enemy.process_mode = Node.PROCESS_MODE_DISABLED
 
+	print("== the boss has a health bar")
+	var bar := scene.get_node("HUD/Top/BossBar") as ProgressBar
+	var bar_label := scene.get_node("HUD/Top/BossLabel") as Label
+	_check("the director reports the boss", director.boss == boss)
+	_check("only the boss is flagged as one", enemies.filter(func(e: Node): return (e as Enemy).is_boss).size() == 1)
+	_check("the bar is shown", bar.visible and bar_label.visible)
+	_check("it starts full (%d / %d)" % [bar.value, bar.max_value],
+		bar.max_value == boss.health.max_health and bar.value == bar.max_value)
+	_check("the label gives the numbers", "600 / 600" in bar_label.text)
+	boss.health.apply_damage(42.0, Hitbox.BodyPart.BODY)
+	_check("a hit lowers the bar to %d" % boss.health.health, bar.value == boss.health.health and bar.value == 558.0)
+	_check("the label follows", "558 / 600" in bar_label.text)
+	small[0].health.apply_damage(30.0, Hitbox.BodyPart.BODY)
+	_check("hitting a small enemy does not move it", bar.value == 558.0)
+
 	print("== the core is open from the start (no clear-first)")
 	_check("the zone is set to open at once", director.open_at_start)
 	_check("it starts in HAMMER_POINT", director.phase == ZoneDirector.Phase.HAMMER_POINT)
@@ -88,6 +103,8 @@ func _run() -> void:
 	_check("killing the boss during the flag raise does not move the phase back",
 		director.phase == ZoneDirector.Phase.FLAG_PLANTED)
 	_check("killing the wave never counted as clearing the zone", _zone_cleared == 0)
+	_check("the bar is empty once the boss is dead", bar.value == 0.0)
+	_check("the label says it has fallen", "已倒下" in bar_label.text)
 
 	print("== victory")
 	_check("no win yet while the flag is rising", _run_won == 0)
@@ -130,13 +147,25 @@ func _run() -> void:
 	get_tree().paused = false
 	scene.queue_free()
 	await get_tree().process_frame
+
+	print("== a small zone has no boss bar")
 	RunState.start_new_run()
+	scene = await _load_scene(RunState.zone_scene())
+	director = scene.get_node("ZoneDirector") as ZoneDirector
+	_check("zone 1 has no boss", director.boss == null)
+	_check("zone 1 shows no boss bar", not (scene.get_node("HUD/Top/BossBar") as ProgressBar).visible)
+	scene.queue_free()
+	await get_tree().process_frame
 	_finished = true
 
 
 func _load_boss() -> Node:
 	RunState.zone_index = RunState.ZONE_SCENES.size() - 1
-	var scene: Node = load(BOSS_SCENE).instantiate()
+	return await _load_scene(BOSS_SCENE)
+
+
+func _load_scene(path: String) -> Node:
+	var scene: Node = load(path).instantiate()
 	add_child(scene)
 	await get_tree().process_frame
 	return scene

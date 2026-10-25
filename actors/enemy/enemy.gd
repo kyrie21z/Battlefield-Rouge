@@ -9,6 +9,9 @@ enum State { IDLE, CHASE, ENGAGE, COVER, DEAD }
 
 const AIM_HEIGHT := 1.3
 
+## The zone director reports it as the zone's boss, and the HUD shows its health bar.
+@export var is_boss := false
+
 @export_category("Perception")
 @export var sight_range := 45.0
 ## Where it looks and shoots from, above its feet. A taller body raises this.

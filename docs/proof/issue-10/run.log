@@ -1,0 +1,64 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+#### victory run
+== 01_boss_zone_start -> docs/proof/issue-10/01_boss_zone_start.png
+[占点调试 · F3 隐藏]
+阶段 HAMMER_POINT   进度 0.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 -424 ms 
+上一击 —
+统计 完美 0 / 普通 0
+== 02_boss_and_six_small -> docs/proof/issue-10/02_boss_and_six_small.png
+[占点调试 · F3 隐藏]
+阶段 HAMMER_POINT   进度 0.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 -49 ms [窗口内]
+上一击 —
+统计 完美 0 / 普通 0
+== 03_core_open_enemies_alive -> docs/proof/issue-10/03_core_open_enemies_alive.png
+[占点调试 · F3 隐藏]
+阶段 HAMMER_POINT   进度 12.0%   在锤程内 是
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 +479 ms 
+上一击 完美  -26 ms  +12.0%
+统计 完美 1 / 普通 0
+== 04_flag_on_core -> docs/proof/issue-10/04_flag_on_core.png
+[占点调试 · F3 隐藏]
+阶段 FLAG_PLANTED   进度 100.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 —
+上一击 完美  -26 ms  +12.0%
+统计 完美 9 / 普通 0
+== 05_victory -> docs/proof/issue-10/05_victory.png
+[占点调试 · F3 隐藏]
+阶段 FLAG_PLANTED   进度 100.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 —
+上一击 完美  -26 ms  +12.0%
+统计 完美 9 / 普通 0
+ending: 胜利 / 夺下城市核心，攻下全部 3 个战区
+#### defeat run
+== 06_under_fire -> docs/proof/issue-10/06_under_fire.png
+[占点调试 · F3 隐藏]
+阶段 HAMMER_POINT   进度 0.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 -168 ms 
+上一击 —
+统计 完美 0 / 普通 0
+player dead: true after 1.9 s
+== 07_defeat -> docs/proof/issue-10/07_defeat.png
+[占点调试 · F3 隐藏]
+阶段 HAMMER_POINT   进度 0.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+窗口 ±150.0 ms   普通 +8.0%   完美 ×1.5（= +12.0%）
+节拍周期 1.0 s   与命中时刻相差 +421 ms 
+上一击 —
+统计 完美 0 / 普通 0
+ending: 阵亡 / 倒在第 3 个战区，本局增益已清空

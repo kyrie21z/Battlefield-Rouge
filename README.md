@@ -1,8 +1,12 @@
 # Battlefield Rouge
 
-第一人称、按战区推进的 Rogue 射击游戏。清空战区的敌人，占领据点，三选一拿一个只在本局有效的增益，再进下一个战区。死亡后从头开始。
+第一人称科幻射击肉鸽。枪感与本局构筑靠拢《Deadzone Rogue 2》。小关先把守卫清掉，再用锤砸据点；完美打击会加快这一下。进关前和关末各选一条本局增益。死亡后从头开始。
+
+设计以 [docs/MVP_Scope.md](docs/MVP_Scope.md) 和 [docs/Cut-001.md](docs/Cut-001.md) 为准（课程：腾讯游戏学堂《AI游戏进化论》EP.04）。验收是 AC-01 至 AC-07。临时默认：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。
+
+**现在能玩的构建还是旧循环。** `maps/zone_1.tscn`（4 个敌人）和 `maps/zone_2.tscn`（6 个敌人）是清敌后站在圈里占点。下面的操作描述的是这个可玩版本。
 
 - 引擎：Godot 4.7.2（Forward+）。用编辑器导入本目录的 `project.godot`。
-- 操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键瞄准，R 换弹，Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
-- 战区：`maps/zone_1.tscn`（4 个敌人）、`maps/zone_2.tscn`（6 个敌人），由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
-- 架构和依赖规则：`ARCHITECTURE.md`；术语：`GLOSSARY.md`；决策记录：`docs/adr/`；待优化事项：`TODO.md`；贡献指南：`CONTRIBUTING.md`。
+- 当前操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键瞄准，R 换弹，Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
+- 当前战区：`maps/zone_1.tscn`、`maps/zone_2.tscn`，由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
+- 文档：`docs/GDD.md`、`docs/Core_Loop.md`、`docs/Priority_Backlog.md`、`docs/bible/`；架构：`ARCHITECTURE.md`；术语：`GLOSSARY.md`；决策：`docs/adr/`；待优化：`TODO.md`；贡献：`CONTRIBUTING.md`。

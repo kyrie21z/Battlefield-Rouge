@@ -11,7 +11,7 @@ MVP MUST prioritize these listed packs; any non-listed assets need Art + PM appr
 
 ## 风格
 
-Low-poly / Toon。写实军事风和体素风不进入 MVP。许可证默认 CC0 / 公有领域。清单里写明的例外只有 Kenney Starter Kit FPS 的代码（MIT，素材仍是 CC0）。其他许可证或清单外的包，先经 Art + PM 批准，再写回本文。
+Low-poly / Toon。写实军事风和体素风不进入 MVP。配色、剪影和可读性锁在 [STYLE.md](STYLE.md)。许可证默认 CC0 / 公有领域。清单里写明的例外只有 Kenney Starter Kit FPS 的代码（MIT，素材仍是 CC0）。其他许可证或清单外的包，先经 Art + PM 批准，再写回本文。
 
 ## MVP 优先清单
 
@@ -36,7 +36,7 @@ Low-poly / Toon。写实军事风和体素风不进入 MVP。许可证默认 CC0
 | 军火大亨（Arms Dealer） | 黄 + 弹药剪影 |
 | 鹰眼（Hawkeye） | 青（cyan）+ 准星剪影 |
 | 完美打击成功 | 白闪，并有和失败分开的反馈 |
-| 完美打击失败 | 不闪白 |
+| 完美打击失败 | 失败不用近白闪（现有成败反馈保留） |
 
 ## 署名
 

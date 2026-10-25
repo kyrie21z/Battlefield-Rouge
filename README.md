@@ -2,7 +2,7 @@
 
 第一人称科幻射击肉鸽。枪感与本局构筑靠拢《Deadzone Rogue 2》。小关先把守卫清掉，再用锤砸据点；完美打击会加快这一下。进关前和关末各选一条本局增益。死亡后从头开始。
 
-设计以 [docs/MVP_Scope.md](docs/MVP_Scope.md) 和 [docs/Cut-001.md](docs/Cut-001.md) 为准（课程：腾讯游戏学堂《AI游戏进化论》EP.04）。验收是 AC-01 至 AC-07。临时默认：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。
+设计以 [docs/MVP_Scope.md](docs/MVP_Scope.md) 和 [docs/Cut-001b.md](docs/Cut-001b.md) 为准（课程：腾讯游戏学堂《AI游戏进化论》EP.04）。验收是 AC-01 至 AC-08。临时默认：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。
 
 **现在能玩的构建还是旧循环。** `maps/zone_1.tscn`（4 个敌人）和 `maps/zone_2.tscn`（6 个敌人）是清敌后站在圈里占点。下面的操作描述的是这个可玩版本。
 

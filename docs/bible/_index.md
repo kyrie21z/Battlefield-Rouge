@@ -1,7 +1,7 @@
 # Battlefield Rouge · Bible 索引
 
 > 给程序、美术和 AI 看的硬边界。只写已经定下的事实。
-> 范围的 5 行是 [MVP_Scope.md](../MVP_Scope.md)。验收是 [Cut-001](../Cut-001.md) 的 AC-01 至 AC-07。
+> 范围的 5 行是 [MVP_Scope.md](../MVP_Scope.md)。验收是 [Cut-001b](../Cut-001b.md) 的 AC-01 至 AC-08。
 
 ## 不变量
 
@@ -18,7 +18,7 @@
 | 要做什么 | 看 |
 | --- | --- |
 | 现在做不做 | [MVP_Scope.md](../MVP_Scope.md) |
-| 验收编号和解锁顺序 | [Cut-001.md](../Cut-001.md) |
+| 验收编号和解锁顺序 | [Cut-001b.md](../Cut-001b.md) |
 | 循环和动词 | [Core_Loop.md](../Core_Loop.md) |
 | 优先级 | [Priority_Backlog.md](../Priority_Backlog.md) |
 | 玩法说明 | [GDD.md](../GDD.md) |

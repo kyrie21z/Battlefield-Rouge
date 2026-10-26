@@ -1,8 +1,13 @@
 class_name Weapon
 extends Node3D
-## Fires hitscan rays from the camera centre, tracks ammo and reloads.
-## Rewritten from origin/sheji/weapons/weapon_system.gd as a single weapon with
-## no shop, loadout or GameState. Numbers that buffs change are read from Stats.
+## The guns in the player's hands, one in hand at a time. It carries a `data_set`
+## of WeaponData (rifle, shotgun, sniper), keeps each one's magazine and reserve
+## separately, and cycles them with the mouse wheel. `data` always points at the
+## gun in hand, so the owner and the HUD can read it without knowing about slots.
+##
+## Fires hitscan rays from the camera centre. A shotgun is the same code with
+## `pellets > 1`: the trigger pull fires that many rays inside one spread cone.
+## Numbers that buffs change are read from Stats.
 ##
 ## The weapon never moves the camera itself: it emits `recoil` and the owner
 ## applies it, and the owner tells it whether it is aiming / moving / airborne.
@@ -14,50 +19,141 @@ signal reload_finished
 signal hit_landed(headshot: bool, killed: bool)
 ## Degrees of camera kick for this shot. `manual` is the fraction that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
+## The gun in hand changed, by wheel or by `select()`. The HUD names it.
+signal selected(index: int, data: WeaponData)
+## The scope magnification changed. The HUD redraws its readout.
+signal zoom_changed(level: float)
 
 const SHOOT_MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
 
-@export var data: WeaponData
+## The guns carried, in wheel order. Must not be empty.
+@export var data_set: Array[WeaponData] = []
 @export var stats: Stats
 @export var camera: Camera3D
 ## The shooter's body, excluded from the ray. Its `team` filters friendly fire.
 @export var shooter: CollisionObject3D
 
+## The gun in hand; always `data_set[index]`.
+var data: WeaponData
+var index := 0
 var ammo := 0
 var reserve := 0
 var aiming := false
 var moving := false
 var airborne := false
+## False while a melee swing owns the hands. See set_drawn().
+var trigger_enabled := true
+## Which of `data.scope_zoom_levels` the scope is on. Kept across switches and
+## clamped when the new gun has fewer levels.
+var zoom_index := 0
 
 var _cooldown := 0.0
 var _spread := 0.0
 var _reload_left := 0.0
 var _pattern_index := 0
+var _views: Array[Node3D] = []
 var _view: Node3D
 ## Optional `Muzzle/Flash` node in the view scene, shown for one frame per shot.
 var _flash: Node3D
 var _flash_left := 0.0
 var _audio: AudioStreamPlayer
-var _gunshot: AudioStreamWAV
+var _gunshots: Array[AudioStreamWAV] = []
 var _reload_sound: AudioStreamWAV
 var _dry_sound: AudioStreamWAV
+## Per-slot state, so switching guns does not refill or empty anything.
+var _slot_ammo: Array[int] = []
+var _slot_reserve: Array[int] = []
 
 
 func _ready() -> void:
-	ammo = magazine_capacity()
-	reserve = data.reserve_ammo
-	_gunshot = ProceduralAudio.generate(data.gunshot_sound)
 	_reload_sound = ProceduralAudio.generate("reload")
 	_dry_sound = ProceduralAudio.generate("dry")
 	_audio = AudioStreamPlayer.new()
 	_audio.max_polyphony = 4
 	add_child(_audio)
-	_view = data.view_scene.instantiate() if data.view_scene != null else _placeholder_view()
-	add_child(_view)
-	_view.position = data.hip_position
-	_flash = _view.get_node_or_null("Muzzle/Flash")
+	for slot in data_set.size():
+		var slot_data := data_set[slot]
+		var view: Node3D = slot_data.view_scene.instantiate() if slot_data.view_scene != null \
+			else _placeholder_view()
+		view.visible = false
+		add_child(view)
+		_views.append(view)
+		_slot_ammo.append(ceili(slot_data.magazine_size * _stat(Stats.MAGAZINE_SIZE)))
+		_slot_reserve.append(slot_data.reserve_ammo)
+		_gunshots.append(ProceduralAudio.generate(slot_data.gunshot_sound))
+	if data_set.is_empty():
+		push_warning("Weapon has an empty data_set: nothing to fire.")
+		return
+	select(0)
 	if stats != null:
 		stats.changed.connect(func(): ammo_changed.emit(ammo, reserve))
+
+
+## Puts the gun at `new_index` in hand (wraps). Cancels a reload in progress, since
+## the hands leave the gun; the magazine keeps whatever it had.
+func select(new_index: int) -> void:
+	if data_set.is_empty():
+		return
+	# Nothing to save on the very first call: `data` is still null and `ammo` is
+	# just the zero the member was declared with, which must not overwrite the
+	# slot's starting magazine.
+	if data != null:
+		_store_slot()
+	_cooldown = 0.0
+	_spread = 0.0
+	_reload_left = 0.0
+	_pattern_index = 0
+	index = wrapi(new_index, 0, data_set.size())
+	data = data_set[index]
+	ammo = _slot_ammo[index]
+	reserve = _slot_reserve[index]
+	_view = _views[index]
+	zoom_index = clampi(zoom_index, 0, maxi(data.scope_zoom_levels.size() - 1, 0))
+	_apply_view_visibility()
+	_view.position = data.hip_position
+	_flash = _view.get_node_or_null("Muzzle/Flash")
+	selected.emit(index, data)
+	ammo_changed.emit(ammo, reserve)
+	zoom_changed.emit(zoom_level())
+
+
+## Positive steps go up the wheel (rifle -> shotgun -> sniper).
+func select_next(step := 1) -> void:
+	select(index + step)
+
+
+## Aiming through a scope: the model goes away, the scope overlay takes over and
+## the field of view is divided by the magnification.
+func is_scoped() -> bool:
+	return data != null and aiming and not data.scope_zoom_levels.is_empty()
+
+
+func zoom_level() -> float:
+	if data == null or data.scope_zoom_levels.is_empty():
+		return 1.0
+	return data.scope_zoom_levels[clampi(zoom_index, 0, data.scope_zoom_levels.size() - 1)]
+
+
+## The wheel while scoped picks a magnification instead of another gun.
+func cycle_zoom(step := 1) -> void:
+	if data == null or data.scope_zoom_levels.is_empty():
+		return
+	var count := data.scope_zoom_levels.size()
+	var next := wrapi(zoom_index + step, 0, count)
+	if next == zoom_index:
+		return
+	zoom_index = next
+	zoom_changed.emit(zoom_level())
+
+
+## Field of view the camera should settle on: base when hip firing, the gun's own
+## `ads_fov` for iron sights, and `base / magnification` behind a scope.
+func fov_for(base_fov: float) -> float:
+	if data == null or not aiming:
+		return base_fov
+	if is_scoped():
+		return base_fov / maxf(zoom_level(), 1.0)
+	return data.ads_fov
 
 
 func magazine_capacity() -> int:
@@ -84,6 +180,8 @@ func spread_degrees() -> float:
 
 
 func _process(delta: float) -> void:
+	if data == null:
+		return
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if _flash != null and _flash_left > 0.0:
 		_flash_left -= delta
@@ -91,6 +189,13 @@ func _process(delta: float) -> void:
 	_spread = move_toward(_spread, 0.0, data.spread_recovery * delta)
 	var target := data.ads_position if aiming else data.hip_position
 	_view.position = _view.position.lerp(target, minf(14.0 * delta, 1.0))
+	# Behind a scope the model would fill the aperture, so it steps out of the way.
+	_apply_view_visibility()
+
+	if Input.is_action_just_pressed("weapon_next"):
+		_cycle_wheel(1)
+	elif Input.is_action_just_pressed("weapon_prev"):
+		_cycle_wheel(-1)
 
 	if is_reloading():
 		_reload_left -= delta
@@ -105,12 +210,35 @@ func _process(delta: float) -> void:
 		return
 	var trigger := Input.is_action_pressed("fire") if data.fire_mode == WeaponData.FireMode.AUTO \
 		else Input.is_action_just_pressed("fire")
-	if trigger and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if trigger and trigger_enabled and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		try_fire()
 
 
+## Hides the gun while a melee weapon is swung. `false` also ignores the trigger,
+## so no shot comes out of a weapon that is not on screen; the cooldown and
+## reload timers keep running, so the swap costs nothing.
+func set_drawn(drawn: bool) -> void:
+	trigger_enabled = drawn
+	_apply_view_visibility()
+
+
+## Only the gun in hand is shown, and never behind the glass of its own scope.
+func _apply_view_visibility() -> void:
+	for slot in _views.size():
+		_views[slot].visible = trigger_enabled and slot == index and not is_scoped()
+
+
+## The wheel has two jobs: change magnification behind a scope, and change guns
+## everywhere else.
+func _cycle_wheel(step: int) -> void:
+	if is_scoped():
+		cycle_zoom(step)
+	else:
+		select_next(step)
+
+
 func try_fire() -> bool:
-	if _cooldown > 0.0 or is_reloading():
+	if data == null or _cooldown > 0.0 or is_reloading():
 		return false
 	if ammo <= 0:
 		if reserve > 0:
@@ -121,11 +249,12 @@ func try_fire() -> bool:
 
 	ammo -= 1
 	_cooldown = data.fire_interval / _stat(Stats.FIRE_RATE)
-	var direction := _spread_direction(-camera.global_basis.z, spread_degrees())
+	var spread := spread_degrees()
+	for pellet in maxi(data.pellets, 1):
+		_shoot_ray(camera.global_position, _spread_direction(-camera.global_basis.z, spread))
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
-	_shoot_ray(camera.global_position, direction)
 
-	_play(_gunshot)
+	_play(_gunshots[index])
 	if _flash != null:
 		_flash.rotation.z = randf() * TAU
 		_flash.visible = true
@@ -141,7 +270,7 @@ func try_fire() -> bool:
 
 
 func try_reload() -> void:
-	if is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
+	if data == null or is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
 		return
 	_reload_left = _reload_duration(ammo == 0)
 	_play(_reload_sound, -2.0)
@@ -162,6 +291,7 @@ func _reload_duration(empty: bool) -> float:
 	return base_time / _stat(Stats.RELOAD_SPEED)
 
 
+## One pellet's ray. Every pellet runs this, so a shotgun is just more of them.
 func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * data.max_range, SHOOT_MASK)
 	if shooter != null:
@@ -207,6 +337,13 @@ func _next_pattern_value() -> float:
 
 func _stat(stat: StringName) -> float:
 	return stats.get_value(stat) if stats != null else 1.0
+
+
+func _store_slot() -> void:
+	if _slot_ammo.size() <= index:
+		return
+	_slot_ammo[index] = ammo
+	_slot_reserve[index] = reserve
 
 
 func _play(stream: AudioStream, volume_db := 0.0) -> void:

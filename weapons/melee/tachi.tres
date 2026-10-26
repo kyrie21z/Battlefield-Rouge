@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="MeleeData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://weapons/melee/melee_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://weapons/viewmodels/tachi_view.tscn" id="2_view"]
+
+[resource]
+script = ExtResource("1_data")
+display_name = "太刀"
+view_scene = ExtResource("2_view")
+swing_sound = "melee_swing"
+swing_pitch = 1.0
+damage = 62.0
+reach = 3.1
+arc_degrees = 150.0
+max_targets = 3
+windup = 0.2
+active = 0.2
+recovery = 0.3
+swing_style = 2
+camera_kick = 2.4
+camera_kick_yaw = 1.4
+lunge = 0.55
+lunge_time = 0.12
+magnet_range = 2.6
+magnet_arc_degrees = 100.0
+stop_distance = 0.75
+impact_force = 4.5
+impact_stagger = 0.2
+blade_length = 0.88
+edge_side = 1
+rest_hand = Vector3(0.3, -0.7, -0.6)
+rest_aim = Vector2(0.45, -1.1)
+rest_roll = 0.0
+cut_from_hand = Vector3(-0.15, 0.05, -0.75)
+cut_from_aim = Vector2(-0.95, 0.92)
+cut_from_roll = 0.0
+cut_to_hand = Vector3(0.3, -0.35, -0.72)
+cut_to_aim = Vector2(0.95, -0.92)
+cut_to_roll = 0.0

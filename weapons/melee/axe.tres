@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="MeleeData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://weapons/melee/melee_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://weapons/viewmodels/axe_view.tscn" id="2_view"]
+
+[resource]
+script = ExtResource("1_data")
+display_name = "斧"
+view_scene = ExtResource("2_view")
+swing_sound = "melee_swing_heavy"
+swing_pitch = 0.85
+view_brightness = 1.6
+damage = 150.0
+reach = 2.5
+arc_degrees = 120.0
+max_targets = 4
+windup = 0.34
+active = 0.18
+recovery = 0.46
+swing_style = 0
+camera_kick = 4.5
+camera_kick_yaw = 1.2
+lunge = 0.45
+lunge_time = 0.12
+magnet_range = 2.4
+magnet_arc_degrees = 100.0
+stop_distance = 0.75
+impact_force = 9.0
+impact_stagger = 0.35
+blade_length = 0.736
+edge_side = 0
+rest_hand = Vector3(0.05, -0.85, -0.72)
+rest_aim = Vector2(0.0, -1.3)
+rest_roll = 75.0
+cut_from_hand = Vector3(0.05, -0.3, -0.72)
+cut_from_aim = Vector2(0.0, 0.8)
+cut_from_roll = 75.0
+cut_to_hand = Vector3(0.05, -0.44, -0.72)
+cut_to_aim = Vector2(0.0, -0.95)
+cut_to_roll = 75.0

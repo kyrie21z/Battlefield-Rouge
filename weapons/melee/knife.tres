@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="MeleeData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://weapons/melee/melee_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://weapons/viewmodels/knife_view.tscn" id="2_view"]
+
+[resource]
+script = ExtResource("1_data")
+display_name = "匕首"
+view_scene = ExtResource("2_view")
+swing_sound = "melee_swing"
+swing_pitch = 1.15
+damage = 34.0
+reach = 1.8
+arc_degrees = 70.0
+max_targets = 1
+windup = 0.07
+active = 0.1
+recovery = 0.14
+swing_style = 1
+camera_kick = 1.2
+camera_kick_yaw = 0.8
+lunge = 0.35
+lunge_time = 0.1
+magnet_range = 1.7
+magnet_arc_degrees = 100.0
+stop_distance = 0.7
+impact_force = 2.0
+impact_stagger = 0.12
+blade_length = 0.405
+edge_side = -1
+rest_hand = Vector3(0.3, -0.52, -0.42)
+rest_aim = Vector2(0.35, -1.15)
+rest_roll = 0.0
+cut_from_hand = Vector3(-0.2, -0.28, -0.62)
+cut_from_aim = Vector2(-1.0, -0.98)
+cut_from_roll = 0.0
+cut_to_hand = Vector3(0.34, -0.02, -0.58)
+cut_to_aim = Vector2(1.0, 0.98)
+cut_to_roll = 0.0

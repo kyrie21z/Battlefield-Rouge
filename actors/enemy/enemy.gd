@@ -72,6 +72,12 @@ var _strafe_dir := 1.0
 var _strafe_left := 0.0
 var _hitbox_rids: Array[RID] = []
 var _gunshot: AudioStreamWAV
+## Knockback from a melee hit. Overrides the AI's own steering while it lasts.
+var _impact_velocity := Vector3.ZERO
+var _impact_left := 0.0
+
+## How fast a shove bleeds off, in m/s².
+const IMPACT_DECAY := 22.0
 
 @onready var health: Health = $Health
 @onready var _agent: NavigationAgent3D = $Agent
@@ -100,11 +106,28 @@ func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint]) -> void
 	cover_points = p_cover_points
 
 
+## Shoved by a melee hit. While the stagger lasts the body keeps the shoved
+## velocity instead of its own, so a heavy swing moves it rather than being
+## walked off.
+func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
+	if state == State.DEAD:
+		return
+	_impact_velocity = Vector3(direction.x, 0.0, direction.z).normalized() * force
+	_impact_left = maxf(_impact_left, stagger)
+
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+	if _impact_left > 0.0:
+		_impact_left -= delta
+		velocity.x = _impact_velocity.x
+		velocity.z = _impact_velocity.z
+		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO, IMPACT_DECAY * delta)
+		move_and_slide()
+		return
 	if target == null:
 		move_and_slide()
 		return

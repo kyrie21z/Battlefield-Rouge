@@ -8,7 +8,7 @@ const EXPECTED_SCENES: Array[String] = [
 	"res://maps/zone_1.tscn", "res://maps/zone_2.tscn", "res://maps/boss.tscn",
 ]
 const EXPECTED_SELECTIONS: Array[String] = [
-	"0:enter", "0:clear", "1:enter", "1:clear", "2:enter",
+	"0:enter", "0:clear", "1:clear",
 ]
 var _failures := 0
 var _finished := false
@@ -50,10 +50,10 @@ func _run() -> void:
 	_binding_checks()
 	_catalog_checks()
 	await _combat_checks()
-	await _play_run([0, 1, 2, 0, 1], "mixed")
+	await _play_run([0, 1, 2], "mixed")
 	await _restart_from_end()
 	_check("restart resets buffs, unlocks and history", RunState.buffs.is_empty() and RunState.selection_history.is_empty() and RunState.zone_index == 0)
-	await _play_existing_run([0, 0, 0, 0, 0], "firearm")
+	await _play_existing_run([0, 0, 0], "firearm")
 	await _restart_from_end()
 	var director := _director()
 	await _choose(director, 2)
@@ -224,17 +224,26 @@ func _play_run(indices: Array, label: String) -> void:
 
 func _play_existing_run(indices: Array, label: String) -> void:
 	print("== complete " + label + " run")
+	# Three picks: zone 0 enter, zone 0 clear, zone 1 clear. Zone 1 and the boss
+	# have no entry offer. Restart still lands on zone 0, so its entry shot and
+	# the check for selection_context == "enter" stay valid.
+	var choice := 0
 	for zone_index in RunState.ZONE_SCENES.size():
 		var director := _director()
 		_check("correct zone index", RunState.zone_index == zone_index)
-		_check("entry choice pauses before combat", get_tree().paused and director.selection_context == "enter" and director.phase == ZoneDirector.Phase.BUFF_SELECT)
-		_check("guards have no target during entry", get_tree().get_nodes_in_group("enemy").all(func(e: Enemy): return e.target == null))
-		await _shot("%s_%02d_entry" % [label, zone_index + 1])
-		var slot := zone_index * 2
-		await _choose(director, indices[slot])
 		var boss_zone := zone_index == 2
 		var expected_phase := ZoneDirector.Phase.HAMMER_POINT if boss_zone else ZoneDirector.Phase.CLEAR_GUARDS
-		_check("entry chosen once and correct combat phase resumes", not get_tree().paused and director.phase == expected_phase)
+		if zone_index == 0:
+			_check("entry choice pauses before combat", get_tree().paused and director.selection_context == "enter" and director.phase == ZoneDirector.Phase.BUFF_SELECT)
+			_check("guards have no target during entry", get_tree().get_nodes_in_group("enemy").all(func(e: Enemy): return e.target == null))
+			await _shot("%s_%02d_entry" % [label, zone_index + 1])
+			await _choose(director, indices[choice])
+			choice += 1
+			_check("entry chosen once and correct combat phase resumes", not get_tree().paused and director.phase == expected_phase)
+		else:
+			_check("later zone starts unpaused with no choice UI", not get_tree().paused and director.selection == null and director.selection_context.is_empty() and not director.get_children().any(func(c: Node): return c.has_signal("chosen")))
+			_check("later zone is already in combat", director.phase == expected_phase)
+			_check("guards already have a target", get_tree().get_nodes_in_group("enemy").all(func(e: Enemy): return e.target != null))
 		var player := get_tree().get_first_node_in_group("player") as Player
 		var expected := Stats.new()
 		for buff: Buff in RunState.buffs:
@@ -262,23 +271,25 @@ func _play_existing_run(indices: Array, label: String) -> void:
 		director._on_point_captured()
 		await get_tree().create_timer(ZoneDirector.FLAG_RAISE_TIME + 0.1).timeout
 		if not RunState.is_last_zone():
-			_check("small-zone clear offers one reward", director.selection_context == "clear" and director.selection_count == 2)
+			var expected_count := 2 if zone_index == 0 else 1
+			_check("small-zone clear offers one reward", director.selection_context == "clear" and director.selection_count == expected_count)
 			await _shot("%s_%02d_clear" % [label, zone_index + 1])
-			await _choose(director, indices[slot + 1])
+			await _choose(director, indices[choice])
+			choice += 1
 			for frame_index in 30:
 				if get_tree().current_scene != null and _director().zone_index == zone_index + 1:
 					break
 				await get_tree().process_frame
 		else:
 			var ending := _end_screen(director)
-			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 1 and ending != null)
+			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 0 and ending != null)
 			if ending != null:
 				_check("capturing core wins while Boss is alive", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and not director.boss.health.is_dead())
 			await _shot(label + "_victory")
 	var contexts: Array[String] = []
 	for entry in RunState.selection_history:
 		contexts.append("%d:%s" % [entry.zone_index, entry.context])
-	_check("exactly five choices in expected order", contexts == EXPECTED_SELECTIONS and RunState.buffs.size() == 5)
+	_check("exactly three choices in expected order", contexts == EXPECTED_SELECTIONS and RunState.buffs.size() == 3)
 	if label == "mixed":
 		var schools := {}
 		for buff: Buff in RunState.buffs:

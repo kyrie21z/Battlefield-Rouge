@@ -30,13 +30,13 @@
 
 ## 一个战区的流程
 
-当前每关先选卡，再清守卫、挥锤砸据点和插旗；两个小关结束各再选一次，Boss 结束直接胜利。一局五次选择对应 AC-04，九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +8%、完美 ×1.5，配置是 `zone/capture_config.tres`。增援和冲击波未实现；节拍见 ADR 0003，Boss 见 ADR 0004。
+一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +8%、完美 ×1.5，配置是 `zone/capture_config.tres`。增援和冲击波未实现；节拍见 ADR 0003，Boss 见 ADR 0004。
 
-由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。
+由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。敌人排在 `ZoneDirector` 前面，所以战区控制 `_ready` 时敌人已经 ready。
 
-1. 保留战区随机种子、`SimClock` 与同步导航烘焙。把已有卡应用到玩家 Stats，收集敌人与掩体，进入 `BUFF_SELECT` 并暂停；此时敌人还没有玩家目标。
+1. 保留战区随机种子、`SimClock` 与同步导航烘焙。把已有卡应用到玩家 Stats，收集敌人与掩体。只有 `zone_index == 0` 进入 `BUFF_SELECT` 并暂停；此时敌人还没有玩家目标。小关 2 和 Boss（以及从 Boss 起步的 fixture）解除暂停后直接开打，敌人立刻拿到目标。
 2. 确认 `enter` 卡后记录选择历史，发 `Events.buff_chosen`，立即应用新卡，再给敌人设置目标。小关进入 `CLEAR_GUARDS`；Boss 保留 `open_at_start`，直接进入 `HAMMER_POINT`。
-3. 小关守卫全灭开放据点。E 锤命中仍按原节拍配置计进度，100% 插旗后等 1.4 秒。非最后一关提供 `clear` 卡，选完推进并载入下一关，下一关还有自己的 `enter` 卡；Boss 最后直接胜利，不再发牌。
+3. 小关守卫全灭开放据点。E 锤命中仍按原节拍配置计进度，100% 插旗后等 1.4 秒。非最后一关提供 `clear` 卡，选完暂停并载入下一关；下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 最后直接胜利，不再发牌。
 4. 死亡清空本局增益、选择历史与卡袋，显示阵亡界面。普通重开回第一关；fixture 模式仍回到同一 fixture 的关卡、预设卡和种子。选择提交、占点回调和场景推进均有防重保护。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。

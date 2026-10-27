@@ -1,11 +1,12 @@
 class_name ZoneDirector
 extends Node
 ## Runs one zone from start to finish:
-##   1. bakes navigation, applies old buffs and offers one entry buff;
+##   1. bakes navigation and applies old buffs. Only zone 0 offers an entry
+##      buff; later zones start combat immediately;
 ##   2. when every guard is dead, opens the capture building for hammering
 ##      (the boss zone opens it at once and its enemies do not gate it);
-##   3. when the building is at 100% and the flag is planted, offers a buff and
-##      loads the next zone, or wins the run;
+##   3. when the building is at 100% and the flag is planted, a small zone
+##      offers a buff and loads the next zone; the boss zone wins the run;
 ##   4. on the player's death, shows the end screen and restarts from zone 1.
 ## Only this node and RunState change run state (see ARCHITECTURE.md).
 
@@ -36,7 +37,8 @@ var boss: Enemy
 ## Zone number and buff count when this zone started, for the end screen;
 ## RunState is already reset by the time player_died reaches us.
 var zone_index := 0
-## Each zone has an entry choice; only small zones have a clear choice.
+## "enter" only when zone 0 offers a buff before combat; "clear" after each
+## small zone. Empty while fighting, or once the offer has been taken.
 var selection_context := ""
 var selection_count := 0
 var selection: CanvasLayer
@@ -77,7 +79,17 @@ func _ready() -> void:
 	Events.enemy_killed.connect(_on_enemy_killed)
 	Events.player_died.connect(_on_player_died)
 	capture_point.captured.connect(_on_point_captured)
-	_offer_buff("enter")
+	# One entry choice per run, on the first zone only. A fixture that starts
+	# later (FX-002 opens on the boss) is not zone 0, so it fights immediately.
+	# Enemies are earlier siblings, so their _ready and @onready nodes have
+	# already finished; setup() only stores the player and cover points.
+	# The clear choice pauses the tree and the entry UI used to unpause the
+	# next zone. Zones that skip that UI must clear the pause themselves.
+	if zone_index == 0:
+		_offer_buff("enter")
+	else:
+		get_tree().paused = false
+		_start_combat()
 
 
 func _start_combat() -> void:

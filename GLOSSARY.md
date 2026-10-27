@@ -39,12 +39,12 @@
 | 种子 | `RunState.run_seed`，`zone_seed()` | 一局所有随机数的来源。战区开头 `seed(zone_seed())`。普通局每次新开换一个，fixture 局固定。 |
 | 游戏时间 | `SimClock` | 从战区开头数起的物理 tick 时间，不读墙钟。节拍和掩体冷却用它，固定步长下每次运行相同。 |
 | 复现检查 | `tests/fixture_test.tscn`，`FixtureBot` | 机器人把每个 fixture 打若干遍，比较记录的哈希（AC-07 的证明）。需要 `--fixed-fps 60`。 |
-| 阶段 | `ZoneDirector.Phase` | 每关 `BUFF_SELECT` 后进入原 `CLEAR_GUARDS` → `HAMMER_POINT` → `FLAG_PLANTED`；Boss 选完直接 `HAMMER_POINT`。小关末再次选卡。 |
+| 阶段 | `ZoneDirector.Phase` | 第一关先 `BUFF_SELECT`，再 `CLEAR_GUARDS` → `HAMMER_POINT` → `FLAG_PLANTED`。小关 2 进场直接 `CLEAR_GUARDS`，Boss 进场直接 `HAMMER_POINT`。两个小关末再选卡。 |
 | 节拍条、调试条 | `StrikeBar`、`CaptureDebug`（F3） | 节拍条在锤程内显示金色窗口和移动的标记。调试条显示阶段、进度、配置文件路径和三个数、上一击（AC-03 的证明）。 |
 | 插旗 | `CapturePoint` 的 `Flag` 节点 | 进度 100% 时旗杆从建筑顶部升起，1.4 秒后才弹出选择或胜利界面。冲击波尚未实现。 |
 | 增益 | `Buff`，`BuffPool.ALL` | 当前九卡：枪械、刀具、技能各三张；独特图标、稳定 id 和叠层说明，只修改 Stats。旧六张通用卡保留为历史资源及 fixture 兼容。 |
 | 发牌袋 | `BuffPool.reset()` / `pick()` | 每次每派一张，先核心再另两张，用完重洗；全局随机受战区种子控制，新局及 fixture 重开清袋。 |
-| 选择历史 | `RunState.selection_history` | 关卡、enter/clear、卡片 id 和名称；完整获胜依次进一、过一、进二、过二、进 Boss，共五条。 |
+| 选择历史 | `RunState.selection_history` | 关卡、enter/clear、卡片 id 和名称。完整获胜是开局进一、过一、过二，共三条。小关 2 和 Boss 进场不选。（原为进一、过一、进二、过二、进 Boss，共五条。） |
 | 刀具增益 | `Stats.MELEE_DAMAGE` / `MELEE_SPEED` / `MELEE_RANGE` | 叠在当前 `MeleeWeapon` 上。基数都是 1，没选刀具卡时三把近战保持 `.tres` 原值。 |
 | 主动护盾 | `PlayerShield`，`shield` 动作（G） | 任意技能卡解锁，基础 1 秒无敌，结束后冷却 8 秒；紫色反馈。Q 是切近战。F 仍是 `interact`，目前没有玩法读取。 |
 | 三张核心卡 | `CombatTraits` | 危险弹匣为空仓爆炸；子弹收藏家为挥刀弹反、下次开枪释放收藏；反击护盾为挡伤后到期固定反击。详见当前九增益说明。 |
@@ -62,7 +62,7 @@
 | 增援 | 尚未实现 | 占点阶段到来的敌人。不回退进度，只造成生命压力。 |
 | 三流派 | `School`，`SchoolCatalog`，`SchoolBadge` | 当前按用户已有改进为枪械、刀具、技能；历史狂战士/军火大亨/鹰眼图标与设计保留。取舍见 ADR 0006。 |
 | 九条增益 | `BuffPool.ALL` | 每派 3 条，共 9 条，图标不同（AC-08）；当前效果为可调试玩默认，非最终平衡锁定。 |
-| 进关选择 | `ZoneDirector._offer_buff("enter")` | 每关开始战斗前选 1 条，含 Boss（AC-04）。 |
+| 进关选择 | `ZoneDirector._offer_buff("enter")` | 只在一局第一关（`RunState.zone_index == 0`）开打前选 1 条。小关 2 和 Boss 进场不选。按是不是一局的第一关判断，不按 fixture 起点（AC-04）。 |
 | 关末再选 | `ZoneDirector._offer_buff("clear")` | 两个小关结束后各选 1 条，本局叠加；Boss 结束后不选（AC-04）。 |
 | Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.open_at_start` | 只有一波：1 个大敌人（Boss）加周围 6 个小敌人。城市核心开局就能砸，用同一套 `capture_config.tres`；敌人清不清零都不影响核心。Boss 有血条（HUD，不改胜负）。占满即胜，死亡即负（AC-02）。见 ADR 0004。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |

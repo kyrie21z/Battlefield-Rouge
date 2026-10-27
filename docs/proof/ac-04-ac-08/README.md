@@ -6,24 +6,26 @@
 
 ## AC-04：次数与时机
 
-`tests/buff_run_test.tscn` 用真实按键/按钮选择、伤害、占点和场景切换验证混搭与枪械专精两局，均得到：
+2026-10-27 issue #22 把选择改成 3 次：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。`tests/buff_run_test.tscn` 在这次修订后的 headless 运行里，混搭和枪械专精两局都得到：
 
 ```text
-["0:enter", "0:clear", "1:enter", "1:clear", "2:enter"]
+["0:enter", "0:clear", "1:clear"]
 ```
 
-两局都验证入场先暂停、选卡后增益即时生效、换关保留叠层、重复输入只选一次。Boss 入场有自己的选择，选完保留核心直接开放；Boss 与守卫仍活着时也能攻占核心获胜，胜利后没有第六次奖励。另测阵亡清空增益与选择历史、重开只出现一次入场选择。
+结果行：`buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)`。小关 1 入场仍先暂停、选卡后增益即时生效；小关 2 和 Boss 进场不暂停、没有选择界面、敌人已有目标。换关保留叠层，重复输入只选一次。Boss 与守卫仍活着时也能攻占核心获胜，胜利后不选。阵亡清空增益与选择历史；重开回到小关 1，仍只出现一次入场选择。混搭的 3 次选择仍覆盖枪械、刀具、技能三派。
+
+下面的截图和「本次原生引擎验证」表是 **#22 修订前** 的结果（当时序列是 `0:enter → 0:clear → 1:enter → 1:clear → 2:enter`）。这次没有重拍画面，所以 `mixed_02_entry.png`、`mixed_03_entry.png` 以及对应的 `firearm_*_entry.png` 仍是旧的入场选择界面，不代表修订后的小关 2 / Boss 进场。日志文件也没有用新进程覆盖。
 
 | 时机 | 混搭流程截图 |
 | --- | --- |
 | 小关 1 前 | [mixed_01_entry.png](mixed_01_entry.png) |
 | 小关 1 后 | [mixed_01_clear.png](mixed_01_clear.png) |
-| 小关 2 前 | [mixed_02_entry.png](mixed_02_entry.png) |
+| 小关 2 前（修订前的入场选择，修订后不再出现） | [mixed_02_entry.png](mixed_02_entry.png) |
 | 小关 2 后 | [mixed_02_clear.png](mixed_02_clear.png) |
-| Boss 前 | [mixed_03_entry.png](mixed_03_entry.png) |
+| Boss 前（修订前的入场选择，修订后不再出现） | [mixed_03_entry.png](mixed_03_entry.png) |
 | Boss 结束直接胜利 | [mixed_victory.png](mixed_victory.png) |
 
-枪械专精对应 `firearm_*.png`。这些截图由验证脚本安排状态并使用真实 Godot 渲染保存，不冒充真人完整难度试玩或录屏。
+枪械专精对应 `firearm_*.png`，其中 `firearm_02_entry.png` 和 `firearm_03_entry.png` 同样是修订前的入场画面。这些截图由验证脚本安排状态并使用真实 Godot 渲染保存，不冒充真人完整难度试玩或录屏。
 
 ## AC-08：每派三张与独特图标
 
@@ -53,7 +55,7 @@
 | `school_icons_proof` | 原生九图标板与选择界面保存成功，0 失败 | [icons_native.log](icons_native.log) |
 | `combat_traits_proof` | 11 项通过，0 失败；真实收藏弹/发射回敬弹画面 | [combat_native.log](combat_native.log) |
 
-同起点回归：FX-001 两遍都胜利、3875 ticks、哈希 `faf979e483061388`；FX-002 两遍都胜利、1375 ticks、哈希 `9afe0ddb9ac0b983`。换种子后哈希均改变。哈希只用于同机器/引擎/固定步长比较，不作为跨机器常量。
+同起点回归（**#22 修订前**，当时每关都有入场选择）：FX-001 两遍都胜利、3875 ticks、哈希 `faf979e483061388`；FX-002 两遍都胜利、1375 ticks、哈希 `9afe0ddb9ac0b983`。换种子后哈希均改变。#22 改了选择次数，这些哈希不再代表当前玩法；修订后的哈希写在 [issue #14 证明](../issue-14/README.md)。哈希只用于同机器/引擎/固定步长比较，不作为跨机器常量。
 
 最终导入没有脚本或资源导入错误。`capture_hammer_test`、`fixture_test` 在退出阶段仍有 ObjectDB 清理提示，保留原始诊断，不把它们写成零警告运行；其余本次新能力测试和原生截图日志没有错误或警告。
 

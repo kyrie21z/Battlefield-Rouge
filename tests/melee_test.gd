@@ -45,6 +45,9 @@ func _run() -> void:
 	var scene: Node = load("res://maps/zone_1.tscn").instantiate()
 	add_child(scene)
 	await get_tree().process_frame
+	# Zone 0 offers the opening buff and pauses. This scene checks the blades
+	# directly and does not take a card, so timers and input have to run.
+	get_tree().paused = false
 	_player = scene.get_node("Player") as Player
 	_melee = _player.melee
 	_melee.swing_started.connect(func(_i: int, _s: int): _swings += 1)

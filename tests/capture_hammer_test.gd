@@ -25,6 +25,7 @@ func _run() -> void:
 	await get_tree().process_frame
 	_choose_entry(scene)
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	_silence_reinforcements(director)
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	var player := scene.get_node("Player") as Player
 	point.struck.connect(func(perfect: bool, offset_ms: float, worth: float): _strikes.append([perfect, offset_ms, worth]))
@@ -125,8 +126,22 @@ func _run() -> void:
 	_check("swings after capture are ignored", _strikes.size() == strikes_at_capture and captured_count[0] == 1)
 
 	print("== after the flag")
-	await get_tree().create_timer(ZoneDirector.FLAG_RAISE_TIME + 0.3).timeout
-	_check("buff choice appears after the flag has risen", director.get_children().any(func(c: Node): return c is CanvasLayer and c.has_signal("chosen")))
+	_check("the reward does not open by itself", not director.get_children().any(func(c: Node): return c is CanvasLayer and c.has_signal("chosen")))
+	_check("the run stays unpaused until interact", not get_tree().paused)
+	var pedestal := director.buff_pedestal
+	_check("a buff pedestal stands beside the flag", pedestal != null)
+	_check("the objective points at the pedestal", "按 F" in director.objective)
+	player.global_position = pedestal.global_position + Vector3(8.0, 0.0, 0.0)
+	Input.action_press("interact")
+	await get_tree().physics_frame
+	Input.action_release("interact")
+	_check("interact out of range does not open the reward", not director.get_children().any(func(c: Node): return c is CanvasLayer and c.has_signal("chosen")))
+	player.global_position = pedestal.global_position
+	Input.action_press("interact")
+	await get_tree().physics_frame
+	Input.action_release("interact")
+	await get_tree().process_frame
+	_check("interact at the pedestal opens the buff choice", director.get_children().any(func(c: Node): return c is CanvasLayer and c.has_signal("chosen")))
 	get_tree().paused = false
 	scene.queue_free()
 	await get_tree().process_frame
@@ -136,6 +151,7 @@ func _run() -> void:
 	add_child(scene)
 	await get_tree().process_frame
 	_choose_entry(scene)
+	_silence_reinforcements(scene.get_node("ZoneDirector") as ZoneDirector)
 	point = scene.get_node("CapturePoint") as CapturePoint
 	player = scene.get_node("Player") as Player
 	_strikes.clear()
@@ -160,6 +176,17 @@ func _run() -> void:
 func _expect_last(label: String, perfect: bool, worth: float) -> void:
 	var last: Array = _strikes.back() if not _strikes.is_empty() else []
 	_check(label, not last.is_empty() and last[0] == perfect and is_equal_approx(last[2], worth))
+
+
+## This scene is about the hammer, not the reinforcement pressure. A zero cap
+## keeps the shared cadence resource intact and stops waves from shooting the
+## scripted player during the waits below.
+func _silence_reinforcements(director: ZoneDirector) -> void:
+	if director.reinforcement_config == null:
+		return
+	var tuned := director.reinforcement_config.duplicate() as ReinforcementConfig
+	tuned.max_alive = 0
+	director.reinforcement_config = tuned
 
 
 func _choose_entry(scene: Node) -> void:

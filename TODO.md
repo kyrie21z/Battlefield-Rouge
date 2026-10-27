@@ -12,7 +12,7 @@
 
 - [ ] 三个战区还是灰盒（纯色方块）。下一步可以用 Toon Shooter Game Kit 自带的环境模型（集装箱、木箱、沙袋、围栏等）替换掩体方块，地面和墙换成 Kenney Factory Kit / City Kit (Industrial)。替换时保留每个掩体的碰撞体和 `navigation_geometry` 分组。
 - [ ] 据点建筑还是灰盒方块，锤是方块加棍子的占位模型，旗是一根灰杆加一块绿布。换成许可清楚的现成模型（见 `docs/ASSETS.md`）。
-- [ ] 插旗没有音效，也没有冲击波（距离未定，见 `docs/Priority_Backlog.md`）。
+- [ ] 旗杆升起本身没有单独音效。冲击波已经有音效和扩散环（ADR 0007），逃走的小怪不算击杀。
 
 ## 敌人
 

@@ -5,7 +5,7 @@ extends CharacterBody3D
 ## short bursts and falls back to cover when hurt. The zone director calls
 ## setup() with the target and cover points; the enemy never looks them up.
 
-enum State { IDLE, CHASE, ENGAGE, COVER, DEAD }
+enum State { IDLE, CHASE, ENGAGE, COVER, DEAD, FLEE }
 
 const AIM_HEIGHT := 1.3
 
@@ -75,6 +75,17 @@ var _gunshot: AudioStreamWAV
 ## Knockback from a melee hit. Overrides the AI's own steering while it lasts.
 var _impact_velocity := Vector3.ZERO
 var _impact_left := 0.0
+## Rear spawn the shockwave sent this enemy toward. Arrival removes it
+## without a kill. FLEE is after DEAD so older state numbers stay put.
+var _flee_goal := Vector3.ZERO
+var _flee_left := 0.0
+var _departed := false
+
+## Close enough to a rear spawn to count as having left the zone.
+const FLEE_ARRIVE := 1.25
+
+## Removed from the scene without Events.enemy_killed. The zone director listens.
+signal departed
 
 ## How fast a shove bleeds off, in m/s².
 const IMPACT_DECAY := 22.0
@@ -106,11 +117,26 @@ func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint]) -> void
 	cover_points = p_cover_points
 
 
+## Stop attacking and run to `goal` along the navmesh. Reaching it, or running
+## out of `timeout`, removes the body. Neither the shockwave nor the removal
+## deals damage or emits Events.enemy_killed. A later bullet can still kill.
+func begin_retreat(goal: Vector3, timeout: float) -> void:
+	if state == State.DEAD or state == State.FLEE:
+		return
+	_leave_cover()
+	_impact_left = 0.0
+	_impact_velocity = Vector3.ZERO
+	_shots_left = 0
+	_flee_goal = goal
+	_flee_left = timeout
+	state = State.FLEE
+
+
 ## Shoved by a melee hit. While the stagger lasts the body keeps the shoved
 ## velocity instead of its own, so a heavy swing moves it rather than being
 ## walked off.
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
-	if state == State.DEAD:
+	if state == State.DEAD or state == State.FLEE:
 		return
 	_impact_velocity = Vector3(direction.x, 0.0, direction.z).normalized() * force
 	_impact_left = maxf(_impact_left, stagger)
@@ -121,6 +147,13 @@ func _physics_process(delta: float) -> void:
 		return
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+	if state == State.FLEE:
+		_process_flee(delta)
+		if _departed:
+			return
+		move_and_slide()
+		_update_animation()
+		return
 	if _impact_left > 0.0:
 		_impact_left -= delta
 		velocity.x = _impact_velocity.x
@@ -156,6 +189,25 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_update_animation()
+
+
+func _process_flee(delta: float) -> void:
+	_flee_left -= delta
+	var flat := Vector2(global_position.x - _flee_goal.x, global_position.z - _flee_goal.z).length()
+	if flat <= FLEE_ARRIVE or _flee_left <= 0.0:
+		_stop()
+		_depart()
+		return
+	_move_to(_flee_goal, run_speed)
+	_face(_agent.get_next_path_position() - global_position, delta)
+
+
+func _depart() -> void:
+	if _departed:
+		return
+	_departed = true
+	departed.emit()
+	queue_free()
 
 
 func _process_engage(delta: float) -> void:
@@ -286,7 +338,7 @@ func _leave_cover() -> void:
 
 
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
-	if state == State.DEAD:
+	if state == State.DEAD or state == State.FLEE:
 		return
 	if state == State.IDLE:
 		_alert(source.global_position if source is Node3D else _target_point())
@@ -348,6 +400,8 @@ func _update_animation() -> void:
 			anim = "Walk_Shoot" if moving else "Idle_Shoot"
 		State.COVER:
 			anim = "Run_Gun" if moving else "Duck"
+		State.FLEE:
+			anim = "Run_Gun" if moving else "Idle"
 	if _anim.current_animation != anim:
 		_anim.play(anim, 0.15)
 

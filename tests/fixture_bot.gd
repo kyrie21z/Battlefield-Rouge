@@ -2,10 +2,14 @@ class_name FixtureBot
 extends Node
 ## Plays a run with no human, for the AC-07 check (docs/adr/0005): fights the
 ## nearest enemy, walks to the capture point, swings the hammer on the beat and
-## takes the first buff offered. It moves, aims down the sights and hammers
-## through the real input actions. It turns with Player.aim_at(), the way a mouse
-## would, and shoots with Weapon.try_fire(): the `fire` action only works while
-## the mouse is captured, and a headless run cannot capture it.
+## takes the first buff offered. On a small zone's hammer phase it stays at the
+## building and only shoots enemies that reach it, so the reinforcement waves
+## cannot pull it off the objective. After the flag it walks to the buff
+## pedestal and presses interact; it does not chase enemies that are already
+## retreating. It moves, aims down the sights and hammers through the real
+## input actions. It turns with Player.aim_at(), the way a mouse would, and
+## shoots with Weapon.try_fire(): the `fire` action only works while the mouse
+## is captured, and a headless run cannot capture it.
 ## It decides from what is in the scene and from its own tick count and nothing
 ## else (no clock, no random numbers), so the same fixture gives the same bot run.
 ## It sits on the root, so the scene changes between zones do not free it.
@@ -22,6 +26,12 @@ const SWING_GAP_TICKS := 56
 ## Seconds from a hit moment within which it presses the hammer. One tick is
 ## 1/60 s, so a window of this half-width catches one tick per beat.
 const BEAT_TOLERANCE := 0.009
+## North of a small-zone building, still inside the 3.2 m hammer radius, so the
+## bot can see reinforcements coming from -z without standing in the mesh.
+const POINT_STAND_OFFSET := Vector3(0.0, 0.0, -2.2)
+## While walking to the building, fight only an enemy this close. Farther ones
+## are left for the hold at the building, or they never pull the bot backwards.
+const SELF_DEFENCE_RANGE := 12.0
 const MOVE_ACTIONS: Array[StringName] = [&"move_forward", &"move_back", &"move_left", &"move_right"]
 
 ## Physics ticks since the zone being played appeared. Counted from the zone,
@@ -30,6 +40,7 @@ const MOVE_ACTIONS: Array[StringName] = [&"move_forward", &"move_back", &"move_l
 var _ticks := 0
 var _last_swing_tick := -1000
 var _hammer_down := false
+var _interact_down := false
 var _zone_id := 0
 
 
@@ -49,6 +60,9 @@ func _physics_process(_delta: float) -> void:
 	if _hammer_down:
 		Input.action_release(&"hammer")
 		_hammer_down = false
+	if _interact_down:
+		Input.action_release(&"interact")
+		_interact_down = false
 	var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if director == null or player == null:
@@ -65,6 +79,14 @@ func _physics_process(_delta: float) -> void:
 	if player.health.is_dead():
 		_release_all()
 		return
+	# Small zones only. The boss keeps the old "fight, then hammer" order.
+	if not director.open_at_start:
+		if director.phase == ZoneDirector.Phase.FLAG_PLANTED:
+			_claim_pedestal(player, director)
+			return
+		if director.phase == ZoneDirector.Phase.HAMMER_POINT:
+			_hold_point(player, director.capture_point)
+			return
 	var target := _nearest_enemy(player)
 	if target != null:
 		_fight(player, target)
@@ -89,6 +111,49 @@ func _fight(player: Player, enemy: Enemy) -> void:
 		_walk_toward(player, enemy.global_position)
 
 
+## Stay on the building. Shoot whoever is in range without walking off, and
+## swing on the beat. On the way in, only a very close enemy is worth a detour.
+func _hold_point(player: Player, point: CapturePoint) -> void:
+	if not point.player_in_reach:
+		var close := _nearest_enemy(player, SELF_DEFENCE_RANGE)
+		if close != null:
+			_fight(player, close)
+			return
+		_set_action(&"aim", 0.0)
+		_walk_toward(player, point.global_position + POINT_STAND_OFFSET)
+		return
+	_move(player, Vector3.ZERO)
+	var on_beat := absf(CapturePoint.beat_offset(point.beat_time())) <= BEAT_TOLERANCE
+	if on_beat and _ticks - _last_swing_tick >= SWING_GAP_TICKS:
+		Input.action_press(&"hammer")
+		_hammer_down = true
+		_last_swing_tick = _ticks
+	var threat := _nearest_enemy(player, FIRE_RANGE)
+	if threat == null:
+		_set_action(&"aim", 0.0)
+		return
+	var head := threat.global_position + Vector3.UP * threat.eye_height
+	player.aim_at(head)
+	var distance := player.global_position.distance_to(threat.global_position)
+	if _line_clear(player, head) and distance <= FIRE_RANGE:
+		player.weapon.try_fire()
+	_set_action(&"aim", 1.0 if distance > AIM_FROM else 0.0)
+
+
+func _claim_pedestal(player: Player, director: ZoneDirector) -> void:
+	var pedestal := director.buff_pedestal
+	if pedestal == null:
+		_release_all()
+		return
+	_set_action(&"aim", 0.0)
+	if not pedestal.in_range(player):
+		_walk_toward(player, pedestal.global_position)
+		return
+	_move(player, Vector3.ZERO)
+	Input.action_press(&"interact")
+	_interact_down = true
+
+
 func _hammer(player: Player, point: CapturePoint) -> void:
 	_set_action(&"aim", 0.0)
 	if not point.player_in_reach:
@@ -111,15 +176,20 @@ func _take_first_buff(director: ZoneDirector) -> void:
 			return
 
 
-## The nearest enemy that is still alive.
-func _nearest_enemy(player: Player) -> Enemy:
+## The nearest enemy that is still fighting. Retreating and dead enemies are
+## ignored, so the bot does not chase the shockwave off the pedestal.
+func _nearest_enemy(player: Player, max_distance: float = INF) -> Enemy:
 	var best: Enemy
-	var best_distance := INF
+	var best_distance := max_distance * max_distance
 	for node in get_tree().get_nodes_in_group("enemy"):
 		var enemy := node as Enemy
-		if enemy.state == Enemy.State.DEAD:
+		if enemy.state == Enemy.State.DEAD or enemy.state == Enemy.State.FLEE:
 			continue
 		var distance := player.global_position.distance_squared_to(enemy.global_position)
+		if distance > max_distance * max_distance:
+			continue
+		# Strictly closer, so an exact tie keeps the earlier enemy. The boss
+		# ring is symmetric; replacing ties would change FX-002.
 		if distance < best_distance:
 			best = enemy
 			best_distance = distance
@@ -153,6 +223,7 @@ func _release_all() -> void:
 	for action in MOVE_ACTIONS:
 		_set_action(action, 0.0)
 	_set_action(&"aim", 0.0)
+	_set_action(&"interact", 0.0)
 
 
 func _set_action(action: StringName, strength: float) -> void:

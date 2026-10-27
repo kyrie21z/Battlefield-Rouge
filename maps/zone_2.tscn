@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=46 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]
 [ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]
 [ext_resource type="Script" path="res://zone/capture_point.gd" id="6_capture"]
+[ext_resource type="Resource" path="res://zone/reinforcement_config.tres" id="8_reinf"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 
@@ -94,38 +95,38 @@ size = Vector3(4, 1.2, 1)
 
 [sub_resource type="BoxMesh" id="Mesh_7"]
 material = SubResource("Mat_grey")
-size = Vector3(1, 2.5, 6)
+size = Vector3(1, 2.5, 5)
 
 [sub_resource type="BoxShape3D" id="Shape_7"]
-size = Vector3(1, 2.5, 6)
+size = Vector3(1, 2.5, 5)
 
 [sub_resource type="BoxMesh" id="Mesh_8"]
 material = SubResource("Mat_grey")
-size = Vector3(6, 2.5, 1)
+size = Vector3(1, 2.5, 5)
 
 [sub_resource type="BoxShape3D" id="Shape_8"]
-size = Vector3(6, 2.5, 1)
+size = Vector3(1, 2.5, 5)
 
 [sub_resource type="BoxMesh" id="Mesh_9"]
 material = SubResource("Mat_grey")
-size = Vector3(6, 2.5, 1)
+size = Vector3(4, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="Shape_9"]
-size = Vector3(6, 2.5, 1)
+size = Vector3(4, 1.2, 1)
 
 [sub_resource type="BoxMesh" id="Mesh_10"]
 material = SubResource("Mat_grey")
-size = Vector3(3, 1.2, 1)
+size = Vector3(4, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="Shape_10"]
-size = Vector3(3, 1.2, 1)
+size = Vector3(4, 1.2, 1)
 
 [sub_resource type="BoxMesh" id="Mesh_11"]
 material = SubResource("Mat_grey")
-size = Vector3(3, 1.2, 1)
+size = Vector3(2, 2.5, 2)
 
 [sub_resource type="BoxShape3D" id="Shape_11"]
-size = Vector3(3, 1.2, 1)
+size = Vector3(2, 2.5, 2)
 
 [sub_resource type="BoxMesh" id="Mesh_12"]
 material = SubResource("Mat_grey")
@@ -136,17 +137,17 @@ size = Vector3(2, 2.5, 2)
 
 [sub_resource type="BoxMesh" id="Mesh_13"]
 material = SubResource("Mat_grey")
-size = Vector3(2, 2.5, 2)
+size = Vector3(3, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="Shape_13"]
-size = Vector3(2, 2.5, 2)
+size = Vector3(3, 1.2, 1)
 
 [sub_resource type="BoxMesh" id="Mesh_14"]
 material = SubResource("Mat_grey")
-size = Vector3(5, 1.2, 1)
+size = Vector3(3, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="Shape_14"]
-size = Vector3(5, 1.2, 1)
+size = Vector3(3, 1.2, 1)
 
 [node name="Zone2" type="Node3D"]
 
@@ -208,7 +209,7 @@ mesh = SubResource("Mesh_4")
 shape = SubResource("Shape_4")
 
 [node name="Cover1" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.6, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0.6, 16)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover1"]
 mesh = SubResource("Mesh_5")
@@ -217,7 +218,7 @@ mesh = SubResource("Mesh_5")
 shape = SubResource("Shape_5")
 
 [node name="Cover2" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.6, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.6, 16)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover2"]
 mesh = SubResource("Mesh_6")
@@ -226,7 +227,7 @@ mesh = SubResource("Mesh_6")
 shape = SubResource("Shape_6")
 
 [node name="Cover3" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 1.25, 6)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover3"]
 mesh = SubResource("Mesh_7")
@@ -235,7 +236,7 @@ mesh = SubResource("Mesh_7")
 shape = SubResource("Shape_7")
 
 [node name="Cover4" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.25, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 1.25, 6)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover4"]
 mesh = SubResource("Mesh_8")
@@ -244,7 +245,7 @@ mesh = SubResource("Mesh_8")
 shape = SubResource("Shape_8")
 
 [node name="Cover5" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.25, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.6, -6)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover5"]
 mesh = SubResource("Mesh_9")
@@ -253,7 +254,7 @@ mesh = SubResource("Mesh_9")
 shape = SubResource("Shape_9")
 
 [node name="Cover6" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.6, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.6, -6)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover6"]
 mesh = SubResource("Mesh_10")
@@ -262,7 +263,7 @@ mesh = SubResource("Mesh_10")
 shape = SubResource("Shape_10")
 
 [node name="Cover7" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.6, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.25, -14)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover7"]
 mesh = SubResource("Mesh_11")
@@ -271,7 +272,7 @@ mesh = SubResource("Mesh_11")
 shape = SubResource("Shape_11")
 
 [node name="Cover8" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.25, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.25, -14)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover8"]
 mesh = SubResource("Mesh_12")
@@ -280,7 +281,7 @@ mesh = SubResource("Mesh_12")
 shape = SubResource("Shape_12")
 
 [node name="Cover9" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.25, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.6, -18)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover9"]
 mesh = SubResource("Mesh_13")
@@ -289,7 +290,7 @@ mesh = SubResource("Mesh_13")
 shape = SubResource("Shape_13")
 
 [node name="Cover10" type="StaticBody3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.6, -18)
 
 [node name="Mesh" type="MeshInstance3D" parent="Geometry/Cover10"]
 mesh = SubResource("Mesh_14")
@@ -300,167 +301,167 @@ shape = SubResource("Shape_14")
 [node name="CoverPoints" type="Node3D" parent="."]
 
 [node name="Cover01" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4, 0, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4, 0, 16)
 script = ExtResource("5_cover")
 
 [node name="Cover02" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6, 0, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.6, 0, 16)
 script = ExtResource("5_cover")
 
 [node name="Cover03" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 14.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 17.1)
 script = ExtResource("5_cover")
 
 [node name="Cover04" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 11.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 14.9)
 script = ExtResource("5_cover")
 
 [node name="Cover05" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6, 0, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.6, 0, 16)
 script = ExtResource("5_cover")
 
 [node name="Cover06" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.4, 0, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4, 0, 16)
 script = ExtResource("5_cover")
 
 [node name="Cover07" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 14.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 17.1)
 script = ExtResource("5_cover")
 
 [node name="Cover08" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 11.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 14.9)
 script = ExtResource("5_cover")
 
 [node name="Cover09" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9, 0, 6)
 script = ExtResource("5_cover")
 
 [node name="Cover10" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, 0, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.1, 0, 6)
 script = ExtResource("5_cover")
 
 [node name="Cover11" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 9.1)
 script = ExtResource("5_cover")
 
 [node name="Cover12" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 2.9)
 script = ExtResource("5_cover")
 
 [node name="Cover13" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.4, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.1, 0, 6)
 script = ExtResource("5_cover")
 
 [node name="Cover14" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.6, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.9, 0, 6)
 script = ExtResource("5_cover")
 
 [node name="Cover15" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 1.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 9.1)
 script = ExtResource("5_cover")
 
 [node name="Cover16" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -1.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 2.9)
 script = ExtResource("5_cover")
 
 [node name="Cover17" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.6, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4, 0, -6)
 script = ExtResource("5_cover")
 
 [node name="Cover18" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.4, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.6, 0, -6)
 script = ExtResource("5_cover")
 
 [node name="Cover19" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 1.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -4.9)
 script = ExtResource("5_cover")
 
 [node name="Cover20" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -1.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -7.1)
 script = ExtResource("5_cover")
 
 [node name="Cover21" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9, 0, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6, 0, -6)
 script = ExtResource("5_cover")
 
 [node name="Cover22" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1, 0, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.4, 0, -6)
 script = ExtResource("5_cover")
 
 [node name="Cover23" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -4.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -4.9)
 script = ExtResource("5_cover")
 
 [node name="Cover24" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -7.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -7.1)
 script = ExtResource("5_cover")
 
 [node name="Cover25" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.1, 0, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.4, 0, -14)
 script = ExtResource("5_cover")
 
 [node name="Cover26" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 0, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.6, 0, -14)
 script = ExtResource("5_cover")
 
 [node name="Cover27" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -4.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -12.4)
 script = ExtResource("5_cover")
 
 [node name="Cover28" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -7.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -15.6)
 script = ExtResource("5_cover")
 
 [node name="Cover29" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.4, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0, -14)
 script = ExtResource("5_cover")
 
 [node name="Cover30" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.6, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.4, 0, -14)
 script = ExtResource("5_cover")
 
 [node name="Cover31" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -12.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -12.4)
 script = ExtResource("5_cover")
 
 [node name="Cover32" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -15.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -15.6)
 script = ExtResource("5_cover")
 
 [node name="Cover33" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.6, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9, 0, -18)
 script = ExtResource("5_cover")
 
 [node name="Cover34" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.4, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.1, 0, -18)
 script = ExtResource("5_cover")
 
 [node name="Cover35" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -12.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -16.9)
 script = ExtResource("5_cover")
 
 [node name="Cover36" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -15.6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -19.1)
 script = ExtResource("5_cover")
 
 [node name="Cover37" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 0, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.1, 0, -18)
 script = ExtResource("5_cover")
 
 [node name="Cover38" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 0, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9, 0, -18)
 script = ExtResource("5_cover")
 
 [node name="Cover39" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13.9)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -16.9)
 script = ExtResource("5_cover")
 
 [node name="Cover40" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -19.1)
 script = ExtResource("5_cover")
 
 [node name="CapturePoint" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -21)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("6_capture")
 
 [node name="Shape" type="CollisionShape3D" parent="CapturePoint"]
@@ -480,26 +481,38 @@ shape = SubResource("Shape_objective")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 24)
 
 [node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -12, 0, -22)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -8, 0, 6)
 
 [node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 12, 0, -22)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 8, 0, 6)
 
 [node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4, 0, -25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4, 0, 5)
 
 [node name="Enemy4" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4, 0, -25)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4, 0, -5)
 
 [node name="Enemy5" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -14, 0, -8)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -7, 0, -4)
 
 [node name="Enemy6" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 14, 0, -8)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 7, 0, -6)
+
+[node name="ReinforcementSpawns" type="Node3D" parent="."]
+
+[node name="Spawn1" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -25)
+
+[node name="Spawn2" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -24)
+
+[node name="Spawn3" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -25)
 
 [node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]
 script = ExtResource("4_director")
 navigation_region = NodePath("../NavigationRegion3D")
 capture_point = NodePath("../CapturePoint")
+reinforcement_config = ExtResource("8_reinf")
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]

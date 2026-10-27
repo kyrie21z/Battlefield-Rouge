@@ -6,12 +6,13 @@ This overwrites all three scenes, so make layout changes here, not in the editor
 Each box named Cover* gets four cover points around it.
 A layout with `boss` adds one big enemy there; `enemies` are then the small ones
 around it. A layout with `core` has a bigger objective, open from the start.
+`spawns` are rear reinforcement markers (small zones only). The boss zone has none.
 """
 
 import math
 
 
-def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False):
+def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spawns=None):
     walls = [("Floor",(60,1,60),(0,-0.5,0)),("WallN",(60,4,1),(0,2,-30)),("WallS",(60,4,1),(0,2,30)),
              ("WallE",(1,4,60),(30,2,0)),("WallW",(1,4,60),(-30,2,0))]
     boxes = walls + boxes
@@ -27,6 +28,8 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False):
            '[ext_resource type="Script" path="res://zone/capture_point.gd" id="6_capture"]']
     if boss:
         ext.append('[ext_resource type="PackedScene" path="res://actors/enemy/boss.tscn" id="7_boss"]')
+    if spawns:
+        ext.append('[ext_resource type="Resource" path="res://zone/reinforcement_config.tres" id="8_reinf"]')
     sub = ['[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]','',
            '[sub_resource type="Sky" id="Sky_sky"]','sky_material = SubResource("Sky_mat")','',
            '[sub_resource type="Environment" id="Env"]','background_mode = 2','sky = SubResource("Sky_sky")','ambient_light_source = 3','tonemap_mode = 2','glow_enabled = true','',
@@ -68,9 +71,20 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False):
         nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {x}, 0, {z})','']
     if boss:
         nodes += ['[node name="Boss" parent="." instance=ExtResource("7_boss")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {boss[0]}, 0, {boss[1]})','']
-    nodes += ['[node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]','script = ExtResource("4_director")','navigation_region = NodePath("../NavigationRegion3D")','capture_point = NodePath("../CapturePoint")'] \
-             + (['open_at_start = true'] if core else []) + ['',
-              '[node name="HUD" parent="." instance=ExtResource("3_hud")]','']
+    if spawns:
+        nodes += ['[node name="ReinforcementSpawns" type="Node3D" parent="."]','']
+        for i, (x, z) in enumerate(spawns):
+            nodes += [f'[node name="Spawn{i+1}" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]',
+                      f'transform = {T(x, 0, z)}','']
+    director = ['[node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]',
+                'script = ExtResource("4_director")',
+                'navigation_region = NodePath("../NavigationRegion3D")',
+                'capture_point = NodePath("../CapturePoint")']
+    if spawns:
+        director.append('reinforcement_config = ExtResource("8_reinf")')
+    if core:
+        director.append('open_at_start = true')
+    nodes += director + ['', '[node name="HUD" parent="." instance=ExtResource("3_hud")]', '']
     nsub = sum(1 for l in sub if l.startswith('[sub_resource'))
     out = [f'[gd_scene load_steps={nsub+len(ext)+1} format=3]',''] + ext + [''] + sub + nodes
     return "\n".join(out), k
@@ -80,20 +94,26 @@ BOSS_AT = (0, -19)
 RING = [(round(BOSS_AT[0] + 4 * math.cos(math.radians(a)), 2), round(BOSS_AT[1] + 4 * math.sin(math.radians(a)), 2))
         for a in range(0, 360, 60)]
 
+# Small zones: the player enters from +z, the building sits at z=0, guards stand
+# around it, and reinforcement markers sit behind it near z=-25. The centre
+# corridor (x near 0) stays open so both the player and the reinforcements can
+# path to the building. The boss layout is unchanged.
 zones = {
- "maps/zone_1.tscn": dict(name="Zone1", grey=(0.55,0.56,0.58), spawn=(0,22), capture=(0,-22),
-   enemies=[(-8,-24),(8,-25),(-2,-26),(3,-14)],
-   boxes=[("Cover1",(3,1.2,1),(-6,0.6,8)),("Cover2",(3,1.2,1),(6,0.6,8)),
-          ("Cover3",(1,2.5,4),(-10,1.25,-4)),("Cover4",(1,2.5,4),(10,1.25,-4)),
-          ("Cover5",(4,1.2,1),(0,0.6,-10)),("Cover6",(2,2.5,2),(-4,1.25,-18)),("Cover7",(2,2.5,2),(5,1.25,-20))]),
- "maps/zone_2.tscn": dict(name="Zone2", grey=(0.6,0.55,0.5), spawn=(0,24), capture=(0,-21),
-   enemies=[(-12,-22),(12,-22),(-4,-25),(4,-25),(-14,-8),(14,-8)],
-   boxes=[("Cover1",(4,1.2,1),(-8,0.6,13)),("Cover2",(4,1.2,1),(8,0.6,13)),
-          ("Cover3",(1,2.5,6),(0,1.25,4)),
-          ("Cover4",(6,2.5,1),(-14,1.25,0)),("Cover5",(6,2.5,1),(14,1.25,0)),
-          ("Cover6",(3,1.2,1),(-5,0.6,-6)),("Cover7",(3,1.2,1),(5,0.6,-6)),
-          ("Cover8",(2,2.5,2),(-10,1.25,-14)),("Cover9",(2,2.5,2),(10,1.25,-14)),
-          ("Cover10",(5,1.2,1),(0,0.6,-15))]),
+ "maps/zone_1.tscn": dict(name="Zone1", grey=(0.55,0.56,0.58), spawn=(0,22), capture=(0,0),
+   enemies=[(-6,4),(6,4),(-5,-5),(5,-4)],
+   spawns=[(-8,-25),(0,-25),(8,-25)],
+   boxes=[("Cover1",(3,1.2,1),(-7,0.6,12)),("Cover2",(3,1.2,1),(7,0.6,12)),
+          ("Cover3",(1,2.5,4),(-14,1.25,0)),("Cover4",(1,2.5,4),(14,1.25,0)),
+          ("Cover5",(4,1.2,1),(-8,0.6,-8)),("Cover6",(4,1.2,1),(8,0.6,-8)),
+          ("Cover7",(2,2.5,2),(-12,1.25,-18))]),
+ "maps/zone_2.tscn": dict(name="Zone2", grey=(0.6,0.55,0.5), spawn=(0,24), capture=(0,0),
+   enemies=[(-8,6),(8,6),(-4,5),(4,-5),(-7,-4),(7,-6)],
+   spawns=[(-10,-25),(0,-24),(10,-25)],
+   boxes=[("Cover1",(4,1.2,1),(-9,0.6,16)),("Cover2",(4,1.2,1),(9,0.6,16)),
+          ("Cover3",(1,2.5,5),(-16,1.25,6)),("Cover4",(1,2.5,5),(16,1.25,6)),
+          ("Cover5",(4,1.2,1),(-10,0.6,-6)),("Cover6",(4,1.2,1),(10,0.6,-6)),
+          ("Cover7",(2,2.5,2),(-14,1.25,-14)),("Cover8",(2,2.5,2),(14,1.25,-14)),
+          ("Cover9",(3,1.2,1),(-6,0.6,-18)),("Cover10",(3,1.2,1),(6,0.6,-18))]),
  "maps/boss.tscn": dict(name="Boss", grey=(0.45,0.47,0.52), spawn=(0,26), capture=(0,-26.5),
    enemies=RING, boss=BOSS_AT, core=True,
    boxes=[("Cover1",(4,1.2,1),(-8,0.6,16)),("Cover2",(4,1.2,1),(8,0.6,16)),

@@ -168,6 +168,9 @@ func _load_scene(path: String) -> Node:
 	var scene: Node = load(path).instantiate()
 	add_child(scene)
 	await get_tree().process_frame
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	if is_instance_valid(director.selection):
+		(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
 	return scene
 
 

@@ -23,6 +23,7 @@ func _run() -> void:
 	var scene: Node = load("res://maps/zone_1.tscn").instantiate()
 	add_child(scene)
 	await get_tree().process_frame
+	_choose_entry(scene)
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	var player := scene.get_node("Player") as Player
@@ -134,6 +135,7 @@ func _run() -> void:
 	scene = load("res://maps/zone_2.tscn").instantiate()
 	add_child(scene)
 	await get_tree().process_frame
+	_choose_entry(scene)
 	point = scene.get_node("CapturePoint") as CapturePoint
 	player = scene.get_node("Player") as Player
 	_strikes.clear()
@@ -158,6 +160,12 @@ func _run() -> void:
 func _expect_last(label: String, perfect: bool, worth: float) -> void:
 	var last: Array = _strikes.back() if not _strikes.is_empty() else []
 	_check(label, not last.is_empty() and last[0] == perfect and is_equal_approx(last[2], worth))
+
+
+func _choose_entry(scene: Node) -> void:
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	if is_instance_valid(director.selection):
+		(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
 
 
 func _check(label: String, ok: bool) -> void:

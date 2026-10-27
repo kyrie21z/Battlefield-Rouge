@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Buff" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/buff.gd" id="1_buff"]
+[ext_resource type="Texture2D" path="res://assets/ui/buffs/blade_speed.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_buff")
+id = &"blade_speed"
+school_id = &"blade"
+title = "疾风连斩"
+description = "挥刀速度 +20%。按 V 挥刀；可重复叠加。"
+icon = ExtResource("2_icon")
+stack_text = "刀速 ×1.20"
+stat = &"melee_speed"
+add = 0.0
+mul = 1.20

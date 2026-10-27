@@ -35,6 +35,8 @@ func _run() -> void:
 	_point = scene.get_node("CapturePoint") as CapturePoint
 	_debug = scene.get_node("HUD/CaptureDebug") as CaptureDebug
 	var player := scene.get_node("Player") as Player
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
 	_point.struck.connect(func(perfect: bool, offset_ms: float, worth: float):
 		_strikes.append([perfect, offset_ms, worth])
 		print("struck %s %+d ms +%.0f%%" % ["perfect" if perfect else "ordinary", roundi(offset_ms), worth * 100.0]))

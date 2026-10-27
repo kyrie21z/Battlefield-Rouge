@@ -26,7 +26,7 @@ Low-poly / Toon。写实军事风和体素风不进入 MVP。配色、剪影和�
 | defer | Mixamo | MVP 不使用 | https://www.mixamo.com/ | 动画已在 Quaternius 包内。MVP 推迟。 |
 | defer | Sketchfab | 逐个核对，风险高 | https://sketchfab.com/ | MVP 推迟。每个资源的许可证单独看。 |
 
-## 流派与完美打击的可读性
+## 流派与完美打击的可读性（历史身份方案）
 
 给 AC-06 / AC-08 的图标，以及完美打击的闪光。效果数值仍 Design-TBD。
 
@@ -103,3 +103,23 @@ AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [ST
 | `assets/ui/schools/hawkeye.svg` | 鹰眼：`#14C8D4` 底 + `#0A6670` 准星剪影 | 本项目 |
 
 游戏里由 `SchoolBadge`（`TextureRect`）画在增益选择界面的「流派方向」一排。竖切要显示某一派时调用 `SchoolBadge.setup(school)`。对照图：`docs/proof/issue-13/`。
+
+## 2026-10-27：九增益图标与当前身份
+
+本次沿用用户已完成的九增益改进，当前 `SchoolCatalog` 为枪械、刀具、技能三派：枪械沿用黄色弹药身份图，刀具沿用红色斧头身份图，技能身份共用下表的紫色 `skill_unlock.svg`。上面的狂战士、军火大亨、鹰眼和旧对照图保留为历史方案；`hawkeye.svg` 仍保留，但不代表本次技能派。卡片与玩法默认值见 [Buff 当前实现](Buff当前实现.md)，接入范围见 [ADR 0006](adr/0006-nine-buffs-and-entry-choices.md)。
+
+以下九张均从用户维护的九增益源码版迁入，为 128×128 的项目内 SVG 绘制，不是从第三方素材包或旧 `origin` 提取的图片。技能三图沿用用户已确定的紫色；`skill_unlock.svg` 按用户的黑豹面具视觉参考绘制，源文件注明 Marvel Black Panther fan icon，没有下载或嵌入官方图片，不将其登记为第三方 CC0 素材。以下 SHA-256 是本次迁入文件的完整实际哈希，日期为接入登记日，并非外部下载日期。
+
+| 仓库内文件 | 内容与来源 | SHA-256 |
+| --- | --- | --- |
+| `assets/ui/buffs/firearm_damage.svg` | 危险弹匣；沿用用户版本的弹匣与爆炸 SVG | `f67648fd137b9f85b0d8465045585eaf6425b4b2c2ad6e96b7702606e3d7f9cc` |
+| `assets/ui/buffs/firearm_rate.svg` | 快速扳机；沿用用户版本的子弹与速度线 SVG | `e6b0ccc35a092988fac5fcc69d52f2ded659f0d22cf4d910d6faeae9d538bdfa` |
+| `assets/ui/buffs/firearm_magazine.svg` | 扩容弹匣；沿用用户版本的加号弹匣 SVG | `7798676dbff642323ef28b6fdf17e396298153b285be717befc4ae4ec2306c85` |
+| `assets/ui/buffs/blade_damage.svg` | 子弹收藏家；沿用用户版本的刀刃与收藏弹头 SVG | `3a2c11173150b983e2393d4e9780ebaa2b535565a27eaee1c42f0ebdbbfb2271` |
+| `assets/ui/buffs/blade_speed.svg` | 疾风连斩；沿用用户版本的多道刀光 SVG | `175666cc34ebe1022b3896cb1ed6712f645b20e68608ec546ae0321cdbdf2c6f` |
+| `assets/ui/buffs/blade_range.svg` | 长刃改造；沿用用户版本的加长刀刃 SVG | `913ddac83fa22a2e617d4e0d4883939e5199b2f090fd7eea0bb6e840cef44672` |
+| `assets/ui/buffs/skill_unlock.svg` | 反击护盾与技能身份；沿用用户版本的紫色自绘黑豹面具 SVG，视觉参考如上 | `2990b600034a0cab787c96ef3e849a4f1219799aa699ae7a5d035a50c6e7557b` |
+| `assets/ui/buffs/skill_duration.svg` | 持久屏障；沿用用户版本的紫色计时护盾 SVG | `0c523de1decbace848d8d70344e93342d0196d1ab6a754e2a8ac19f0af75c7e7` |
+| `assets/ui/buffs/skill_cooldown.svg` | 能量回流；沿用用户版本的紫色环形回流 SVG | `fd2adce06a32b4f5e016f86c199262e0be759dd64f23a8948b4034058aac027f` |
+
+每张 SVG 的 `.import` 设置随文件提交；不提交 `.godot` 导入缓存。爆炸弹匣、收藏弹、护盾遮罩与反击波由现有组件绘制，不新增外部贴图或模型。本次保留团队两小关加 Boss 的地图与素材，没有迁入城市素材版或未来候选内容。

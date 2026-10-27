@@ -182,13 +182,48 @@ theme_override_styles/fill = SubResource("BossFill")
 show_percentage = false
 
 [node name="Buffs" type="Label" parent="."]
+mouse_filter = 2
 offset_left = 32.0
 offset_top = 24.0
-offset_right = 632.0
-offset_bottom = 64.0
+offset_right = 620.0
+offset_bottom = 310.0
 theme_override_font_sizes/font_size = 22
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
+autowrap_mode = 3
+
+[node name="Abilities" type="Label" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -570.0
+offset_top = 24.0
+offset_right = -32.0
+offset_bottom = 240.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+horizontal_alignment = 2
+
+[node name="CombatFeedback" type="Label" parent="."]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -620.0
+offset_top = -222.0
+offset_right = 620.0
+offset_bottom = -168.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(0.35, 0.92, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="StrikeBar" type="Control" parent="."]
 layout_mode = 3

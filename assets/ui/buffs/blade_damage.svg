@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: blade_damage. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#E0242A" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m74 19 20-3-5 26-43 44-18-18z" fill="#6E1218"/>
+    <path d="m33 78-17 21 10 11 20-22M23 67l31 30" fill="none" stroke-width="9"/>
+    <path d="m91 54 13 15v31H78V69z" fill="#FFB5A7" stroke-width="4"/>
+    <path d="M78 88h26M65 66q-1 22 7 30m-11-8 12 9 6-13" fill="none" stroke="#FFB5A7" stroke-width="5"/>
+  </g>
+</svg>

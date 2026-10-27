@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== schools (AC-06)
+  ok  three schools
+  ok  firearm has a title
+  ok  firearm direction has no digits
+  ok  firearm icon loads
+  ok  firearm icon has pixels
+  ok  firearm icon uses its accent
+  ok  firearm icon uses its shade
+  ok  firearm icon uses the ink line
+  ok  blade has a title
+  ok  blade direction has no digits
+  ok  blade icon loads
+  ok  blade icon has pixels
+  ok  blade icon uses its accent
+  ok  blade icon uses its shade
+  ok  blade icon uses the ink line
+  ok  skill has a title
+  ok  skill direction has no digits
+  ok  skill icon loads
+  ok  skill icon has pixels
+  ok  skill icon uses its accent
+  ok  skill icon uses its shade
+  ok  skill icon uses the ink line
+  ok  ids are firearm, blade, skill
+  ok  titles
+  ok  directions
+  ok  accents
+  ok  shades
+  ok  icons differ
+  ok  find misses unknown ids
+  ok  find hits firearm
+== buff select shows the three directions
+  ok  three badges on the select screen
+  ok  badge order
+  ok  badge paints a TextureRect
+  ok  badge ignores clicks
+ALL PASSED (0 failed)

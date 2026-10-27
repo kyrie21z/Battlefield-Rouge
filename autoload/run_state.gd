@@ -14,6 +14,8 @@ const ZONE_SCENES: Array[String] = [
 
 var zone_index := 0
 var buffs: Array[Resource] = []
+## Accepted choices in order, including the zone and entry/clear context (AC-04).
+var selection_history: Array[Dictionary] = []
 ## Every random choice in a zone is drawn after the zone director seeds the
 ## generator from this, so the same seed and the same inputs give the same run
 ## (AC-07). An ordinary run gets a new one each time it starts.
@@ -27,6 +29,7 @@ func _ready() -> void:
 	Events.player_died.connect(start_new_run)
 	Events.buff_chosen.connect(add_buff)
 	run_seed = randi()
+	BuffPool.reset()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--fixture="):
 			_start_from_command_line(arg.trim_prefix("--fixture="))
@@ -38,7 +41,9 @@ func start_new_run() -> void:
 		return
 	zone_index = 0
 	buffs.clear()
+	selection_history.clear()
 	run_seed = randi()
+	BuffPool.reset()
 	changed.emit()
 
 
@@ -55,6 +60,16 @@ func clear_fixture() -> void:
 
 func add_buff(buff: Resource) -> void:
 	buffs.append(buff)
+	changed.emit()
+
+
+func record_selection(context: String, buff: Buff) -> void:
+	selection_history.append({
+		"zone_index": zone_index,
+		"context": context,
+		"buff_id": buff.id,
+		"buff_title": buff.title,
+	})
 	changed.emit()
 
 
@@ -85,6 +100,8 @@ func _apply(start: RunFixture) -> void:
 	zone_index = start.start_zone
 	buffs.assign(start.buffs)
 	run_seed = start.run_seed
+	selection_history.clear()
+	BuffPool.reset()
 	changed.emit()
 
 

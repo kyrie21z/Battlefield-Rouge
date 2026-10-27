@@ -30,6 +30,8 @@ var _lunge_left := 0.0
 @onready var weapon: Weapon = $Head/Camera3D/Weapon
 @onready var melee: MeleeWeapon = $Head/Camera3D/Melee
 @onready var hammer: Hammer = $Head/Camera3D/Hammer
+@onready var shield: PlayerShield = $Shield
+@onready var combat_traits: CombatTraits = $CombatTraits
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
 
@@ -128,7 +130,13 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 
 func _on_died(_source: Node) -> void:
 	hammer.set_process(false)
+	melee.cancel()
 	melee.set_process(false)
+	shield.cancel()
+	shield.set_process(false)
+	combat_traits.clear()
+	combat_traits.set_process(false)
+	weapon.set_process(false)
 	Events.player_died.emit()
 
 

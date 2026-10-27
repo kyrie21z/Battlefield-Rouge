@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Buff" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/buff.gd" id="1_buff"]
+[ext_resource type="Texture2D" path="res://assets/ui/buffs/skill_cooldown.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_buff")
+id = &"skill_cooldown"
+school_id = &"skill"
+title = "能量回流"
+description = "获得主动护盾（Q），冷却时间 -20%。可重复选择，乘算叠加。"
+icon = ExtResource("2_icon")
+stack_text = "护盾冷却 ×0.80"
+stat = &"shield_cooldown"
+add = 0.0
+mul = 0.80
+extra_adds = {
+&"skill_unlocked": 1.0
+}

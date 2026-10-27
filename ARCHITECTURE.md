@@ -23,21 +23,21 @@
 
 1. `components/`、`weapons/`、`actors/` 只向 `Events` 发信号，不读写 `RunState`，也不通过路径或分组去找别的系统。
 2. 只有 `RunState` 和 `zone/` 下的战区控制可以改本局状态。
-3. 增益只修改 `Stats`，不直接改玩家或武器脚本。新增增益只需要加一个 `.tres`。
+3. 增益只修改 `Stats`，不直接改玩家或武器脚本。已有能力的新卡通过 `.tres` 定义并加入 `BuffPool.ALL`；新增能力由组件读取对应 Stats，`Buff.extra_adds` 可附带共享能力解锁。
 4. 依赖方向只能是 `ui → zone → actors → components`，反过来要用信号。
 5. 战区里的玩法代码可复现（AC-07）：不读墙钟，时间用 `SimClock`；不 `randomize()`，随机数用全局的 `randf()` 等，战区开头已经 `seed()`。细则见 `docs/adr/0005-reproducible-runs.md`。
 6. 从 `../origin/sheji` 迁移代码时，先删掉对 `GameState`、`VoiceManager`、突破模式、载具、商店的引用，再放进来。
 
 ## 一个战区的流程
 
-本节是**现在代码**在做什么：清守卫，再用锤砸据点建筑，插旗后三选一。设计目标见 Cut-001b（`docs/Cut-001b.md`）：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5，三个数在 `zone/capture_config.tres`。增援、冲击波和进关选择还没做；节拍周期、冷却等补充规则见 `docs/adr/0003-hammer-capture-timing.md`，Boss 关见 `docs/adr/0004-boss-wave-and-core.md`。
+当前每关先选卡，再清守卫、挥锤砸据点和插旗；两个小关结束各再选一次，Boss 结束直接胜利。一局五次选择对应 AC-04，九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +8%、完美 ×1.5，配置是 `zone/capture_config.tres`。增援和冲击波未实现；节拍见 ADR 0003，Boss 见 ADR 0004。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。
 
-1. 烘焙导航网格，把 `RunState.buffs` 应用到玩家的 `Stats`，把玩家和掩体点交给每个敌人。
-2. 守卫全部死亡 → `Events.zone_cleared`，据点开放，阶段变为 `HAMMER_POINT`。据点开放前挥锤不加进度。Boss 关的 `ZoneDirector.open_at_start` 为真：据点从开局就开放，阶段直接是 `HAMMER_POINT`，敌人死光也不改变阶段。
-3. 玩家在锤程内按 E，`Hammer` 发 `swung`，`CapturePoint` 按节拍判定：普通锤击加 `normal_progress`，完美打击加 `normal_progress × perfect_multiplier`。进度只增不减。占满 → 升旗，阶段变为 `FLAG_PLANTED`，发 `Events.point_captured`，等 1.4 秒让旗升起，再：不是最后一个战区就暂停并弹出三选一；选完发 `Events.buff_chosen`（`RunState` 记下增益），`RunState.advance_zone()`，切到下一个战区场景。最后一个战区则发 `Events.run_won` 并显示胜利界面。
-4. 玩家死亡 → `Events.player_died`，`RunState` 清空本局，显示阵亡界面。重新开始回到第 1 个战区。
+1. 保留战区随机种子、`SimClock` 与同步导航烘焙。把已有卡应用到玩家 Stats，收集敌人与掩体，进入 `BUFF_SELECT` 并暂停；此时敌人还没有玩家目标。
+2. 确认 `enter` 卡后记录选择历史，发 `Events.buff_chosen`，立即应用新卡，再给敌人设置目标。小关进入 `CLEAR_GUARDS`；Boss 保留 `open_at_start`，直接进入 `HAMMER_POINT`。
+3. 小关守卫全灭开放据点。E 锤命中仍按原节拍配置计进度，100% 插旗后等 1.4 秒。非最后一关提供 `clear` 卡，选完推进并载入下一关，下一关还有自己的 `enter` 卡；Boss 最后直接胜利，不再发牌。
+4. 死亡清空本局增益、选择历史与卡袋，显示阵亡界面。普通重开回第一关；fixture 模式仍回到同一 fixture 的关卡、预设卡和种子。选择提交、占点回调和场景推进均有防重保护。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。
 
@@ -82,7 +82,13 @@
 
 视图模型的材质是逐实例改的（`_flat_shade`）：不受光（`UNSHADED`）、双面（导出的刃是单面板），再加 `view_brightness` 提亮（斧头是深炭色，不提亮在画面里就是一坨黑）。
 
-近战不读 `RunState`，只发信号；伤害和节奏从 `Stats` 读（`DAMAGE` 和 `FIRE_RATE`），所以增益不改近战代码。`tests/melee_test.gd` 用投影量刀尖：起手和落点实际落在屏幕哪里、两点连起来跨不跨屏、刀尖在不在眼睛前面、刀面朝不朝镜头。
+近战不读 `RunState`，只发信号；伤害和节奏从 `Stats` 读。枪的 `DAMAGE`、`FIRE_RATE` 仍乘到近战上。刀具卡另外乘 `MELEE_DAMAGE`、`MELEE_SPEED`、`MELEE_RANGE`，基数都是 1，所以没选刀具卡时三把近战保持 `.tres` 原值。`tests/melee_test.gd` 用投影量刀尖：起手和落点实际落在屏幕哪里、两点连起来跨不跨屏、刀尖在不在眼睛前面、刀面朝不朝镜头。
+
+## 九增益与能力组件
+
+`BuffPool.ALL` 为 `firearm`、`blade`、`skill` 每派三张。每次每派各一张，前三次覆盖九张，用完重洗；发牌只使用战区已播种的全局随机，重开清袋。`Buff` 含稳定 id、独特图标、说明和 Stats 修改，School 只含流派身份。
+
+Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield` 读取护盾解锁/持续/冷却（按键是 G，Q 留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。
 
 ## 碰撞层
 

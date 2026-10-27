@@ -1,7 +1,7 @@
 extends Node
 ## Headless check that the three school identities stay distinct (AC-06).
 ##   godot --headless --path . res://tests/school_icons_test.tscn
-## Does not assign effect numbers. Those stay Design-TBD.
+## Also checks the three directions used by the nine playable AC-08 buffs.
 
 var _failures := 0
 var _finished := false
@@ -33,24 +33,26 @@ func _run() -> void:
 			_check("%s icon uses its accent" % school.id, _count_near(image, school.accent) > 8)
 			_check("%s icon uses its shade" % school.id, _count_near(image, school.shade) > 8)
 			_check("%s icon uses the ink line" % school.id, _count_near(image, Color.html("1A1C22")) > 8)
-	_check("ids are berserker, arms_dealer, hawkeye", ids == [&"berserker", &"arms_dealer", &"hawkeye"])
+	_check("ids are firearm, blade, skill", ids == [&"firearm", &"blade", &"skill"])
 	if schools.size() == 3:
-		_check("titles", schools[0].title == "狂战士" and schools[1].title == "军火大亨" and schools[2].title == "鹰眼")
-		_check("directions", schools[0].direction == "近战" and schools[1].direction == "弹药特性" and schools[2].direction == "爆头收益")
-		_check("accents", _same(schools[0].accent, "E0242A") and _same(schools[1].accent, "F5C400") and _same(schools[2].accent, "14C8D4"))
-		_check("shades", _same(schools[0].shade, "6E1218") and _same(schools[1].shade, "8A6800") and _same(schools[2].shade, "0A6670"))
+		_check("titles", schools[0].title == "枪械加持" and schools[1].title == "刀具加持" and schools[2].title == "技能获得")
+		_check("directions", schools[0].direction == "枪伤·射速·弹匣" and schools[1].direction == "刀伤·刀速·刀距" and schools[2].direction == "主动护盾")
+		_check("accents", _same(schools[0].accent, "F5C400") and _same(schools[1].accent, "E0242A") and _same(schools[2].accent, "B36CFF"))
+		_check("shades", _same(schools[0].shade, "8A6800") and _same(schools[1].shade, "6E1218") and _same(schools[2].shade, "5D2A8C"))
 	_check("icons differ", hashes.size() == 3 and hashes[0] != hashes[1] and hashes[0] != hashes[2] and hashes[1] != hashes[2])
 	_check("find misses unknown ids", SchoolCatalog.find(&"") == null and SchoolCatalog.find(&"nope") == null)
-	_check("find hits berserker", schools.size() == 3 and SchoolCatalog.find(&"berserker") == schools[0])
+	_check("find hits firearm", schools.size() == 3 and SchoolCatalog.find(&"firearm") == schools[0])
 
 	print("== buff select shows the three directions")
 	var select := (load("res://ui/buff_select.tscn") as PackedScene).instantiate()
 	add_child(select)
+	BuffPool.reset(606)
+	select.setup(BuffPool.pick(3), "测试：枪械、刀具、技能")
 	var badges: Array[SchoolBadge] = []
 	_collect(select, badges)
 	_check("three badges on the select screen", badges.size() == 3)
 	if badges.size() == 3:
-		_check("badge order", badges[0].school.id == &"berserker" and badges[1].school.id == &"arms_dealer" and badges[2].school.id == &"hawkeye")
+		_check("badge order", badges[0].school.id == &"firearm" and badges[1].school.id == &"blade" and badges[2].school.id == &"skill")
 		var icon := badges[0].get_node_or_null("Row/Icon") as TextureRect
 		_check("badge paints a TextureRect", icon != null and icon.texture == badges[0].school.icon)
 		_check("badge ignores clicks", badges[0].mouse_filter == Control.MOUSE_FILTER_IGNORE)

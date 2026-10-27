@@ -17,7 +17,10 @@ var _bindings := {
 	"weapon_prev": [_mouse(MOUSE_BUTTON_WHEEL_DOWN)],
 	"hammer": [_key(KEY_E)],
 	"melee": [_key(KEY_V)],
+	# Q cycles the three melee weapons. F stays `interact` (nothing reads it yet),
+	# so the purple shield uses the next free combat key.
 	"switch_melee": [_key(KEY_Q)],
+	"shield": [_key(KEY_G)],
 	"interact": [_key(KEY_F)],
 	"toggle_debug": [_key(KEY_F3)],
 	"pause": [_key(KEY_ESCAPE)],

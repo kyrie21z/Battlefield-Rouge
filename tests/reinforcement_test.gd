@@ -20,7 +20,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed > 45.0 and not _finished:
+	if _elapsed > 90.0 and not _finished:
 		push_error("reinforcement test timed out")
 		get_tree().quit(1)
 
@@ -42,7 +42,10 @@ func _run() -> void:
 	var second := await _first_wave(424242)
 	_check("two enemies spawn on capture", first.size() == 2 and second.size() == 2)
 	_check("the spawn sequence matches", _flats(first) == _flats(second))
-	_check("both spawns are behind the building", first.all(func(v: Vector3): return v.z < -20.0))
+	_check("both spawns are behind the building", first.all(func(v: Vector3): return v.z < -19.0))
+
+	print("== reinforcements reach the building without corner jitter")
+	await _approach_without_jitter()
 
 	print("== rhythm, shockwave, pedestal")
 	await _rhythm_and_pedestal()
@@ -58,13 +61,16 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	var player := scene.get_node("Player") as Player
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
-	_check("%s building is near z=0 (%.2f)" % [path.get_file(), point.global_position.z], absf(point.global_position.z) < 1.0)
+	_check("%s building is back near z=-8 (%.2f)" % [path.get_file(), point.global_position.z], absf(point.global_position.z + 8.0) < 1.0)
 	_check("%s player enters from the front" % path.get_file(), player.global_position.z > point.global_position.z + 15.0)
 	var spawns := _spawns(scene)
 	_check("%s has rear spawns" % path.get_file(), spawns.size() >= 2)
 	var behind := true
 	for marker in spawns:
-		if marker.global_position.z > point.global_position.z - 18.0:
+		# A few seconds of running, not the old 25 m hike.
+		if marker.global_position.z > point.global_position.z - 8.0:
+			behind = false
+		if marker.global_position.distance_to(point.global_position) > 18.0:
 			behind = false
 	_check("%s spawns sit behind the building" % path.get_file(), behind)
 	var guards := _enemies(scene)
@@ -92,6 +98,63 @@ func _first_wave(run_seed: int) -> Array[Vector3]:
 	var log := director.reinforcement_spawn_log.duplicate()
 	await _close(scene)
 	return log
+
+
+func _approach_without_jitter() -> void:
+	var scene := await _open_zone("res://maps/zone_1.tscn", 0, 1001)
+	_choose_entry(scene)
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	var point := scene.get_node("CapturePoint") as CapturePoint
+	var player := scene.get_node("Player") as Player
+	player.health.max_health = 1000000.0
+	player.health.health = 1000000.0
+	player.set_physics_process(false)
+	player.global_position = point.global_position + Vector3(0.0, 0.0, 2.4)
+	for enemy in _enemies(scene):
+		enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
+	var tuned := director.reinforcement_config.duplicate() as ReinforcementConfig
+	tuned.interval_seconds = 0.35
+	tuned.per_wave = 2
+	tuned.max_alive = 8
+	director.reinforcement_config = tuned
+	var history := {}
+	var jitter := 0
+	for _frame in 60 * 5:
+		await get_tree().physics_frame
+		for enemy in _enemies(scene):
+			if not enemy.name.begins_with("Reinforcement") or enemy.state == Enemy.State.DEAD:
+				continue
+			var id := enemy.get_instance_id()
+			if not history.has(id):
+				history[id] = []
+			var samples: Array = history[id]
+			samples.append({"p": enemy.global_position, "v": Vector3(enemy.velocity.x, 0.0, enemy.velocity.z)})
+			if samples.size() > 45:
+				samples.pop_front()
+			if samples.size() < 40:
+				continue
+			var moved: float = (samples[0].p as Vector3).distance_to(samples[-1].p)
+			var flips := 0
+			for i in range(1, samples.size()):
+				var a: Vector3 = samples[i - 1].v
+				var b: Vector3 = samples[i].v
+				if a.length() > 0.6 and b.length() > 0.6 and a.normalized().dot(b.normalized()) < 0.0:
+					flips += 1
+			var far := enemy.global_position.distance_to(point.global_position) > 6.0
+			if far and moved < 0.45 and flips >= 4:
+				jitter += 1
+				samples.clear()
+	var close := 0
+	var alive := 0
+	for enemy in _enemies(scene):
+		if not enemy.name.begins_with("Reinforcement") or enemy.state == Enemy.State.DEAD:
+			continue
+		alive += 1
+		if enemy.global_position.distance_to(point.global_position) <= 16.0:
+			close += 1
+	_check("no reinforcement jitters in a corner", jitter == 0)
+	_check("most reinforcements close on the building (%d/%d)" % [close, alive], alive >= 2 and close * 4 >= alive * 3)
+	await _close(scene)
 
 
 func _rhythm_and_pedestal() -> void:

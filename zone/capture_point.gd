@@ -41,6 +41,11 @@ var _hit_sound := ProceduralAudio.generate("hammer_hit")
 var _perfect_sound := ProceduralAudio.generate("hammer_perfect")
 var _audio := AudioStreamPlayer3D.new()
 var _light := OmniLight3D.new()
+## How many quarter-steps of the building have broken off. 4 means it has collapsed.
+var fracture_stage := 0
+var _blocks: Array[MeshInstance3D] = []
+var _broken: Array[MeshInstance3D] = []
+var _debris: Array[Dictionary] = []
 
 @onready var _building: MeshInstance3D = $Objective/Mesh
 
@@ -59,6 +64,8 @@ func _ready() -> void:
 	_light.omni_range = 10.0
 	_light.light_energy = 0.0
 	add_child(_light)
+	_build_fracture()
+	struck.connect(_on_struck_debris)
 	_update_color()
 
 
@@ -90,6 +97,7 @@ func add_capture_progress(amount: float) -> void:
 		return
 	progress = minf(progress + amount, 1.0)
 	progress_changed.emit(progress)
+	_sync_fracture()
 	_update_color()
 	if is_captured():
 		progress = 1.0
@@ -143,6 +151,140 @@ func _play_feedback(perfect: bool) -> void:
 	_flash_tween.tween_property(_light, "light_energy", 0.0, 0.4).from(8.0 if perfect else 0.0)
 
 
+## Blocks still attached to the building. Tests watch this drop at each quarter.
+func intact_block_count() -> int:
+	return _blocks.size() - _broken.size()
+
+
+func _physics_process(delta: float) -> void:
+	for piece in _debris:
+		if piece.settled:
+			continue
+		piece.time += delta
+		piece.velocity.y -= 14.0 * delta
+		var node := piece.node as Node3D
+		node.position += piece.velocity * delta
+		node.rotation += piece.spin * delta
+		if node.position.y <= 0.12 or piece.time >= 1.05:
+			node.position.y = 0.12
+			piece.settled = true
+
+
+## Eight boxes in place of the single grey mesh. The collision box stays, so
+## navigation and gun rays still see a solid building. The boxes themselves
+## have no collision.
+func _build_fracture() -> void:
+	var box := _building.mesh as BoxMesh
+	var size := box.size if box != null else _building.get_aabb().size
+	_building.visible = false
+	var cell := size / 2.0
+	var index := 0
+	for iy in 2:
+		for iz in 2:
+			for ix in 2:
+				var block := MeshInstance3D.new()
+				block.name = "Block%d" % index
+				var part := BoxMesh.new()
+				part.size = cell * 0.92
+				block.mesh = part
+				block.material_override = _material
+				block.position = Vector3((float(ix) - 0.5) * cell.x, (float(iy) - 0.5) * cell.y, (float(iz) - 0.5) * cell.z)
+				var crack := MeshInstance3D.new()
+				crack.name = "Crack"
+				var crack_mesh := BoxMesh.new()
+				crack_mesh.size = Vector3(cell.x * 0.84, 0.035, 0.025)
+				crack.mesh = crack_mesh
+				var dark := StandardMaterial3D.new()
+				dark.albedo_color = Color(0.07, 0.07, 0.08)
+				crack.material_override = dark
+				crack.position = Vector3(0.0, cell.y * 0.12, cell.z * 0.42)
+				crack.visible = false
+				block.add_child(crack)
+				_building.get_parent().add_child(block)
+				_blocks.append(block)
+				index += 1
+
+
+func _sync_fracture() -> void:
+	var stage := mini(int(floor(progress / 0.25)), 3)
+	if progress >= 1.0 - FULL_EPSILON:
+		stage = 4
+	while fracture_stage < stage:
+		fracture_stage += 1
+		_break_stage(fracture_stage)
+	for block in _blocks:
+		if block in _broken:
+			continue
+		var crack := block.get_node_or_null("Crack") as MeshInstance3D
+		if crack != null:
+			crack.visible = fracture_stage > 0
+
+
+func _break_stage(stage: int) -> void:
+	var first := (stage - 1) * 2
+	for offset in 2:
+		var index := first + offset
+		if index >= _blocks.size():
+			return
+		_detach(_blocks[index], index, stage == 4)
+
+
+func _detach(block: MeshInstance3D, index: int, collapse: bool) -> void:
+	if block in _broken:
+		return
+	_broken.append(block)
+	var crack := block.get_node_or_null("Crack") as MeshInstance3D
+	if crack != null:
+		crack.visible = false
+	var origin := block.global_position
+	block.reparent(self)
+	block.global_position = origin
+	var dull := _material.duplicate() as StandardMaterial3D
+	dull.albedo_color = Color(0.22, 0.22, 0.24)
+	dull.emission_enabled = false
+	block.material_override = dull
+	# Index-based offsets, not randf(), so a chip burst cannot move the run seed.
+	var angle := float(index) * 1.7 + float(fracture_stage)
+	var outward := Vector3(sin(angle), 0.85 if collapse else 1.35, cos(angle * 1.3))
+	var speed := 2.4 if collapse else 1.5 + float(index % 3) * 0.35
+	_debris.append({
+		"node": block,
+		"velocity": outward.normalized() * speed,
+		"spin": Vector3(sin(angle), 0.4, cos(angle)) * (2.2 if collapse else 1.4),
+		"time": 0.0,
+		"settled": false,
+	})
+
+
+func _on_struck_debris(perfect: bool, _offset_ms: float, _worth: float) -> void:
+	var bits := CPUParticles3D.new()
+	bits.name = "Chips"
+	bits.one_shot = true
+	bits.explosiveness = 1.0
+	bits.amount = 16 if perfect else 6
+	bits.lifetime = 0.45
+	bits.use_fixed_seed = true
+	bits.seed = fracture_stage * 17 + (3 if perfect else 1)
+	var chip := BoxMesh.new()
+	chip.size = Vector3(0.07, 0.07, 0.07)
+	bits.mesh = chip
+	var chip_material := StandardMaterial3D.new()
+	chip_material.albedo_color = Color(0.85, 0.88, 0.95) if perfect else Color(0.45, 0.47, 0.5)
+	chip_material.emission_enabled = perfect
+	chip_material.emission = Color(1.0, 0.85, 0.45)
+	chip_material.emission_energy_multiplier = 2.0 if perfect else 0.0
+	bits.material_override = chip_material
+	bits.direction = Vector3(0.0, 1.0, 0.0)
+	bits.spread = 55.0
+	bits.initial_velocity_min = 1.4
+	bits.initial_velocity_max = 3.6 if perfect else 2.2
+	bits.gravity = Vector3(0.0, -12.0, 0.0)
+	bits.position = Vector3(0.0, 1.2, 0.0)
+	add_child(bits)
+	bits.emitting = true
+	bits.finished.connect(bits.queue_free)
+
+
 func _plant_flag() -> void:
 	var top := (_building.global_transform * _building.get_aabb()).end.y - global_position.y
 	var flag := Node3D.new()
@@ -179,3 +321,5 @@ func _update_color() -> void:
 		_material.albedo_color = COLOR_LOCKED
 	else:
 		_material.albedo_color = COLOR_OPEN.lerp(COLOR_CAPTURED, progress)
+		if fracture_stage > 0:
+			_material.albedo_color = _material.albedo_color.lerp(Color(0.16, 0.16, 0.18), float(fracture_stage) / 4.0)

@@ -30,7 +30,7 @@
 
 ## 一个战区的流程
 
-一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +8%、完美 ×1.5，配置是 `zone/capture_config.tres`。小关据点在中央；据点开放后按 `zone/reinforcement_config.tres` 从后方刷增援，插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
+一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +8%、完美 ×1.5，配置是 `zone/capture_config.tres`。小关据点在 z≈-8（靠近后方增援）；据点开放后按 `zone/reinforcement_config.tres` 从后方刷增援，插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。敌人排在 `ZoneDirector` 前面，所以战区控制 `_ready` 时敌人已经 ready。
 
@@ -97,7 +97,8 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 | 层 | 常量 | 放什么 |
 | --- | --- | --- |
 | 1 | `WORLD` | 场景几何和道具 |
-| 2 | `ACTORS` | 玩家和敌人的移动碰撞体 |
+| 2 | `ACTORS` | 玩家的移动碰撞体 |
+| 3 | `ENEMIES` | 敌人的移动碰撞体。敌人的 mask 不含这一层，所以敌人之间不互相推挤 |
 | 4 | `HITBOXES` | 受击判定 |
 
 子弹（玩家的射线、敌人的慢速弹）只检测 `WORLD | HITBOXES`。角色的移动碰撞体和受击判定位置重叠，子弹如果检测 `ACTORS`，会先打在移动碰撞体上而打不到受击判定。

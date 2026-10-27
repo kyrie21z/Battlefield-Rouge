@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Project-drawn fan icon: Marvel Black Panther mask and purple kinetic seams. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#B36CFF" stroke="#1A1C22" stroke-width="6"/>
+  <path d="M18 48 13 64l6 22m91-38 5 16-6 22" fill="none" stroke="#F0DFFF" stroke-width="4" stroke-linecap="round"/>
+  <g stroke="#1A1C22" stroke-width="3" stroke-linejoin="round">
+    <path d="m34 18 14 13q16-8 32 0l14-13 9 35-6 30-13 17-20 14-20-14-13-17-6-30z" fill="#1A1C22"/>
+    <path d="m36 25 4 22 10-12zm56 0-4 22-10-12z" fill="#5D2A8C"/>
+    <path d="m41 44 12-9 11 9 11-9 12 9-6 7-17-3-17 3z" fill="#383244"/>
+    <path d="m33 63 10 12 8 18-11-8-9-17zm62 0L85 75l-8 18 11-8 9-17z" fill="#5D2A8C"/>
+    <path d="m35 51 22 8-8 5-11-5zm58 0-22 8 8 5 11-5z" fill="#F0DFFF" stroke-width="2"/>
+    <path d="m57 72 7-6 7 6-7 6z" fill="#383244" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#D9A9FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m50 33 14 12 14-12M64 46v11M33 69l10 13 9 5m43-18L85 82l-9 5M64 80v15"/>
+    <path d="m47 92 6 9 5-5 6 11 6-11 5 5 6-9" stroke="#F0DFFF"/>
+  </g>
+</svg>

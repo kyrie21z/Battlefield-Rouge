@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: blade_speed. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#E0242A" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M98 22 83 53 58 74 45 61 68 37z" fill="#6E1218"/><path d="m48 70-15 19M33 61l30 29" fill="none" stroke-width="9"/><path d="M17 64q3-36 41-45M19 88q23 28 60 16M37 98q35 4 56-25" fill="none" stroke="#FFB5A7" stroke-width="6"/>
+  </g>
+</svg>

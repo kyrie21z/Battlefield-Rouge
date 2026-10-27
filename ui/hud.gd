@@ -24,6 +24,8 @@ var _director: ZoneDirector
 @onready var _boss_label: Label = $Top/BossLabel
 @onready var _boss_bar: ProgressBar = $Top/BossBar
 @onready var _buffs_label: Label = $Buffs
+@onready var _abilities_label: Label = $Abilities
+@onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _debug: CaptureDebug = $CaptureDebug
 
@@ -52,21 +54,25 @@ func _ready() -> void:
 	_director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
 	_objective_label.text = _director.objective
 	_on_enemies_changed(_director.enemies_total, _director.enemies_total)
-	_capture_bar.visible = _director.phase != ZoneDirector.Phase.CLEAR_GUARDS
+	_on_phase_changed(_director.phase)
 	if _director.boss != null:
 		_director.boss.health.damaged.connect(func(_amount, _part, _source): _refresh_boss())
 		_boss_label.visible = true
 		_boss_bar.visible = true
 		_refresh_boss()
-	var titles: PackedStringArray = []
-	for buff: Buff in RunState.buffs:
-		titles.append(buff.title)
-	_buffs_label.text = "增益：" + "、".join(titles) if not titles.is_empty() else ""
+	RunState.changed.connect(_refresh_buffs)
+	_refresh_buffs()
+	_refresh_abilities()
+	_refresh_combat_feedback()
 
 
 func _process(_delta: float) -> void:
+	if not is_instance_valid(_player):
+		return
 	var health := _player.health
 	_health_label.text = "生命 %d / %d" % [ceili(health.health), ceili(health.max_health)]
+	_refresh_abilities()
+	_refresh_combat_feedback()
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
@@ -134,4 +140,60 @@ func _on_objective_changed(text: String) -> void:
 
 
 func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
-	_capture_bar.visible = phase != ZoneDirector.Phase.CLEAR_GUARDS
+	_capture_bar.visible = phase == ZoneDirector.Phase.HAMMER_POINT or phase == ZoneDirector.Phase.FLAG_PLANTED
+
+
+func _refresh_buffs() -> void:
+	var counts: Dictionary = {}
+	var catalog: Dictionary = {}
+	for buff: Buff in RunState.buffs:
+		var key := String(buff.id) if buff.id != &"" else buff.resource_path + buff.title
+		counts[key] = int(counts.get(key, 0)) + 1
+		catalog[key] = buff
+	var lines: PackedStringArray = []
+	lines.append("本局增益 · 已选择 %d 次" % RunState.buffs.size())
+	if counts.is_empty():
+		lines.append("选择任意流派开始构筑")
+	for key: String in counts:
+		var buff: Buff = catalog[key]
+		lines.append("%s ×%d  ·  %s" % [buff.title, counts[key], buff.stack_summary()])
+	_buffs_label.text = "\n".join(lines)
+
+
+func _refresh_abilities() -> void:
+	var shield := _player.shield
+	var traits := _player.combat_traits
+	var lines: PackedStringArray = []
+	var parry_capacity := _player.stats.get_value(Stats.PARRY_CAPACITY)
+	if parry_capacity > 0.0:
+		lines.append("V  刀具 · 弹反窗口 %.2f 秒" % traits.parry_remaining if traits.parry_remaining > 0.0 \
+			else "V  刀具 · 按 V 开启短时弹反")
+		lines.append("收藏弹头 %d / %d 发 · 下一枪发射" % [traits.stored_rounds, traits.capacity()])
+	else:
+		lines.append("V  挥砍 · Q 切换近战")
+	var status := "选择技能增益解锁"
+	if shield.is_unlocked():
+		if shield.is_active():
+			status = "生效中 %.1f 秒" % shield.active_remaining
+		elif shield.cooldown_remaining > 0.0:
+			status = "冷却 %.1f 秒" % shield.cooldown_remaining
+		else:
+			status = "就绪 · 按 G 施放"
+	var pulse_damage := _player.stats.get_value(Stats.SHIELD_PULSE_DAMAGE)
+	var shield_title := "反击护盾" if pulse_damage > 0.0 else "战术护盾"
+	lines.append("G  %s：%s" % [shield_title, status])
+	if pulse_damage > 0.0:
+		lines.append("挡伤后到期反击 · 爆发 %d" % roundi(pulse_damage))
+	var reload_damage := _player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE)
+	if reload_damage > 0.0:
+		lines.append("危险弹匣 · 空仓换弹爆炸 %d" % roundi(reload_damage))
+	_abilities_label.text = "\n".join(lines)
+
+
+func _refresh_combat_feedback() -> void:
+	var traits := _player.combat_traits
+	_combat_feedback.visible = traits.feedback_remaining > 0.0 and not traits.feedback.is_empty()
+	_combat_feedback.text = traits.feedback
+	_combat_feedback.add_theme_color_override("font_color",
+		PlayerShield.ACCENT if traits.feedback.contains("护盾") else Color("73f1ff"))
+	_combat_feedback.modulate.a = clampf(traits.feedback_remaining / 0.25, 0.0, 1.0)

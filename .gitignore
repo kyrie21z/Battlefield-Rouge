@@ -5,3 +5,8 @@
 export_presets.cfg
 .DS_Store
 Thumbs.db
+
+# Local verification output and user/editor configuration.
+/verification/
+/import.log
+/.local-user/

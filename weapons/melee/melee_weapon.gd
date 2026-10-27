@@ -20,8 +20,10 @@ extends Node3D
 ## furthest. A swing with nothing in range stays put and keeps the player's aim.
 ##
 ## The weapon never touches the camera or the player's body itself: it emits
-## `recoil` and `lunge`, and the owner applies them. It only reads `Stats`, so a
-## buff changes melee without touching this file.
+## `recoil` and `lunge`, and the owner applies them. It only reads `Stats`.
+## Gun buffs still scale a swing through `DAMAGE` and `FIRE_RATE`. Blade cards
+## multiply `MELEE_DAMAGE`, `MELEE_SPEED` and `MELEE_RANGE`; each base is 1, so
+## an unbuffed swing matches the `.tres`.
 ##
 ## Hit resolution mirrors weapon.gd: a physics query finds hitboxes, then
 ## Hitbox.apply_hit() does the damage and Health filters friendly fire.
@@ -198,6 +200,42 @@ func swing_now() -> bool:
 	if _phase_left <= 0.0:
 		_advance_phase()
 	return true
+
+
+## Damage one connection deals right now, after gun and blade damage buffs.
+func strike_damage() -> float:
+	var data := current()
+	if data == null:
+		return 0.0
+	return data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE)
+
+
+## Reach of the current weapon after the blade-range buff.
+func strike_reach() -> float:
+	var data := current()
+	if data == null:
+		return 0.0
+	return data.reach * _stat(Stats.MELEE_RANGE)
+
+
+## Phase length after fire-rate and blade-speed buffs. Tests step the swing with this.
+func scaled_time(seconds: float) -> float:
+	return _scaled(seconds)
+
+
+## Death hides the blade without playing out a recovery or a counter window.
+func cancel() -> void:
+	_phase = Phase.IDLE
+	_phase_left = 0.0
+	_magnet = null
+	_hide_views()
+
+
+func view_visible() -> bool:
+	for view in _views:
+		if view != null and view.visible:
+			return true
+	return false
 
 
 ## Where the tip of the blade is on screen right now, in the same normalised
@@ -380,7 +418,7 @@ func _strike() -> void:
 			return
 	var origin := _swing_origin
 	var forward := _swing_forward
-	var found := _candidates(data.reach, data.arc_degrees)
+	var found := _candidates(data.reach * _stat(Stats.MELEE_RANGE), data.arc_degrees)
 	# A body has several hitboxes (head, torso); one swing may damage each body
 	# once, so pick the nearest hitbox per body and stop at the target budget.
 	var limit := found.size() if data.max_targets <= 0 else budget
@@ -399,11 +437,12 @@ func _strike() -> void:
 ## Null means nothing is close enough, and then the swing neither moves the player
 ## nor turns the arc. `magnet_range` of 0 turns the magnet off for a weapon.
 func _magnet_target(data: MeleeData) -> Hitbox:
-	if data.magnet_range <= 0.0:
+	var magnet_range := data.magnet_range * _stat(Stats.MELEE_RANGE)
+	if magnet_range <= 0.0:
 		return null
 	var nearest: Hitbox = null
 	var nearest_distance := INF
-	for entry in _candidates(data.magnet_range, data.magnet_arc_degrees):
+	for entry in _candidates(magnet_range, data.magnet_arc_degrees):
 		if entry.distance < nearest_distance:
 			nearest_distance = entry.distance
 			nearest = entry.hitbox as Hitbox
@@ -432,7 +471,7 @@ func _step_toward(data: MeleeData, target: Hitbox) -> void:
 func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vector3) -> bool:
 	var health := hitbox.health
 	_struck.append(health)
-	var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE), shooter)
+	var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter)
 	if dealt <= 0.0:
 		return false
 
@@ -723,10 +762,10 @@ func _team() -> int:
 	return 0
 
 
-## Swing and recovery speeds scale with the same stat guns use, so a fire-rate
-## buff is felt in melee too.
+## Swing and recovery speeds scale with gun fire-rate and the blade-speed buff.
+## Both bases are 1, so an unbuffed swing keeps the `.tres` timings.
 func _scaled(seconds: float) -> float:
-	return seconds / maxf(_stat(Stats.FIRE_RATE), 0.01)
+	return seconds / maxf(_stat(Stats.FIRE_RATE) * _stat(Stats.MELEE_SPEED), 0.01)
 
 
 func _stat(stat: StringName) -> float:

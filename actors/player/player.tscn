@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://weapons/weapon_data.gd" id="9_weapon_data"]
 [ext_resource type="Resource" path="res://weapons/shotgun.tres" id="10_shotgun"]
 [ext_resource type="Resource" path="res://weapons/sniper.tres" id="11_sniper"]
+[ext_resource type="Script" path="res://actors/player/player_shield.gd" id="12_shield"]
+[ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -62,3 +64,18 @@ script = ExtResource("8_melee")
 stats = NodePath("../../../Stats")
 camera = NodePath("..")
 shooter = NodePath("../../..")
+
+[node name="Shield" type="Node" parent="." node_paths=PackedStringArray("stats", "health")]
+script = ExtResource("12_shield")
+stats = NodePath("../Stats")
+health = NodePath("../Health")
+
+[node name="CombatTraits" type="Node" parent="." node_paths=PackedStringArray("stats", "health", "weapon", "melee", "shield", "camera", "shooter")]
+script = ExtResource("13_traits")
+stats = NodePath("../Stats")
+health = NodePath("../Health")
+weapon = NodePath("../Head/Camera3D/Weapon")
+melee = NodePath("../Head/Camera3D/Melee")
+shield = NodePath("../Shield")
+camera = NodePath("../Head/Camera3D")
+shooter = NodePath("..")

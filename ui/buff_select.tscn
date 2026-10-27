@@ -13,7 +13,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
+mouse_filter = 0
+color = Color(0.025, 0.045, 0.08, 0.96)
 
 [node name="Center" type="CenterContainer" parent="."]
 anchors_preset = 15
@@ -21,18 +22,50 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 0
 
 [node name="Box" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(1480, 0)
 layout_mode = 2
-theme_override_constants/separation = 32
+mouse_filter = 1
+theme_override_constants/separation = 22
 
 [node name="Title" type="Label" parent="Center/Box"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 44
-text = "据点已占领：选择一个增益"
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 42
+text = "选择本局增益"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.85, 1)
+theme_override_font_sizes/font_size = 24
+text = "三选一 · 可专注同一流派，也可自由混搭 · 相同增益可叠加"
 horizontal_alignment = 1
 
 [node name="Choices" type="HBoxContainer" parent="Center/Box"]
 layout_mode = 2
+mouse_filter = 1
 theme_override_constants/separation = 24
 alignment = 1
+
+[node name="Hint" type="Label" parent="Center/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.82, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 22
+text = "按 1 / 2 / 3 或点击卡牌选择一个，选择后继续战斗"
+horizontal_alignment = 1
+
+[node name="Owned" type="Label" parent="Center/Box"]
+custom_minimum_size = Vector2(1480, 64)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.6, 0.7, 0.83, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

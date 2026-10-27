@@ -12,17 +12,19 @@ var max_distance := 45.0
 ## The shooter, passed to Health as the damage source (for the team check).
 var source: Node
 var exclude: Array[RID] = []
+var tint := Color(1.0, 0.55, 0.2)
 
 var _travelled := 0.0
 
 
 static func spawn(parent: Node, from: Vector3, direction: Vector3, p_source: Node, p_damage: float,
-		p_speed: float, p_exclude: Array[RID]) -> Projectile:
+		p_speed: float, p_exclude: Array[RID], p_tint: Color = Color(1.0, 0.55, 0.2)) -> Projectile:
 	var projectile := Projectile.new()
 	projectile.source = p_source
 	projectile.damage = p_damage
 	projectile.speed = p_speed
 	projectile.exclude = p_exclude
+	projectile.tint = p_tint
 	parent.add_child(projectile)
 	projectile.global_position = from
 	projectile.look_at(from + direction, Vector3.UP if absf(direction.y) < 0.99 else Vector3.FORWARD)
@@ -36,9 +38,9 @@ func _ready() -> void:
 	capsule.height = 0.7
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = Color(1.0, 0.55, 0.2)
+	mat.albedo_color = tint
 	mat.emission_enabled = true
-	mat.emission = Color(1.0, 0.45, 0.1)
+	mat.emission = tint
 	mat.emission_energy_multiplier = 3.0
 	capsule.material = mat
 	mesh.mesh = capsule
@@ -51,8 +53,8 @@ func _ready() -> void:
 	# straight at the player and the tracer is seen end-on.
 	var glow := Sprite3D.new()
 	var gradient := Gradient.new()
-	gradient.set_color(0, Color(1.0, 0.9, 0.7, 1.0))
-	gradient.set_color(1, Color(1.0, 0.4, 0.1, 0.0))
+	gradient.set_color(0, tint.lightened(0.5))
+	gradient.set_color(1, Color(tint.r, tint.g, tint.b, 0.0))
 	var texture := GradientTexture2D.new()
 	texture.gradient = gradient
 	texture.fill = GradientTexture2D.FILL_RADIAL
@@ -69,7 +71,7 @@ func _ready() -> void:
 	add_child(glow)
 
 	var light := OmniLight3D.new()
-	light.light_color = Color(1.0, 0.5, 0.2)
+	light.light_color = tint
 	light.light_energy = 0.8
 	light.omni_range = 2.0
 	add_child(light)

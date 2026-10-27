@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: blade_range. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#E0242A" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m107 17-4 24-56 55-15-15 56-56z" fill="#6E1218"/><path d="m39 88-17 20M24 77l26 26" fill="none" stroke-width="8"/><path d="M24 55V25h30M25 25l37 37M81 105h24V80" fill="none" stroke="#FFB5A7" stroke-width="5"/><path d="m32 39 8-8m6 21 8-8m32 44 8-8" fill="none" stroke-width="4"/>
+  </g>
+</svg>

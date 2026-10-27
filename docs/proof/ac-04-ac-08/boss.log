@@ -1,0 +1,61 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== run order
+  [ok] there are three zones
+  [ok] the boss zone is the last one
+== the wave: one big enemy, six small ones around it
+  [ok] seven enemies in all
+  [ok] six of them are small
+  [ok] the boss has far more health (600 vs 100)
+  [ok] the boss is taller (3.2 m vs 1.8 m)
+  [ok] the boss shoots from higher up
+  [ok] the six small enemies stand 2-6 m around the boss
+  [ok] the enemies are in front of the core, not past it
+== the boss has a health bar
+  [ok] the director reports the boss
+  [ok] only the boss is flagged as one
+  [ok] the bar is shown
+  [ok] it starts full (600 / 600)
+  [ok] the label gives the numbers
+  [ok] a hit lowers the bar to 558
+  [ok] the label follows
+  [ok] hitting a small enemy does not move it
+== the core is open from the start (no clear-first)
+  [ok] the zone is set to open at once
+  [ok] it starts in HAMMER_POINT
+  [ok] the core is not locked
+  [ok] the core uses the same config as the small zones
+  [ok] seven enemies are alive and the core is open anyway
+  [ok] walking up to the core puts the player in reach
+  [ok] a perfect strike adds 12% with enemies alive
+  [ok] an ordinary strike adds 8% with enemies alive
+== killing the wave does not gate or reset the core
+  [ok] six small enemies dead, still HAMMER_POINT
+  [ok] progress is untouched by the kills
+  [ok] the core reaches 100%
+  [ok] the director is in FLAG_PLANTED
+  [ok] a flag was planted on the core
+  [ok] killing the boss during the flag raise does not move the phase back
+  [ok] killing the wave never counted as clearing the zone
+  [ok] the bar is empty once the boss is dead
+  [ok] the label says it has fallen
+== victory
+  [ok] no win yet while the flag is rising
+  [ok] the end screen appears
+  [ok] it says victory
+  [ok] it names the city core
+  [ok] the run is won once
+  [ok] no buff is offered after the boss
+== defeat
+  [ok] some progress was made
+  [ok] the player is dead
+  [ok] the end screen appears
+  [ok] it says defeat
+  [ok] the run is reset to the first zone
+  [ok] the core was not captured
+  [ok] no victory was reported
+  [ok] a late capture after death does not turn it into a win
+== a small zone has no boss bar
+  [ok] zone 1 has no boss
+  [ok] zone 1 shows no boss bar
+ALL PASSED (0 failed)

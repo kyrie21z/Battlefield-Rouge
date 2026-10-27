@@ -130,6 +130,8 @@ func _load_boss() -> Node:
 	RunState.zone_index = RunState.ZONE_SCENES.size() - 1
 	var scene: Node = load(BOSS_SCENE).instantiate()
 	add_child(scene)
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
 	_point = scene.get_node("CapturePoint") as CapturePoint
 	_debug = scene.get_node("HUD/CaptureDebug") as CaptureDebug
 	_last_swing_msec = -100000

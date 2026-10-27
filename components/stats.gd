@@ -14,6 +14,15 @@ const DAMAGE := &"damage"
 const FIRE_RATE := &"fire_rate"
 const RELOAD_SPEED := &"reload_speed"
 const MAGAZINE_SIZE := &"magazine_size"
+const MELEE_DAMAGE := &"melee_damage"
+const MELEE_SPEED := &"melee_speed"
+const MELEE_RANGE := &"melee_range"
+const SKILL_UNLOCKED := &"skill_unlocked"
+const SHIELD_DURATION := &"shield_duration"
+const SHIELD_COOLDOWN := &"shield_cooldown"
+const RELOAD_BLAST_DAMAGE := &"reload_blast_damage"
+const PARRY_CAPACITY := &"parry_capacity"
+const SHIELD_PULSE_DAMAGE := &"shield_pulse_damage"
 
 @export var base := {
 	MAX_HEALTH: 100.0,
@@ -22,6 +31,15 @@ const MAGAZINE_SIZE := &"magazine_size"
 	FIRE_RATE: 1.0,
 	RELOAD_SPEED: 1.0,
 	MAGAZINE_SIZE: 1.0,
+	MELEE_DAMAGE: 1.0,
+	MELEE_SPEED: 1.0,
+	MELEE_RANGE: 1.0,
+	SKILL_UNLOCKED: 0.0,
+	SHIELD_DURATION: 1.0,
+	SHIELD_COOLDOWN: 8.0,
+	RELOAD_BLAST_DAMAGE: 0.0,
+	PARRY_CAPACITY: 0.0,
+	SHIELD_PULSE_DAMAGE: 0.0,
 }
 
 var _adds := {}
@@ -35,6 +53,8 @@ func get_value(stat: StringName) -> float:
 func apply_buff(buff: Buff) -> void:
 	_adds[buff.stat] = float(_adds.get(buff.stat, 0.0)) + buff.add
 	_muls[buff.stat] = float(_muls.get(buff.stat, 1.0)) * buff.mul
+	for stat: String in buff.extra_adds:
+		_adds[StringName(stat)] = float(_adds.get(StringName(stat), 0.0)) + float(buff.extra_adds[stat])
 	changed.emit()
 
 

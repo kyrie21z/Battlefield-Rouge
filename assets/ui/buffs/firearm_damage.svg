@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: firearm_damage. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#F5C400" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m64 15 10 18 21-8-5 22 23 10-18 14 8 23-24-2-13 22-14-20-24 6 5-24-19-14 21-10-2-24 23 7z" fill="#FFF4B0"/>
+    <path d="M47 34h29l-1 19c0 17 5 29 11 38l-24 7C50 82 45 66 46 52z" fill="#8A6800"/>
+    <path d="m48 49 27 1m-25 13 25-2m-19 15 22-4" fill="none" stroke="#FFF4B0" stroke-width="4"/>
+  </g>
+</svg>

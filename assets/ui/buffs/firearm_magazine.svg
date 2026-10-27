@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: firearm_magazine. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#F5C400" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M42 23h45l-2 25c0 23 6 42 16 56l-38 9C46 91 39 70 40 47z" fill="#8A6800"/><path d="m43 39 42 1M47 55l35 1M52 72l32-3M60 88l29-6" fill="none" stroke="#FFF4B0" stroke-width="5"/><path d="M38 21h52v14H38z" fill="#8A6800"/>
+  </g>
+</svg>

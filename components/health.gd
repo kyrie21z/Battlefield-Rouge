@@ -6,6 +6,8 @@ extends Node
 
 signal damaged(amount: float, body_part: Hitbox.BodyPart, source: Node)
 signal died(source: Node)
+signal blocked(amount: float, source: Node)
+signal parried(amount: float, source: Node)
 
 @export var max_health := 100.0
 @export var headshot_multiplier := 2.5
@@ -16,6 +18,9 @@ signal died(source: Node)
 @export var stats: Stats
 
 var health := 0.0
+## Temporary invulnerability granted by a component such as PlayerShield.
+var invulnerable := false
+var parrying := false
 
 
 func _ready() -> void:
@@ -34,7 +39,15 @@ func is_dead() -> bool:
 func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null) -> float:
 	if is_dead():
 		return 0.0
+	if not is_instance_valid(source):
+		source = null
 	if source != null and "team" in source and source.team == team:
+		return 0.0
+	if parrying and source != null:
+		parried.emit(amount, source)
+		return 0.0
+	if invulnerable:
+		blocked.emit(amount, source)
 		return 0.0
 
 	var dealt := amount

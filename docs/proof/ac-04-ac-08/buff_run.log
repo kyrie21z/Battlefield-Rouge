@@ -1,0 +1,268 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+FIXTURE: buff-two-small-zones-and-boss-20261027-seed-40408
+== catalog, reachability and stacking
+  [ok] run preserves main's two small maps and city-core Boss
+  [ok] exactly nine buffs
+  [ok] unique identity: firearm_damage
+  [ok] school and effect text: 危险弹匣
+  [ok] icon loads: 危险弹匣
+  [ok] different rendered icon: 危险弹匣
+  [ok] first stack changes stat: 危险弹匣
+  [ok] second stack compounds: 危险弹匣
+  [ok] unique identity: firearm_rate
+  [ok] school and effect text: 快速扳机
+  [ok] icon loads: 快速扳机
+  [ok] different rendered icon: 快速扳机
+  [ok] first stack changes stat: 快速扳机
+  [ok] second stack compounds: 快速扳机
+  [ok] unique identity: firearm_magazine
+  [ok] school and effect text: 扩容弹匣
+  [ok] icon loads: 扩容弹匣
+  [ok] different rendered icon: 扩容弹匣
+  [ok] first stack changes stat: 扩容弹匣
+  [ok] second stack compounds: 扩容弹匣
+  [ok] unique identity: blade_damage
+  [ok] school and effect text: 子弹收藏家
+  [ok] icon loads: 子弹收藏家
+  [ok] different rendered icon: 子弹收藏家
+  [ok] first stack changes stat: 子弹收藏家
+  [ok] second stack compounds: 子弹收藏家
+  [ok] unique identity: blade_speed
+  [ok] school and effect text: 疾风连斩
+  [ok] icon loads: 疾风连斩
+  [ok] different rendered icon: 疾风连斩
+  [ok] first stack changes stat: 疾风连斩
+  [ok] second stack compounds: 疾风连斩
+  [ok] unique identity: blade_range
+  [ok] school and effect text: 长刃改造
+  [ok] icon loads: 长刃改造
+  [ok] different rendered icon: 长刃改造
+  [ok] first stack changes stat: 长刃改造
+  [ok] second stack compounds: 长刃改造
+  [ok] unique identity: skill_unlock
+  [ok] school and effect text: 反击护盾
+  [ok] icon loads: 反击护盾
+  [ok] different rendered icon: 反击护盾
+  [ok] first stack changes stat: 反击护盾
+  [ok] second stack compounds: 反击护盾
+  [ok] any skill card unlocks shield
+  [ok] unique identity: skill_duration
+  [ok] school and effect text: 持久屏障
+  [ok] icon loads: 持久屏障
+  [ok] different rendered icon: 持久屏障
+  [ok] first stack changes stat: 持久屏障
+  [ok] second stack compounds: 持久屏障
+  [ok] any skill card unlocks shield
+  [ok] unique identity: skill_cooldown
+  [ok] school and effect text: 能量回流
+  [ok] icon loads: 能量回流
+  [ok] different rendered icon: 能量回流
+  [ok] first stack changes stat: 能量回流
+  [ok] second stack compounds: 能量回流
+  [ok] any skill card unlocks shield
+  [ok] three cards in firearm
+  [ok] three cards in blade
+  [ok] three cards in skill
+  [ok] three choices
+  [ok] first offer contains the three playable cores
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] three choices
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] three choices
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] each offer has all three schools
+  [ok] all nine reachable within three offers
+  [ok] same seed reproduces offers
+  [ok] inspection pick clamps to nine unique cards
+  [ok] empty offer request
+== actual weapon, blade and shield effects
+  [ok] shield initially locked
+  [ok] magazine buff changes weapon capacity
+  [ok] gun damage and fire rate read Stats
+  [ok] gun damage buff affects hit
+  [ok] blade upgrades damage, interval and reach
+  [ok] V attack accepted
+  [ok] blade deals modified damage
+  [ok] blade cooldown prevents repeated hits
+  [ok] shield duration and cooldown upgraded
+  [ok] unlocked shield activates
+  [ok] active shield blocks incoming damage
+  [ok] cooldown prevents shield spam
+  [ok] damage resumes after shield expires
+== complete mixed run
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] clear guards opens capture
+  [ok] capture plants flag
+  [ok] small-zone clear offers one reward
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] clear guards opens capture
+  [ok] capture plants flag
+  [ok] small-zone clear offers one reward
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] Boss retains open-at-start city-core rule
+  [ok] city core opens with Boss and guards still alive
+  [ok] capture plants flag
+  [ok] Boss ends with victory and no extra reward
+  [ok] capturing core wins while Boss is alive
+  [ok] exactly five choices in expected order
+  [ok] mixed build keeps all three schools
+SELECTION HISTORY mixed: ["0:enter", "0:clear", "1:enter", "1:clear", "2:enter"]
+  [ok] restart resets buffs, unlocks and history
+== complete firearm run
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] clear guards opens capture
+  [ok] capture plants flag
+  [ok] small-zone clear offers one reward
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] clear guards opens capture
+  [ok] capture plants flag
+  [ok] small-zone clear offers one reward
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] correct zone index
+  [ok] entry choice pauses before combat
+  [ok] guards have no target during entry
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] entry chosen once and correct combat phase resumes
+  [ok] current scene preserves stacks: max_health
+  [ok] current scene preserves stacks: move_speed
+  [ok] current scene preserves stacks: damage
+  [ok] current scene preserves stacks: fire_rate
+  [ok] current scene preserves stacks: reload_speed
+  [ok] current scene preserves stacks: magazine_size
+  [ok] current scene preserves stacks: melee_damage
+  [ok] current scene preserves stacks: melee_speed
+  [ok] current scene preserves stacks: melee_range
+  [ok] current scene preserves stacks: skill_unlocked
+  [ok] current scene preserves stacks: shield_duration
+  [ok] current scene preserves stacks: shield_cooldown
+  [ok] current scene preserves stacks: reload_blast_damage
+  [ok] current scene preserves stacks: parry_capacity
+  [ok] current scene preserves stacks: shield_pulse_damage
+  [ok] Boss retains open-at-start city-core rule
+  [ok] city core opens with Boss and guards still alive
+  [ok] capture plants flag
+  [ok] Boss ends with victory and no extra reward
+  [ok] capturing core wins while Boss is alive
+  [ok] exactly five choices in expected order
+  [ok] linear build stays in selected school
+SELECTION HISTORY firearm: ["0:enter", "0:clear", "1:enter", "1:clear", "2:enter"]
+  [ok] number key selects card
+  [ok] one selection despite duplicate input
+  [ok] death clears build and history
+  [ok] death shows end screen
+  [ok] death restart opens exactly one entry choice
+buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)

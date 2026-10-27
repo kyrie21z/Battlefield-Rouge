@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Original project vector art: firearm_rate. -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#F5C400" stroke="#1A1C22" stroke-width="6"/>
+  <g stroke="#1A1C22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m58 23 13 17v49H45V40zM93 40l12 15v43H81V55z" fill="#8A6800"/><path d="M45 79h26M81 86h24M20 42h17M15 60h22M22 78h15" fill="none"/><path d="m92 17-15 14h11l-6 14 20-19H91z" fill="#FFF4B0" stroke-width="3"/>
+  </g>
+</svg>

@@ -9,9 +9,13 @@ var _player: Player
 var _director: ZoneDirector
 
 @onready var _crosshair: Control = $Crosshair
+@onready var _scope: Control = $Scope
+@onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
 @onready var _health_label: Label = $Health
 @onready var _ammo_label: Label = $Ammo
+@onready var _gun_label: Label = $Gun
+@onready var _melee_label: Label = $Melee
 @onready var _audio: AudioStreamPlayer = $HitAudio
 @onready var _damage_flash: ColorRect = $DamageFlash
 @onready var _zone_label: Label = $Top/Zone
@@ -29,6 +33,12 @@ func _ready() -> void:
 	_player.weapon.ammo_changed.connect(_on_ammo_changed)
 	_player.weapon.reload_started.connect(func(_t): _ammo_label.text = "换弹中…")
 	_player.weapon.hit_landed.connect(_on_hit_landed)
+	_player.weapon.selected.connect(_on_gun_selected)
+	_player.weapon.zoom_changed.connect(_on_zoom_changed)
+	_on_gun_selected(_player.weapon.index, _player.weapon.data)
+	_player.melee.hit_landed.connect(_on_hit_landed)
+	_player.melee.selected.connect(_on_melee_selected)
+	_on_melee_selected(_player.melee.index, _player.melee.current())
 	_player.health.damaged.connect(_on_player_damaged)
 	_on_ammo_changed(_player.weapon.ammo, _player.weapon.reserve)
 
@@ -65,9 +75,31 @@ func _process(_delta: float) -> void:
 	_crosshair.visible = not _player.is_aiming()
 	_crosshair.queue_redraw()
 
+	# Sniper scope: the gun hides itself behind the glass, the overlay takes over
+	# and has to be redrawn whenever the magnification changes.
+	var scoped := _player.weapon.is_scoped()
+	if _scope.visible != scoped:
+		_scope.visible = scoped
+	if scoped:
+		_reticle.zoom = _player.weapon.zoom_level()
+		_reticle.queue_redraw()
+
+
+func _on_zoom_changed(level: float) -> void:
+	_reticle.zoom = level
+	_reticle.queue_redraw()
+
 
 func _on_ammo_changed(current: int, reserve: int) -> void:
 	_ammo_label.text = "%d / %d" % [current, reserve]
+
+
+func _on_gun_selected(_index: int, data: WeaponData) -> void:
+	_gun_label.text = "%s [滚轮切换]" % data.display_name
+
+
+func _on_melee_selected(_index: int, data: MeleeData) -> void:
+	_melee_label.text = "近战 %s [V] · Q 切换" % data.display_name
 
 
 func _on_hit_landed(headshot: bool, killed: bool) -> void:

@@ -1,0 +1,16 @@
+godot --path . res://tests/melee_proof.tscn -- --out=docs/proof/melee
+（time_scale 0.08 慢放；tip 是刀尖的归一化屏幕坐标，-1..1，+y 向上；
+ 第三个数是刀尖在眼睛前方多少米 —— 屏幕坐标无法分辨"在画面里"和"在相机后面"）
+
+匕首: 34 dmg, 1.8 m, 70° arc, wind-up 0.07s, cycle 0.31s, 1 target(s)
+== 01_knife_windup -> docs/proof/melee/01_knife_windup.png (tip -1.00, -0.98, 0.39 m in front)
+== 02_knife_cut -> docs/proof/melee/02_knife_cut.png (tip 0.44, 0.43, 0.69 m in front)
+== 03_knife_strike -> docs/proof/melee/03_knife_strike.png (tip 1.00, 0.98, 0.38 m in front)
+斧: 150 dmg, 2.5 m, 120° arc, wind-up 0.34s, cycle 0.98s, 4 target(s)
+== 04_axe_windup -> docs/proof/melee/04_axe_windup.png (tip 0.00, 0.79, 0.71 m in front)
+== 05_axe_cut -> docs/proof/melee/05_axe_cut.png (tip 0.00, -0.61, 1.41 m in front)
+== 06_axe_strike -> docs/proof/melee/06_axe_strike.png (tip 0.00, -0.95, 1.27 m in front)
+太刀: 62 dmg, 3.1 m, 150° arc, wind-up 0.20s, cycle 0.70s, 3 target(s)
+== 07_tachi_windup -> docs/proof/melee/07_tachi_windup.png (tip -0.95, 0.92, 0.70 m in front)
+== 08_tachi_cut -> docs/proof/melee/08_tachi_cut.png (tip 0.60, -0.58, 1.16 m in front)
+== 09_tachi_strike -> docs/proof/melee/09_tachi_strike.png (tip 0.95, -0.92, 0.87 m in front)

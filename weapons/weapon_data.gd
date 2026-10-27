@@ -1,7 +1,8 @@
 class_name WeaponData
 extends Resource
-## One .tres per weapon. Trimmed from origin/sheji/weapons/weapon_definition.gd:
-## no shop, melee, pellets, bolt action, zoom or penetration.
+## One .tres per gun. `Weapon` holds a `data_set` of these and shows one at a time;
+## the mouse wheel cycles them. Trimmed from origin/sheji/weapons/weapon_definition.gd:
+## no shop, no GameState, no penetration.
 
 enum FireMode { AUTO, SEMI }
 
@@ -15,7 +16,11 @@ enum FireMode { AUTO, SEMI }
 @export_category("Fire")
 @export var fire_mode := FireMode.AUTO
 @export var fire_interval := 0.1
+## Damage one pellet does. The whole shot is `damage x pellets`.
 @export var damage := 34.0
+## Rays fired per trigger pull, each one aimed inside the spread cone. 1 is a
+## rifle; 9 with small per-pellet damage is a shotgun. Buffs scale the total.
+@export var pellets := 1
 @export var max_range := 300.0
 @export var falloff_start := 50.0
 @export var falloff_end := 220.0
@@ -50,3 +55,8 @@ enum FireMode { AUTO, SEMI }
 @export var ads_move_scale := 0.55
 @export var ads_position := Vector3(0.0, -0.16, -0.28)
 @export var hip_position := Vector3(0.22, -0.22, -0.45)
+## Magnifications the scope offers, e.g. [2, 4, 8]. Empty means iron sights: the
+## gun just uses `ads_fov`. With a scope, aiming shows the scope overlay, hides the
+## model and sets the field of view to `base_fov / level`; the mouse wheel picks a
+## level instead of changing guns.
+@export var scope_zoom_levels: Array[float] = []

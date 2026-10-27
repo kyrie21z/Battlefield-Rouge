@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
 [ext_resource type="Script" path="res://ui/strike_bar.gd" id="3_strike"]
 [ext_resource type="Script" path="res://ui/capture_debug.gd" id="4_debug"]
+[ext_resource type="Script" path="res://ui/scope.gd" id="5_scope"]
 
 [sub_resource type="StyleBoxFlat" id="BossFill"]
 bg_color = Color(0.8, 0.14, 0.12, 1)
@@ -13,6 +14,26 @@ bg_color = Color(0, 0, 0, 0.55)
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
+
+[node name="Scope" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Reticle" type="Control" parent="Scope"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_scope")
 
 [node name="DamageFlash" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -73,6 +94,40 @@ offset_top = -72.0
 offset_right = -32.0
 offset_bottom = -32.0
 theme_override_font_sizes/font_size = 28
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+horizontal_alignment = 2
+
+[node name="Gun" type="Label" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -152.0
+offset_right = -32.0
+offset_bottom = -116.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+horizontal_alignment = 2
+
+[node name="Melee" type="Label" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -112.0
+offset_right = -32.0
+offset_bottom = -76.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 horizontal_alignment = 2

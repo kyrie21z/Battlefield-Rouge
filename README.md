@@ -4,11 +4,13 @@
 
 设计以 [docs/MVP_Scope.md](docs/MVP_Scope.md) 和 [docs/Cut-001b.md](docs/Cut-001b.md) 为准（课程：腾讯游戏学堂《AI游戏进化论》EP.04）。验收是 AC-01 至 AC-08。临时默认：完美窗口 ±150ms，普通锤 +8%，完美 ×1.5。
 
-**现在能玩的构建：** `maps/zone_1.tscn`（4 个守卫）和 `maps/zone_2.tscn`（6 个守卫）是清守卫 → 用锤砸据点建筑 → 插旗（AC-01、AC-03）。`maps/boss.tscn` 是 Boss 关：1 个大敌人加 6 个小敌人，城市核心开局就能砸，占满胜利，阵亡失败（AC-02）。增援、冲击波、进关选择、九条增益、三枪三近战还没做，所以还不能按 Cut-001b 全部验收。下面的操作描述的是这个可玩版本。
+**现在能玩的构建：** `maps/zone_1.tscn`（4 个守卫）和 `maps/zone_2.tscn`（6 个守卫）是清守卫 → 用锤砸据点建筑 → 插旗（AC-01、AC-03）。`maps/boss.tscn` 是 Boss 关：1 个大敌人加 6 个小敌人，城市核心开局就能砸，占满胜利，阵亡失败（AC-02）。三把枪（突击步枪、霰弹枪、狙击枪，滚轮切换，狙击枪是 2×/4×/8× 的镜）和三把近战（匕首、斧、太刀，V 挥砍、Q 切换）都已经能玩（AC-05 的枪械与近战部分）。增援、冲击波、进关选择、九条增益、自身护盾还没做，所以还不能按 Cut-001b 全部验收。下面的操作描述的是这个可玩版本。
 
 - 引擎：Godot 4.7.2（Forward+）。用编辑器导入本目录的 `project.godot`。
-- 当前操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键瞄准，R 换弹，E 挥锤（站到据点建筑旁，清完守卫后才有效，节拍条的标记进入金色区间是完美打击），F3 显示占点调试条（含配置文件路径），Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
-- 占点三个数（窗口 ±150ms、普通 +8%、完美 ×1.5）：`zone/capture_config.tres`。无界面检查：`godot --headless --path . res://tests/capture_hammer_test.tscn`、`res://tests/boss_test.tscn`。
+- 当前操作：WASD 移动，Shift 冲刺，空格跳，左键开火，右键开镜（狙击枪开镜后是 2×/4×/8× 的镜），**滚轮切换枪**（突击步枪 → 霰弹枪 → 狙击枪，各枪弹匣独立；**开镜时滚轮改成换倍率**），R 换弹，V 近战挥砍，Q 切换近战（匕首 → 斧 → 太刀），E 挥锤（站到据点建筑旁，清完守卫后才有效，节拍条的标记进入金色区间是完美打击），F3 显示占点调试条（含配置文件路径），Esc 释放鼠标，点击窗口重新锁定鼠标。增益界面按 1–3 或点击选择；结算界面按 R 或点按钮重新开始。
+- 占点三个数（窗口 ±150ms、普通 +8%、完美 ×1.5）：`zone/capture_config.tres`。三把枪的数：`weapons/{rifle,shotgun,sniper}.tres`；近战三把的数：`weapons/melee/*.tres`（都是试玩默认值，不是锁定设计）。
+- 无界面检查：`godot --headless --path . res://tests/capture_hammer_test.tscn`、`res://tests/boss_test.tscn`、`res://tests/melee_test.tscn`、`res://tests/weapons_test.tscn`。剪影证明：近战 `godot --path . res://tests/melee_proof.tscn -- --out=docs/proof/melee`（要窗口），枪的姿势帧在 `docs/proof/guns/`。
 - 复现一局（AC-07）：`fixtures/` 里是命名起点 FX-001（新开一局）和 FX-002（Boss 起点）。游戏里用 `godot --path . -- --fixture=FX-002` 从该起点开始，F3 调试条显示起点和种子，死亡后重开回到同一起点。复现检查：`godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn`，机器人把每个起点打几遍并比较哈希，要加 `--fixed-fps 60`。做法和限制见 `docs/adr/0005-reproducible-runs.md`。
+- 模型都是导出/拼出来的，不是原件：`tools/export_melee_models.py` 处理近战，`tools/export_gun_models.py` 把 `tools/gun_sources/` 里的霰弹枪和狙击枪 FBX 规整成第一人称模型（握点在原点、枪口朝 -Z）。重新导出见 `docs/ASSETS.md`。
 - 当前战区：`maps/zone_1.tscn`、`maps/zone_2.tscn`、`maps/boss.tscn`，由 `tools/gen_zones.py` 生成，改布局请改脚本再重新生成。
 - 文档：`docs/GDD.md`、`docs/Core_Loop.md`、`docs/Priority_Backlog.md`、`docs/bible/`；架构：`ARCHITECTURE.md`；术语：`GLOSSARY.md`；决策：`docs/adr/`；待优化：`TODO.md`；贡献：`CONTRIBUTING.md`。

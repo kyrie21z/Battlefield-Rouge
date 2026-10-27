@@ -256,10 +256,10 @@ func _boss_skips_all_of_it() -> void:
 	_check("boss has no reinforcement config", director.reinforcement_config == null)
 	_check("boss does not spawn", director.reinforcement_spawn_log.is_empty() and director.reinforcement_count() == 0)
 	point.player_in_reach = true
-	var swings := 0
-	while not point.is_captured() and swings < 40:
-		point.resolve_swing(10.0 + swings)
-		swings += 1
+	point.resolve_swing(2.5)
+	_check("the core stays shut while the boss lives", point.locked and point.progress == 0.0)
+	(scene.get_node("Boss") as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
+	point.resolve_swing(2.5)
 	_check("boss flag has no pedestal", director.buff_pedestal == null)
 	_check("boss flag has no shockwave", scene.get_node_or_null("Shockwave") == null)
 	await get_tree().create_timer(ZoneDirector.FLAG_RAISE_TIME + 0.2).timeout

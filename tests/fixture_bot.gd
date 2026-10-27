@@ -79,14 +79,30 @@ func _physics_process(_delta: float) -> void:
 	if player.health.is_dead():
 		_release_all()
 		return
-	# Small zones only. The boss keeps the old "fight, then hammer" order.
-	if not director.open_at_start:
-		if director.phase == ZoneDirector.Phase.FLAG_PLANTED:
-			_claim_pedestal(player, director)
+	# Small zones hold the building under reinforcements, then walk to the pedestal.
+	# The boss zone ignores the ring of minions: shoot the boss, then one hammer.
+	if director.is_boss_zone:
+		var boss := director.boss
+		if boss != null and is_instance_valid(boss) and not boss.health.is_dead():
+			_fight(player, boss)
 			return
+		# The core is open. Clear whoever is still shooting, then walk over for
+		# the one hammer. Chasing the ring before the boss is down never happens.
 		if director.phase == ZoneDirector.Phase.HAMMER_POINT:
-			_hold_point(player, director.capture_point)
+			var threat := _nearest_enemy(player)
+			if threat != null:
+				_fight(player, threat)
+				return
+			_hammer(player, director.capture_point)
 			return
+		_release_all()
+		return
+	if director.phase == ZoneDirector.Phase.FLAG_PLANTED:
+		_claim_pedestal(player, director)
+		return
+	if director.phase == ZoneDirector.Phase.HAMMER_POINT:
+		_hold_point(player, director.capture_point)
+		return
 	var target := _nearest_enemy(player)
 	if target != null:
 		_fight(player, target)

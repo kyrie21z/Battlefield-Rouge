@@ -5,7 +5,8 @@ Edit the layouts in `zones` at the bottom, then run from the project root:
 This overwrites all three scenes, so make layout changes here, not in the editor.
 Each box named Cover* gets four cover points around it.
 A layout with `boss` adds one big enemy there; `enemies` are then the small ones
-around it. A layout with `core` has a bigger objective, open from the start.
+around it. A layout with `core` has a bigger objective. The core stays shut
+until the boss dies, and one hammer then finishes it (`boss_capture_config.tres`).
 `spawns` are rear reinforcement markers (small zones only). The boss zone has none.
 """
 
@@ -28,6 +29,8 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
            '[ext_resource type="Script" path="res://zone/capture_point.gd" id="6_capture"]']
     if boss:
         ext.append('[ext_resource type="PackedScene" path="res://actors/enemy/boss.tscn" id="7_boss"]')
+    if core:
+        ext.append('[ext_resource type="Resource" path="res://zone/boss_capture_config.tres" id="9_bosscap"]')
     if spawns:
         ext.append('[ext_resource type="Resource" path="res://zone/reinforcement_config.tres" id="8_reinf"]')
     sub = ['[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]','',
@@ -60,7 +63,10 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
         for dx,dz in [(s[0]/2+0.6,0),(-s[0]/2-0.6,0),(0,s[2]/2+0.6),(0,-s[2]/2-0.6)]:
             k += 1
             nodes += [f'[node name="Cover{k:02d}" type="Marker3D" parent="CoverPoints" groups=["cover_point"]]',f'transform = {T(round(p[0]+dx,2),0,round(p[2]+dz,2))}','script = ExtResource("5_cover")','']
-    nodes += ['[node name="CapturePoint" type="Area3D" parent="."]',f'transform = {T(capture[0],0,capture[1])}','script = ExtResource("6_capture")','',
+    capture_node = ['[node name="CapturePoint" type="Area3D" parent="."]',f'transform = {T(capture[0],0,capture[1])}','script = ExtResource("6_capture")']
+    if core:
+        capture_node.append('config = ExtResource("9_bosscap")')
+    nodes += capture_node + ['',
               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint"]',f'transform = {T(0,1.5,0)}','shape = SubResource("Shape_capture")','',
               # In the navigation group so the baked mesh routes enemies around the building.
               '[node name="Objective" type="StaticBody3D" parent="CapturePoint" groups=["navigation_geometry"]]',f'transform = {T(0,objective_y,0)}','',
@@ -83,7 +89,7 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
     if spawns:
         director.append('reinforcement_config = ExtResource("8_reinf")')
     if core:
-        director.append('open_at_start = true')
+        director.append('is_boss_zone = true')
     nodes += director + ['', '[node name="HUD" parent="." instance=ExtResource("3_hud")]', '']
     nsub = sum(1 for l in sub if l.startswith('[sub_resource'))
     out = [f'[gd_scene load_steps={nsub+len(ext)+1} format=3]',''] + ext + [''] + sub + nodes

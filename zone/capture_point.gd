@@ -112,7 +112,7 @@ func resolve_swing(time: float) -> void:
 		return
 	var offset_ms := beat_offset(time) * 1000.0
 	var perfect := absf(offset_ms) <= config.perfect_window_ms
-	var worth := config.perfect_progress() if perfect else config.normal_progress()
+	var worth := config.progress_for_swing(perfect)
 	_play_feedback(perfect)
 	struck.emit(perfect, offset_ms, worth)
 	add_capture_progress(worth)

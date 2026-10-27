@@ -72,39 +72,63 @@ func _run() -> void:
 	small[0].health.apply_damage(30.0, Hitbox.BodyPart.BODY)
 	_check("hitting a small enemy does not move it", bar.value == 558.0)
 
-	print("== the core is open from the start (no clear-first)")
-	_check("the zone is set to open at once", director.open_at_start)
-	_check("it starts in HAMMER_POINT", director.phase == ZoneDirector.Phase.HAMMER_POINT)
-	_check("the core is not locked", not point.locked)
-	_check("the core uses the same config as the small zones", point.config.resource_path == CONFIG_PATH)
-	_check("seven enemies are alive and the core is open anyway", director.enemies_total == 7)
+	print("== the core stays shut while the boss stands")
+	var objective := scene.get_node("HUD/Top/Objective") as Label
+	var shared := load(CONFIG_PATH) as CaptureConfig
+	_check("the zone is the boss zone", director.is_boss_zone)
+	_check("it starts with the boss still to fell", director.phase == ZoneDirector.Phase.BOSS_STANDING)
+	_check("the core is locked", point.locked)
+	_check("the objective says to fell the boss", director.objective == "打倒 Boss" and objective.text == "打倒 Boss" and objective.visible)
+	_check("one hammer would finish the core", is_equal_approx(point.config.progress_per_swing, 1.0))
+	_check("small zones still use the 8% rhythm", shared.resource_path == CONFIG_PATH and is_zero_approx(shared.progress_per_swing) and is_equal_approx(shared.normal_progress(), 0.08))
+	_check("seven enemies are alive and the core stays shut", director.enemies_total == 7 and not boss.health.is_dead())
 	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
 	for i in 6:
 		await get_tree().physics_frame
 	_check("walking up to the core puts the player in reach", point.player_in_reach)
 	point.resolve_swing(2.0)
-	_check("a perfect strike adds 12% with enemies alive", is_equal_approx(point.progress, 0.12))
 	point.resolve_swing(2.5)
-	_check("an ordinary strike adds 8% with enemies alive", is_equal_approx(point.progress, 0.20))
+	_check("hammering a locked core adds nothing", point.progress == 0.0 and point.locked)
+	_check("the hint is still on screen", objective.text == "打倒 Boss")
 
-	print("== killing the wave does not gate or reset the core")
+	print("== the six small enemies do not open the core")
 	for i in small.size():
 		(small[i] as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("six small enemies dead, still HAMMER_POINT", director.phase == ZoneDirector.Phase.HAMMER_POINT)
-	_check("progress is untouched by the kills", is_equal_approx(point.progress, 0.20))
-	var swings := 0
-	while not point.is_captured() and swings < 40:
-		point.resolve_swing(10.0 + swings)
-		swings += 1
-	_check("the core reaches 100%", point.is_captured())
-	_check("the director is in FLAG_PLANTED", director.phase == ZoneDirector.Phase.FLAG_PLANTED)
-	_check("a flag was planted on the core", point.get_node_or_null("Flag") != null)
+	_check("six small enemies dead, core still shut", director.phase == ZoneDirector.Phase.BOSS_STANDING and point.locked and point.progress == 0.0)
+	_check("killing them never counted as clearing the zone", _zone_cleared == 0)
+
+	print("== the boss's death opens the core, and one hammer shatters it")
+	# Reload a fresh wave so the small enemies are still alive for this check.
+	get_tree().paused = false
+	scene.free()
+	_zone_cleared = 0
+	scene = await _load_boss()
+	director = scene.get_node("ZoneDirector") as ZoneDirector
+	point = scene.get_node("CapturePoint") as CapturePoint
+	player = scene.get_node("Player") as Player
+	boss = scene.get_node("Boss") as Enemy
+	bar = scene.get_node("HUD/Top/BossBar") as ProgressBar
+	bar_label = scene.get_node("HUD/Top/BossLabel") as Label
+	objective = scene.get_node("HUD/Top/Objective") as Label
+	enemies = get_tree().get_nodes_in_group("enemy")
+	small = enemies.filter(func(e: Node): return e != boss)
+	for enemy: Enemy in enemies:
+		enemy.process_mode = Node.PROCESS_MODE_DISABLED
+	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
+	for i in 6:
+		await get_tree().physics_frame
 	boss.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("killing the boss during the flag raise does not move the phase back",
-		director.phase == ZoneDirector.Phase.FLAG_PLANTED)
-	_check("killing the wave never counted as clearing the zone", _zone_cleared == 0)
+	_check("the boss is dead and the small enemies are not", boss.health.is_dead() and small.all(func(e: Enemy): return not e.health.is_dead()))
+	_check("the core opens", director.phase == ZoneDirector.Phase.HAMMER_POINT and not point.locked)
+	_check("the objective names the hammer", director.objective == "砸碎城市核心，按 E" and objective.text == "砸碎城市核心，按 E")
 	_check("the bar is empty once the boss is dead", bar.value == 0.0)
 	_check("the label says it has fallen", "已倒下" in bar_label.text)
+	point.resolve_swing(2.5)
+	_check("one ordinary hammer reaches 100%", point.is_captured() and is_equal_approx(point.progress, 1.0))
+	_check("that one hammer collapses every block", point.fracture_stage == 4 and point.intact_block_count() == 0)
+	_check("the director is in FLAG_PLANTED", director.phase == ZoneDirector.Phase.FLAG_PLANTED)
+	_check("a flag was planted on the core", point.get_node_or_null("Flag") != null)
+	_check("killing the wave never counted as clearing the zone", _zone_cleared == 0)
 
 	print("== victory")
 	_check("no win yet while the flag is rising", _run_won == 0)
@@ -131,8 +155,10 @@ func _run() -> void:
 	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
 	for i in 6:
 		await get_tree().physics_frame
-	point.resolve_swing(2.0)
-	_check("some progress was made", point.progress > 0.0 and not point.is_captured())
+	point.resolve_swing(2.5)
+	_check("a swing before the boss falls adds nothing", point.progress == 0.0 and point.locked)
+	(scene.get_node("Boss") as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
+	_check("the core is open and still empty", not point.locked and point.progress == 0.0)
 	player.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
 	_check("the player is dead", player.health.is_dead())
 	end = _end_screen(director)

@@ -89,7 +89,7 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 
 | 内容 | 位置 | 许可证 |
 | --- | --- | --- |
-| 枪声、换弹声、空仓声 | `weapons/procedural_audio.gd`，运行时生成 | MIT，移植自 Ironline 1944 |
+| 枪声、换弹声、空仓声 | `weapons/procedural_audio.gd`，运行时生成 | MIT，移植自 Ironline 1944，许可证全文见 [`docs/licenses/ironline-1944-MIT.txt`](licenses/ironline-1944-MIT.txt) |
 | 准星 | `ui/crosshair.gd`，运行时绘制 | 本项目 |
 
 ## 本项目原创

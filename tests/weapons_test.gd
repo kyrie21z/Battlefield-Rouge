@@ -31,6 +31,9 @@ func _run() -> void:
 	var scene: Node = load("res://maps/zone_1.tscn").instantiate()
 	add_child(scene)
 	await get_tree().process_frame
+	# Zone 0 offers the opening buff and pauses. This scene checks the guns
+	# directly and does not take a card, so the tree has to run.
+	get_tree().paused = false
 	_player = scene.get_node("Player") as Player
 	_weapon = _player.weapon
 	for node in get_tree().get_nodes_in_group("enemy"):

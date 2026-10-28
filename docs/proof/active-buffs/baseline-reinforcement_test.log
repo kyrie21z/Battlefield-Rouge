@@ -1,0 +1,64 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== config
+  [ok] cadence resource is zone/reinforcement_config.tres
+  [ok] a wave is every 8 s
+  [ok] a wave is 2 enemies
+  [ok] at most 6 reinforcements stay out
+== layout
+  [ok] zone_1.tscn building is back near z=-8 (-8.00)
+  [ok] zone_1.tscn player enters from the front
+  [ok] zone_1.tscn has rear spawns
+  [ok] zone_1.tscn spawns sit behind the building
+  [ok] zone_1.tscn guard count
+  [ok] zone_1.tscn guards stand around the building
+  [ok] zone_1.tscn uses the cadence resource
+  [ok] zone_1.tscn has not spawned yet
+  [ok] zone_2.tscn building is back near z=-8 (-8.00)
+  [ok] zone_2.tscn player enters from the front
+  [ok] zone_2.tscn has rear spawns
+  [ok] zone_2.tscn spawns sit behind the building
+  [ok] zone_2.tscn guard count
+  [ok] zone_2.tscn guards stand around the building
+  [ok] zone_2.tscn uses the cadence resource
+  [ok] zone_2.tscn has not spawned yet
+== same seed, same spawns
+  [ok] still locked with one guard up
+  [ok] still locked with one guard up
+  [ok] two enemies spawn on capture
+  [ok] the spawn sequence matches
+  [ok] both spawns are behind the building
+== reinforcements reach the building without corner jitter
+  [ok] no reinforcement jitters in a corner
+  [ok] most reinforcements close on the building (8/8)
+== rhythm, shockwave, pedestal
+  [ok] opening the building spawns one wave
+  [ok] killing a reinforcement does not move progress
+  [ok] the building stays open
+  [ok] later waves stop at the cap
+  [ok] five bodies were spawned to hold four
+  [ok] flag is planted
+  [ok] shockwave mesh is in the scene
+  [ok] shockwave audio plays
+  [ok] nothing was killed by the shockwave
+  [ok] every living minion is retreating
+  [ok] the shockwave dealt no damage
+  [ok] the reward is not up yet
+  [ok] the objective names the pedestal
+  [ok] reinforcements despawn without a kill
+  [ok] spawning stopped when the flag went up
+  [ok] pedestal exists
+  [ok] interact out of range does nothing
+  [ok] interact at the pedestal opens the choice and pauses
+  [ok] the chosen card loads the next zone
+== boss zone
+  [ok] boss has no reinforcement markers
+  [ok] boss has no reinforcement config
+  [ok] boss does not spawn
+  [ok] the core stays shut while the boss lives
+  [ok] boss flag has no pedestal
+  [ok] boss flag has no shockwave
+  [ok] boss still wins with no buff offer
+ALL PASSED (0 failed)
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

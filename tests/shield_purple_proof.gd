@@ -2,7 +2,7 @@ extends Node
 ## Native rendering of the real skill choice, G shield and damaging counter.
 ## Guards are held still only to frame the visual evidence.
 
-var _out := "res://docs/proof/ac-04-ac-08"
+var _out := "res://docs/proof/active-buffs"
 var _failures := 0
 var _checks := 0
 
@@ -46,13 +46,14 @@ func _run() -> void:
 	player.set_process(false)
 	player.set_physics_process(false)
 	player.weapon.set_process(false)
-	player.global_position = Vector3.ZERO
+	player.global_position = Vector3(60, 0, 0)
+	_add_floor(scene)
 	(player.get_node("Head/Camera3D") as Camera3D).rotation.x = deg_to_rad(-8.0)
 	var guards := get_tree().get_nodes_in_group("enemy")
 	for index in guards.size():
 		var enemy := guards[index] as Enemy
 		enemy.set_physics_process(false)
-		enemy.global_position = Vector3(float(index) * 1.5 - 2.25, 0, -2.4)
+		enemy.global_position = Vector3(60 + float(index) * 1.5 - 2.25, 0, -6.0)
 	for frame in 4:
 		await get_tree().physics_frame
 	_check("actual skill choice unlocks the same G shield", player.shield.is_unlocked())
@@ -69,7 +70,7 @@ func _run() -> void:
 		await get_tree().process_frame
 	Input.action_release("shield")
 	_check("G input activates the shield", player.shield.is_active())
-	Projectile.spawn(scene, Vector3(0, 1.0, -0.9), Vector3.BACK, source, 10.0, 9.0, [])
+	Projectile.spawn(scene, Vector3(60, 1.0, -0.9), Vector3.BACK, source, 10.0, 9.0, [])
 	await get_tree().create_timer(0.15).timeout
 	_check("real incoming projectile is absorbed", player.health.health == health_before
 		and player.combat_traits.feedback.contains("蓄能"))
@@ -77,7 +78,7 @@ func _run() -> void:
 	if player.shield.is_active():
 		await player.shield.expired
 	await get_tree().create_timer(0.12).timeout
-	_check("shield counters once for unchanged 25 body damage", pulses[0] == 1
+	_check("7m shield reaches a real enemy beyond the old 3.5m range once for 25 body damage", pulses[0] == 1
 		and is_equal_approx(target_before - source.health.health, 25.0))
 	await _shot("shield-03-purple-pulse")
 	# An additional observation camera makes the outward pulse colour visible;
@@ -85,8 +86,8 @@ func _run() -> void:
 	var observer := Camera3D.new()
 	observer.fov = 70.0
 	scene.add_child(observer)
-	observer.global_position = Vector3(3.7, 3.0, 4.5)
-	observer.look_at(Vector3(0, 1, -0.4))
+	observer.global_position = Vector3(69.5, 7.0, 10.0)
+	observer.look_at(Vector3(60, 1, -1.0))
 	observer.make_current()
 	await _shot("shield-04-purple-pulse-wide")
 	await get_tree().create_timer(0.65).timeout
@@ -110,3 +111,23 @@ func _check(label: String, ok: bool) -> void:
 	if not ok:
 		_failures += 1
 	print("[%s] %s" % ["ok" if ok else "FAIL", label])
+
+
+func _add_floor(parent: Node) -> void:
+	var floor_body := StaticBody3D.new()
+	floor_body.position = Vector3(60, -0.5, -12)
+	floor_body.collision_layer = CollisionLayers.WORLD
+	var collision := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(40, 1, 70)
+	collision.shape = box
+	floor_body.add_child(collision)
+	var mesh := MeshInstance3D.new()
+	var visual := BoxMesh.new()
+	visual.size = box.size
+	mesh.mesh = visual
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color("35404A")
+	mesh.material_override = material
+	floor_body.add_child(mesh)
+	parent.add_child(floor_body)

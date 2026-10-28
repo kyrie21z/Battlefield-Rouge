@@ -61,7 +61,10 @@ func _run() -> void:
 	player.weapon.ammo = 0
 	player.weapon.try_reload()
 	player.weapon.try_reload()
-	_check("one empty reload throws exactly one magazine", thrown.size() == 1)
+	_check("empty reload does not throw before completion", thrown.is_empty() and not traits.has_reload_charge())
+	player.weapon._finish_reload()
+	_check("completed reload stores the magazine without throwing", traits.has_reload_charge() and thrown.is_empty())
+	_check("active throw consumes one stored magazine", traits.try_throw_reload_charge() and thrown.size() == 1)
 	var charge := thrown[0] as ReloadCharge
 	var explosions := [0]
 	charge.exploded.connect(func(_origin: Vector3, _effect: Node3D): explosions[0] += 1)
@@ -69,7 +72,7 @@ func _run() -> void:
 	charge.detonate()
 	_check("magazine detonates only once", explosions[0] == 1 and charge.exploded_once)
 	player.stats.apply_buff(BuffPool.ALL[0])
-	_check("repeated gun core raises blast damage", player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE) == 120.0)
+	_check("repeated gun core raises blast damage", player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE) == 240.0)
 	print("== blade parry and gun release")
 	player.stats.apply_buff(BuffPool.ALL[3])
 	_check("blade core grants one storage slot", traits.capacity() == 1)

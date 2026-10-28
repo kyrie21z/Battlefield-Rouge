@@ -183,10 +183,13 @@ func _refresh_abilities() -> void:
 	var shield_title := "反击护盾" if pulse_damage > 0.0 else "战术护盾"
 	lines.append("G  %s：%s" % [shield_title, status])
 	if pulse_damage > 0.0:
-		lines.append("挡伤后到期反击 · 爆发 %d" % roundi(pulse_damage))
+		lines.append("挡伤后到期反击 · %d 伤害 / %.0f 米" % [roundi(pulse_damage), CombatTraits.SHIELD_PULSE_RADIUS])
 	var reload_damage := _player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE)
 	if reload_damage > 0.0:
-		lines.append("危险弹匣 · 空仓换弹爆炸 %d" % roundi(reload_damage))
+		lines.append("C  危险弹匣：已储存 1 / 1 · 按 C 投出" if traits.has_reload_charge() \
+			else "C  危险弹匣：0 / 1 · 空仓换弹完成后储存")
+		lines.append("爆炸 %d→%d · 投出后 %.1f 秒或碰撞引爆" % [roundi(reload_damage),
+			roundi(reload_damage * ReloadCharge.EDGE_DAMAGE_SCALE), ReloadCharge.FUSE_TIME])
 	_abilities_label.text = "\n".join(lines)
 
 

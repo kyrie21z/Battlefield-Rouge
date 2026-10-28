@@ -1,18 +1,19 @@
 class_name ReloadCharge
 extends Node3D
-## An ejected magazine with a short fuse. Damage uses the physics world, never
+## A thrown magazine whose fuse starts on launch. Damage uses the physics world, never
 ## actor groups; blast() also supplies the shield's stationary pulse.
 
 signal exploded(origin: Vector3, effect: Node3D)
 
-const FUSE_TIME := 0.65
-const THROW_SPEED := 12.0
+const FUSE_TIME := 1.5
+const THROW_SPEED := 24.0
+const UPWARD_SPEED := 3.0
 const GRAVITY := 9.0
 const ACCENT := Color(1.0, 0.42, 0.08)
 const MAX_QUERY_RESULTS := 256
 const TRAIL_POINTS := 8
 const FULL_DAMAGE_RADIUS := 1.0
-const EDGE_DAMAGE_SCALE := 0.25
+const EDGE_DAMAGE_SCALE := 0.5
 
 static var _blast_sound: AudioStreamWAV
 
@@ -23,7 +24,7 @@ var velocity := Vector3.ZERO
 var fuse_remaining := FUSE_TIME
 var exploded_once := false
 
-var _model := Node3D.new()
+var _model: Node3D
 var _trail := ImmediateMesh.new()
 var _trail_points: Array[Vector3] = []
 var _trail_material: StandardMaterial3D
@@ -37,7 +38,7 @@ static func spawn(parent: Node, origin: Vector3, direction: Vector3,
 	charge.damage = p_damage
 	charge.radius = p_radius
 	var forward := direction.normalized() if not direction.is_zero_approx() else Vector3.FORWARD
-	charge.velocity = forward * THROW_SPEED + Vector3.UP * 1.4
+	charge.velocity = forward * THROW_SPEED + Vector3.UP * UPWARD_SPEED
 	parent.add_child(charge)
 	charge.global_position = origin
 	charge._trail_points.append(origin)
@@ -121,18 +122,20 @@ static func _hitbox_center(hitbox: Hitbox) -> Vector3:
 	return hitbox.global_position
 
 
-func _ready() -> void:
-	add_child(_model)
+## Shared by the held view and flying projectile; no external assets are needed.
+static func create_model() -> Node3D:
+	var model := Node3D.new()
 	var magazine := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3(0.12, 0.26, 0.08)
 	magazine.mesh = mesh
 	var steel := StandardMaterial3D.new()
+	steel.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	steel.albedo_color = Color(0.17, 0.2, 0.24)
 	steel.metallic = 0.7
 	magazine.material_override = steel
 	magazine.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_model.add_child(magazine)
+	model.add_child(magazine)
 	var strip := MeshInstance3D.new()
 	var strip_mesh := BoxMesh.new()
 	strip_mesh.size = Vector3(0.128, 0.04, 0.088)
@@ -140,7 +143,13 @@ func _ready() -> void:
 	strip.position.y = -0.08
 	strip.material_override = _glow_material(ACCENT, 1.0)
 	strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_model.add_child(strip)
+	model.add_child(strip)
+	return model
+
+
+func _ready() -> void:
+	_model = create_model()
+	add_child(_model)
 	_trail_material = _glow_material(ACCENT, 0.85)
 	_trail_material.vertex_color_use_as_albedo = true
 	_trail_material.cull_mode = BaseMaterial3D.CULL_DISABLED

@@ -48,9 +48,12 @@ func _run() -> void:
 		await get_tree().physics_frame
 	player.weapon.ammo = 0
 	player.weapon.try_reload()
-	await get_tree().create_timer(0.25).timeout
+	player.weapon._finish_reload()
+	_check("completed reload holds a magazine", player.combat_traits.has_reload_charge())
+	_check("manual release launches the held magazine", player.combat_traits.try_throw_reload_charge())
+	await get_tree().create_timer(0.10).timeout
 	await _shot("action_01_ejected_magazine")
-	await get_tree().create_timer(0.45).timeout
+	await get_tree().create_timer(0.65).timeout
 	await _shot("action_02_magazine_blast")
 	_grant(player, BuffPool.ALL[3])
 	player.weapon._finish_reload()

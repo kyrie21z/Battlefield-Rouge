@@ -97,7 +97,9 @@ func _run() -> void:
 	_check("Q wraps back to 匕首", _melee.current().display_name == "匕首")
 	var hud := scene.get_node_or_null("HUD")
 	if hud != null:
-		_check("the HUD names the selected weapon", (hud.get_node("Melee") as Label).text.contains("匕首"))
+		var slot := hud.get_node("AbilityBar/Melee") as AbilitySlot
+		slot.advance(0.0)
+		_check("the HUD shows the selected weapon", slot.current_icon == _melee.current().icon)
 
 	print("== each cut travels the screen the way its style promises")
 	for i in WEAPONS.size():

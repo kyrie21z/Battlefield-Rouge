@@ -50,6 +50,8 @@ enum SwingStyle {
 @export var display_name := ""
 ## First-person model, hidden except while swinging. See melee_weapon.gd.
 @export var view_scene: PackedScene
+## HUD silhouette, rendered from the viewmodel by tools/render_icons.tscn.
+@export var icon: Texture2D
 ## ProceduralAudio sound kind for the swing itself. Every weapon shares the same
 ## impact sound, which melee_weapon.gd generates once.
 @export var swing_sound := "melee_swing"

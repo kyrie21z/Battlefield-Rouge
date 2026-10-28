@@ -1,10 +1,15 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
 [ext_resource type="Script" path="res://ui/strike_bar.gd" id="3_strike"]
 [ext_resource type="Script" path="res://ui/capture_debug.gd" id="4_debug"]
 [ext_resource type="Script" path="res://ui/scope.gd" id="5_scope"]
+[ext_resource type="Script" path="res://ui/vitals.gd" id="6_vitals"]
+[ext_resource type="Script" path="res://ui/weapon_panel.gd" id="7_weapon_panel"]
+[ext_resource type="Script" path="res://ui/ability_slot.gd" id="8_ability_slot"]
+[ext_resource type="Texture2D" path="res://assets/ui/abilities/shield.svg" id="9_shield"]
+[ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_damage.svg" id="10_danger"]
 
 [sub_resource type="StyleBoxFlat" id="BossFill"]
 bg_color = Color(0.8, 0.14, 0.12, 1)
@@ -71,66 +76,65 @@ text = "×"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Health" type="Label" parent="."]
+[node name="Vitals" type="Control" parent="."]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 32.0
-offset_top = -72.0
-offset_right = 332.0
+offset_top = -120.0
+offset_right = 372.0
 offset_bottom = -32.0
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("6_vitals")
 
-[node name="Ammo" type="Label" parent="."]
+[node name="WeaponPanel" type="Control" parent="."]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -332.0
-offset_top = -72.0
+offset_left = -668.0
+offset_top = -280.0
 offset_right = -32.0
-offset_bottom = -32.0
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 2
-
-[node name="Gun" type="Label" parent="."]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -152.0
-offset_right = -32.0
-offset_bottom = -116.0
+offset_bottom = -144.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 2
+mouse_filter = 2
+script = ExtResource("7_weapon_panel")
 
-[node name="Melee" type="Label" parent="."]
+[node name="AbilityBar" type="HBoxContainer" parent="."]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -112.0
+offset_left = -190.0
+offset_top = -126.0
 offset_right = -32.0
-offset_bottom = -76.0
+offset_bottom = -32.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Shield" type="Control" parent="AbilityBar"]
+custom_minimum_size = Vector2(72, 94)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_ability_slot")
+mode = 0
+key_text = "G"
+icon = ExtResource("9_shield")
+corner_icon = ExtResource("10_danger")
+
+[node name="Melee" type="Control" parent="AbilityBar"]
+custom_minimum_size = Vector2(72, 94)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_ability_slot")
+mode = 1
+key_text = "V"
 
 [node name="HitAudio" type="AudioStreamPlayer" parent="."]
 
@@ -191,20 +195,6 @@ theme_override_font_sizes/font_size = 22
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 autowrap_mode = 3
-
-[node name="Abilities" type="Label" parent="."]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -570.0
-offset_top = 24.0
-offset_right = -32.0
-offset_bottom = 240.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 2
 
 [node name="CombatFeedback" type="Label" parent="."]
 visible = false

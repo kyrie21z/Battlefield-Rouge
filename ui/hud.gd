@@ -12,10 +12,10 @@ var _director: ZoneDirector
 @onready var _scope: Control = $Scope
 @onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
-@onready var _health_label: Label = $Health
-@onready var _ammo_label: Label = $Ammo
-@onready var _gun_label: Label = $Gun
-@onready var _melee_label: Label = $Melee
+@onready var _vitals: Vitals = $Vitals
+@onready var _weapon_panel: WeaponPanel = $WeaponPanel
+@onready var _shield_slot: AbilitySlot = $AbilityBar/Shield
+@onready var _melee_slot: AbilitySlot = $AbilityBar/Melee
 @onready var _audio: AudioStreamPlayer = $HitAudio
 @onready var _damage_flash: ColorRect = $DamageFlash
 @onready var _zone_label: Label = $Top/Zone
@@ -24,7 +24,6 @@ var _director: ZoneDirector
 @onready var _boss_label: Label = $Top/BossLabel
 @onready var _boss_bar: ProgressBar = $Top/BossBar
 @onready var _buffs_label: Label = $Buffs
-@onready var _abilities_label: Label = $Abilities
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _debug: CaptureDebug = $CaptureDebug
@@ -32,17 +31,14 @@ var _director: ZoneDirector
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player") as Player
-	_player.weapon.ammo_changed.connect(_on_ammo_changed)
-	_player.weapon.reload_started.connect(func(_t): _ammo_label.text = "换弹中…")
 	_player.weapon.hit_landed.connect(_on_hit_landed)
-	_player.weapon.selected.connect(_on_gun_selected)
 	_player.weapon.zoom_changed.connect(_on_zoom_changed)
-	_on_gun_selected(_player.weapon.index, _player.weapon.data)
 	_player.melee.hit_landed.connect(_on_hit_landed)
-	_player.melee.selected.connect(_on_melee_selected)
-	_on_melee_selected(_player.melee.index, _player.melee.current())
 	_player.health.damaged.connect(_on_player_damaged)
-	_on_ammo_changed(_player.weapon.ammo, _player.weapon.reserve)
+	_vitals.setup(_player)
+	_weapon_panel.setup(_player.weapon)
+	_shield_slot.setup(_player)
+	_melee_slot.setup(_player)
 
 	_director = get_tree().get_first_node_in_group("zone_director") as ZoneDirector
 	_zone_label.text = "战区 %d / %d" % [_director.zone_index + 1, RunState.ZONE_SCENES.size()]
@@ -62,16 +58,12 @@ func _ready() -> void:
 		_refresh_boss()
 	RunState.changed.connect(_refresh_buffs)
 	_refresh_buffs()
-	_refresh_abilities()
 	_refresh_combat_feedback()
 
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
-	var health := _player.health
-	_health_label.text = "生命 %d / %d" % [ceili(health.health), ceili(health.max_health)]
-	_refresh_abilities()
 	_refresh_combat_feedback()
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
@@ -94,18 +86,6 @@ func _process(_delta: float) -> void:
 func _on_zoom_changed(level: float) -> void:
 	_reticle.zoom = level
 	_reticle.queue_redraw()
-
-
-func _on_ammo_changed(current: int, reserve: int) -> void:
-	_ammo_label.text = "%d / %d" % [current, reserve]
-
-
-func _on_gun_selected(_index: int, data: WeaponData) -> void:
-	_gun_label.text = "%s [滚轮切换]" % data.display_name
-
-
-func _on_melee_selected(_index: int, data: MeleeData) -> void:
-	_melee_label.text = "近战 %s [V] · Q 切换" % data.display_name
 
 
 func _on_hit_landed(headshot: bool, killed: bool) -> void:
@@ -158,36 +138,6 @@ func _refresh_buffs() -> void:
 		var buff: Buff = catalog[key]
 		lines.append("%s ×%d  ·  %s" % [buff.title, counts[key], buff.stack_summary()])
 	_buffs_label.text = "\n".join(lines)
-
-
-func _refresh_abilities() -> void:
-	var shield := _player.shield
-	var traits := _player.combat_traits
-	var lines: PackedStringArray = []
-	var parry_capacity := _player.stats.get_value(Stats.PARRY_CAPACITY)
-	if parry_capacity > 0.0:
-		lines.append("V  刀具 · 弹反窗口 %.2f 秒" % traits.parry_remaining if traits.parry_remaining > 0.0 \
-			else "V  刀具 · 按 V 开启短时弹反")
-		lines.append("收藏弹头 %d / %d 发 · 下一枪发射" % [traits.stored_rounds, traits.capacity()])
-	else:
-		lines.append("V  挥砍 · Q 切换近战")
-	var status := "选择技能增益解锁"
-	if shield.is_unlocked():
-		if shield.is_active():
-			status = "生效中 %.1f 秒" % shield.active_remaining
-		elif shield.cooldown_remaining > 0.0:
-			status = "冷却 %.1f 秒" % shield.cooldown_remaining
-		else:
-			status = "就绪 · 按 G 施放"
-	var pulse_damage := _player.stats.get_value(Stats.SHIELD_PULSE_DAMAGE)
-	var shield_title := "反击护盾" if pulse_damage > 0.0 else "战术护盾"
-	lines.append("G  %s：%s" % [shield_title, status])
-	if pulse_damage > 0.0:
-		lines.append("挡伤后到期反击 · 爆发 %d" % roundi(pulse_damage))
-	var reload_damage := _player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE)
-	if reload_damage > 0.0:
-		lines.append("危险弹匣 · 空仓换弹爆炸 %d" % roundi(reload_damage))
-	_abilities_label.text = "\n".join(lines)
 
 
 func _refresh_combat_feedback() -> void:

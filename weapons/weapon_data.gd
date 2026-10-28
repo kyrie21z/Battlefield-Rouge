@@ -10,6 +10,8 @@ enum FireMode { AUTO, SEMI }
 @export var display_name := ""
 ## First-person model. Null falls back to a placeholder box.
 @export var view_scene: PackedScene
+## HUD silhouette, rendered from the viewmodel by tools/render_icons.tscn.
+@export var icon: Texture2D
 ## ProceduralAudio sound kind, e.g. "gunshot_ak47".
 @export var gunshot_sound := "gunshot_medium"
 

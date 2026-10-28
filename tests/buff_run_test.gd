@@ -232,7 +232,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 		var director := _director()
 		_check("correct zone index", RunState.zone_index == zone_index)
 		var boss_zone := zone_index == 2
-		var expected_phase := ZoneDirector.Phase.HAMMER_POINT if boss_zone else ZoneDirector.Phase.CLEAR_GUARDS
+		var expected_phase := ZoneDirector.Phase.BOSS_STANDING if boss_zone else ZoneDirector.Phase.CLEAR_GUARDS
 		if zone_index == 0:
 			_check("entry choice pauses before combat", get_tree().paused and director.selection_context == "enter" and director.phase == ZoneDirector.Phase.BUFF_SELECT)
 			_check("guards have no target during entry", get_tree().get_nodes_in_group("enemy").all(func(e: Enemy): return e.target == null))
@@ -252,20 +252,23 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			_check("current scene preserves stacks: " + str(stat), is_equal_approx(expected.get_value(stat), player.stats.get_value(stat)))
 		expected.free()
 		if boss_zone:
-			_check("Boss retains open-at-start city-core rule", director.open_at_start and director.boss != null)
-			_check("city core opens with Boss and guards still alive", director.phase == ZoneDirector.Phase.HAMMER_POINT and not director.boss.health.is_dead() and director.enemies_total == 7)
-			# Keep the original Boss victory rule under test: completing the core
-			# wins even while all seven enemies are alive. Freeze AI only so the
-			# deterministic capture fixture cannot die during its flag animation.
+			_check("this is the boss zone", director.is_boss_zone and director.boss != null)
+			_check("the core stays shut while the Boss lives", director.phase == ZoneDirector.Phase.BOSS_STANDING and director.capture_point.locked and not director.boss.health.is_dead() and director.enemies_total == 7)
 			for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 				enemy.set_physics_process(false)
+			director.capture_point.player_in_reach = true
+			director.capture_point.resolve_swing(2.5)
+			_check("a hammer does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
+			director.boss.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
+			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
+			director.capture_point.resolve_swing(2.5)
 		else:
 			for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 				enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 			_check("clear guards opens capture", director.phase == ZoneDirector.Phase.HAMMER_POINT)
-		director.capture_point.player_in_reach = true
-		for strike in 12:
-			director.capture_point.resolve_swing(float(strike))
+			director.capture_point.player_in_reach = true
+			for strike in 12:
+				director.capture_point.resolve_swing(float(strike))
 		_check("capture plants flag", director.phase == ZoneDirector.Phase.FLAG_PLANTED)
 		# Repeated notification cannot create another reward screen.
 		director._on_point_captured()
@@ -293,7 +296,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			var ending := _end_screen(director)
 			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 0 and ending != null)
 			if ending != null:
-				_check("capturing core wins while Boss is alive", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and not director.boss.health.is_dead())
+				_check("one hammer wins after the Boss is dead", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and director.boss.health.is_dead())
 			await _shot(label + "_victory")
 	var contexts: Array[String] = []
 	for entry in RunState.selection_history:

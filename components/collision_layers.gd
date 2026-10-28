@@ -4,7 +4,10 @@ class_name CollisionLayers
 
 ## Level geometry and props. Layer 1.
 const WORLD := 1 << 0
-## Movement capsules of the player and enemies. Layer 2.
+## The player's movement capsule. Layer 2.
 const ACTORS := 1 << 1
+## Enemy movement capsules. Layer 3. Not in an enemy's own mask, so soldiers
+## pass through each other instead of squeezing a body into a map corner.
+const ENEMIES := 1 << 2
 ## Hitbox bodies that take damage. Layer 4.
 const HITBOXES := 1 << 3

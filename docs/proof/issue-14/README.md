@@ -12,31 +12,31 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn -- --runs
 
 ## 结果
 
-`run.log` 和 `traces/` 是 issue #14 当时的证据，这次没有覆盖。下面的表是 #25 改完小关据点、增援、冲击波和增益台之后，用 Godot 4.7.2、`--fixed-fps 60`、`--runs=3` 新跑的。哈希因 #25 改了小关流程而变化。新哈希与引入这次修订的提交是同一次工作区；提交 SHA 就是包含本文件的那次提交。
+`run.log` 和 `traces/` 是 issue #14 当时的证据，这次没有覆盖。下面的表是 #25 试玩修订（据点 z≈-8、敌人不再互相推挤、按进度碎裂）再叠上 #26（打倒 Boss 后一锤击碎）之后，用 Godot 4.7.2、`--fixed-fps 60`、`--runs=3` 新跑的。新哈希与引入这次修订的提交是同一次工作区；提交 SHA 就是包含本文件的那次提交。
 
 两个独立进程各跑一次。每个进程里每个 fixture 打三遍（第一遍从 fixture 起点进入，后两遍按结算界面的重开按钮），再各打一遍种子 +1。两进程的 `== hashes` 相同，八份记录（三遍加种子 +1，两个 fixture）跨进程 `cmp` 逐字节相同。
 
 | fixture | 起点 | 种子 | 结果 | 长度 | 哈希（两进程、每进程三遍全部相同） | 种子 +1 的对照局 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `FX-001` | 战区 1，没有增益 | 1001 | 胜利 | 3053 tick（50.9 秒） | `981599f0236f2a55` | 种子 1002：胜利，2989 tick，`1690347621de618a` |
-| `FX-002` | Boss 关，急速射击 + 扩容弹匣 | 2002 | 胜利 | 1434 tick（23.9 秒） | `bb9162c8424ff945` | 种子 2003：胜利，1314 tick，`282bdcc8eb7623f3` |
+| `FX-001` | 战区 1，没有增益 | 1001 | 胜利 | 2409 tick（40.1 秒） | `4f21666af9e49eda` | 种子 1002：胜利，2419 tick，`6bc59b75142b4d5e` |
+| `FX-002` | Boss 关，急速射击 + 扩容弹匣 | 2002 | 胜利 | 835 tick（13.9 秒） | `a489a884d1ed0127` | 种子 2003：胜利，830 tick，`8373d17dc9c8e89d` |
 
-#14 当时公布、并且仍留在 `run.log` / `traces/` 里的数字是：FX-001 胜利，3671 tick，`8306f3301da22b35`（种子 1002：3953 tick，`76e4b0a74847397c`）；FX-002 胜利，1434 tick，`bb9162c8424ff945`（种子 2003：1314 tick，`282bdcc8eb7623f3`）。#21 接入每关入场选择之后，[AC-04 证明](../ac-04-ac-08/README.md) 里记过另一组：FX-001 3875 tick、`faf979e483061388`，FX-002 1375 tick、`9afe0ddb9ac0b983`。#22 改完选择时机之后记过：FX-001 胜利，3887 tick，`b8ce9783842e8153`（种子 1002：3853 tick，`fe4de49c4771afc2`）；FX-002 仍与 #14 相同。
+#14 当时公布、并且仍留在 `run.log` / `traces/` 里的数字是：FX-001 胜利，3671 tick，`8306f3301da22b35`（种子 1002：3953 tick，`76e4b0a74847397c`）；FX-002 胜利，1434 tick，`bb9162c8424ff945`（种子 2003：1314 tick，`282bdcc8eb7623f3`）。#21 接入每关入场选择之后，[AC-04 证明](../ac-04-ac-08/README.md) 里记过另一组：FX-001 3875 tick、`faf979e483061388`，FX-002 1375 tick、`9afe0ddb9ac0b983`。#22 改完选择时机之后记过：FX-001 胜利，3887 tick，`b8ce9783842e8153`（种子 1002：3853 tick，`fe4de49c4771afc2`）；FX-002 仍与 #14 相同。#25 第一次把据点放在 z=0 并接上增援时记过：FX-001 胜利，3053 tick，`981599f0236f2a55`（种子 1002：2989 tick，`1690347621de618a`）；FX-002 仍与 #14 相同。试玩修订把据点挪到 z≈-8 之后、尚未叠上 Boss 一锤时记过：FX-001 胜利，2967 tick，`c76f382ec1614ceb`（种子 1002：2905 tick，`b06f14382acf9a99`）；FX-002 仍与 #14 相同。变基前的 #26（据点仍在 z=0）记过：FX-001 胜利，2495 tick，`a875672daf00a638`（种子 1002：2503 tick，`1be316041734d9d3`）；FX-002 胜利，835 tick，`a489a884d1ed0127`（种子 2003：830 tick，`8373d17dc9c8e89d`）。
 
-这次 FX-002 的哈希、tick 和种子 +1 对照与 #14 公布值相同，而且新记录和 `traces/FX-002_run1.txt`、`traces/FX-002_seed2003.txt` **逐字节相同**。记录里没有 `buff` 事件：FX-002 从 Boss 关起步，按 `zone_index == 0` 判断，进场不选，机器人从第一下就打。#25 不给 Boss 增援、冲击波或增益台，所以这条路径没变。#21 那次要先选卡，所以当时的哈希不同。FX-001 从第一行就和 `traces/FX-001_run1.txt` 不同，也和 #22 的 `b8ce9783842e8153` 不同。
+这次 FX-002 也不再和 `traces/FX-002_run1.txt` 逐字节相同。它的哈希、tick 和种子 +1 对照与变基前的 #26 相同（`a489a884d1ed0127`，835 tick）。机器人先打 Boss，清掉还在开火的小怪，再走到核心挥一锤（记录里这一锤是 `strike perfect +1.00000`）。进场仍然不选，记录里没有 `buff` 事件。FX-001 从第一行就和 `traces/FX-001_run1.txt` 不同，也和试玩修订、尚未叠上 Boss 一锤时的 `c76f382ec1614ceb` 不同。小关那一段的事件时刻与那次试玩修订相同，Boss 段改成先打倒再一锤。
 
 - 种子加 1 后整局不同，说明种子确实在起作用。
 - 每遍都检查了起点确实是 fixture 规定的（战区、增益条数和内容、种子）。
 
-`FX-001` 一路走到胜利，和 AC-02 串测。选择仍是 3 次，通关那两次改成走到增益台再按 F。种子 1001 的记录：tick 1 选 `firearm_damage.tres`；清掉 Enemy1、Enemy2、Enemy4、Enemy3，tick 65 `zone_cleared 0`；增援击杀在 428、442、552；tick 815 `point_captured 0`；tick 817 选 `firearm_rate.tres`；小关 2 清完六名守卫，tick 914 `zone_cleared 1`；增援击杀在 1330、1571；tick 1664 `point_captured 1`；tick 1679 选 `firearm_magazine.tres`；Boss 关 tick 1926 击倒 Boss，tick 2129 击倒 Enemy5；tick 2969 `point_captured 2`；tick 3052 `run_won`；tick 3053 `end 胜利`。全程 27 次 `strike perfect`，0 次 `strike ordinary`。#14 原文写的是 `light_boots` / `rapid_fire` 和 3671 tick，那是当时的记录，见 `traces/`，不是这次的路径。#22 的 3887 tick 同样留在上一段，不是这次的路径。
+`FX-001` 一路走到胜利，和 AC-02 串测。选择仍是 3 次，通关那两次改成走到增益台再按 F。种子 1001 的记录：tick 1 选 `firearm_damage.tres`；清掉 Enemy1、Enemy2、Enemy4、Enemy3，tick 37 `zone_cleared 0`；增援击杀在 390、397、608、622；tick 787 `point_captured 0`；tick 792 选 `firearm_rate.tres`；小关 2 清完六名守卫，tick 841 `zone_cleared 1`；增援击杀在 1110、1116；tick 1591 `point_captured 1`；tick 1593 选 `firearm_magazine.tres`；Boss 关 tick 1755 击倒 Boss，随后清掉六名小怪（1904 到 1944）；tick 2325 一锤 `+1.00000` 并 `point_captured 2`；tick 2408 `run_won`；tick 2409 `end 胜利`。全程 19 次 `strike perfect`，0 次 `strike ordinary`。#14 原文写的是 `light_boots` / `rapid_fire` 和 3671 tick，那是当时的记录，见 `traces/`，不是这次的路径。
 
 | 文件 | 内容 |
 | --- | --- |
-| `run.log` | #14 当时三个进程的完整输出，加记录文件的 `cmp` 对比和对照局的 `diff`。#22 和 #25 都没有重写它 |
-| `traces/FX-001_run1.txt`、`traces/FX-002_run1.txt` | #14 的起点局记录。FX-002 与 #25 这次实跑逐字节相同；FX-001 从第一行就不同 |
-| `traces/FX-001_seed1002.txt`、`traces/FX-002_seed2003.txt` | #14 的种子 +1 对照。FX-002 的对照与这次实跑逐字节相同；FX-001 的对照不是这次的 `1690347621de618a` |
+| `run.log` | #14 当时三个进程的完整输出，加记录文件的 `cmp` 对比和对照局的 `diff`。#22、#25 和 #26 都没有重写它 |
+| `traces/FX-001_run1.txt`、`traces/FX-002_run1.txt` | #14 的起点局记录。这次实跑和它们不同 |
+| `traces/FX-001_seed1002.txt`、`traces/FX-002_seed2003.txt` | #14 的种子 +1 对照。不是这次的 `6bc59b75142b4d5e` 和 `8373d17dc9c8e89d` |
 
-自己复现：在项目根目录跑上面的命令，结果里的哈希应与上面的新表相同（同一台机器、Godot 4.7.2、`--fixed-fps 60`）。不要拿新的 FX-001 记录去和 `traces/FX-001_run1.txt` 比逐字节，那份是 #14 的。FX-002 可以比，这次是相同的。默认每 30 tick 取一次快照，哈希依赖 `--sample-every`，所以比较时别改它。游戏里 `godot --path . -- --fixture=FX-002` 从该起点开始，F3 调试条显示“起点 FX-002  种子 2002”。
+自己复现：在项目根目录跑上面的命令，结果里的哈希应与上面的新表相同（同一台机器、Godot 4.7.2、`--fixed-fps 60`）。不要拿新记录去和 `traces/` 里的文件比逐字节，那些是 #14 的。默认每 30 tick 取一次快照，哈希依赖 `--sample-every`，所以比较时别改它。游戏里 `godot --path . -- --fixture=FX-002` 从该起点开始，F3 调试条显示“起点 FX-002  种子 2002”。
 
 ## 局限
 

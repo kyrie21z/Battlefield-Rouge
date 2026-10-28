@@ -170,6 +170,29 @@ func _run() -> void:
 	_check("after the cooldown the next press swings again", _strikes.size() == 2)
 	scene.queue_free()
 	await get_tree().process_frame
+
+	print("== the building breaks apart as the bar fills")
+	scene = load("res://maps/zone_1.tscn").instantiate()
+	add_child(scene)
+	await get_tree().process_frame
+	_choose_entry(scene)
+	_silence_reinforcements(scene.get_node("ZoneDirector") as ZoneDirector)
+	point = scene.get_node("CapturePoint") as CapturePoint
+	for guard in get_tree().get_nodes_in_group("enemy"):
+		(guard as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
+	_check("eight blocks before the first quarter", point.fracture_stage == 0 and point.intact_block_count() == 8)
+	point.add_capture_progress(0.25)
+	_check("25% drops the first pair", point.fracture_stage == 1 and point.intact_block_count() == 6)
+	point.struck.emit(false, 40.0, 0.08)
+	_check("an ordinary hit throws chips", point.get_node_or_null("Chips") != null)
+	point.add_capture_progress(0.25)
+	_check("50% drops the next pair", point.fracture_stage == 2 and point.intact_block_count() == 4)
+	point.add_capture_progress(0.25)
+	_check("75% leaves one pair standing", point.fracture_stage == 3 and point.intact_block_count() == 2)
+	point.add_capture_progress(0.25)
+	_check("100% collapses the rest and plants the flag", point.fracture_stage == 4 and point.intact_block_count() == 0 and point.is_captured() and point.get_node_or_null("Flag") != null)
+	scene.queue_free()
+	await get_tree().process_frame
 	_finished = true
 
 

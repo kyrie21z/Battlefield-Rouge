@@ -3,8 +3,9 @@ extends Node
 ## Runs one zone from start to finish:
 ##   1. bakes navigation and applies old buffs. Only zone 0 offers an entry
 ##      buff; later zones start combat immediately;
-##   2. when every guard is dead, opens the capture building for hammering
-##      (the boss zone opens it at once and its enemies do not gate it);
+##   2. when every guard is dead, opens the capture building for hammering.
+##      The boss zone keeps the core shut until the boss dies, then one hammer
+##      finishes it. The six small enemies do not gate that;
 ##   3. a small zone then spawns reinforcements from the rear. They never
 ##      close the building or move its progress. At 100% the flag goes up,
 ##      a shockwave sends every living minion running for the rear spawns,
@@ -15,7 +16,7 @@ extends Node
 ## Only this node and RunState change run state (see ARCHITECTURE.md).
 
 ## The two halves of a zone, then the finish (Cut-001b AC-01).
-enum Phase { CLEAR_GUARDS, HAMMER_POINT, FLAG_PLANTED, BUFF_SELECT }
+enum Phase { CLEAR_GUARDS, HAMMER_POINT, FLAG_PLANTED, BUFF_SELECT, BOSS_STANDING }
 
 signal objective_changed(text: String)
 signal phase_changed(phase: Phase)
@@ -33,9 +34,10 @@ const PEDESTAL_OFFSET := Vector3(3.0, 0.0, 2.2)
 
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
-## The boss zone: the city core opens as soon as the zone starts, and killing
-## its enemies changes nothing (Cut-001b: no "clear first" for the boss).
-@export var open_at_start := false
+## The boss zone. The core stays locked while the boss lives. Its death opens
+## the core; one hammer then plants the flag. The six small enemies do not
+## gate it, and this zone never spawns reinforcements or a shockwave.
+@export var is_boss_zone := false
 ## Small zones only. Null on the boss zone, which never spawns reinforcements.
 @export var reinforcement_config: ReinforcementConfig
 
@@ -157,9 +159,8 @@ func _start_combat() -> void:
 	_combat_started = true
 	for enemy in _guards:
 		enemy.setup(_player, _cover_points)
-	if open_at_start:
-		capture_point.open()
-		_set_phase(Phase.HAMMER_POINT, "砸开城市核心，按 E 挥锤")
+	if is_boss_zone:
+		_set_phase(Phase.BOSS_STANDING, "打倒 Boss")
 	else:
 		_set_phase(Phase.CLEAR_GUARDS, "消灭所有敌人")
 		if _guards.is_empty():
@@ -171,11 +172,22 @@ func _on_enemy_killed(enemy: Node) -> void:
 	if enemy in _guards:
 		_guards.erase(enemy)
 		enemies_changed.emit(_guards.size(), enemies_total)
+		if is_boss_zone:
+			if enemy == boss and _combat_started and not _ended:
+				_open_boss_core()
+			return
 		if _guards.is_empty() and _combat_started and not _ended:
 			_open_capture_point()
 		return
 	if enemy in _reinforcements:
 		_reinforcements.erase(enemy)
+
+
+func _open_boss_core() -> void:
+	if phase != Phase.BOSS_STANDING or _ended:
+		return
+	capture_point.open()
+	_set_phase(Phase.HAMMER_POINT, "砸碎城市核心，按 E")
 
 
 func _open_capture_point() -> void:
@@ -191,10 +203,10 @@ func _on_point_captured() -> void:
 	if _ended or _capture_handled or not _combat_started or phase != Phase.HAMMER_POINT:
 		return
 	_capture_handled = true
-	var flag_text := "旗已插上" if open_at_start else "旗已插上，到增益台按 F 领取增益"
+	var flag_text := "旗已插上" if is_boss_zone else "旗已插上，到增益台按 F 领取增益"
 	_set_phase(Phase.FLAG_PLANTED, flag_text)
 	Events.point_captured.emit(zone_index)
-	if not open_at_start:
+	if not is_boss_zone:
 		_stop_reinforcements()
 		_play_shockwave()
 		_spawn_pedestal()
@@ -216,7 +228,7 @@ func reinforcement_count() -> int:
 
 
 func _begin_reinforcements() -> void:
-	if open_at_start or reinforcement_config == null or _spawn_points.is_empty() or _ended:
+	if is_boss_zone or reinforcement_config == null or _spawn_points.is_empty() or _ended:
 		return
 	_reinforcing = true
 	_reinforce_wait = 0.0
@@ -261,7 +273,7 @@ func _on_enemy_departed(enemy: Enemy) -> void:
 
 
 func _play_shockwave() -> void:
-	if _shockwave_played or open_at_start or _spawn_points.is_empty():
+	if _shockwave_played or is_boss_zone or _spawn_points.is_empty():
 		return
 	_shockwave_played = true
 	var timeout := 14.0
@@ -347,7 +359,7 @@ func _offer_buff(context: String) -> void:
 		return
 	selection_context = context
 	selection_count += 1
-	var stage_name := "Boss · 城市核心" if open_at_start else "小关 %d" % (zone_index + 1)
+	var stage_name := "Boss · 城市核心" if is_boss_zone else "小关 %d" % (zone_index + 1)
 	var title := "进入%s前：选择一个增益" % stage_name if context == "enter" \
 		else "%s已完成：选择通关增益" % stage_name
 	_set_phase(Phase.BUFF_SELECT, title)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3]
+[gd_scene load_steps=45 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]
 [ext_resource type="Script" path="res://zone/capture_point.gd" id="6_capture"]
 [ext_resource type="PackedScene" path="res://actors/enemy/boss.tscn" id="7_boss"]
+[ext_resource type="Resource" path="res://zone/boss_capture_config.tres" id="9_bosscap"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 
@@ -431,6 +432,7 @@ script = ExtResource("5_cover")
 [node name="CapturePoint" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -26.5)
 script = ExtResource("6_capture")
+config = ExtResource("9_bosscap")
 
 [node name="Shape" type="CollisionShape3D" parent="CapturePoint"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -473,6 +475,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -19)
 script = ExtResource("4_director")
 navigation_region = NodePath("../NavigationRegion3D")
 capture_point = NodePath("../CapturePoint")
-open_at_start = true
+is_boss_zone = true
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]

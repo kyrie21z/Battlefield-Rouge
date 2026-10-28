@@ -101,6 +101,7 @@ func add_capture_progress(amount: float) -> void:
 	_update_color()
 	if is_captured():
 		progress = 1.0
+		_clear_ruin()
 		_plant_flag()
 		captured.emit()
 
@@ -285,8 +286,17 @@ func _on_struck_debris(perfect: bool, _offset_ms: float, _worth: float) -> void:
 	bits.finished.connect(bits.queue_free)
 
 
+## The building has fallen to rubble at 100%, so its collision box goes with
+## it: otherwise an invisible wall would stand where the building was.
+func _clear_ruin() -> void:
+	var shape := get_node_or_null("Objective/Shape") as CollisionShape3D
+	if shape != null:
+		shape.set_deferred("disabled", true)
+
+
+## The flag stands in the rubble, not on the roof the building no longer has.
 func _plant_flag() -> void:
-	var top := (_building.global_transform * _building.get_aabb()).end.y - global_position.y
+	var ground := (_building.global_transform * _building.get_aabb()).position.y - global_position.y
 	var flag := Node3D.new()
 	flag.name = "Flag"
 	var metal := StandardMaterial3D.new()
@@ -309,10 +319,10 @@ func _plant_flag() -> void:
 	cloth.material_override = cloth_material
 	cloth.position = Vector3(0.6, FLAG_HEIGHT - 0.45, 0.0)
 	flag.add_child(cloth)
-	# Start with the whole pole inside the building and raise it out of the roof.
-	flag.position.y = top - FLAG_HEIGHT
+	# Start with the whole pole below the ground and raise it out of the rubble.
+	flag.position.y = ground - FLAG_HEIGHT
 	add_child(flag)
-	create_tween().tween_property(flag, "position:y", top, 0.9) \
+	create_tween().tween_property(flag, "position:y", ground, 0.9) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 

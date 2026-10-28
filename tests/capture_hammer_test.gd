@@ -191,6 +191,11 @@ func _run() -> void:
 	_check("75% leaves one pair standing", point.fracture_stage == 3 and point.intact_block_count() == 2)
 	point.add_capture_progress(0.25)
 	_check("100% collapses the rest and plants the flag", point.fracture_stage == 4 and point.intact_block_count() == 0 and point.is_captured() and point.get_node_or_null("Flag") != null)
+	for i in 70:
+		await get_tree().physics_frame
+	var flag := point.get_node("Flag") as Node3D
+	_check("the flag stands on the ground, not where the roof was", absf(flag.position.y) < 0.05)
+	_check("the collapsed building no longer blocks", (point.get_node("Objective/Shape") as CollisionShape3D).disabled)
 	scene.queue_free()
 	await get_tree().process_frame
 	_finished = true

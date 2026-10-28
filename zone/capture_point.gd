@@ -116,6 +116,7 @@ func resolve_swing(time: float) -> void:
 	var worth := config.progress_for_swing(perfect)
 	_play_feedback(perfect)
 	struck.emit(perfect, offset_ms, worth)
+	Events.hammer_struck.emit(global_position)
 	add_capture_progress(worth)
 
 

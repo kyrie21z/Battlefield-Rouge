@@ -269,10 +269,18 @@ func _play_existing_run(indices: Array, label: String) -> void:
 		_check("capture plants flag", director.phase == ZoneDirector.Phase.FLAG_PLANTED)
 		# Repeated notification cannot create another reward screen.
 		director._on_point_captured()
-		await get_tree().create_timer(ZoneDirector.FLAG_RAISE_TIME + 0.1).timeout
 		if not RunState.is_last_zone():
+			_check("flag does not open the reward by itself",
+				director.selection == null and director.selection_context.is_empty() and not get_tree().paused)
+			var pedestal := director.buff_pedestal
+			_check("buff pedestal stands beside the flag", pedestal != null)
+			player.global_position = pedestal.global_position
+			Input.action_press("interact")
+			await get_tree().physics_frame
+			Input.action_release("interact")
+			await get_tree().process_frame
 			var expected_count := 2 if zone_index == 0 else 1
-			_check("small-zone clear offers one reward", director.selection_context == "clear" and director.selection_count == expected_count)
+			_check("interact at the pedestal offers one reward", director.selection_context == "clear" and director.selection_count == expected_count)
 			await _shot("%s_%02d_clear" % [label, zone_index + 1])
 			await _choose(director, indices[choice])
 			choice += 1
@@ -281,6 +289,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 					break
 				await get_tree().process_frame
 		else:
+			await get_tree().create_timer(ZoneDirector.FLAG_RAISE_TIME + 0.1).timeout
 			var ending := _end_screen(director)
 			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 0 and ending != null)
 			if ending != null:

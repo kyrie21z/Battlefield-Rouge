@@ -5,8 +5,12 @@ extends Node
 ##      buff; later zones start combat immediately;
 ##   2. when every guard is dead, opens the capture building for hammering
 ##      (the boss zone opens it at once and its enemies do not gate it);
-##   3. when the building is at 100% and the flag is planted, a small zone
-##      offers a buff and loads the next zone; the boss zone wins the run;
+##   3. a small zone then spawns reinforcements from the rear. They never
+##      close the building or move its progress. At 100% the flag goes up,
+##      a shockwave sends every living minion running for the rear spawns,
+##      and a pedestal appears. Interact at the pedestal offers the clear
+##      buff; choosing it loads the next zone. The boss zone has none of
+##      that: the flag wins the run;
 ##   4. on the player's death, shows the end screen and restarts from zone 1.
 ## Only this node and RunState change run state (see ARCHITECTURE.md).
 
@@ -19,15 +23,21 @@ signal enemies_changed(alive: int, total: int)
 
 const BUFF_SELECT := preload("res://ui/buff_select.tscn")
 const RUN_END := preload("res://ui/run_end.tscn")
+const ENEMY_SCENE := preload("res://actors/enemy/enemy.tscn")
 const BUFF_CHOICES := 3
-## Seconds between the flag going up and the pause screen freezing the scene.
+## Seconds between the flag going up and the boss victory screen. A small zone
+## does not pause on its own; the pedestal waits for interact.
 const FLAG_RAISE_TIME := 1.4
+## Beside the building, clear of the 2.4 m objective and inside a short walk.
+const PEDESTAL_OFFSET := Vector3(3.0, 0.0, 2.2)
 
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
 ## The boss zone: the city core opens as soon as the zone starts, and killing
 ## its enemies changes nothing (Cut-001b: no "clear first" for the boss).
 @export var open_at_start := false
+## Small zones only. Null on the boss zone, which never spawns reinforcements.
+@export var reinforcement_config: ReinforcementConfig
 
 var objective := ""
 var phase := Phase.CLEAR_GUARDS
@@ -42,13 +52,25 @@ var zone_index := 0
 var selection_context := ""
 var selection_count := 0
 var selection: CanvasLayer
-var _alive: Array[Enemy] = []
+## Present after a small zone plants its flag, until the clear buff is taken.
+var buff_pedestal: BuffPedestal
+## World positions of reinforcements, in spawn order. Tests compare this.
+var reinforcement_spawn_log: Array[Vector3] = []
+## Guards placed with the scene. Only they gate the building. Reinforcements
+## are tracked apart so a later wave cannot close it again.
+var _guards: Array[Enemy] = []
+var _reinforcements: Array[Enemy] = []
+var _spawn_points: Array[Node3D] = []
 var _cover_points: Array[CoverPoint] = []
 var _player: Player
 var _ended := false
 var _combat_started := false
 var _capture_handled := false
 var _transitioning := false
+var _reinforcing := false
+var _reinforce_wait := 0.0
+var _reinforcement_serial := 0
+var _shockwave_played := false
 
 
 func _enter_tree() -> void:
@@ -64,17 +86,32 @@ func _ready() -> void:
 	if navigation_region != null:
 		navigation_region.bake_navigation_mesh(false)
 
-	_player = get_tree().get_first_node_in_group("player") as Player
+	for node in get_tree().get_nodes_in_group("player"):
+		if get_parent().is_ancestor_of(node):
+			_player = node as Player
+			break
 	for buff: Buff in RunState.buffs:
 		_player.stats.apply_buff(buff)
 
-	for node in get_tree().get_nodes_in_group("cover_point"):
+	for node in _nodes_in_zone("cover_point"):
 		_cover_points.append(node as CoverPoint)
-	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
-		_alive.append(enemy)
+	for node in _nodes_in_zone("reinforcement_spawn"):
+		_spawn_points.append(node as Node3D)
+	# A hand sort, not sort_custom: that helper did not put the same names in
+	# the same order on two loads of this scene, so the seeded pick drifted.
+	for i in _spawn_points.size():
+		for j in range(i + 1, _spawn_points.size()):
+			if String(_spawn_points[j].name) < String(_spawn_points[i].name):
+				var swap := _spawn_points[i]
+				_spawn_points[i] = _spawn_points[j]
+				_spawn_points[j] = swap
+	for node in _nodes_in_zone("enemy"):
+		var enemy := node as Enemy
+		_guards.append(enemy)
+		_watch_departure(enemy)
 		if enemy.is_boss:
 			boss = enemy
-	enemies_total = _alive.size()
+	enemies_total = _guards.size()
 
 	Events.enemy_killed.connect(_on_enemy_killed)
 	Events.player_died.connect(_on_player_died)
@@ -92,29 +129,53 @@ func _ready() -> void:
 		_start_combat()
 
 
+func _physics_process(delta: float) -> void:
+	if _reinforcing and reinforcement_config != null:
+		var interval := reinforcement_config.interval_seconds
+		if interval > 0.0:
+			_reinforce_wait += delta
+			while _reinforce_wait + 0.000001 >= interval:
+				_reinforce_wait -= interval
+				_spawn_wave()
+	# A press made during another node's physics step is visible to later nodes
+	# through `is_action_pressed` immediately, but `is_action_just_pressed` stays
+	# false until the next frame — and the fixture bot releases the key at the
+	# start of that frame. A test that presses, awaits `physics_frame`, then
+	# releases resumes before this step and clears the held state, while
+	# `is_action_just_pressed` remains true for the frame. Accept either.
+	if phase == Phase.FLAG_PLANTED and buff_pedestal != null and selection_context.is_empty() \
+			and not _ended and not _transitioning and is_instance_valid(_player) \
+			and not _player.health.is_dead() \
+			and (Input.is_action_pressed(&"interact") or Input.is_action_just_pressed(&"interact")) \
+			and buff_pedestal.in_range(_player):
+		_offer_buff("clear")
+
+
 func _start_combat() -> void:
 	if _combat_started or _ended:
 		return
 	_combat_started = true
-	for enemy in _alive:
+	for enemy in _guards:
 		enemy.setup(_player, _cover_points)
 	if open_at_start:
 		capture_point.open()
 		_set_phase(Phase.HAMMER_POINT, "砸开城市核心，按 E 挥锤")
 	else:
 		_set_phase(Phase.CLEAR_GUARDS, "消灭所有敌人")
-		if _alive.is_empty():
+		if _guards.is_empty():
 			_open_capture_point()
-	enemies_changed.emit(_alive.size(), enemies_total)
+	enemies_changed.emit(_guards.size(), enemies_total)
 
 
 func _on_enemy_killed(enemy: Node) -> void:
-	if not enemy in _alive:
+	if enemy in _guards:
+		_guards.erase(enemy)
+		enemies_changed.emit(_guards.size(), enemies_total)
+		if _guards.is_empty() and _combat_started and not _ended:
+			_open_capture_point()
 		return
-	_alive.erase(enemy)
-	enemies_changed.emit(_alive.size(), enemies_total)
-	if _alive.is_empty() and _combat_started and not _ended:
-		_open_capture_point()
+	if enemy in _reinforcements:
+		_reinforcements.erase(enemy)
 
 
 func _open_capture_point() -> void:
@@ -123,22 +184,162 @@ func _open_capture_point() -> void:
 	Events.zone_cleared.emit(zone_index)
 	capture_point.open()
 	_set_phase(Phase.HAMMER_POINT, "前往据点，按 E 挥锤砸点")
+	_begin_reinforcements()
 
 
 func _on_point_captured() -> void:
 	if _ended or _capture_handled or not _combat_started or phase != Phase.HAMMER_POINT:
 		return
 	_capture_handled = true
-	_set_phase(Phase.FLAG_PLANTED, "旗已插上")
+	var flag_text := "旗已插上" if open_at_start else "旗已插上，到增益台按 F 领取增益"
+	_set_phase(Phase.FLAG_PLANTED, flag_text)
 	Events.point_captured.emit(zone_index)
+	if not open_at_start:
+		_stop_reinforcements()
+		_play_shockwave()
+		_spawn_pedestal()
 	await get_tree().create_timer(FLAG_RAISE_TIME).timeout
-	if _ended:
+	if _ended or _transitioning:
 		return
 	if RunState.is_last_zone():
 		Events.run_won.emit()
 		_show_end("胜利", "夺下城市核心，攻下全部 %d 个战区" % RunState.ZONE_SCENES.size())
+
+
+## How many reinforcements are still in the scene, fleeing ones included.
+func reinforcement_count() -> int:
+	var count := 0
+	for enemy in _reinforcements:
+		if is_instance_valid(enemy) and enemy.state != Enemy.State.DEAD:
+			count += 1
+	return count
+
+
+func _begin_reinforcements() -> void:
+	if open_at_start or reinforcement_config == null or _spawn_points.is_empty() or _ended:
 		return
-	_offer_buff("clear")
+	_reinforcing = true
+	_reinforce_wait = 0.0
+	_spawn_wave()
+
+
+func _stop_reinforcements() -> void:
+	_reinforcing = false
+
+
+func _spawn_wave() -> void:
+	if not _reinforcing or reinforcement_config == null or _spawn_points.is_empty():
+		return
+	var room := reinforcement_config.max_alive - reinforcement_count()
+	var count := mini(reinforcement_config.per_wave, maxi(room, 0))
+	for _i in count:
+		_spawn_one()
+
+
+func _spawn_one() -> void:
+	var point: Node3D = _spawn_points.pick_random()
+	var enemy := ENEMY_SCENE.instantiate() as Enemy
+	_reinforcement_serial += 1
+	enemy.name = "Reinforcement%d" % _reinforcement_serial
+	get_parent().add_child(enemy)
+	enemy.global_position = point.global_position
+	enemy.rotation.y = PI
+	_reinforcements.append(enemy)
+	reinforcement_spawn_log.append(enemy.global_position)
+	_watch_departure(enemy)
+	enemy.setup(_player, _cover_points)
+
+
+func _watch_departure(enemy: Enemy) -> void:
+	if not enemy.departed.is_connected(_on_enemy_departed):
+		enemy.departed.connect(_on_enemy_departed.bind(enemy))
+
+
+func _on_enemy_departed(enemy: Enemy) -> void:
+	_guards.erase(enemy)
+	_reinforcements.erase(enemy)
+
+
+func _play_shockwave() -> void:
+	if _shockwave_played or open_at_start or _spawn_points.is_empty():
+		return
+	_shockwave_played = true
+	var timeout := 14.0
+	if reinforcement_config != null:
+		timeout = reinforcement_config.flee_timeout_seconds
+	for enemy in _living_minions():
+		enemy.begin_retreat(_nearest_spawn(enemy.global_position), timeout)
+	_spawn_shockwave_fx()
+
+
+func _living_minions() -> Array[Enemy]:
+	var found: Array[Enemy] = []
+	for node in _nodes_in_zone("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or enemy.is_boss or enemy.state == Enemy.State.DEAD:
+			continue
+		found.append(enemy)
+	return found
+
+
+## Groups are global. A test can have two zones for a frame; this zone must
+## not adopt the other one's guards or spawn markers.
+func _nodes_in_zone(group_name: StringName) -> Array[Node]:
+	var found: Array[Node] = []
+	var root := get_parent()
+	for node in get_tree().get_nodes_in_group(group_name):
+		if root != null and root.is_ancestor_of(node):
+			found.append(node)
+	return found
+
+
+func _nearest_spawn(from: Vector3) -> Vector3:
+	var best := _spawn_points[0]
+	var best_distance := INF
+	for point in _spawn_points:
+		var distance := Vector2(point.global_position.x - from.x, point.global_position.z - from.z).length_squared()
+		if distance < best_distance:
+			best = point
+			best_distance = distance
+	return best.global_position
+
+
+func _spawn_shockwave_fx() -> void:
+	var ring := MeshInstance3D.new()
+	ring.name = "Shockwave"
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.5
+	mesh.bottom_radius = 0.5
+	mesh.height = 0.2
+	ring.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(0.75, 0.92, 1.0, 0.7)
+	ring.material_override = material
+	get_parent().add_child(ring)
+	ring.global_position = capture_point.global_position + Vector3(0.0, 0.4, 0.0)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(ring, "scale", Vector3(48.0, 1.0, 48.0), 0.75)
+	tween.tween_property(material, "albedo_color:a", 0.0, 0.75)
+	tween.chain().tween_callback(ring.queue_free)
+	var audio := AudioStreamPlayer3D.new()
+	audio.name = "ShockwaveAudio"
+	audio.stream = ProceduralAudio.generate("shockwave")
+	audio.max_distance = 80.0
+	capture_point.add_child(audio)
+	audio.play()
+	audio.finished.connect(audio.queue_free)
+
+
+func _spawn_pedestal() -> void:
+	if buff_pedestal != null:
+		return
+	buff_pedestal = BuffPedestal.new()
+	buff_pedestal.name = "BuffPedestal"
+	get_parent().add_child(buff_pedestal)
+	buff_pedestal.global_position = capture_point.global_position + PEDESTAL_OFFSET
 
 
 func _offer_buff(context: String) -> void:

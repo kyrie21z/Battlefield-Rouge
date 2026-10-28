@@ -42,6 +42,8 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _noise_burst(0.16, 22.0, 0.95, 0.07)
 		"hammer_perfect":
 			return _ping(0.55, [880.0, 1320.0, 1760.0], 7.0)
+		"shockwave":
+			return _noise_burst(0.55, 6.0, 1.0, 0.08)
 	return _noise_burst(0.1, 30.0, 0.5, 0.15)
 
 

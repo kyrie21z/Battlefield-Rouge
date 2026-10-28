@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ReinforcementConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://zone/reinforcement_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+interval_seconds = 8.0
+per_wave = 2
+max_alive = 6
+flee_timeout_seconds = 14.0

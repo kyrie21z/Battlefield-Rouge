@@ -32,7 +32,7 @@ func _run() -> void:
 	_check("there are three zones", RunState.ZONE_SCENES.size() == 3)
 	_check("the boss zone is the last one", RunState.ZONE_SCENES.back() == BOSS_SCENE)
 
-	print("== the wave: one big enemy, six small ones around it")
+	print("== the wave: one big enemy with two escorts, six small ones in all")
 	var scene := await _load_boss()
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
 	var point := scene.get_node("CapturePoint") as CapturePoint
@@ -57,12 +57,19 @@ func _run() -> void:
 		boss_head != null and boss_head.get_parent().get_parent() == boss.get_node("Model/CharacterArmature/Skeleton3D"))
 	_check("a bigger head pays less per headshot (%.2f vs %.2f)" % [boss.health.headshot_multiplier, sample.health.headshot_multiplier],
 		boss.health.headshot_multiplier < sample.health.headshot_multiplier)
-	var ring_ok := true
+	var escorts: Array[Enemy] = []
+	var others: Array[Enemy] = []
 	for enemy: Enemy in small:
 		var gap := Vector2(enemy.global_position.x - boss.global_position.x,
 			enemy.global_position.z - boss.global_position.z).length()
-		ring_ok = ring_ok and gap > 2.0 and gap < 6.0
-	_check("the six small enemies stand 2-6 m around the boss", ring_ok)
+		if gap > 2.0 and gap < 6.0:
+			escorts.append(enemy)
+		else:
+			others.append(enemy)
+	_check("two small enemies escort the boss at 2-6 m", escorts.size() == 2)
+	_check("the other four hold the front and middle, nearer the player",
+		others.size() == 4 and others.all(func(e: Enemy) -> bool:
+			return e.global_position.distance_to(player.global_position) < boss.global_position.distance_to(player.global_position)))
 	_check("the enemies are in front of the core, not past it", boss.global_position.z > point.global_position.z)
 	for enemy: Enemy in enemies:
 		enemy.process_mode = Node.PROCESS_MODE_DISABLED

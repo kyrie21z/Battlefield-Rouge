@@ -104,12 +104,12 @@ P="$(wslpath -w "$PWD")"
 
 `hud_test` 在第三步新增的检查包括：零增益时图标栏隐藏、同一条增益选择两次只占一格且显示 `×2`、枪械和刀具的边框色分别等于 `SchoolCatalog` 的强调色且互不相同、贴边时箭头可见且箭头方向与目标的独立投影方向一致、武器面板不再有大图标框且三格 84×80 并排、当前格高亮；折叠状态的目标面板固定为 `(32,24,280,128)`，图标栏贴在其下 `(32,162)` 且不重叠，锤击时面板展开到 176。
 
-fixture 使用 `--headless --fixed-fps 60 --path "$P" res://tests/fixture_test.tscn -- --runs=3`。HUD 这次改动之后两个固定构筑各三次的结果和哈希保持当时的基线不变；#40 让敌人找射击位，FX-001 的哈希随之改变（见 [issue #14 证明](../issue-14/README.md)）：
+fixture 使用 `--headless --fixed-fps 60 --path "$P" res://tests/fixture_test.tscn -- --runs=3`。HUD 这次改动之后两个固定构筑各三次的结果和哈希保持当时的基线不变；#40 让敌人找射击位、#42 把守卫铺到全场，哈希随之改变（见 [issue #14 证明](../issue-14/README.md)）：
 
 | Fixture | 每次结果 | 每次 tick / 轨迹行数 | 三次一致的哈希 |
 | --- | --- | --- | --- |
-| FX-001 | 胜利 | 2478 / 136 | `bd71b23b8c341b4f` |
-| FX-002 | 阵亡（既有基线结果） | 355 / 13 | `5e1a5a995f643d72` |
+| FX-001 | 胜利 | 2554 / 139 | `95d4b590ae882378` |
+| FX-002 | 胜利 | 912 / 41 | `4494ad3460ca6ab9` |
 
 另外重跑原生 `tools/render_icons.tscn`，输出 `Rendered 6 icons to res://assets/ui/weapons (0 failed)`；六个 PNG 的 SHA-256 均与重跑前一致。没有引入新的第三方素材；派生图标沿用现有模型的许可状态，未将 `docs/ASSETS.md` 中待确认的来源擅自改为已确认。
 

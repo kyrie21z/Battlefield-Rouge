@@ -8,12 +8,12 @@ script = ExtResource("1_buff")
 id = &"firearm_damage"
 school_id = &"firearm"
 title = "危险弹匣"
-description = "枪伤 +20%。空仓换弹抛出爆炸弹匣，碰敌/墙或 0.65 秒后引爆。1 米内每层 60 伤害，向 3.5 米边缘衰减至 15；受掩体阻挡，不伤自己。"
+description = "枪伤 +20%。空仓换弹完成后储存 1 枚危险弹匣，按 C 主动远投，最多持有 1 枚。投出后碰敌/墙或 1.5 秒引爆；每层 1 米内 120 伤害，向 3.5 米边缘衰减至 60。受掩体阻挡，不伤自己。"
 icon = ExtResource("2_icon")
-stack_text = "枪伤 ×1.20 · 爆炸 60→15 / 层"
+stack_text = "枪伤 ×1.20 · C 投掷 120→60 / 层"
 stat = &"damage"
 add = 0.0
 mul = 1.20
 extra_adds = {
-&"reload_blast_damage": 60.0
+&"reload_blast_damage": 120.0
 }

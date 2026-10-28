@@ -16,6 +16,7 @@ var _director: ZoneDirector
 @onready var _weapon_panel: WeaponPanel = $WeaponPanel
 @onready var _shield_slot: AbilitySlot = $AbilityBar/Shield
 @onready var _melee_slot: AbilitySlot = $AbilityBar/Melee
+@onready var _magazine_slot: AbilitySlot = $AbilityBar/Magazine
 @onready var _audio: AudioStreamPlayer = $HitAudio
 @onready var _damage_flash: ColorRect = $DamageFlash
 @onready var _objectives: ObjectivePanel = $Top
@@ -37,6 +38,7 @@ func _ready() -> void:
 	_weapon_panel.setup(_player.weapon)
 	_shield_slot.setup(_player)
 	_melee_slot.setup(_player)
+	_magazine_slot.setup(_player)
 
 	_director = get_tree().get_first_node_in_group("zone_director") as ZoneDirector
 	_objectives.setup(_director)

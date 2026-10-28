@@ -9,6 +9,7 @@ signal shield_pulsed
 
 const PARRY_WINDOW := 0.24
 const BLAST_RADIUS := 3.5
+const SHIELD_PULSE_RADIUS := 7.0
 const COLLECTED_ROUND_DAMAGE := 18.0
 
 @export var stats: Stats
@@ -23,6 +24,9 @@ var stored_rounds := 0
 var parry_remaining := 0.0
 var feedback := ""
 var feedback_remaining := 0.0
+var _reload_charge_stored := false
+var _empty_reload_pending := false
+var _held_magazine: Node3D
 var _shield_absorbed := false
 var _orbit_time := 0.0
 var _orbs: Array[MeshInstance3D] = []
@@ -31,6 +35,8 @@ var _audio := AudioStreamPlayer.new()
 
 func _ready() -> void:
 	weapon.reload_started.connect(_on_reload_started)
+	weapon.reload_finished.connect(_on_reload_finished)
+	weapon.selected.connect(_on_weapon_selected)
 	weapon.fired.connect(_on_fired)
 	melee.swing_started.connect(_on_swing_started)
 	health.parried.connect(_on_parried)
@@ -40,6 +46,12 @@ func _ready() -> void:
 	add_child(_audio)
 	_audio.stream = ProceduralAudio.generate("hammer_perfect")
 	_audio.volume_db = -10.0
+	_held_magazine = ReloadCharge.create_model()
+	_held_magazine.name = "HeldReloadCharge"
+	_held_magazine.position = Vector3(-0.33, -0.25, -0.55)
+	_held_magazine.rotation = Vector3(-0.15, 0.4, -0.2)
+	_held_magazine.visible = false
+	camera.add_child(_held_magazine)
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = Color("73f1ff")
@@ -63,6 +75,9 @@ func capacity() -> int:
 ## Nothing stored or primed should remain visible after the player dies.
 func clear() -> void:
 	stored_rounds = 0
+	_reload_charge_stored = false
+	_empty_reload_pending = false
+	_held_magazine.visible = false
 	parry_remaining = 0.0
 	health.parrying = false
 	_shield_absorbed = false
@@ -74,6 +89,9 @@ func clear() -> void:
 
 
 func _process(delta: float) -> void:
+	_held_magazine.visible = _reload_charge_stored and not health.is_dead() and not weapon.is_scoped()
+	if Input.is_action_just_pressed("throw_magazine") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		try_throw_reload_charge()
 	parry_remaining = maxf(0.0, parry_remaining - delta)
 	feedback_remaining = maxf(0.0, feedback_remaining - delta)
 	health.parrying = parry_remaining > 0.0 and not health.is_dead()
@@ -85,14 +103,45 @@ func _process(delta: float) -> void:
 
 
 func _on_reload_started(_duration: float) -> void:
-	var damage := stats.get_value(Stats.RELOAD_BLAST_DAMAGE)
-	if weapon.ammo != 0 or damage <= 0.0 or health.is_dead():
+	# Switching away cancels this candidate. Granting on completion prevents
+	# empty-reload/cancel loops from manufacturing free explosives.
+	_empty_reload_pending = weapon.ammo == 0 \
+		and stats.get_value(Stats.RELOAD_BLAST_DAMAGE) > 0.0 and not health.is_dead()
+
+
+func _on_reload_finished() -> void:
+	var completed_empty_reload := _empty_reload_pending
+	_empty_reload_pending = false
+	if not completed_empty_reload or weapon.ammo <= 0 or health.is_dead() \
+			or _reload_charge_stored or stats.get_value(Stats.RELOAD_BLAST_DAMAGE) <= 0.0:
 		return
+	_reload_charge_stored = true
+	_held_magazine.visible = not weapon.is_scoped()
+	_notify("危险弹匣已储存：按 C 投出")
+
+
+func _on_weapon_selected(_index: int, _data: WeaponData) -> void:
+	_empty_reload_pending = false
+
+
+func has_reload_charge() -> bool:
+	return _reload_charge_stored
+
+
+## The held magazine has no running fuse. Damage is sampled when it is thrown,
+## and the inventory is consumed before emitting so repeated input cannot copy it.
+func try_throw_reload_charge() -> bool:
+	var damage := stats.get_value(Stats.RELOAD_BLAST_DAMAGE)
+	if get_tree().paused or not _reload_charge_stored or damage <= 0.0 or health.is_dead():
+		return false
+	_reload_charge_stored = false
+	_held_magazine.visible = false
 	var direction := -camera.global_basis.z
 	var charge := ReloadCharge.spawn(shooter.get_parent(), _ejection_origin(direction),
 		direction, shooter, damage, BLAST_RADIUS)
 	reload_charge_thrown.emit(charge)
-	_notify("空仓装填：危险弹匣！")
+	_notify("危险弹匣投出！")
+	return true
 
 
 func _on_swing_started(_index: int, _step: int) -> void:
@@ -159,7 +208,8 @@ func _on_shield_expired() -> void:
 		return
 	_shield_absorbed = false
 	ReloadCharge.blast(shooter.get_parent(), shooter.global_position + Vector3.UP,
-		shooter, damage, BLAST_RADIUS, PlayerShield.ACCENT)
+		shooter, damage, SHIELD_PULSE_RADIUS, PlayerShield.ACCENT)
+	shield.show_counter_pulse()
 	shield_pulsed.emit()
 	_notify("护盾反击！周围敌人受到冲击")
 

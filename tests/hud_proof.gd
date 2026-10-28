@@ -1,6 +1,7 @@
 extends Node
 
 const ZONE := "res://maps/zone_1.tscn"
+const MAX_JPEG_BYTES := 300000
 
 var _out_dir := "res://docs/proof/hud"
 var _failures := 0
@@ -30,6 +31,7 @@ func _ready() -> void:
 	var panel := hud.get_node("WeaponPanel") as WeaponPanel
 	var shield_slot := hud.get_node("AbilityBar/Shield") as AbilitySlot
 	var melee_slot := hud.get_node("AbilityBar/Melee") as AbilitySlot
+	var magazine_slot := hud.get_node("AbilityBar/Magazine") as AbilitySlot
 	player.set_process(false)
 	player.set_physics_process(false)
 	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
@@ -52,7 +54,7 @@ func _ready() -> void:
 	# Freeze staged states so capture latency cannot consume a short visual window.
 	for actor: Node in [player.weapon, player.melee, player.shield, player.combat_traits]:
 		actor.set_process(false)
-	for slot: Control in [vitals, panel, shield_slot, melee_slot]:
+	for slot: Control in [vitals, panel, shield_slot, melee_slot, magazine_slot]:
 		slot.set_process(false)
 	player.stats.base[Stats.SKILL_UNLOCKED] = 1.0
 	player.health.health = player.health.max_health
@@ -98,14 +100,17 @@ func _ready() -> void:
 	await _shot("09_parry_rounds")
 	player.combat_traits.clear()
 	player.stats.base[Stats.PARRY_CAPACITY] = 0.0
-	player.stats.base[Stats.RELOAD_BLAST_DAMAGE] = 30.0
+	player.stats.base[Stats.RELOAD_BLAST_DAMAGE] = 120.0
 	_refresh(vitals, panel, shield_slot, melee_slot)
-	await _shot("10_danger_badge")
+	_check("C owns the empty magazine state independently of G", not magazine_slot.locked
+		and not magazine_slot.slot_ready and magazine_slot.count_text == "0/1"
+		and shield_slot.locked)
+	await _shot("10_magazine_empty")
 	player.stats.base[Stats.RELOAD_BLAST_DAMAGE] = 0.0
 
 	for actor: Node in [player.weapon, player.melee, player.shield, player.combat_traits]:
 		actor.set_process(true)
-	for slot: Control in [vitals, panel, shield_slot, melee_slot]:
+	for slot: Control in [vitals, panel, shield_slot, melee_slot, magazine_slot]:
 		slot.set_process(true)
 	await _tap("weapon_next")
 	await _tap("switch_melee")
@@ -309,6 +314,8 @@ func _refresh(vitals: Vitals, panel: WeaponPanel, shield_slot: AbilitySlot,
 	panel.advance(0.0)
 	shield_slot.advance(0.0)
 	melee_slot.advance(0.0)
+	var magazine_slot := shield_slot.get_parent().get_node("Magazine") as AbilitySlot
+	magazine_slot.advance(0.0)
 
 
 func _report_layout(label: String, hud: CanvasLayer, vitals: Control, panel: Control,
@@ -348,5 +355,13 @@ func _shot(shot_name: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image := get_viewport().get_texture().get_image()
 	var path := "%s/%s.jpg" % [_out_dir, shot_name]
-	_check("saved " + shot_name, image.save_jpg(path, 0.85) == OK)
-	print("== %s -> %s (%s)" % [shot_name, path, image.get_size()])
+	var quality := 0.82
+	var result := image.save_jpg(path, quality)
+	var byte_count := FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	while result == OK and byte_count > MAX_JPEG_BYTES and quality > 0.56:
+		quality -= 0.05
+		result = image.save_jpg(path, quality)
+		byte_count = FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	_check("saved " + shot_name + " as JPEG under 300 KB", result == OK
+		and byte_count > 0 and byte_count <= MAX_JPEG_BYTES)
+	print("== %s -> %s (%s, %d bytes, quality %.2f)" % [shot_name, path, image.get_size(), byte_count, quality])

@@ -13,6 +13,7 @@ var _bindings := {
 	"fire": [_mouse(MOUSE_BUTTON_LEFT)],
 	"aim": [_mouse(MOUSE_BUTTON_RIGHT)],
 	"reload": [_key(KEY_R)],
+	"throw_magazine": [_key(KEY_C)],
 	"weapon_next": [_mouse(MOUSE_BUTTON_WHEEL_UP)],
 	"weapon_prev": [_mouse(MOUSE_BUTTON_WHEEL_DOWN)],
 	"hammer": [_key(KEY_E)],

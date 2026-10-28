@@ -106,7 +106,7 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -190.0
+offset_left = -276.0
 offset_top = -126.0
 offset_right = -32.0
 offset_bottom = -32.0
@@ -123,7 +123,6 @@ script = ExtResource("8_ability_slot")
 mode = 0
 key_text = "G"
 icon = ExtResource("9_shield")
-corner_icon = ExtResource("10_danger")
 
 [node name="Melee" type="Control" parent="AbilityBar"]
 custom_minimum_size = Vector2(72, 94)
@@ -132,6 +131,15 @@ mouse_filter = 2
 script = ExtResource("8_ability_slot")
 mode = 1
 key_text = "V"
+
+[node name="Magazine" type="Control" parent="AbilityBar"]
+custom_minimum_size = Vector2(72, 94)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_ability_slot")
+mode = 2
+key_text = "C"
+icon = ExtResource("10_danger")
 
 [node name="HitAudio" type="AudioStreamPlayer" parent="."]
 

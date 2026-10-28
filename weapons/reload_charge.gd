@@ -1,20 +1,25 @@
 class_name ReloadCharge
 extends Node3D
-## An ejected magazine with a short fuse. Damage uses the physics world, never
+## A thrown magazine whose fuse starts on launch. Damage uses the physics world, never
 ## actor groups; blast() also supplies the shield's stationary pulse.
 
 signal exploded(origin: Vector3, effect: Node3D)
 
-const FUSE_TIME := 0.65
-const THROW_SPEED := 12.0
+const FUSE_TIME := 1.5
+const THROW_SPEED := 24.0
+const UPWARD_SPEED := 3.0
 const GRAVITY := 9.0
 const ACCENT := Color(1.0, 0.42, 0.08)
 const MAX_QUERY_RESULTS := 256
 const TRAIL_POINTS := 8
 const FULL_DAMAGE_RADIUS := 1.0
-const EDGE_DAMAGE_SCALE := 0.25
+const EDGE_DAMAGE_SCALE := 0.5
+const SHIELD_WAVE_REACH_TIME := 0.48
+const SHIELD_WAVE_FADE_AT := 0.62
+const SHIELD_WAVE_LIFETIME := 0.82
 
 static var _blast_sound: AudioStreamWAV
+static var _shield_sound: AudioStreamWAV
 
 var shooter: CollisionObject3D
 var damage := 0.0
@@ -23,7 +28,7 @@ var velocity := Vector3.ZERO
 var fuse_remaining := FUSE_TIME
 var exploded_once := false
 
-var _model := Node3D.new()
+var _model: Node3D
 var _trail := ImmediateMesh.new()
 var _trail_points: Array[Vector3] = []
 var _trail_material: StandardMaterial3D
@@ -37,7 +42,7 @@ static func spawn(parent: Node, origin: Vector3, direction: Vector3,
 	charge.damage = p_damage
 	charge.radius = p_radius
 	var forward := direction.normalized() if not direction.is_zero_approx() else Vector3.FORWARD
-	charge.velocity = forward * THROW_SPEED + Vector3.UP * 1.4
+	charge.velocity = forward * THROW_SPEED + Vector3.UP * UPWARD_SPEED
 	parent.add_child(charge)
 	charge.global_position = origin
 	charge._trail_points.append(origin)
@@ -121,18 +126,20 @@ static func _hitbox_center(hitbox: Hitbox) -> Vector3:
 	return hitbox.global_position
 
 
-func _ready() -> void:
-	add_child(_model)
+## Shared by the held view and flying projectile; no external assets are needed.
+static func create_model() -> Node3D:
+	var model := Node3D.new()
 	var magazine := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3(0.12, 0.26, 0.08)
 	magazine.mesh = mesh
 	var steel := StandardMaterial3D.new()
+	steel.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	steel.albedo_color = Color(0.17, 0.2, 0.24)
 	steel.metallic = 0.7
 	magazine.material_override = steel
 	magazine.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_model.add_child(magazine)
+	model.add_child(magazine)
 	var strip := MeshInstance3D.new()
 	var strip_mesh := BoxMesh.new()
 	strip_mesh.size = Vector3(0.128, 0.04, 0.088)
@@ -140,7 +147,13 @@ func _ready() -> void:
 	strip.position.y = -0.08
 	strip.material_override = _glow_material(ACCENT, 1.0)
 	strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_model.add_child(strip)
+	model.add_child(strip)
+	return model
+
+
+func _ready() -> void:
+	_model = create_model()
+	add_child(_model)
 	_trail_material = _glow_material(ACCENT, 0.85)
 	_trail_material.vertex_color_use_as_albedo = true
 	_trail_material.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -234,13 +247,19 @@ static func _show_blast(effect: Node3D, blast_radius: float, accent: Color, expl
 		_show_explosion(effect, blast_radius, accent)
 	else:
 		_show_shield_pulse(effect, blast_radius, accent)
-	if _blast_sound == null:
-		_blast_sound = _make_blast_sound()
 	var audio := AudioStreamPlayer3D.new()
-	audio.stream = _blast_sound
+	if explosive:
+		if _blast_sound == null:
+			_blast_sound = _make_blast_sound()
+		audio.stream = _blast_sound
+	else:
+		if _shield_sound == null:
+			_shield_sound = _make_shield_sound()
+		audio.name = "ShieldWhoosh"
+		audio.stream = _shield_sound
 	audio.unit_size = 8.0
 	audio.max_distance = 45.0
-	audio.volume_db = -6.0 if explosive else -9.0
+	audio.volume_db = -6.0 if explosive else -5.0
 	effect.add_child(audio)
 	audio.play()
 
@@ -324,38 +343,93 @@ static func _sphere(effect: Node3D, label: String, color: Color, alpha: float) -
 
 
 static func _show_shield_pulse(effect: Node3D, blast_radius: float, accent: Color) -> void:
-	var shell := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 1.0
-	sphere.height = 2.0
-	sphere.radial_segments = 16
-	sphere.rings = 8
-	shell.mesh = sphere
-	var shell_material := _glow_material(accent, 0.2)
-	shell.material_override = shell_material
-	shell.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	shell.scale = Vector3.ONE * 0.05
-	effect.add_child(shell)
-	var ring := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.94
-	torus.outer_radius = 1.0
-	torus.rings = 24
-	torus.ring_segments = 6
-	ring.mesh = torus
-	var ring_material := _glow_material(accent, 0.9)
-	ring.material_override = ring_material
-	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	ring.scale = Vector3.ONE * 0.05
-	effect.add_child(ring)
+	# An open energy wall has a readable wave front without filling the view
+	# with a low-poly globe. The inside is visible to the first-person camera;
+	# normal depth testing still hides the wave behind solid world geometry.
+	effect.set_meta("visual_duration", SHIELD_WAVE_LIFETIME)
+	var front := MeshInstance3D.new()
+	front.name = "ShieldWaveFront"
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = 1.0
+	cylinder.bottom_radius = 1.0
+	cylinder.height = 1.6
+	cylinder.radial_segments = 96
+	cylinder.cap_top = false
+	cylinder.cap_bottom = false
+	front.mesh = cylinder
+	var front_material := _glow_material(accent, 0.14)
+	front_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	front.material_override = front_material
+	front.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	front.scale = Vector3(0.16, 1.0, 0.16)
+	effect.add_child(front)
 	var tween := effect.create_tween().set_parallel(true)
-	tween.tween_property(shell, "scale", Vector3.ONE * blast_radius, 0.35) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(ring, "scale", Vector3.ONE * blast_radius, 0.45) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(shell_material, "albedo_color:a", 0.0, 0.4)
-	tween.tween_property(ring_material, "albedo_color:a", 0.0, 0.5)
+	tween.tween_property(front, "scale", Vector3(blast_radius, 1.0, blast_radius),
+		SHIELD_WAVE_REACH_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(front_material, "albedo_color:a", 0.0,
+		SHIELD_WAVE_LIFETIME - SHIELD_WAVE_FADE_AT).set_delay(SHIELD_WAVE_FADE_AT)
+	# Unit torus radii keep the horizontal wave front at the advertised reach.
+	# At seven metres the
+	# main rim is 31.5 cm thick, with a second rim and two delayed inner echoes.
+	var rim_specs := [
+		["ShieldWaveRim", -0.62, 0.955, 1.0, 0.0, accent.lerp(Color.WHITE, 0.42), 0.96],
+		["ShieldWaveUpperRim", 0.55, 0.975, 1.0, 0.0, accent, 0.65],
+		["ShieldEcho0", -0.55, 0.96, 0.94, 0.07, accent, 0.55],
+		["ShieldEcho1", -0.48, 0.97, 0.88, 0.14, accent.lerp(Color.WHITE, 0.2), 0.4],
+	]
+	for spec: Array in rim_specs:
+		var ring := MeshInstance3D.new()
+		ring.name = spec[0]
+		var torus := TorusMesh.new()
+		torus.inner_radius = spec[2]
+		torus.outer_radius = 1.0
+		torus.rings = 96
+		torus.ring_segments = 10
+		ring.mesh = torus
+		var ring_material := _glow_material(spec[5], spec[6])
+		ring_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		ring.material_override = ring_material
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ring.position.y = spec[1]
+		ring.scale = Vector3.ONE * 0.16
+		effect.add_child(ring)
+		tween.tween_property(ring, "scale", Vector3.ONE * blast_radius * float(spec[3]),
+			SHIELD_WAVE_REACH_TIME).set_delay(spec[4]) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(ring_material, "albedo_color:a", 0.0,
+			SHIELD_WAVE_LIFETIME - SHIELD_WAVE_FADE_AT).set_delay(SHIELD_WAVE_FADE_AT)
+	# Keep full-radius rims visible briefly before fading. This also gives the
+	# dedicated sound enough time to finish instead of cutting its tail off.
 	tween.chain().tween_callback(effect.queue_free)
+
+
+static func _make_shield_sound() -> AudioStreamWAV:
+	const RATE := 22050
+	const LENGTH := 0.64
+	var bytes := PackedByteArray()
+	var count := int(LENGTH * RATE)
+	bytes.resize(count * 2)
+	var random := RandomNumberGenerator.new()
+	random.seed = 20261028
+	var phase := 0.0
+	var lowpass := 0.0
+	for index in count:
+		var time := float(index) / RATE
+		var progress := time / LENGTH
+		var envelope := minf(time / 0.025, 1.0) * pow(1.0 - progress, 1.2)
+		var frequency := lerpf(132.0, 42.0, sqrt(progress))
+		phase += TAU * frequency / RATE
+		lowpass += (random.randf_range(-1.0, 1.0) - lowpass) * 0.22
+		var energy := sin(phase) * 0.42 + sin(phase * 2.0) * 0.14
+		var rush := lowpass * 0.72 * sin(PI * progress)
+		var sample := int(clampf((energy + rush) * envelope, -1.0, 1.0) * 32767.0) & 0xFFFF
+		bytes[index * 2] = sample & 0xFF
+		bytes[index * 2 + 1] = (sample >> 8) & 0xFF
+	var sound := AudioStreamWAV.new()
+	sound.format = AudioStreamWAV.FORMAT_16_BITS
+	sound.mix_rate = RATE
+	sound.data = bytes
+	return sound
 
 
 static func _make_blast_sound() -> AudioStreamWAV:

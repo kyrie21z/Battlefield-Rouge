@@ -5,8 +5,8 @@ extends Node
 ## Prints one line per check. Exits 1 if a check failed or if the run stopped
 ## before the last check, so it cannot pass by accident.
 
-# 73 original + 29 small-zone + 134 projection + 25 boss + 12 layout checks.
-const EXPECTED_CHECKS := 273
+# Existing 273, minus three badges, plus 15 C-state and two icon/layout checks.
+const EXPECTED_CHECKS := 287
 
 var _checks := 0
 var _failures := 0
@@ -17,6 +17,7 @@ var _vitals: Vitals
 var _panel: WeaponPanel
 var _shield_slot: AbilitySlot
 var _melee_slot: AbilitySlot
+var _magazine_slot: AbilitySlot
 var _buff_bar: BuffBar
 
 
@@ -41,6 +42,7 @@ func _run() -> void:
 	_panel = _hud.get_node("WeaponPanel") as WeaponPanel
 	_shield_slot = _hud.get_node("AbilityBar/Shield") as AbilitySlot
 	_melee_slot = _hud.get_node("AbilityBar/Melee") as AbilitySlot
+	_magazine_slot = _hud.get_node("AbilityBar/Magazine") as AbilitySlot
 	_buff_bar = _hud.get_node("BuffBar") as BuffBar
 	# The test drives every timer itself, so the scene cannot drift between checks.
 	_player.set_process(false)
@@ -53,6 +55,7 @@ func _run() -> void:
 	_panel.set_process(false)
 	_shield_slot.set_process(false)
 	_melee_slot.set_process(false)
+	_magazine_slot.set_process(false)
 
 	print("== vitals")
 	_vitals.advance(0.0)
@@ -202,7 +205,7 @@ func _run() -> void:
 	_check("the finished cooldown clears both countdown values", is_zero_approx(_shield_slot.cooldown_fraction)
 		and is_zero_approx(_shield_slot.cooldown_seconds))
 
-	print("== melee slot and corner badge")
+	print("== melee slot")
 	for i in MeleePool.ALL.size():
 		var data: MeleeData = MeleePool.ALL[i]
 		_player.melee.select(i)
@@ -229,14 +232,7 @@ func _run() -> void:
 	_melee_slot.advance(0.0)
 	_check("removing parry capacity hides the dots", not _melee_slot.stored_visible
 		and _melee_slot.stored_capacity == 0)
-	_shield_slot.advance(0.0)
-	_check("the dangerous-magazine badge starts hidden", not _shield_slot.danger_badge)
-	_player.stats.base[Stats.RELOAD_BLAST_DAMAGE] = 30.0
-	_shield_slot.advance(0.0)
-	_check("the dangerous magazine is a corner badge", _shield_slot.danger_badge)
-	_player.stats.base[Stats.RELOAD_BLAST_DAMAGE] = 0.0
-	_shield_slot.advance(0.0)
-	_check("removing dangerous magazine hides its badge", not _shield_slot.danger_badge)
+	_test_magazine_slot()
 
 	print("== every weapon has an icon")
 	for data: WeaponData in [load("res://weapons/rifle.tres"), load("res://weapons/shotgun.tres"),
@@ -248,6 +244,8 @@ func _run() -> void:
 			and data.icon.get_size().x > 0.0)
 	_check("the shield slot has an icon", _shield_slot.icon != null
 		and _shield_slot.icon.get_size().x > 0.0 and _shield_slot.current_icon == _shield_slot.icon)
+	_check("C uses its own dangerous-magazine icon", _magazine_slot.icon == BuffPool.ALL[0].icon
+		and _magazine_slot.current_icon == _magazine_slot.icon and _magazine_slot.icon != _shield_slot.icon)
 
 	print("== layout")
 	var viewport_rect := _hud.get_viewport().get_visible_rect()
@@ -259,16 +257,85 @@ func _run() -> void:
 	_check("the ability row stays on screen", viewport_rect.encloses(ability_rect))
 	_check("the vitals and weapon panels do not overlap", not vitals_rect.intersects(panel_rect))
 	_check("the weapon panel and ability row do not overlap", not panel_rect.intersects(ability_rect))
+	_check("the ability row has independent G, V and C slots", _hud.get_node("AbilityBar").get_child_count() == 3
+		and _shield_slot.get_global_rect().end.x < _melee_slot.get_global_rect().position.x
+		and _melee_slot.get_global_rect().end.x < _magazine_slot.get_global_rect().position.x)
 
 	scene.queue_free()
 	await get_tree().process_frame
-	# Keep the original 67 checks above independent of the objective fixtures.
+	# Keep the combat HUD checks above independent of the objective fixtures.
 	await _test_world_markers()
 	await _test_boss_hud()
 	# Audio shutdown needs a mix cycle to consume queued stop commands.
 	await get_tree().create_timer(0.15).timeout
 	# A helper that aborts early must not let the parent coroutine report success.
 	_finished = _checks == EXPECTED_CHECKS
+
+
+func _test_magazine_slot() -> void:
+	print("== C dangerous-magazine slot")
+	var weapon := _player.weapon
+	var traits := _player.combat_traits
+	_player.stats.base[Stats.SKILL_UNLOCKED] = 0.0
+	_magazine_slot.advance(0.0)
+	_check("C starts locked without the dangerous-magazine buff", _magazine_slot.locked
+		and not _magazine_slot.slot_ready and _magazine_slot.count_text.is_empty())
+	_check("C has its own magazine mode and key", _magazine_slot.mode == AbilitySlot.Mode.MAGAZINE
+		and _magazine_slot.key_text == "C")
+	_player.stats.apply_buff(BuffPool.ALL[0])
+	_magazine_slot.advance(0.0)
+	_shield_slot.advance(0.0)
+	_check("unlocked empty C is dark and reads 0/1", not _magazine_slot.locked
+		and not _magazine_slot.slot_ready and _magazine_slot.count_text == "0/1")
+	_check("unlocking C does not unlock G", _shield_slot.locked and not _shield_slot.slot_ready)
+	_check("the shield no longer carries a duplicate magazine badge", not ("danger_badge" in _shield_slot)
+		and not ("corner_icon" in _shield_slot))
+	weapon.ammo = 0
+	weapon.reserve = 120
+	weapon.try_reload()
+	_magazine_slot.advance(0.0)
+	_check("C stays dark until the empty reload completes", weapon.is_reloading()
+		and not traits.has_reload_charge() and not _magazine_slot.slot_ready
+		and _magazine_slot.count_text == "0/1")
+	weapon._process(10.0)
+	_magazine_slot.advance(0.0)
+	_check("a completed empty reload lights C and reads 1/1", traits.has_reload_charge()
+		and not _magazine_slot.locked and _magazine_slot.slot_ready and _magazine_slot.count_text == "1/1")
+	traits._process(ReloadCharge.FUSE_TIME + 0.1)
+	_magazine_slot.advance(0.0)
+	_check("the stored magazine keeps C ready past its flight fuse", _magazine_slot.slot_ready
+		and _magazine_slot.count_text == "1/1")
+	weapon.select_next()
+	_magazine_slot.advance(0.0)
+	_check("switching guns keeps the stored C slot lit", _magazine_slot.slot_ready
+		and _magazine_slot.count_text == "1/1")
+	var thrown: Array[Node3D] = []
+	traits.reload_charge_thrown.connect(func(charge: Node3D): thrown.append(charge))
+	_check("throwing C launches one real stored magazine", traits.try_throw_reload_charge()
+		and thrown.size() == 1)
+	_magazine_slot.advance(0.0)
+	_check("throwing C returns its unlocked slot to dark 0/1", not traits.has_reload_charge()
+		and not _magazine_slot.locked and not _magazine_slot.slot_ready
+		and _magazine_slot.count_text == "0/1")
+	_check("C cannot throw again while its slot is empty", not traits.try_throw_reload_charge()
+		and thrown.size() == 1)
+	for charge in thrown:
+		charge.queue_free()
+	weapon.ammo = 0
+	weapon.reserve = 120
+	weapon.try_reload()
+	weapon._process(10.0)
+	_magazine_slot.advance(0.0)
+	_check("a later completed reload can ready C again", _magazine_slot.slot_ready
+		and _magazine_slot.count_text == "1/1")
+	traits.clear()
+	_magazine_slot.advance(0.0)
+	_check("clearing combat inventory returns C to dark 0/1", not _magazine_slot.locked
+		and not _magazine_slot.slot_ready and _magazine_slot.count_text == "0/1")
+	_player.stats.clear_buffs()
+	_magazine_slot.advance(0.0)
+	_check("removing the buff locks C again", _magazine_slot.locked
+		and not _magazine_slot.slot_ready and _magazine_slot.count_text.is_empty())
 
 
 func _test_world_markers() -> void:

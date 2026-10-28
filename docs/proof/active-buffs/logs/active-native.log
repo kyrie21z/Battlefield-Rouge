@@ -1,0 +1,44 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+  [ok] no charge can be thrown before the buff
+  [ok] fixture is finishing a real accepted reload
+  [ok] an ordinary completed empty reload cannot grant a charge
+  [ok] first stack has 120 explosive damage
+  [ok] fixture is finishing a real accepted reload
+  [ok] completed tactical reload does not store a charge
+  [ok] starting and repeating R does not grant an unfinished charge
+  [ok] switching guns cancels an unfinished reload candidate
+  [ok] fixture is finishing a real accepted reload
+  [ok] completed empty reload stores exactly one charge without launching
+  [ok] the stored magazine is visible in hand
+  [ok] holding past the fuse duration neither throws nor explodes
+  [ok] switching guns preserves an existing held magazine
+  [ok] a scope hides the held model without spending inventory
+  [ok] leaving the scope restores the held model
+  [ok] fixture is finishing a real accepted reload
+  [ok] another completed empty reload cannot duplicate the inventory
+  [ok] the public throw path cannot consume inventory while paused
+  [ok] held magazine can be thrown during another reload
+  [ok] one launch consumes the sole inventory and repeated throws fail
+  [ok] the throw reads current stacked damage
+  [ok] fuse starts at release
+  [ok] fixture is finishing a real accepted reload
+  [ok] no-reserve reload cannot create a magazine
+  [ok] fixture is finishing a real accepted reload
+  [ok] clearing cancels an unfinished reload candidate
+  [ok] fixture is finishing a real accepted reload
+  [ok] a fresh completed reload can store another charge
+  [ok] C outside captured gameplay does not throw
+  [ok] physical C input throws exactly one held magazine
+  [ok] fixture is finishing a real accepted reload
+  [ok] death discards the held magazine and denies throwing
+  [ok] horizontal throw remains live after travelling at least 18 metres
+  [ok] flat-ground throw impacts once more than 20 metres away
+THROW DISTANCE 24.15 m
+  [ok] no absorbed attack still means no free counterattack
+  [ok] counter reaches a multi-hitbox enemy at 6m once for 25 BODY damage
+  [ok] 7m boundary receives unchanged uniform damage
+  [ok] hitbox overlap past 7m receives no damage
+  [ok] a wall still blocks the larger pulse
+ACTIVE MAGAZINE: 39 checks, 0 failed

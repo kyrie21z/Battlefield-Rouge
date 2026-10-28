@@ -88,7 +88,13 @@
 
 `BuffPool.ALL` 为 `firearm`、`blade`、`skill` 每派三张。每次每派各一张，前三次覆盖九张，用完重洗；发牌只使用战区已播种的全局随机，重开清袋。`Buff` 含稳定 id、独特图标、说明和 Stats 修改，School 只含流派身份。
 
-Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield` 读取护盾解锁/持续/冷却（按键是 G，Q 留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。
+Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield` 读取护盾解锁/持续/冷却（按键是 G，Q 留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。危险弹匣通过 `reload_started` 标记空仓候选、`reload_finished` 成功装填后储存一枚，`selected` 取消候选；`throw_magazine`（C）消耗库存。伤害在投出时读取 Stats，持有视觉和库存独立于枪槽。弹匣 3.5 米与护盾 7 米使用独立范围。取舍见 [ADR 0008](docs/adr/0008-held-magazine-and-shield-radius.md)。
+
+## 图形 HUD 与能力状态
+
+`ui/hud.gd` 在 `AbilityBar` 中连接三个 `AbilitySlot`：G 读取护盾解锁、生效和冷却，V 读取当前近战与弹反收藏，C 读取 `Stats.RELOAD_BLAST_DAMAGE` 和 `CombatTraits.has_reload_charge()`。C 未解锁时锁定；解锁后无库存是暗态 `0/1`，有库存是亮态 `1/1`，投出后随状态刷新回暗态。危险弹匣从护盾角标移到独立 C 槽；HUD 继续只读玩法组件，不修改库存，不恢复旧的能力长文字面板。已有目标标记、Boss 血条、增益图标栏、生命和冲刺充能仍走当前组件。
+
+`PlayerShield` 自己持有 `ShieldFeedback` 屏幕反馈：分层盾缘、挡伤亮闪与蓄能由护盾过程推进，暂停同步冻结，`cancel()` 清空并隐藏。反馈的 CanvasLayer 位于 HUD 下方，中心不填色；`CombatTraits` 成功结算反击后调用 `show_counter_pulse()`，显示 0.72 秒第一人称余波，不改变无敌状态。`ReloadCharge` 负责双面开口世界波前、厚环和专用合成能量声，世界波前在水平 7 米处停留后于 0.82 秒释放；视觉和声音不消费玩法全局随机数，也不读写 RunState。
 
 ## 碰撞层
 

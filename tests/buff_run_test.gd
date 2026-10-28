@@ -379,6 +379,7 @@ func _binding_checks() -> void:
 	_check("V swings the current melee", _bound_key("melee") == KEY_V)
 	_check("E is still the capture hammer", _bound_key("hammer") == KEY_E)
 	_check("R is still reload", _bound_key("reload") == KEY_R)
+	_check("C throws the stored dangerous magazine", _bound_key("throw_magazine") == KEY_C)
 
 
 func _bound_key(action: String) -> Key:

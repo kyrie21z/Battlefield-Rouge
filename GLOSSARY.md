@@ -51,7 +51,7 @@
 | 数值 | `Stats` | 基础数值加上增益修正。新的 9 条也只走这里。 |
 | 战区控制 | `ZoneDirector` | 管阶段、开放据点、增援、冲击波、增益台、弹出选择或结算、切场景。 |
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
-| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑。Boss 是它的大号版本（`actors/enemy/boss.tscn`）。 |
+| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
 
 ## 设计目标（Cut-001b）
 

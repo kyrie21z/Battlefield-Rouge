@@ -67,7 +67,7 @@ Godot 4.7.2 第一人称射击肉鸽：线性三关，小关先清零再砸点�
 - `zone/capture_point.gd` 是砸点占点，三个数在 `zone/capture_config.tres`（窗口 150ms、普通 8%、完美 ×1.5）。
 - 小关据点在 z≈-8，增援刷怪点在它后方约 12–16 米。节奏在 `zone/reinforcement_config.tres`：开放时第一波，之后每 8 秒，每波 2 只，场上最多 6 只，逃跑超时 14 秒。冲击波不造成伤害。锤击按 25% 一档把建筑拆开。通关增益在旗旁按 F。Boss 关没有增援、冲击波和增益台（ADR 0007）。
 - `RunState.ZONE_SCENES` 现在是三张图：两张小关和 `maps/boss.tscn`。
-- `maps/boss.tscn`：1 个 Boss（600 生命）加 6 个小敌人。核心在 Boss 倒下前关闭，目标「打倒 Boss」；倒下后目标「砸碎城市核心，按 E」，一锤击碎。HUD 有 Boss 血条。这些数是临时默认（ADR 0004 文末修订）。
+- `maps/boss.tscn`：1 个 Boss（Hazmat 模型，900 生命，爆头 ×1.25）加 6 个小敌人。核心在 Boss 倒下前关闭，目标「打倒 Boss」；倒下后目标「砸碎城市核心，按 E」，一锤击碎。HUD 有 Boss 血条。这些数是临时默认（ADR 0004 文末修订）。
 - `fixtures/fx-001.tres`（战区 1、无增益、种子 1001）和 `fx-002.tres`（Boss 关、两条增益、种子 2002）是 AC-07 的起点。复现只在固定步长 `--fixed-fps 60` 下成立（ADR 0005）。
 - `weapons/rifle.tres` 是目前唯一的枪。
 - `BuffPool.ALL` 是六条旧增益：快速扳机、空尖弹、野战护甲、轻装上阵、扩容弹匣、快手。

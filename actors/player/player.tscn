@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -13,6 +13,8 @@
 [ext_resource type="Resource" path="res://weapons/sniper.tres" id="11_sniper"]
 [ext_resource type="Script" path="res://actors/player/player_shield.gd" id="12_shield"]
 [ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
+[ext_resource type="Script" path="res://actors/player/shadow_body.gd" id="14_shadow_body"]
+[ext_resource type="PackedScene" uid="uid://dnu3c7o0snwdt" path="res://assets/models/characters/soldier.gltf" id="15_soldier"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -41,6 +43,12 @@ script = ExtResource("4_hitbox")
 [node name="Shape" type="CollisionShape3D" parent="Hitbox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_body")
+
+[node name="ShadowBody" type="Node3D" parent="."]
+script = ExtResource("14_shadow_body")
+
+[node name="Model" parent="ShadowBody" instance=ExtResource("15_soldier")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)

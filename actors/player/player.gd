@@ -5,7 +5,6 @@ extends CharacterBody3D
 ## are taken from origin/sheji/characters/player/player.gd.
 
 @export var jog_speed := 4.4
-@export var sprint_speed := 6.6
 @export var jump_velocity := 4.8
 @export var ground_accel := 14.0
 @export var air_accel := 4.0
@@ -24,9 +23,13 @@ var _visual_kick := Vector2.ZERO
 ## Leftover forward push from a melee swing, drained over `_lunge_left`.
 var _lunge := Vector3.ZERO
 var _lunge_left := 0.0
+## The dash overwrites horizontal velocity for `_dash_left`, same idea as the lunge.
+var _dash_velocity := Vector3.ZERO
+var _dash_left := 0.0
 
 @onready var stats: Stats = $Stats
 @onready var health: Health = $Health
+@onready var dash: PlayerDash = $Dash
 @onready var weapon: Weapon = $Head/Camera3D/Weapon
 @onready var melee: MeleeWeapon = $Head/Camera3D/Melee
 @onready var hammer: Hammer = $Head/Camera3D/Hammer
@@ -44,7 +47,21 @@ func _ready() -> void:
 	melee.lunge.connect(_on_melee_lunge)
 	melee.swing_started.connect(_on_melee_swing_started)
 	melee.swing_finished.connect(_on_melee_swing_finished)
+	dash.dashing.connect(_on_dash)
 	health.died.connect(_on_died)
+
+
+## Read-only dash state for the HUD.
+func dash_charges() -> int:
+	return dash.charges()
+
+
+func dash_max_charges() -> int:
+	return dash.max_charges
+
+
+func dash_recharge_fraction() -> float:
+	return dash.recharge_fraction()
 
 
 func is_aiming() -> bool:
@@ -87,11 +104,13 @@ func _physics_process(delta: float) -> void:
 	elif Input.is_action_just_pressed("jump"):
 		velocity.y = jump_velocity
 
-	var aiming := Input.is_action_pressed("aim") and not weapon.is_reloading()
-	var sprinting := Input.is_action_pressed("sprint") and not aiming
+	# A dash drops the sights for its duration: holding aim through it does not
+	# keep the player scoped mid-dash. Reloading is left alone.
+	var aiming := Input.is_action_pressed("aim") and not weapon.is_reloading() \
+		and not dash.is_dashing()
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
-	var speed := (sprint_speed if sprinting else jog_speed) * stats.get_value(Stats.MOVE_SPEED)
+	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED)
 	if aiming:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel
@@ -104,7 +123,18 @@ func _physics_process(delta: float) -> void:
 		_lunge_left = maxf(_lunge_left - delta, 0.0)
 		velocity.x = _lunge.x
 		velocity.z = _lunge.z
+	# The dash owns the horizontal velocity outright while it lasts. Its last
+	# step still moves at dash speed; only then is the walk speed handed back,
+	# so the dash neither ends a frame short nor leaves a 27 m/s slide behind.
+	var dashing := _dash_left > 0.0
+	if dashing:
+		_dash_left = maxf(_dash_left - delta, 0.0)
+		velocity.x = _dash_velocity.x
+		velocity.z = _dash_velocity.z
 	move_and_slide()
+	if dashing and _dash_left <= 0.0:
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 
 	weapon.aiming = aiming
 	weapon.moving = Vector2(velocity.x, velocity.z).length() > 0.5
@@ -113,8 +143,9 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	# The gun decides: base field of view, its own ADS value, or base/magnification
-	# behind a scope. See Weapon.fov_for().
-	var target_fov := weapon.fov_for(base_fov)
+	# behind a scope. See Weapon.fov_for(). The dash adds a short widening on top
+	# without touching that decision.
+	var target_fov := weapon.fov_for(base_fov) + dash.fov_offset()
 	_camera.fov = lerpf(_camera.fov, target_fov, minf(fov_lerp_speed * delta, 1.0))
 	_visual_kick = _visual_kick.lerp(Vector2.ZERO, minf(recoil_recovery * delta, 1.0))
 	_apply_look()
@@ -132,6 +163,8 @@ func _on_died(_source: Node) -> void:
 	hammer.set_process(false)
 	melee.cancel()
 	melee.set_process(false)
+	dash.cancel()
+	dash.set_physics_process(false)
 	shield.cancel()
 	shield.set_process(false)
 	combat_traits.clear()
@@ -145,6 +178,11 @@ func _on_died(_source: Node) -> void:
 func _on_melee_lunge(direction: Vector3, speed: float, duration: float) -> void:
 	_lunge = Vector3(direction.x, 0.0, direction.z).normalized() * speed
 	_lunge_left = duration
+
+
+func _on_dash(direction: Vector3, speed: float, duration: float) -> void:
+	_dash_velocity = Vector3(direction.x, 0.0, direction.z).normalized() * speed
+	_dash_left = duration
 
 
 ## Swinging a blade means the rifle is out of the way for that moment.

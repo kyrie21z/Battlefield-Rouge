@@ -5,8 +5,8 @@ extends Node
 ## Prints one line per check. Exits 1 if a check failed or if the run stopped
 ## before the last check, so it cannot pass by accident.
 
-# 67 original + 29 small-zone + 107 projection + 25 boss + 14 layout checks.
-const EXPECTED_CHECKS := 242
+# 73 original + 29 small-zone + 134 projection + 25 boss + 12 layout checks.
+const EXPECTED_CHECKS := 273
 
 var _checks := 0
 var _failures := 0
@@ -17,6 +17,7 @@ var _vitals: Vitals
 var _panel: WeaponPanel
 var _shield_slot: AbilitySlot
 var _melee_slot: AbilitySlot
+var _buff_bar: BuffBar
 
 
 func _ready() -> void:
@@ -40,6 +41,7 @@ func _run() -> void:
 	_panel = _hud.get_node("WeaponPanel") as WeaponPanel
 	_shield_slot = _hud.get_node("AbilityBar/Shield") as AbilitySlot
 	_melee_slot = _hud.get_node("AbilityBar/Melee") as AbilitySlot
+	_buff_bar = _hud.get_node("BuffBar") as BuffBar
 	# The test drives every timer itself, so the scene cannot drift between checks.
 	_player.set_process(false)
 	_player.set_physics_process(false)
@@ -97,8 +99,13 @@ func _run() -> void:
 		_player.weapon.select(i)
 		_panel.advance(0.0)
 		_check("%s highlights its gun slot" % data.display_name, _panel.selected_index == i)
-		_check("%s shows its gun icon" % data.display_name, _panel.current_icon == data.icon)
 		_check("%s shows its gun name" % data.display_name, _panel.gun_name == data.display_name)
+	_check("the panel dropped the duplicate big icon box", not ("current_icon" in _panel))
+	_check("ammo and gun slots share one tight row", _panel.size == Vector2(504.0, 100.0)
+		and _panel.slot_rect(0).position.x > WeaponPanel.AMMO_WIDTH
+		and _panel.slot_rect(2).end.x <= _panel.size.x and _panel.slot_rect(2).end.y <= _panel.size.y)
+	_check("the three gun slots sit side by side", _panel.slot_rect(0).end.x < _panel.slot_rect(1).position.x
+		and _panel.slot_rect(1).end.x < _panel.slot_rect(2).position.x)
 
 	_player.weapon.select(0)
 	_player.weapon.ammo = 7
@@ -128,6 +135,28 @@ func _run() -> void:
 	_panel.advance(0.0)
 	_check("switching back does not resume or finish the cancelled reload", not _panel.reload_visible
 		and _player.weapon.ammo == 7)
+
+	print("== buff icon bar")
+	RunState.start_new_run()
+	_check("the buff bar hides when the run has no buffs", RunState.buffs.is_empty()
+		and not _buff_bar.visible)
+	RunState.add_buff(BuffPool.ALL[0])
+	RunState.add_buff(BuffPool.ALL[0])
+	_check("one buff kind appears as a single icon", _buff_bar.visible
+		and _buff_bar.entries.size() == 1 and _buff_bar.icon_at(0) == BuffPool.ALL[0].icon)
+	_check("two picks of one buff show a ×2 badge", _buff_bar.stack_count(&"firearm_damage") == 2
+		and _buff_bar.count_label(0) == "×2")
+	RunState.add_buff(BuffPool.ALL[3])
+	_check("a second school adds a second icon", _buff_bar.entries.size() == 2
+		and _buff_bar.icon_at(1) == BuffPool.ALL[3].icon)
+	var firearm_accent := SchoolCatalog.find(&"firearm").accent
+	var blade_accent := SchoolCatalog.find(&"blade").accent
+	_check("borders use the school accents", _buff_bar.accent_for(&"firearm_damage") == firearm_accent
+		and _buff_bar.accent_for(&"blade_damage") == blade_accent
+		and firearm_accent != blade_accent)
+	RunState.start_new_run()
+	_check("the bar hides again after the run resets", RunState.buffs.is_empty()
+		and not _buff_bar.visible)
 
 	print("== shield slot")
 	_shield_slot.advance(0.0)
@@ -266,8 +295,8 @@ func _test_world_markers() -> void:
 	_check("the short clear objective shows the live guard count", director.phase == ZoneDirector.Phase.CLEAR_GUARDS
 		and top.phase == director.phase and objective.visible and objective.text == "清除守卫"
 		and top.enemies_alive == director.enemies_total and top.enemies_alive > 1)
-	_check("the long director objective rides below as a small subtitle", detail.visible
-		and detail.text == director.objective and detail.text == "消灭所有敌人")
+	_check("the clear objective has no redundant subtitle", not detail.visible
+		and detail.text.is_empty())
 	_check("the locked capture marker is visible and grey", capture.visible and capture.target == point
 		and point.locked and capture.marker_color == CapturePoint.COLOR_LOCKED)
 	_check("clear guards uses a half-opacity weak hint", is_equal_approx(capture.opacity, 0.5))
@@ -299,8 +328,9 @@ func _test_world_markers() -> void:
 	capture.refresh()
 	_check("all guard deaths open the point through the director", not point.locked
 		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase)
-	_check("the hammer objective has no stale guard count", objective.text == "锤击据点" and top.enemies_alive == 0
-		and detail.text == director.objective and detail.text == "前往据点，按 E 挥锤砸点")
+	_check("the hammer objective keeps only a short E hint", objective.text == "锤击据点"
+		and top.enemies_alive == 0 and detail.visible and detail.text == "按 E 挥锤"
+		and top.size.y == ObjectivePanel.EXPANDED_HEIGHT)
 	_check("the open capture marker is blue and fully opaque", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and is_equal_approx(capture.opacity, 1.0))
 	_check("hammering starts with an empty progress ring", capture.progress_visible
@@ -315,7 +345,7 @@ func _test_world_markers() -> void:
 	_check("capture really plants the flag and changes phase", point.is_captured()
 		and point.get_node_or_null("Flag") != null and director.phase == ZoneDirector.Phase.FLAG_PLANTED)
 	_check("the short planted-flag objective directs the player to F", top.phase == director.phase
-		and objective.text == "到增益台按 F")
+		and objective.text == "到增益台按 F" and not detail.visible)
 	_check("the captured marker is green but hidden without a ring", capture.marker_color == CapturePoint.COLOR_CAPTURED
 		and not capture.visible and not capture.progress_visible)
 	var pedestal := director.buff_pedestal
@@ -385,6 +415,15 @@ func _test_marker_projection(marker: WorldMarker, point: CapturePoint, camera: C
 	marker.refresh()
 	_check_marker_pose("front center", marker, center, Vector2.DOWN, false, false)
 
+	_place_capture(point, camera, Vector3(100.0, -30.0, -20.0))
+	marker.refresh()
+	var target_screen := camera.unproject_position(point.global_position + Vector3.UP * 3.5)
+	var target_direction := (target_screen - center).normalized()
+	_check("an off-screen target aims its edge arrow at the projected target", marker.offscreen
+		and marker.arrow_visible and marker.direction.dot(target_direction) > 0.9999
+		and marker.arrow_tip().distance_to(marker.screen_position
+			+ target_direction * WorldMarker.ARROW_TIP) < 0.1)
+
 	var sides := [
 		{"name": "left", "axis": Vector2.LEFT, "edge": Vector2(safe.position.x, center.y)},
 		{"name": "right", "axis": Vector2.RIGHT, "edge": Vector2(safe.end.x, center.y)},
@@ -445,6 +484,9 @@ func _check_marker_pose(label: String, marker: WorldMarker, position: Vector2,
 		and marker.screen_position.distance_to(position) < 0.1)
 	_check("%s: the arrow points toward the target" % label, marker.direction.is_finite()
 		and is_equal_approx(marker.direction.length(), 1.0) and marker.direction.dot(direction) > 0.9999)
+	_check("%s: the edge arrow appears only on clamped markers" % label,
+		marker.arrow_visible == offscreen and (not offscreen or marker.arrow_tip().distance_to(
+			marker.screen_position + direction.normalized() * WorldMarker.ARROW_TIP) < 0.1))
 	var rect := marker.marker_rect()
 	var full_bounds := Rect2(marker.screen_position - Vector2(62.0, 78.0), Vector2(124.0, 156.0))
 	_check("%s: the entire border, arrow and distance box stay on screen" % label,
@@ -473,8 +515,8 @@ func _test_boss_hud() -> void:
 	pedestal_marker.refresh()
 	_check("the boss objective uses the short text and live count", director.phase == ZoneDirector.Phase.BOSS_STANDING
 		and top.phase == director.phase and objective.text == "击倒 Boss" and top.enemies_alive == 7)
-	_check("the boss subtitle keeps the long director objective", detail.visible
-		and detail.text == director.objective and detail.text == "打倒 Boss")
+	_check("the boss objective has no redundant subtitle", not detail.visible
+		and detail.text.is_empty())
 	_check("boss health starts visible at exactly 900 / 900", bar.visible and not bar.fallen
 		and bar.displayed_health == 900.0 and bar.delayed_health == 900.0 and bar.max_health == 900.0
 		and bar.health_text == "900 / 900" and bar.fill_color == HudStyle.WARNING)
@@ -541,7 +583,7 @@ func _test_boss_hud() -> void:
 	_check("boss death opens the actual core and switches the short objective", not point.locked
 		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase
 		and objective.text == "锤击据点" and top.enemies_alive == 5
-		and detail.text == "砸碎城市核心，按 E")
+		and detail.visible and detail.text == "按 E 砸核心")
 	_check("the unlocked boss core shows the blue progress ring", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and capture.progress_visible
 		and is_zero_approx(capture.progress_fraction))
@@ -563,16 +605,15 @@ func _test_boss_hud() -> void:
 func _check_objective_layout(hud: CanvasLayer, label: String) -> void:
 	var top := hud.get_node("Top") as ObjectivePanel
 	var top_rect := top.get_global_rect()
-	var buffs_rect := (hud.get_node("Buffs") as Control).get_global_rect()
+	var buff_rect := (hud.get_node("BuffBar") as Control).get_global_rect()
 	var boss_rect := (hud.get_node("BossHealth") as BossHealth).get_global_rect()
 	var view := hud.get_viewport().get_visible_rect()
-	_check("%s: the objective panel occupies its new rectangle" % label, top.visible
-		and top_rect == Rect2(32.0, 326.0, 380.0, 176.0))
-	_check("%s: the existing Buffs rectangle is unchanged" % label,
-		buffs_rect == Rect2(32.0, 24.0, 588.0, 286.0))
+	_check("%s: the objective panel occupies its collapsed rectangle" % label, top.visible
+		and top_rect == Rect2(32.0, 24.0, 280.0, 128.0))
+	_check("%s: the buff bar stacks right below the objective panel" % label,
+		buff_rect.position == Vector2(32.0, 162.0) and not top_rect.intersects(buff_rect))
 	_check("%s: the objective panel stays on screen" % label, view.encloses(top_rect))
 	_check("%s: boss health stays on screen" % label, view.encloses(boss_rect))
-	_check("%s: Top never overlaps Buffs" % label, not top_rect.intersects(buffs_rect))
 	_check("%s: Top never overlaps BossHealth" % label, not top_rect.intersects(boss_rect))
 	_check("%s: no legacy capture or boss bars remain" % label, not hud.has_node("Top/Capture")
 		and not hud.has_node("Top/BossBar") and not hud.has_node("Top/BossLabel"))

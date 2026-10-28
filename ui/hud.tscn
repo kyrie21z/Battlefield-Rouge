@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_damage.svg" id="10_danger"]
 [ext_resource type="Script" path="res://ui/objective_panel.gd" id="11_objective"]
 [ext_resource type="Script" path="res://ui/boss_health.gd" id="12_boss"]
+[ext_resource type="Script" path="res://ui/buff_bar.gd" id="13_buff_bar"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -90,8 +91,8 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -668.0
-offset_top = -280.0
+offset_left = -536.0
+offset_top = -244.0
 offset_right = -32.0
 offset_bottom = -144.0
 grow_horizontal = 0
@@ -144,16 +145,16 @@ mouse_filter = 2
 
 [node name="Top" type="Control" parent="."]
 offset_left = 32.0
-offset_top = 326.0
-offset_right = 412.0
-offset_bottom = 502.0
+offset_top = 24.0
+offset_right = 312.0
+offset_bottom = 200.0
 mouse_filter = 2
 script = ExtResource("11_objective")
 
 [node name="Zone" type="Label" parent="Top"]
 offset_left = 18.0
 offset_top = 10.0
-offset_right = 360.0
+offset_right = 262.0
 offset_bottom = 36.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 20
@@ -162,7 +163,7 @@ theme_override_colors/font_color = Color(0.65, 0.76, 0.8, 1)
 [node name="Objective" type="Label" parent="Top"]
 offset_left = 64.0
 offset_top = 46.0
-offset_right = 360.0
+offset_right = 262.0
 offset_bottom = 86.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 26
@@ -170,7 +171,7 @@ theme_override_font_sizes/font_size = 26
 [node name="Detail" type="Label" parent="Top"]
 offset_left = 18.0
 offset_top = 124.0
-offset_right = 362.0
+offset_right = 262.0
 offset_bottom = 170.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 15
@@ -190,16 +191,14 @@ grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("12_boss")
 
-[node name="Buffs" type="Label" parent="."]
-mouse_filter = 2
+[node name="BuffBar" type="Control" parent="."]
+visible = false
 offset_left = 32.0
-offset_top = 24.0
-offset_right = 620.0
-offset_bottom = 310.0
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-autowrap_mode = 3
+offset_top = 210.0
+offset_right = 32.0
+offset_bottom = 266.0
+mouse_filter = 2
+script = ExtResource("13_buff_bar")
 
 [node name="CombatFeedback" type="Label" parent="."]
 visible = false
@@ -256,7 +255,7 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
-text = "E 挥锤：标记进入金色区间时命中 = 完美打击"
+text = "E 挥锤 · 金色区间 = 完美打击"
 horizontal_alignment = 1
 
 [node name="Result" type="Label" parent="StrikeBar"]

@@ -1,6 +1,9 @@
 class_name ObjectivePanel
 extends Control
 
+const COLLAPSED_HEIGHT := 128.0
+const EXPANDED_HEIGHT := 176.0
+
 var director: ZoneDirector
 var enemies_alive := 0
 var phase := ZoneDirector.Phase.CLEAR_GUARDS
@@ -15,29 +18,28 @@ func setup(zone: ZoneDirector) -> void:
 	enemies_alive = director.enemies_total
 	director.phase_changed.connect(_on_phase_changed)
 	director.enemies_changed.connect(_on_enemies_changed)
-	director.objective_changed.connect(_on_objective_changed)
 	_zone.text = "战区 %d/%d" % [director.zone_index + 1, RunState.ZONE_SCENES.size()]
-	_detail.text = director.objective
 	_on_phase_changed(director.phase)
-
-
-func _on_objective_changed(text: String) -> void:
-	_detail.text = text
 
 
 func _on_phase_changed(value: ZoneDirector.Phase) -> void:
 	phase = value
+	_detail.visible = false
+	_detail.text = ""
 	match phase:
 		ZoneDirector.Phase.CLEAR_GUARDS:
 			_objective.text = "清除守卫"
 		ZoneDirector.Phase.HAMMER_POINT:
 			_objective.text = "锤击据点"
+			_detail.visible = true
+			_detail.text = "按 E 砸核心" if director.is_boss_zone else "按 E 挥锤"
 		ZoneDirector.Phase.FLAG_PLANTED:
 			_objective.text = "城市核心已夺取" if director.is_boss_zone else "到增益台按 F"
 		ZoneDirector.Phase.BUFF_SELECT:
 			_objective.text = "选择增益"
 		ZoneDirector.Phase.BOSS_STANDING:
 			_objective.text = "击倒 Boss"
+	offset_bottom = offset_top + (EXPANDED_HEIGHT if _detail.visible else COLLAPSED_HEIGHT)
 	queue_redraw()
 
 

@@ -66,7 +66,7 @@ func _run() -> void:
 		var panel := hud.get_node("WeaponPanel") as WeaponPanel
 		panel.advance(0.0)
 		_check("the HUD shows the gun", panel.gun_name == NAMES[1]
-			and panel.current_icon == _weapon.data.icon)
+			and panel.selected_index == 1)
 	await _tap("weapon_next")
 	_check("wheel up moves to %s" % NAMES[2], _weapon.data.display_name == NAMES[2])
 	await _tap("weapon_next")

@@ -5,6 +5,9 @@ enum Kind { CAPTURE, PEDESTAL, BOSS }
 
 const SAFE_INSET := Vector2(88.0, 100.0)
 const EXTENTS := Vector2(62.0, 78.0)
+const ARROW_BASE := 40.0
+const ARROW_TIP := 55.0
+const ARROW_HALF_WIDTH := 9.0
 
 var kind := Kind.CAPTURE
 var director: ZoneDirector
@@ -17,6 +20,7 @@ var distance_meters := 0
 var distance_text := ""
 var offscreen := false
 var behind := false
+var arrow_visible := false
 var highlighted := false
 var progress_visible := false
 var progress_fraction := 0.0
@@ -35,6 +39,7 @@ func setup(marker_kind: Kind, zone: ZoneDirector, owner: Player) -> void:
 
 func refresh() -> void:
 	visible = false
+	arrow_visible = false
 	highlighted = false
 	progress_visible = false
 	opacity = 1.0
@@ -89,6 +94,7 @@ func refresh() -> void:
 		var half_size := safe.size * 0.5
 		var factor := maxf(absf(direction.x) / half_size.x, absf(direction.y) / half_size.y)
 		screen_position = center + direction / factor
+	arrow_visible = offscreen
 	_projected_position = screen_position
 	visible = true
 	queue_redraw()
@@ -112,6 +118,10 @@ func marker_rect() -> Rect2:
 	return Rect2(screen_position - EXTENTS, EXTENTS * 2.0)
 
 
+func arrow_tip() -> Vector2:
+	return screen_position + direction * ARROW_TIP
+
+
 func _draw() -> void:
 	var color := Color(marker_color, opacity)
 	var center := screen_position
@@ -129,16 +139,25 @@ func _draw() -> void:
 		if progress_fraction > 0.0:
 			draw_arc(center, 30.0, -PI * 0.5, -PI * 0.5 + TAU * progress_fraction,
 				64, color, 5.0, true)
-	if offscreen:
-		var tip := center + direction * 45.0
-		var base := center + direction * 34.0
-		var side := direction.orthogonal() * 7.0
-		draw_colored_polygon(PackedVector2Array([tip, base + side, base - side]), color)
+	if arrow_visible:
+		# Sit clear of the 30 px progress ring, with a dark halo so the black
+		# ring or a bright sky cannot swallow the direction.
+		var tip := center + direction * ARROW_TIP
+		var base := center + direction * ARROW_BASE
+		var side := direction.orthogonal() * ARROW_HALF_WIDTH
+		var triangle := PackedVector2Array([tip, base + side, base - side])
+		var outline := triangle.duplicate()
+		outline.append(triangle[0])
+		draw_polyline(outline, Color(0.0, 0.0, 0.0, 0.8 * opacity), 6.0, true)
+		draw_colored_polygon(triangle, color)
 	var font := ThemeDB.fallback_font
 	if kind == Kind.PEDESTAL:
 		HudStyle.draw_text_centered(self, font, center.x, center.y + 8.0, "F", 24, color)
 	var text_size := font.get_string_size(distance_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
-	var text_y := 47.0 if offscreen or kind == Kind.PEDESTAL else -70.0
+	# A downward edge arrow owns the space below the diamond; move the label above it.
+	var text_y := 47.0
+	if (offscreen and direction.y > 0.5) or (not offscreen and kind != Kind.PEDESTAL):
+		text_y = -70.0
 	draw_rect(Rect2(center + Vector2(-text_size.x * 0.5 - 6.0, text_y),
 		Vector2(text_size.x + 12.0, 28.0)), Color(0.0, 0.0, 0.0, 0.85))
 	HudStyle.draw_text_centered(self, font, center.x, center.y + text_y + 22.0, distance_text, 22,

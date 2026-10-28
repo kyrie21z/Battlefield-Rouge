@@ -226,6 +226,20 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 		await _frames(3)
 		_check("nearby F marker highlights within interaction range", pedestal_marker.highlighted)
 		await _shot("20_pedestal_F_1280x720")
+		RunState.add_buff(BuffPool.ALL[0])
+		RunState.add_buff(BuffPool.ALL[0])
+		RunState.add_buff(BuffPool.ALL[3])
+		RunState.add_buff(BuffPool.ALL[6])
+		var buff_bar := hud.get_node("BuffBar") as BuffBar
+		_check("buff bar shows three schools with a ×2 stack", buff_bar.visible
+			and buff_bar.entries.size() == 3 and buff_bar.stack_count(&"firearm_damage") == 2
+			and buff_bar.accent_for(&"blade_damage") != buff_bar.accent_for(&"skill_unlock"))
+		DisplayServer.window_set_size(Vector2i(1920, 1080))
+		await _frames(5)
+		await _shot("24_buff_bar_1920x1080")
+		DisplayServer.window_set_size(Vector2i(1280, 720))
+		await _frames(5)
+		await _shot("25_buff_bar_1280x720")
 		director.set_physics_process(true)
 		await _tap("interact")
 		_check("F opens the real reward choice", is_instance_valid(director.selection)
@@ -255,6 +269,11 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 	var core_marker := boss_hud.get_node("WorldMarkers/Capture") as WorldMarker
 	_check("aligned boss and core markers do not overlap", not core_marker.marker_rect().intersects(boss_marker.marker_rect()))
 	await _shot("21_boss_full_1920x1080")
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	await _frames(5)
+	await _shot("26_boss_overview_1280x720")
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _frames(5)
 	boss_health.set_process(false)
 	boss.health.apply_damage(42.0, Hitbox.BodyPart.BODY)
 	_check("boss damage immediately leaves a white trail", boss_health.health_text == "858 / 900"

@@ -21,7 +21,7 @@ var _director: ZoneDirector
 @onready var _objectives: ObjectivePanel = $Top
 @onready var _boss_health: BossHealth = $BossHealth
 @onready var _markers: Control = $WorldMarkers
-@onready var _buffs_label: Label = $Buffs
+@onready var _buffs: BuffBar = $BuffBar
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _debug: CaptureDebug = $CaptureDebug
@@ -50,6 +50,7 @@ func _ready() -> void:
 	_debug.setup(_director)
 	RunState.changed.connect(_refresh_buffs)
 	_refresh_buffs()
+	_place_buffs()
 	_refresh_combat_feedback()
 
 
@@ -59,6 +60,7 @@ func _process(_delta: float) -> void:
 	for marker: WorldMarker in _markers.get_children():
 		marker.refresh()
 	(_markers.get_node("Capture") as WorldMarker).avoid(_markers.get_node("Boss") as WorldMarker)
+	_place_buffs()
 	_refresh_combat_feedback()
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
@@ -98,20 +100,11 @@ func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) ->
 
 
 func _refresh_buffs() -> void:
-	var counts: Dictionary = {}
-	var catalog: Dictionary = {}
-	for buff: Buff in RunState.buffs:
-		var key := String(buff.id) if buff.id != &"" else buff.resource_path + buff.title
-		counts[key] = int(counts.get(key, 0)) + 1
-		catalog[key] = buff
-	var lines: PackedStringArray = []
-	lines.append("本局增益 · 已选择 %d 次" % RunState.buffs.size())
-	if counts.is_empty():
-		lines.append("选择任意流派开始构筑")
-	for key: String in counts:
-		var buff: Buff = catalog[key]
-		lines.append("%s ×%d  ·  %s" % [buff.title, counts[key], buff.stack_summary()])
-	_buffs_label.text = "\n".join(lines)
+	_buffs.refresh()
+
+
+func _place_buffs() -> void:
+	_buffs.position.y = _objectives.position.y + _objectives.size.y + 10.0
 
 
 func _refresh_combat_feedback() -> void:

@@ -16,6 +16,12 @@ import math
 def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spawns=None):
     walls = [("Floor",(60,1,60),(0,-0.5,0)),("WallN",(60,4,1),(0,2,-30)),("WallS",(60,4,1),(0,2,30)),
              ("WallE",(1,4,60),(30,2,0)),("WallW",(1,4,60),(-30,2,0))]
+    # Invisible collision above the visible walls: a pitched dash can lift the
+    # player over the 4 m rim. They sit outside the navigation group, so the
+    # baked mesh ignores them. The highest reachable spot is the 3.5 m core plus
+    # a jump and one 5 m dash, under 10 m, well below the 30 m top.
+    bounds = [("WallNHigh",(60,26,1),(0,17,-30)),("WallSHigh",(60,26,1),(0,17,30)),
+              ("WallEHigh",(1,26,60),(30,17,0)),("WallWHigh",(1,26,60),(-30,17,0))]
     boxes = walls + boxes
     # The city core of the boss zone: a bigger building with a wider hammer reach.
     size = "Vector3(4.4, 3.5, 4.4)" if core else "Vector3(2.4, 2, 2.4)"
@@ -46,6 +52,9 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
         v = 'Vector3(%s, %s, %s)' % s
         sub += [f'[sub_resource type="BoxMesh" id="Mesh_{i}"]','material = SubResource("Mat_grey")',f'size = {v}','',
                 f'[sub_resource type="BoxShape3D" id="Shape_{i}"]',f'size = {v}','']
+    for i,(n,s,p) in enumerate(bounds):
+        v = 'Vector3(%s, %s, %s)' % s
+        sub += [f'[sub_resource type="BoxShape3D" id="Shape_bound{i}"]',f'size = {v}','']
     T = lambda x,y,z: f'Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x}, {y}, {z})'
     nodes = [f'[node name="{name}" type="Node3D"]','',
              '[node name="WorldEnvironment" type="WorldEnvironment" parent="."]','environment = SubResource("Env")','',
@@ -56,6 +65,13 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
         nodes += [f'[node name="{n}" type="StaticBody3D" parent="Geometry"]',f'transform = {T(*p)}','',
                   f'[node name="Mesh" type="MeshInstance3D" parent="Geometry/{n}"]',f'mesh = SubResource("Mesh_{i}")','',
                   f'[node name="Shape" type="CollisionShape3D" parent="Geometry/{n}"]',f'shape = SubResource("Shape_{i}")','']
+    nodes += ['[node name="Boundary" type="Node3D" parent="."]','']
+    for i,(n,s,p) in enumerate(bounds):
+        # Layer 5 (CollisionLayers.BOUNDARY): the player collides with it, the
+        # WORLD|HITBOXES bullet ray does not, so shots still leave the map.
+        nodes += [f'[node name="{n}" type="StaticBody3D" parent="Boundary"]',f'transform = {T(*p)}',
+                  'collision_layer = 16','',
+                  f'[node name="Shape" type="CollisionShape3D" parent="Boundary/{n}"]',f'shape = SubResource("Shape_bound{i}")','']
     nodes += ['[node name="CoverPoints" type="Node3D" parent="."]','']
     k = 0
     for n,s,p in boxes:

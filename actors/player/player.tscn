@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://actors/player/player_shield.gd" id="12_shield"]
 [ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
 [ext_resource type="Script" path="res://actors/player/shadow_body.gd" id="14_shadow_body"]
+[ext_resource type="Script" path="res://actors/player/dash.gd" id="16_dash"]
 [ext_resource type="PackedScene" uid="uid://dnu3c7o0snwdt" path="res://assets/models/characters/soldier.gltf" id="15_soldier"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -22,7 +23,7 @@ height = 1.8
 
 [node name="Player" type="CharacterBody3D" groups=["player"]]
 collision_layer = 2
-collision_mask = 7
+collision_mask = 23
 script = ExtResource("1_player")
 
 [node name="Stats" type="Node" parent="."]
@@ -77,6 +78,9 @@ shooter = NodePath("../../..")
 script = ExtResource("12_shield")
 stats = NodePath("../Stats")
 health = NodePath("../Health")
+
+[node name="Dash" type="Node" parent="."]
+script = ExtResource("16_dash")
 
 [node name="CombatTraits" type="Node" parent="." node_paths=PackedStringArray("stats", "health", "weapon", "melee", "shield", "camera", "shooter")]
 script = ExtResource("13_traits")

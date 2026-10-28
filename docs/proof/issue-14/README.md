@@ -10,18 +10,20 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn -- --runs
 
 要加 `--fixed-fps 60`，不加会在第一项检查就失败。退出码 0 为全部通过。
 
-## 2026-10-28 · PR #34 最新 main 复验
+## 2026-10-28 · PR #34 紫盾表现修复后复验
 
-以 main `5d235ab41ca2af6370b02a38589dff769967cb76`（已含 #42 / #44 敌人布局）合并主动弹匣与 C 方槽后，在用户指定的 `D:\CS Games\Rouge\Battlefield-Rouge` 重新运行。全部 **16 个 `tests/*_test.tscn`** 通过；fixture 整套和两个独立筛选进程均使用 `--fixed-fps 60 --max-fps 240 --runs=3`，默认 30 tick 采样。全套与各独立进程每遍的原始轨迹逐字节相同，种子 +1 对照在进程间也相同。
+在同一 main `5d235ab` 上改善紫盾第一人称盾缘、受击蓄能、反击波和声音后，重跑全部 **17 个 `tests/*_test.tscn`**；全部断言通过、退出码 0。fixture 整套及单独 FX-001 / FX-002 各三遍，固定模拟 60 FPS、默认 30 tick 采样，各主种子和种子 +1 的记录跨进程逐字节相同；额外 `--frame-delay 1` 的全套三遍诊断复验也相同。
 
 | fixture | 种子 | 每遍结果 | tick / 轨迹行数 | 全套与独立进程三遍的哈希 | 种子 +1 对照 |
 | --- | --- | --- | --- | --- | --- |
 | FX-001 | 1001 | 胜利 | 2554 / 139 | `95d4b590ae882378` | 1002：胜利，2537 tick，`c3c3084d44c20133` |
 | FX-002 | 2002 | 胜利 | 912 / 41 | `4494ad3460ca6ab9` | 2003：胜利，912 tick，`07161059705b7ef8` |
 
-实跑哈希与 `5d235ab` 下表的历史基线相同；未为了预期“去掉自动爆炸会变”而改写记录或结果。机器人未操作 C，当前固定输入记录相同只说明这两个起点本轮没有改变轨迹。#42 之前的 `bd71b23b8c341b4f` / `5e1a5a995f643d72` 已在下文保留；旧 PR `4d370ae` 基于 `8462d10` 时记录 FX-001 胜利 2643 tick / `80db1126b6bac259`，FX-002 阵亡 355 tick / `5e1a5a995f643d72`，也是历史版本。
+以上实跑值继续与 main `5d235ab` 已公布值相同；本轮表现没有改变伤害查询、玩法随机数或机器人输入。机器人不操作 G / C。`7a7f410` 首次合入 main 时的 16 个测试与相同哈希是本轮之前的历史复验；旧 PR `4d370ae` 基于 `8462d10` 时，FX-001 曾为 2643 tick / `80db1126b6bac259`，FX-002 为阵亡 355 tick / `5e1a5a995f643d72`，历史值保留。
 
-新日志：[全套](../active-buffs/logs/fixture_test.log)、[独立 FX-001](../active-buffs/logs/fixture-FX-001.log)、[独立 FX-002](../active-buffs/logs/fixture-FX-002.log)，本次原始记录在 `../active-buffs/traces/`。[完整检查和复现命令](../active-buffs/README.md)。本轮三个 fixture 进程退出各报告 4 个 ObjectDB 实例，均退出码 0，无脚本错误或 Jolt 警告；旧 `run.log` / `traces/` 原样保留。
+新日志：[全套](../active-buffs/logs/fixture_test.log)、[独立 FX-001](../active-buffs/logs/fixture-FX-001.log)、[独立 FX-002](../active-buffs/logs/fixture-FX-002.log)、[1ms 间隔诊断复验](../active-buffs/logs/fixture-yield.log)。本次全套原始记录在 `../active-buffs/traces/`；旧 `run.log` / `traces/` 不覆盖。
+
+首次加速全套的种子 1002 对照局出现一次 Jolt 队列提示，整套和两独立进程还报告退出 8 个 ObjectDB 实例 / 2 个资源。加 1ms 间隔复验没有 Jolt 或资源占用错误，仍有退出 4 个 ObjectDB 实例；全部结果和记录一致。未宣称这些历史引擎 / 清理诊断已经修复，未提交基线日志。详情见 [本轮完整证明](../active-buffs/README.md)。
 
 ## 合并前的历史结果（main 5d235ab）
 

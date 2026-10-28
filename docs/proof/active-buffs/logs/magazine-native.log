@@ -3,24 +3,24 @@ Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 La
 
 [ok] C slot is locked before receiving the perk
 [ok] saved magazine-01-C-locked as JPEG under 300 KB
-SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge/docs/proof/active-buffs/magazine-01-C-locked.jpg ((1920, 1080), 93059 bytes, quality 0.82)
+SCREENSHOT D:/CS Games/tmp/pr34-shield-visibility-validation/magazine-proof/magazine-01-C-locked.jpg ((1920, 1080), 93058 bytes, quality 0.82)
 [ok] unlocked C slot is dim and reads 0/1
 [ok] saved magazine-02-C-empty as JPEG under 300 KB
-SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge/docs/proof/active-buffs/magazine-02-C-empty.jpg ((1920, 1080), 95247 bytes, quality 0.82)
+SCREENSHOT D:/CS Games/tmp/pr34-shield-visibility-validation/magazine-proof/magazine-02-C-empty.jpg ((1920, 1080), 95222 bytes, quality 0.82)
 [ok] starting empty reload creates no projectile
 [ok] completed empty reload leaves one held magazine
 [ok] waiting in hand does not start the fuse
 [ok] stored C slot lights up and reads 1/1
 [ok] saved magazine-03-C-ready as JPEG under 300 KB
-SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge/docs/proof/active-buffs/magazine-03-C-ready.jpg ((1920, 1080), 99320 bytes, quality 0.82)
+SCREENSHOT D:/CS Games/tmp/pr34-shield-visibility-validation/magazine-proof/magazine-03-C-ready.jpg ((1920, 1080), 99253 bytes, quality 0.82)
 [ok] C ready state survives the 720p layout
 [ok] saved magazine-04-C-ready-720p as JPEG under 300 KB
-SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge/docs/proof/active-buffs/magazine-04-C-ready-720p.jpg ((1280, 720), 54135 bytes, quality 0.82)
+SCREENSHOT D:/CS Games/tmp/pr34-shield-visibility-validation/magazine-proof/magazine-04-C-ready-720p.jpg ((1280, 720), 54139 bytes, quality 0.82)
 [ok] physical C launches one held magazine
 [ok] physical C returns the graphical slot to dim 0/1
 [ok] charge is visibly travelling down the distant lane
 [ok] saved magazine-05-distant-impact as JPEG under 300 KB
-SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge/docs/proof/active-buffs/magazine-05-distant-impact.jpg ((1280, 720), 54064 bytes, quality 0.82)
+SCREENSHOT D:/CS Games/tmp/pr34-shield-visibility-validation/magazine-proof/magazine-05-distant-impact.jpg ((1280, 720), 54096 bytes, quality 0.82)
 [ok] real explosion damages enemies at least 18m away
 [ok] the stronger explosion deals at least 60 damage to a distant enemy
 VISUAL THROW: 24.50 m; actual targets=4

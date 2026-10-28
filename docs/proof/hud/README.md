@@ -1,23 +1,25 @@
 # HUD 图形化第一、二、三步取证
 
-## 2026-10-28 · 主动弹匣 C 槽的当前验证
+## 2026-10-28 · C 槽与紫盾第一人称反馈的当前验证
 
-基于最新 main `5d235ab`，保留图形 HUD、Shift 充能、目标 / 增益栏和新敌人布局。AbilityBar 现有 G / V 旁新增 C 方槽：无增益锁定；解锁但未储存时暗态 `0/1`；已储存时亮态 `1/1`，按 C 投出后回到暗态。移除护盾槽 `corner_icon` / `danger_badge`，没有恢复旧 `_refresh_abilities()` 文字面板。三槽容器宽 244，右下锚点不变，1080p / 720p 均已检查。
+基于 main `5d235ab`，保留图形 HUD、Shift 充能、目标 / 增益栏和新敌人布局。AbilityBar 的 C 方槽：无增益锁定，已解锁无库存暗态 `0/1`，储存后亮态 `1/1`，投出后回暗态；G 不再重复显示弹匣角标。三槽宽 244，1080p / 720p 均已检查。`hud_test` 仍为 **287 checks, 0 failed**。
 
-`hud_test` **287 checks, 0 failed**，以真实换弹和投掷检查三态、返回空态、切枪保留、无库存重复投、清理和布局。全部 **16 个 `tests/*_test.tscn`** 通过、退出码 0。原生主动弹匣 39 项、弹匣取证 18 项、紫盾取证 8 项全通过；本次能力 / HUD 及原生输出没有脚本错误或退出诊断。
+本轮解决紫盾不易察觉：开 G 有厚紫盾缘及内外轮廓，挡伤亮闪并蓄能；实际反击在第一人称显示 0.72 秒外扩双波纹，世界波 0.48 秒到水平半径 7 米、0.62 秒开始淡出、0.82 秒回收，配独立能量声。中心瞄准区保持清晰，HUD 在反馈上方；视觉余波不延长原 1 秒无敌，25 BODY / 7 米伤害及 8 秒冷却维持原规则。
 
-新图：[锁定](../active-buffs/magazine-01-C-locked.jpg)、[暗态 0/1](../active-buffs/magazine-02-C-empty.jpg)、[亮态 1/1](../active-buffs/magazine-03-C-ready.jpg)、[720p](../active-buffs/magazine-04-C-ready-720p.jpg)、[远投爆炸](../active-buffs/magazine-05-distant-impact.jpg)、[紫盾外景](../active-buffs/shield-02-purple-pulse-wide.jpg)。7 张 JPEG 合计 517,867 字节，单张均 ≤300,000 字节。[本轮完整证明、测试表和命令](../active-buffs/README.md)。main 原有的 01–26 图作为历史保留，其中 `10_danger_badge.jpg` 展示的是被本轮 C 槽替代的旧设计。
+全部 **17 个 `tests/*_test.tscn`** 通过、退出码 0；新增盾反馈 **24 项**检查通过。三个原生检查为主动弹匣 39 项、弹匣画面 18 项、紫盾画面 **15 项**，均通过。紫盾的原生像素对照测得盾缘 / 瞄准中心 / 反击区域平均 RGB 差分别为 0.0295 / 0.0073 / 0.0897，证明是实际游戏视角可见，同时中心保持清楚。
 
-fixture 重跑整套及单独 `--fixture=FX-001` / `--fixture=FX-002`，三个进程各 `--runs=3`，固定 60 FPS；同 fixture 全部主种子记录逐字节相同：
+新图：[开盾厚度](../active-buffs/shield-00-active-thick.jpg)、[挡伤蓄能](../active-buffs/shield-00-impact-charged.jpg)、[第一人称波](../active-buffs/shield-01-purple-pulse.jpg)、[完整世界波](../active-buffs/shield-02-purple-pulse-wide.jpg)；[C 锁定](../active-buffs/magazine-01-C-locked.jpg)、[0/1](../active-buffs/magazine-02-C-empty.jpg)、[1/1](../active-buffs/magazine-03-C-ready.jpg)、[720p](../active-buffs/magazine-04-C-ready-720p.jpg)、[远投](../active-buffs/magazine-05-distant-impact.jpg)。当前 9 张 JPEG 共 714,789 字节，单张均 <300,000 字节。首次合入 main 的 `7a7f410` 曾为 16 个测试、7 张图 / 517,867 字节；本轮在其上补强。main 的 01–26 历史图保留，`10_danger_badge.jpg` 是已由 C 槽取代的旧设计。
+
+fixture 再次整套与独立 FX-001 / FX-002 各 `--runs=3`，每份轨迹逐字节相同；另一次逐帧加 1ms 间隔的全套诊断复验也相同：
 
 | fixture | 种子 | 每遍结果 | tick / 轨迹行数 | 全套与独立进程三遍的哈希 | 种子 +1 对照 |
 | --- | --- | --- | --- | --- | --- |
 | FX-001 | 1001 | 胜利 | 2554 / 139 | `95d4b590ae882378` | 1002：胜利，2537 tick，`c3c3084d44c20133` |
 | FX-002 | 2002 | 胜利 | 912 / 41 | `4494ad3460ca6ab9` | 2003：胜利，912 tick，`07161059705b7ef8` |
 
-以上为本次实际重新计算结果，与 main `5d235ab` 已公布值相同。#42 之前 main 的 FX-001 曾为胜利 2478 tick / `bd71b23b8c341b4f`（1002：`0a414cf4d686da08`），FX-002 曾为阵亡 355 tick / `5e1a5a995f643d72`（2003：`99ea967eb8fe8de8`）；旧 PR 基于 `8462d10` 时 FX-001 为 2643 tick / `80db1126b6bac259`。这些旧值保留为历史，不作为当前预期。详情与原始记录见 [issue #14 复验](../issue-14/README.md)。
+本轮加速全套曾有一次 Jolt 队列提示及旧音频退出资源诊断，独立运行断言也通过；加 1ms 间隔复验未出现 Jolt 或资源占用错误，仍有 4 个 ObjectDB 实例提示。新增盾 / HUD / 原生检查无脚本错误或退出诊断。原始新日志和限制见 [完整证明](../active-buffs/README.md)，不宣称清理问题已修复，不提交基线日志。
 
-本次只提交新增能力 / HUD 和 fixture 相关日志，不提交基线日志。`dash_test` 本轮退出有 2 个 ObjectDB 实例提示，fixture 三进程各有 4 个，均断言通过、退出码 0；下方历史音频对照原文保留，不将本轮描述为修复清理问题。
+#42 之前的 FX-001 胜利 2478 tick / `bd71b23b8c341b4f`（1002：`0a414cf4d686da08`）、FX-002 阵亡 355 tick / `5e1a5a995f643d72`（2003：`99ea967eb8fe8de8`），以及旧 PR 的 2643 tick / `80db1126b6bac259` 均保留为历史。详情见 [issue #14](../issue-14/README.md)。
 
 ## 第一至三步的历史证明
 

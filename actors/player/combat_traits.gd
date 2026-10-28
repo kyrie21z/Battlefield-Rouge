@@ -209,6 +209,7 @@ func _on_shield_expired() -> void:
 	_shield_absorbed = false
 	ReloadCharge.blast(shooter.get_parent(), shooter.global_position + Vector3.UP,
 		shooter, damage, SHIELD_PULSE_RADIUS, PlayerShield.ACCENT)
+	shield.show_counter_pulse()
 	shield_pulsed.emit()
 	_notify("护盾反击！周围敌人受到冲击")
 

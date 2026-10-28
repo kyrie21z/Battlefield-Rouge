@@ -15,12 +15,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 == ammo and the gun rack
   [ok] ammo numbers follow the magazine
   [ok] 25% or less turns the ammo red
-  [ok] 突击步枪 highlights its gun slot
-  [ok] 突击步枪 shows its gun name
-  [ok] 霰弹枪 highlights its gun slot
-  [ok] 霰弹枪 shows its gun name
-  [ok] 狙击枪 highlights its gun slot
-  [ok] 狙击枪 shows its gun name
+  [ok] 绐佸嚮姝ユ灙 highlights its gun slot
+  [ok] 绐佸嚮姝ユ灙 shows its gun name
+  [ok] 闇板脊鏋?highlights its gun slot
+  [ok] 闇板脊鏋?shows its gun name
+  [ok] 鐙欏嚮鏋?highlights its gun slot
+  [ok] 鐙欏嚮鏋?shows its gun name
   [ok] the panel dropped the duplicate big icon box
   [ok] ammo and gun slots share one tight row
   [ok] the three gun slots sit side by side
@@ -33,7 +33,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 == buff icon bar
   [ok] the buff bar hides when the run has no buffs
   [ok] one buff kind appears as a single icon
-  [ok] two picks of one buff show a ×2 badge
+  [ok] two picks of one buff show a 脳2 badge
   [ok] a second school adds a second icon
   [ok] borders use the school accents
   [ok] the bar hides again after the run resets
@@ -51,12 +51,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
   [ok] G is ready when cooldown finishes
   [ok] the finished cooldown clears both countdown values
 == melee slot
-  [ok] 匕首 is the selected blade
-  [ok] 匕首 shows its melee icon
-  [ok] 斧 is the selected blade
-  [ok] 斧 shows its melee icon
-  [ok] 太刀 is the selected blade
-  [ok] 太刀 shows its melee icon
+  [ok] 鍖曢 is the selected blade
+  [ok] 鍖曢 shows its melee icon
+  [ok] 鏂?is the selected blade
+  [ok] 鏂?shows its melee icon
+  [ok] 澶垁 is the selected blade
+  [ok] 澶垁 shows its melee icon
   [ok] locked parry has no stored-round dots
   [ok] the parry window flashes the V border
   [ok] stored rounds show as dots
@@ -80,12 +80,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
   [ok] clearing combat inventory returns C to dark 0/1
   [ok] removing the buff locks C again
 == every weapon has an icon
-  [ok] 突击步枪 has an icon
-  [ok] 霰弹枪 has an icon
-  [ok] 狙击枪 has an icon
-  [ok] 匕首 has an icon
-  [ok] 斧 has an icon
-  [ok] 太刀 has an icon
+  [ok] 绐佸嚮姝ユ灙 has an icon
+  [ok] 闇板脊鏋?has an icon
+  [ok] 鐙欏嚮鏋?has an icon
+  [ok] 鍖曢 has an icon
+  [ok] 鏂?has an icon
+  [ok] 澶垁 has an icon
   [ok] the shield slot has an icon
   [ok] C uses its own dangerous-magazine icon
 == layout

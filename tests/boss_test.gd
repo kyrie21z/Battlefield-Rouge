@@ -47,6 +47,14 @@ func _run() -> void:
 	var small_height := (sample.get_node("CollisionShape3D") as CollisionShape3D).shape.height as float
 	_check("the boss is taller (%.1f m vs %.1f m)" % [boss_height, small_height], boss_height > small_height * 1.3)
 	_check("the boss shoots from higher up", boss.eye_height > sample.eye_height)
+	_check("the boss wears the Hazmat model", boss.find_child("Character_Hazmat", true, false) != null
+		and boss.find_child("Character_Enemy", true, false) == null)
+	_check("the small enemies keep the Enemy model", sample.find_child("Character_Enemy", true, false) != null)
+	var boss_head := boss.find_child("HeadHitbox", true, false) as Hitbox
+	_check("the boss head hitbox moved onto the new skeleton",
+		boss_head != null and boss_head.get_parent().get_parent() == boss.get_node("Model/CharacterArmature/Skeleton3D"))
+	_check("a bigger head pays less per headshot (%.2f vs %.2f)" % [boss.health.headshot_multiplier, sample.health.headshot_multiplier],
+		boss.health.headshot_multiplier < sample.health.headshot_multiplier)
 	var ring_ok := true
 	for enemy: Enemy in small:
 		var gap := Vector2(enemy.global_position.x - boss.global_position.x,
@@ -65,12 +73,12 @@ func _run() -> void:
 	_check("the bar is shown", bar.visible and bar_label.visible)
 	_check("it starts full (%d / %d)" % [bar.value, bar.max_value],
 		bar.max_value == boss.health.max_health and bar.value == bar.max_value)
-	_check("the label gives the numbers", "600 / 600" in bar_label.text)
+	_check("the label gives the numbers", "900 / 900" in bar_label.text)
 	boss.health.apply_damage(42.0, Hitbox.BodyPart.BODY)
-	_check("a hit lowers the bar to %d" % boss.health.health, bar.value == boss.health.health and bar.value == 558.0)
-	_check("the label follows", "558 / 600" in bar_label.text)
+	_check("a hit lowers the bar to %d" % boss.health.health, bar.value == boss.health.health and bar.value == 858.0)
+	_check("the label follows", "858 / 900" in bar_label.text)
 	small[0].health.apply_damage(30.0, Hitbox.BodyPart.BODY)
-	_check("hitting a small enemy does not move it", bar.value == 558.0)
+	_check("hitting a small enemy does not move it", bar.value == 858.0)
 
 	print("== the core stays shut while the boss stands")
 	var objective := scene.get_node("HUD/Top/Objective") as Label

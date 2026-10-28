@@ -50,6 +50,8 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 | --- | --- | --- | --- | --- | --- | --- |
 | `assets/models/weapons/ak.gltf` | `Guns/glTF/AK.gltf` | Quaternius — Toon Shooter Game Kit | https://quaternius.com/packs/toonshootergamekit.html | CC0（页面标注） | 2026-10-23 | `7320d771b829e2dc` |
 | `assets/models/characters/enemy.gltf` | `Characters/glTF/Character_Enemy.gltf` | Quaternius — Toon Shooter Game Kit | https://quaternius.com/packs/toonshootergamekit.html | CC0（页面标注） | 2026-10-23 | `60c77a900ddd7608` |
+| `assets/models/characters/hazmat.gltf` | `Characters/glTF/Character_Hazmat.gltf` | Quaternius — Toon Shooter Game Kit | https://quaternius.com/packs/toonshootergamekit.html | CC0（页面标注） | 2026-10-23 | `43d8c6d6e7e95647` |
+| `assets/models/characters/soldier.gltf` | `Characters/glTF/Character_Soldier.gltf` | Quaternius — Toon Shooter Game Kit | https://quaternius.com/packs/toonshootergamekit.html | CC0（页面标注） | 2026-10-23 | `d1395255f7cfa8f7` |
 | `assets/audio/hit_body.ogg` | `Audio/impactPunch_medium_001.ogg` | Kenney — Impact Sounds | https://kenney.nl/assets/impact-sounds | CC0 | 2026-10-23 | `e71d23abcc3f10d9` |
 | `assets/audio/hit_head.ogg` | `Audio/impactPlate_light_002.ogg` | Kenney — Impact Sounds | https://kenney.nl/assets/impact-sounds | CC0 | 2026-10-23 | `8ac5869ea434cf0d` |
 | `assets/vfx/muzzle.png` | `PNG (Transparent)/muzzle_02.png` | Kenney — Particle Pack | https://kenney.nl/assets/particle-pack | CC0 | 2026-10-23 | `96164063353cc038` |
@@ -60,6 +62,16 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 | `assets/models/weapons/tachi.glb` | `tools/melee_sources/太刀.fbx`（`Weapon_Cutlass`，用户提供） | 待确认（Quaternius — Pirates 包） | 无 | **待确认**，见下 | 2026-10-26 | `81284656ec36b6d8` |
 | `assets/models/weapons/shotgun.glb` | `tools/gun_sources/Shotgun.fbx`（用户提供） | Quaternius — Toon Shooter 套件 | 待确认 | **待确认**，见下 | 2026-10-26 | `a2c3383f896ba8a1` |
 | `assets/models/weapons/sniper.glb` | `tools/gun_sources/Sniper_2.fbx`（用户提供） | Quaternius — Toon Shooter 套件 | 待确认 | **待确认**，见下 | 2026-10-26 | `2669f9bd65995543` |
+
+## 角色模型
+
+三个角色来自同一个包，骨骼（43 根）和 17 个动画完全一样，原样拷入，没有导出或改动。
+
+- `enemy.gltf`：小怪（`actors/enemy/enemy.tscn`）。
+- `hazmat.gltf`：Boss。`boss.tscn` 设 `Enemy.model_scene`，运行时换掉默认模型，挂在骨骼上的头、躯干命中框原样搬到新骨骼上。
+- `soldier.gltf`：玩家的影子身体（`actors/player/shadow_body.gd`）。只投影子，镜头里看不到；站着放 `Idle`，移动放 `Run_Gun`。
+
+截图见 `docs/proof/characters/`。
 
 ## 两把枪模型的导出
 

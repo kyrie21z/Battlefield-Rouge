@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="1_enemy"]
+[ext_resource type="PackedScene" uid="uid://dk52qy0fdtx5g" path="res://assets/models/characters/hazmat.gltf" id="2_hazmat"]
 
 [sub_resource type="CapsuleShape3D" id="Shape_boss"]
 radius = 0.63
@@ -17,9 +18,11 @@ run_speed = 3.2
 strafe_speed = 1.2
 turn_speed = 5.0
 cover_chance = 0.0
+model_scene = ExtResource("2_hazmat")
 
 [node name="Health" parent="." index="0"]
-max_health = 600.0
+max_health = 900.0
+headshot_multiplier = 1.25
 
 [node name="CollisionShape3D" parent="." index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0)

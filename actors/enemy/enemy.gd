@@ -52,6 +52,9 @@ const AIM_HEIGHT := 1.3
 @export_category("Model")
 ## Which of the model's hand-held meshes to show.
 @export var held_weapon := "AK"
+## Replaces the default character model when set. The kit's characters share
+## one skeleton and one set of animations, so the hitboxes on its bones carry over.
+@export var model_scene: PackedScene
 
 ## Read by Health to ignore friendly fire.
 var team := 1
@@ -97,6 +100,8 @@ const IMPACT_DECAY := 22.0
 
 
 func _ready() -> void:
+	if model_scene != null:
+		_swap_model()
 	for anim in ["Idle", "Run_Gun", "Walk_Shoot", "Idle_Shoot", "Duck"]:
 		_anim.get_animation(anim).loop_mode = Animation.LOOP_LINEAR
 	for mesh in $Model/CharacterArmature/Skeleton3D/Index1_R.get_children():
@@ -110,6 +115,22 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	Events.gunshot.connect(_on_gunshot)
 	_anim.play("Idle")
+
+
+func _swap_model() -> void:
+	var old: Node3D = $Model
+	old.name = "OldModel"
+	var model: Node3D = model_scene.instantiate()
+	model.name = "Model"
+	model.transform = old.transform
+	add_child(model)
+	move_child(model, old.get_index())
+	var skeleton := model.get_node("CharacterArmature/Skeleton3D")
+	for child in old.get_node("CharacterArmature/Skeleton3D").get_children():
+		if child is BoneAttachment3D:
+			child.reparent(skeleton, false)
+	old.free()
+	_anim = model.get_node("AnimationPlayer")
 
 
 func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint]) -> void:

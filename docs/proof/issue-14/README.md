@@ -12,29 +12,29 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn -- --runs
 
 ## 结果
 
-`run.log` 和 `traces/` 是 issue #14 当时的证据，这次没有覆盖。下面的表是 #25 试玩修订（据点 z≈-8、敌人不再互相推挤、按进度碎裂）再叠上 #26（打倒 Boss 后一锤击碎），再换上 Boss 的 Hazmat 模型、900 生命、爆头 ×1.25（[ADR 0004](../../adr/0004-boss-wave-and-core.md) 文末第二次修订）之后，用 Godot 4.7.2、`--fixed-fps 60`、`--runs=3` 新跑的。新哈希与引入这次修订的提交是同一次工作区；提交 SHA 就是包含本文件的那次提交。
+`run.log` 和 `traces/` 是 issue #14 当时的证据，这次没有覆盖。下面的表是 #25 试玩修订（据点 z≈-8、敌人不再互相推挤、按进度碎裂）再叠上 #26（打倒 Boss 后一锤击碎），再换上 Boss 的 Hazmat 模型、900 生命、爆头 ×1.25（[ADR 0004](../../adr/0004-boss-wave-and-core.md) 文末第二次修订），再叠上 #40（敌人找有射界的射击位、增援出生即寻位、锤击据点算噪声）之后，用 Godot 4.7.2、`--fixed-fps 60`、`--runs=3` 新跑的。新哈希与引入这次修订的提交是同一次工作区；提交 SHA 就是包含本文件的那次提交。
 
-两个独立进程各跑一次。每个进程里每个 fixture 打三遍（第一遍从 fixture 起点进入，后两遍按结算界面的重开按钮），再各打一遍种子 +1。两进程的 `== hashes` 相同，八份记录（三遍加种子 +1，两个 fixture）跨进程 `cmp` 逐字节相同。
+两次整套运行（每次两个 fixture 各打三遍）加两次单 fixture 运行（`--fixture=FX-001`、`--fixture=FX-002`，各三遍），四个独立进程的 `== hashes` 相同。每个进程里第一遍从 fixture 起点进入，后两遍按结算界面的重开按钮；每个 fixture 另打一遍种子 +1 的对照。
 
-| fixture | 起点 | 种子 | 结果 | 长度 | 哈希（两进程、每进程三遍全部相同） | 种子 +1 的对照局 |
+| fixture | 起点 | 种子 | 结果 | 长度 | 哈希（四个进程、每遍全部相同） | 种子 +1 的对照局 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `FX-001` | 战区 1，没有增益 | 1001 | 胜利 | 2583 tick（43.0 秒） | `c77413a921d58fc4` | 种子 1002：胜利，2491 tick，`a90f8ea04f6ca586` |
-| `FX-002` | Boss 关，急速射击 + 扩容弹匣 | 2002 | 阵亡 | 355 tick（5.9 秒） | `5e1a5a995f643d72` | 种子 2003：阵亡，402 tick，`b3c5bae9db59952a` |
+| `FX-001` | 战区 1，没有增益 | 1001 | 胜利 | 2478 tick（41.3 秒） | `bd71b23b8c341b4f` | 种子 1002：胜利，2491 tick，`0a414cf4d686da08` |
+| `FX-002` | Boss 关，急速射击 + 扩容弹匣 | 2002 | 阵亡 | 355 tick（5.9 秒） | `5e1a5a995f643d72` | 种子 2003：阵亡，419 tick，`99ea967eb8fe8de8` |
 
-#14 当时公布、并且仍留在 `run.log` / `traces/` 里的数字是：FX-001 胜利，3671 tick，`8306f3301da22b35`（种子 1002：3953 tick，`76e4b0a74847397c`）；FX-002 胜利，1434 tick，`bb9162c8424ff945`（种子 2003：1314 tick，`282bdcc8eb7623f3`）。#21 接入每关入场选择之后，[AC-04 证明](../ac-04-ac-08/README.md) 里记过另一组：FX-001 3875 tick、`faf979e483061388`，FX-002 1375 tick、`9afe0ddb9ac0b983`。#22 改完选择时机之后记过：FX-001 胜利，3887 tick，`b8ce9783842e8153`（种子 1002：3853 tick，`fe4de49c4771afc2`）；FX-002 仍与 #14 相同。#25 第一次把据点放在 z=0 并接上增援时记过：FX-001 胜利，3053 tick，`981599f0236f2a55`（种子 1002：2989 tick，`1690347621de618a`）；FX-002 仍与 #14 相同。试玩修订把据点挪到 z≈-8 之后、尚未叠上 Boss 一锤时记过：FX-001 胜利，2967 tick，`c76f382ec1614ceb`（种子 1002：2905 tick，`b06f14382acf9a99`）；FX-002 仍与 #14 相同。变基前的 #26（据点仍在 z=0）记过：FX-001 胜利，2495 tick，`a875672daf00a638`（种子 1002：2503 tick，`1be316041734d9d3`）；FX-002 胜利，835 tick，`a489a884d1ed0127`（种子 2003：830 tick，`8373d17dc9c8e89d`）。#26 合并时（Boss 仍是 600 生命、爆头 ×2.5）记过：FX-001 胜利，2409 tick，`4f21666af9e49eda`（种子 1002：2419 tick，`6bc59b75142b4d5e`）；FX-002 胜利，835 tick，`a489a884d1ed0127`（种子 2003：830 tick，`8373d17dc9c8e89d`）。
+#14 当时公布、并且仍留在 `run.log` / `traces/` 里的数字是：FX-001 胜利，3671 tick，`8306f3301da22b35`（种子 1002：3953 tick，`76e4b0a74847397c`）；FX-002 胜利，1434 tick，`bb9162c8424ff945`（种子 2003：1314 tick，`282bdcc8eb7623f3`）。#21 接入每关入场选择之后，[AC-04 证明](../ac-04-ac-08/README.md) 里记过另一组：FX-001 3875 tick、`faf979e483061388`，FX-002 1375 tick、`9afe0ddb9ac0b983`。#22 改完选择时机之后记过：FX-001 胜利，3887 tick，`b8ce9783842e8153`（种子 1002：3853 tick，`fe4de49c4771afc2`）；FX-002 仍与 #14 相同。#25 第一次把据点放在 z=0 并接上增援时记过：FX-001 胜利，3053 tick，`981599f0236f2a55`（种子 1002：2989 tick，`1690347621de618a`）；FX-002 仍与 #14 相同。试玩修订把据点挪到 z≈-8 之后、尚未叠上 Boss 一锤时记过：FX-001 胜利，2967 tick，`c76f382ec1614ceb`（种子 1002：2905 tick，`b06f14382acf9a99`）；FX-002 仍与 #14 相同。变基前的 #26（据点仍在 z=0）记过：FX-001 胜利，2495 tick，`a875672daf00a638`（种子 1002：2503 tick，`1be316041734d9d3`）；FX-002 胜利，835 tick，`a489a884d1ed0127`（种子 2003：830 tick，`8373d17dc9c8e89d`）。#26 合并时（Boss 仍是 600 生命、爆头 ×2.5）记过：FX-001 胜利，2409 tick，`4f21666af9e49eda`（种子 1002：2419 tick，`6bc59b75142b4d5e`）；FX-002 胜利，835 tick，`a489a884d1ed0127`（种子 2003：830 tick，`8373d17dc9c8e89d`）。换上 Boss 的 Hazmat 模型、900 生命、爆头 ×1.25 之后、#40 之前记过：FX-001 胜利，2583 tick，`c77413a921d58fc4`（种子 1002：2491 tick，`a90f8ea04f6ca586`）；FX-002 阵亡，355 tick，`5e1a5a995f643d72`（种子 2003：402 tick，`b3c5bae9db59952a`）。
 
-这次 FX-002 也不再和 `traces/FX-002_run1.txt` 逐字节相同。它的哈希、tick 和种子 +1 对照与变基前的 #26 相同（`a489a884d1ed0127`，835 tick）。机器人先打 Boss，清掉还在开火的小怪，再走到核心挥一锤（记录里这一锤是 `strike perfect +1.00000`）。进场仍然不选，记录里没有 `buff` 事件。FX-001 从第一行就和 `traces/FX-001_run1.txt` 不同，也和试玩修订、尚未叠上 Boss 一锤时的 `c76f382ec1614ceb` 不同。小关那一段的事件时刻与那次试玩修订相同，Boss 段改成先打倒再一锤。
+#40 之前，敌人会一路追到玩家面前开火；现在交火时会先找一个离玩家 8–20 米、视线不被世界挡住的射击位，多个敌人避开彼此已预订的点，离玩家近于 6 米时主动后撤找位。增援一出生就知道玩家的位置并直接去寻位，不再站在据点建筑后发呆；锤击据点也会像枪声一样叫醒 `hearing_range` 内的待机守卫。FX-001 因此比上一版短 105 tick：第一波增援在 207、242 tick 就被清掉（上一版是 390、397），Boss 在 1824 tick 倒下（上一版 1755），最后一锤在 2394 tick（上一版 2325）。FX-002 和上一版逐字节相同（`5e1a5a995f643d72`、355 tick、13 行记录）：机器人还没等到敌人换位就阵亡了；种子 2003 的对照局从 402 tick 变成 419 tick（`99ea967eb8fe8de8`），更长的交火里敌人的射击与换位序列不同。
 
 - 种子加 1 后整局不同，说明种子确实在起作用。
 - 每遍都检查了起点确实是 fixture 规定的（战区、增益条数和内容、种子）。
 
-`FX-001` 一路走到胜利，和 AC-02 串测。选择仍是 3 次，通关那两次改成走到增益台再按 F。种子 1001 的记录：tick 1 选 `firearm_damage.tres`；清掉 Enemy1、Enemy2、Enemy4、Enemy3，tick 37 `zone_cleared 0`；增援击杀在 390、397、608、622；tick 787 `point_captured 0`；tick 792 选 `firearm_rate.tres`；小关 2 清完六名守卫，tick 841 `zone_cleared 1`；增援击杀在 1110、1116；tick 1591 `point_captured 1`；tick 1593 选 `firearm_magazine.tres`；Boss 关 tick 1755 击倒 Boss，随后清掉六名小怪（1904 到 1944）；tick 2325 一锤 `+1.00000` 并 `point_captured 2`；tick 2408 `run_won`；tick 2409 `end 胜利`。全程 19 次 `strike perfect`，0 次 `strike ordinary`。#14 原文写的是 `light_boots` / `rapid_fire` 和 3671 tick，那是当时的记录，见 `traces/`，不是这次的路径。
+`FX-001` 一路走到胜利，和 AC-02 串测。选择仍是 3 次，通关那两次改成走到增益台再按 F。种子 1001 的记录：tick 1 选 `firearm_damage.tres`；清掉 Enemy1、Enemy2、Enemy4、Enemy3，tick 37 `zone_cleared 0`；增援击杀在 207、242、528、630；tick 787 `point_captured 0`；tick 789 选 `firearm_rate.tres`；小关 2 清完六名守卫，tick 838 `zone_cleared 1`；增援击杀在 1015、1021、1330、1336；tick 1588 `point_captured 1`；tick 1590 选 `firearm_magazine.tres`；Boss 关 tick 1824 击倒 Boss，随后清掉六名小怪（1852 到 1950）；tick 2394 一锤 `+1.00000` 并 `point_captured 2`；tick 2477 `run_won`；tick 2478 `end 胜利`。全程 19 次 `strike perfect`，0 次 `strike ordinary`。#14 原文写的是 `light_boots` / `rapid_fire` 和 3671 tick，那是当时的记录，见 `traces/`，不是这次的路径。
 
 | 文件 | 内容 |
 | --- | --- |
 | `run.log` | #14 当时三个进程的完整输出，加记录文件的 `cmp` 对比和对照局的 `diff`。#22、#25 和 #26 都没有重写它 |
 | `traces/FX-001_run1.txt`、`traces/FX-002_run1.txt` | #14 的起点局记录。这次实跑和它们不同 |
-| `traces/FX-001_seed1002.txt`、`traces/FX-002_seed2003.txt` | #14 的种子 +1 对照。不是这次的 `6bc59b75142b4d5e` 和 `8373d17dc9c8e89d` |
+| `traces/FX-001_seed1002.txt`、`traces/FX-002_seed2003.txt` | #14 的种子 +1 对照。不是这次的 `0a414cf4d686da08` 和 `99ea967eb8fe8de8` |
 
 自己复现：在项目根目录跑上面的命令，结果里的哈希应与上面的新表相同（同一台机器、Godot 4.7.2、`--fixed-fps 60`）。不要拿新记录去和 `traces/` 里的文件比逐字节，那些是 #14 的。默认每 30 tick 取一次快照，哈希依赖 `--sample-every`，所以比较时别改它。游戏里 `godot --path . -- --fixture=FX-002` 从该起点开始，F3 调试条显示“起点 FX-002  种子 2002”。
 
@@ -47,4 +47,4 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn -- --runs
 - 记录文件由测试在运行中写出，没有后处理。`run.log` 末尾的 `ObjectDB instances were leaked` 和 `resources still in use` 是退出时仍有音频流在播放，每个测试进程都会有，与复现无关；`run.log` 里也保留着。
 - 为了让复现成立改了几处游戏代码：节拍和掩体冷却改用 `SimClock`（战区开头归零的 tick 时间）、战区开头 `seed()`、关掉导航的异步迭代（`project.godot`）。已用 `tests/capture_hammer_test.tscn`、`boss_test.tscn`、`school_icons_test.tscn` 确认没有改坏原有行为。
 
-Boss 加强之后，FX-002 的机器人直接进 Boss 关、只带两条增益，站桩对射在 5.9 秒内阵亡（种子 2003 也阵亡）。从小关 1 打上来、带三条增益的 FX-001 仍然胜利，Boss 段比 #26 合并时长 174 tick。fixture 只要求「胜利或阵亡，不超时」，两种结果都通过；人玩的难度以试玩为准。
+Boss 加强之后，FX-002 的机器人直接进 Boss 关、只带两条增益，对射在 5.9 秒内阵亡（种子 2003：419 tick 后阵亡）。从小关 1 打上来、带三条增益的 FX-001 仍然胜利，共 2478 tick。敌人现在会先找射击位再开火，但 FX-002 这段太短，记录与上一版逐字节相同。fixture 只要求「胜利或阵亡，不超时」，两种结果都通过；人玩的难度以试玩为准。

@@ -5,6 +5,8 @@ extends Node
 signal enemy_killed(enemy: Node)
 ## Any gun fired, so enemies can hear it.
 signal gunshot(position: Vector3)
+## A hammer landed on a capture point. Enemies hear it like a gunshot.
+signal hammer_struck(position: Vector3)
 signal player_died
 ## The zone has no enemies left; its capture point opens.
 signal zone_cleared(zone_index: int)

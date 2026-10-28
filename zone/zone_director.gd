@@ -64,6 +64,8 @@ var _guards: Array[Enemy] = []
 var _reinforcements: Array[Enemy] = []
 var _spawn_points: Array[Node3D] = []
 var _cover_points: Array[CoverPoint] = []
+## Shared by every enemy in this zone so two do not reserve the same spot.
+var _firing_board := FiringPositionBoard.new()
 var _player: Player
 var _ended := false
 var _combat_started := false
@@ -158,7 +160,7 @@ func _start_combat() -> void:
 		return
 	_combat_started = true
 	for enemy in _guards:
-		enemy.setup(_player, _cover_points)
+		enemy.setup(_player, _cover_points, _firing_board)
 	if is_boss_zone:
 		_set_phase(Phase.BOSS_STANDING, "打倒 Boss")
 	else:
@@ -259,7 +261,8 @@ func _spawn_one() -> void:
 	_reinforcements.append(enemy)
 	reinforcement_spawn_log.append(enemy.global_position)
 	_watch_departure(enemy)
-	enemy.setup(_player, _cover_points)
+	enemy.setup(_player, _cover_points, _firing_board)
+	enemy.begin_hunt()
 
 
 func _watch_departure(enemy: Enemy) -> void:

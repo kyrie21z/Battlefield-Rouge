@@ -113,4 +113,16 @@ func _start_from_command_line(fixture_id: String) -> void:
 		return
 	start_fixture(start)
 	if zone_index != 0:
-		get_tree().change_scene_to_file.call_deferred(zone_scene())
+		_start_fixture_zone.call_deferred()
+
+
+## Only a normal launch is redirected. A scene launched in place of the game's
+## main scene (the fixture test) starts its own zones; starting one here too
+## would run a throwaway zone first and warm the navigation map, so the first
+## run would move on its first tick while every later one waits a tick.
+func _start_fixture_zone() -> void:
+	var current := get_tree().current_scene
+	var main_scene := str(ProjectSettings.get_setting("application/run/main_scene"))
+	if current != null and current.scene_file_path != main_scene:
+		return
+	get_tree().change_scene_to_file(zone_scene())

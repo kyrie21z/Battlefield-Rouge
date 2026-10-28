@@ -4,8 +4,6 @@ extends Control
 ## shield duration strip and the low-health warning border. Reads the player only.
 
 const SEGMENTS := 12
-const DELAY_HOLD := 0.4
-const DELAY_DRAIN := 120.0
 const LOW_FRACTION := 0.3
 const BAR_RECT := Rect2(92.0, 26.0, 232.0, 44.0)
 
@@ -18,18 +16,13 @@ var warning := false
 var shield_visible := false
 var shield_fraction := 0.0
 
-var _last_health := 0.0
-var _delay_timer := 0.0
+var _trail := HealthTrail.new()
 var _pulse := 0.0
 
 
 func setup(owner: Player) -> void:
 	player = owner
-	var health := player.health
-	_last_health = health.health
-	displayed_health = health.health
-	delayed_health = health.health
-	max_health = maxf(health.max_health, 1.0)
+	_trail.reset(player.health.health)
 	advance(0.0)
 
 
@@ -44,22 +37,10 @@ func advance(delta: float) -> void:
 	var health := player.health
 	var current := health.health
 	max_health = maxf(health.max_health, 1.0)
-	if current < _last_health:
-		delayed_health = maxf(delayed_health, _last_health)
-		_delay_timer = DELAY_HOLD
-	elif current > _last_health:
-		delayed_health = current
-		_delay_timer = 0.0
-	_last_health = current
-	displayed_health = current
+	_trail.advance(current, delta)
+	displayed_health = _trail.current
+	delayed_health = _trail.delayed
 	health_number = ceili(current)
-	var drain_time := delta
-	if _delay_timer > 0.0:
-		drain_time = maxf(0.0, delta - _delay_timer)
-		_delay_timer = maxf(0.0, _delay_timer - delta)
-	if drain_time > 0.0:
-		delayed_health = move_toward(delayed_health, current, DELAY_DRAIN * drain_time)
-	delayed_health = maxf(delayed_health, current)
 	warning = current > 0.0 and current / max_health < LOW_FRACTION
 
 	var shield := player.shield

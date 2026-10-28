@@ -10,12 +10,8 @@
 [ext_resource type="Script" path="res://ui/ability_slot.gd" id="8_ability_slot"]
 [ext_resource type="Texture2D" path="res://assets/ui/abilities/shield.svg" id="9_shield"]
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_damage.svg" id="10_danger"]
-
-[sub_resource type="StyleBoxFlat" id="BossFill"]
-bg_color = Color(0.8, 0.14, 0.12, 1)
-
-[sub_resource type="StyleBoxFlat" id="BossBack"]
-bg_color = Color(0, 0, 0, 0.55)
+[ext_resource type="Script" path="res://ui/objective_panel.gd" id="11_objective"]
+[ext_resource type="Script" path="res://ui/boss_health.gd" id="12_boss"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -138,52 +134,61 @@ key_text = "V"
 
 [node name="HitAudio" type="AudioStreamPlayer" parent="."]
 
-[node name="Top" type="VBoxContainer" parent="."]
+[node name="WorldMarkers" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Top" type="Control" parent="."]
+offset_left = 32.0
+offset_top = 326.0
+offset_right = 412.0
+offset_bottom = 502.0
+mouse_filter = 2
+script = ExtResource("11_objective")
+
+[node name="Zone" type="Label" parent="Top"]
+offset_left = 18.0
+offset_top = 10.0
+offset_right = 360.0
+offset_bottom = 36.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.65, 0.76, 0.8, 1)
+
+[node name="Objective" type="Label" parent="Top"]
+offset_left = 64.0
+offset_top = 46.0
+offset_right = 360.0
+offset_bottom = 86.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 26
+
+[node name="Detail" type="Label" parent="Top"]
+offset_left = 18.0
+offset_top = 124.0
+offset_right = 362.0
+offset_bottom = 170.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.62, 0.78, 0.82, 0.9)
+autowrap_mode = 3
+
+[node name="BossHealth" type="Control" parent="."]
+visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -300.0
+offset_left = -320.0
 offset_top = 24.0
-offset_right = 300.0
-offset_bottom = 160.0
+offset_right = 320.0
+offset_bottom = 100.0
 grow_horizontal = 2
 mouse_filter = 2
-
-[node name="Zone" type="Label" parent="Top"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 1
-
-[node name="Objective" type="Label" parent="Top"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 1
-
-[node name="Capture" type="ProgressBar" parent="Top"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="BossLabel" type="Label" parent="Top"]
-visible = false
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-horizontal_alignment = 1
-
-[node name="BossBar" type="ProgressBar" parent="Top"]
-visible = false
-custom_minimum_size = Vector2(0, 18)
-layout_mode = 2
-mouse_filter = 2
-theme_override_styles/background = SubResource("BossBack")
-theme_override_styles/fill = SubResource("BossFill")
-show_percentage = false
+script = ExtResource("12_boss")
 
 [node name="Buffs" type="Label" parent="."]
 mouse_filter = 2

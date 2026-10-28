@@ -169,8 +169,110 @@ func _ready() -> void:
 	await _tap("weapon_next")
 	await _tap("switch_melee")
 	await _shot("15_switch_1280x720")
+	await _world_proof(scene, player, hud, director)
 	print("HUD PROOF %s" % ("PASSED" if _failures == 0 else "FAILED"))
 	get_tree().quit(0 if _failures == 0 else 1)
+
+
+func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneDirector) -> void:
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _frames(5)
+	var point := director.capture_point
+	var marker := hud.get_node("WorldMarkers/Capture") as WorldMarker
+	var pedestal_marker := hud.get_node("WorldMarkers/Pedestal") as WorldMarker
+	_check("guard phase keeps a weak grey capture marker", marker.visible
+		and marker.marker_color == CapturePoint.COLOR_LOCKED and marker.opacity < 1.0)
+	await _shot("16_clear_guards_1920x1080")
+	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
+		enemy.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
+	director.set_physics_process(false)
+	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
+		enemy.set_process(false)
+		enemy.set_physics_process(false)
+	player.global_position = point.global_position + Vector3(0.0, 0.0, 3.0)
+	player.aim_at(point.global_position + Vector3.UP * 2.0)
+	for i in 6:
+		await get_tree().physics_frame
+	_check("walking to the open building enables hammer reach", point.player_in_reach and not point.locked)
+	for i in 4:
+		await _tap("hammer")
+		await get_tree().create_timer(1.0).timeout
+	_check("E swings advance the on-target progress ring", point.progress > 0.0
+		and point.progress < 1.0 and marker.progress_visible
+		and is_equal_approx(marker.progress_fraction, point.progress))
+	await _shot("17_hammer_ring_1920x1080")
+	player.aim_at(player.global_position + Vector3(10.0, 1.5, 12.0))
+	await _frames(3)
+	_check("turning away clamps the marker and arrow to the edge", marker.behind
+		and marker.offscreen and marker.get_viewport_rect().encloses(marker.marker_rect()))
+	await _shot("18_behind_edge_1920x1080")
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	await _frames(5)
+	_check("edge marker remains enclosed at 720p", marker.get_viewport_rect().encloses(marker.marker_rect()))
+	await _shot("19_behind_edge_1280x720")
+	player.aim_at(point.global_position + Vector3.UP * 2.0)
+	var swings := 0
+	while not point.is_captured() and swings < 20:
+		await _tap("hammer")
+		await get_tree().create_timer(1.0).timeout
+		swings += 1
+	await _frames(3)
+	_check("flag hides the capture marker and reveals the pedestal", point.is_captured()
+		and not marker.visible and pedestal_marker.visible and is_instance_valid(director.buff_pedestal))
+	await get_tree().create_timer(0.3).timeout
+	if is_instance_valid(director.buff_pedestal):
+		player.global_position = director.buff_pedestal.global_position + Vector3(0.0, 0.0, 2.1)
+		player.aim_at(director.buff_pedestal.global_position + Vector3.UP * 1.3)
+		await _frames(3)
+		_check("nearby F marker highlights within interaction range", pedestal_marker.highlighted)
+		await _shot("20_pedestal_F_1280x720")
+		director.set_physics_process(true)
+		await _tap("interact")
+		_check("F opens the real reward choice", is_instance_valid(director.selection)
+			and director.selection_context == "clear")
+	get_tree().paused = false
+	scene.queue_free()
+	await _frames(2)
+	RunState.start_fixture(RunFixture.by_id("FX-002"))
+	var boss_scene: Node = load("res://maps/boss.tscn").instantiate()
+	add_child(boss_scene)
+	var boss := boss_scene.get_node("Boss") as Enemy
+	var boss_player := boss_scene.get_node("Player") as Player
+	var boss_hud := boss_scene.get_node("HUD") as CanvasLayer
+	var boss_health := boss_hud.get_node("BossHealth") as BossHealth
+	var boss_marker := boss_hud.get_node("WorldMarkers/Boss") as WorldMarker
+	boss_player.set_process(false)
+	boss_player.set_physics_process(false)
+	for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
+		enemy.set_process(false)
+		enemy.set_physics_process(false)
+	boss_player.global_position = boss.global_position + Vector3(0.0, 0.0, 14.0)
+	boss_player.aim_at(boss.global_position + Vector3.UP * 2.0)
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	await _frames(5)
+	_check("boss starts with red marker and 900 / 900", boss_marker.visible
+		and boss_marker.marker_color == HudStyle.WARNING and boss_health.health_text == "900 / 900")
+	var core_marker := boss_hud.get_node("WorldMarkers/Capture") as WorldMarker
+	_check("aligned boss and core markers do not overlap", not core_marker.marker_rect().intersects(boss_marker.marker_rect()))
+	await _shot("21_boss_full_1920x1080")
+	boss_health.set_process(false)
+	boss.health.apply_damage(42.0, Hitbox.BodyPart.BODY)
+	_check("boss damage immediately leaves a white trail", boss_health.health_text == "858 / 900"
+		and boss_health.delayed_health == 900.0)
+	await _shot("22_boss_trail_1920x1080")
+	boss_health.set_process(true)
+	await get_tree().create_timer(1.2).timeout
+	_check("boss white trail naturally settles", is_equal_approx(boss_health.delayed_health, 858.0))
+	boss.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	await _frames(5)
+	_check("dead boss turns grey and loses its target marker", boss_health.fallen
+		and boss_health.health_text == "已倒下" and not boss_marker.visible
+		and boss_health.fill_color == CapturePoint.COLOR_LOCKED)
+	await _shot("23_boss_fallen_1280x720")
+	boss_scene.queue_free()
+	await _frames(2)
+	await get_tree().create_timer(0.15).timeout
 
 
 func _tap(action: String) -> void:

@@ -18,11 +18,9 @@ var _director: ZoneDirector
 @onready var _melee_slot: AbilitySlot = $AbilityBar/Melee
 @onready var _audio: AudioStreamPlayer = $HitAudio
 @onready var _damage_flash: ColorRect = $DamageFlash
-@onready var _zone_label: Label = $Top/Zone
-@onready var _objective_label: Label = $Top/Objective
-@onready var _capture_bar: ProgressBar = $Top/Capture
-@onready var _boss_label: Label = $Top/BossLabel
-@onready var _boss_bar: ProgressBar = $Top/BossBar
+@onready var _objectives: ObjectivePanel = $Top
+@onready var _boss_health: BossHealth = $BossHealth
+@onready var _markers: Control = $WorldMarkers
 @onready var _buffs_label: Label = $Buffs
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
@@ -41,21 +39,15 @@ func _ready() -> void:
 	_melee_slot.setup(_player)
 
 	_director = get_tree().get_first_node_in_group("zone_director") as ZoneDirector
-	_zone_label.text = "战区 %d / %d" % [_director.zone_index + 1, RunState.ZONE_SCENES.size()]
-	_director.objective_changed.connect(_on_objective_changed)
-	_director.phase_changed.connect(_on_phase_changed)
-	_director.enemies_changed.connect(_on_enemies_changed)
+	_objectives.setup(_director)
+	_boss_health.setup(_director.boss if _director.is_boss_zone else null)
+	for kind in WorldMarker.Kind.values():
+		var marker := WorldMarker.new()
+		marker.name = ["Capture", "Pedestal", "Boss"][kind]
+		_markers.add_child(marker)
+		marker.setup(kind, _director, _player)
 	_strike_bar.setup(_director.capture_point)
 	_debug.setup(_director)
-	_director.capture_point.progress_changed.connect(func(p: float): _capture_bar.value = p * 100.0)
-	_objective_label.text = _director.objective
-	_on_enemies_changed(_director.enemies_total, _director.enemies_total)
-	_on_phase_changed(_director.phase)
-	if _director.boss != null:
-		_director.boss.health.damaged.connect(func(_amount, _part, _source): _refresh_boss())
-		_boss_label.visible = true
-		_boss_bar.visible = true
-		_refresh_boss()
 	RunState.changed.connect(_refresh_buffs)
 	_refresh_buffs()
 	_refresh_combat_feedback()
@@ -64,6 +56,9 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
+	for marker: WorldMarker in _markers.get_children():
+		marker.refresh()
+	(_markers.get_node("Capture") as WorldMarker).avoid(_markers.get_node("Boss") as WorldMarker)
 	_refresh_combat_feedback()
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
@@ -100,27 +95,6 @@ func _on_hit_landed(headshot: bool, killed: bool) -> void:
 func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:
 	var tween := create_tween()
 	tween.tween_property(_damage_flash, "color:a", 0.0, 0.4).from(clampf(amount / 40.0, 0.15, 0.45))
-
-
-func _refresh_boss() -> void:
-	var health := _director.boss.health
-	_boss_bar.max_value = health.max_health
-	_boss_bar.value = health.health
-	_boss_label.text = "Boss 已倒下" if health.is_dead() \
-			else "Boss  %d / %d" % [ceili(health.health), ceili(health.max_health)]
-
-
-func _on_enemies_changed(alive: int, total: int) -> void:
-	if alive > 0 and _director.phase == ZoneDirector.Phase.CLEAR_GUARDS:
-		_objective_label.text = "消灭所有敌人（剩余 %d / %d）" % [alive, total]
-
-
-func _on_objective_changed(text: String) -> void:
-	_objective_label.text = text
-
-
-func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
-	_capture_bar.visible = phase == ZoneDirector.Phase.HAMMER_POINT or phase == ZoneDirector.Phase.FLAG_PLANTED
 
 
 func _refresh_buffs() -> void:

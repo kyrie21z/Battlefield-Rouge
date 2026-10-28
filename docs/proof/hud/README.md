@@ -1,4 +1,4 @@
-# HUD 图形化第一步取证
+# HUD 图形化第一、二步取证
 
 2026-10-28，Godot 4.7.2 stable，Windows 原生窗口，Forward+ / Vulkan，RTX 4060 Laptop GPU。
 
@@ -21,7 +21,7 @@ P="$(wslpath -w "$PWD")"
 
 除标注外均为 1920×1080。每张已逐一打开检查，HUD 面板、数字、图标和按键之间无重叠或出界；开局弹窗已关闭。
 
-截图由 `save_jpg(path, 0.85)` 直接输出，15 张约 1.5MB，旧 PNG 已删除。修整后 Vitals 为 340×88、生命条高 44；枪械小格为 92×50，便于辨认剪影。G/V 使用深色背景和逻辑字号 22，在 1280×720 下约为 14.7px。本次重新运行原生 proof 和 67 项 HUD 回归，均通过且无退出错误，日志为 `a_proof.log`、`a_hud_test.log`。
+截图由 `save_jpg(path, 0.85)` 直接输出，旧 PNG 已删除。Vitals 为 340×88、生命条高 44，枪械小格为 92×50；G/V 使用深色背景和逻辑字号 22，在 1280×720 下约为 14.7px。A 提交时（`fe81ca0`），原生 proof 和 67 项 HUD 回归均通过且无退出错误，日志为 `a_proof.log`、`a_hud_test.log`。本目录截图已随 B 全部重新生成，包含新目标面板及标记。
 
 | 文件 | 展示内容 |
 | --- | --- |
@@ -49,20 +49,41 @@ P="$(wslpath -w "$PWD")"
 - R 开始并完成换弹；换弹中滚轮切枪会隐藏进度条，切回仍只有原来的 4 发，不会自动补满。
 - G 从就绪进入生效，生命上方出现细条；到期进入冷却，冷却结束恢复就绪。V 短时亮起弹反描边，窗口结束后熄灭。
 - 实际 `Health.apply_damage()` 后生命变为 22，白条先保留再自然回落；回血后数字和分段条恢复。
-- 保留原有顶部目标、增益文字、准星和紫色护盾覆盖层；没有增加场景目标标记、Boss 新血条或增益图标栏。
+- 增益文字列表、准星、StrikeBar 和紫色护盾覆盖层保持不变；第二步替换目标布局和 Boss 血条，并增加场景目标标记，没有增加增益图标栏。
 
-## 自动回归
+## 第二步：目标标记与 Boss
+
+目标面板固定在左上侧 `(32,326)`，尺寸 380×176，位于未改动的 `$Buffs` 预留矩形下方；从上到下依次是「战区 1/3」小标签、阶段图标与短目标句、剩余敌人「图标 ×N」，以及沿用 `director.objective` 的小字副标题。不再使用居中的大字和全局捕获进度条。Boss 血条为顶部居中的 640×76 面板。两种血条共用 `HealthTrail` 的 0.4 秒保留和每秒 120 HP 回落逻辑。
+
+| 文件 | 展示内容 |
+| --- | --- |
+| [16_clear_guards_1920x1080.jpg](16_clear_guards_1920x1080.jpg) | 阶段图标、战区、守卫数量；弱灰色据点菱形与相机距离；副标题「消灭所有敌人」。 |
+| [17_hammer_ring_1920x1080.jpg](17_hammer_ring_1920x1080.jpg) | 真实 E 锤击推进蓝色外环；原 StrikeBar 仍显示节奏和打击反馈；副标题「前往据点，按 E 挥锤砸点」。 |
+| [18_behind_edge_1920x1080.jpg](18_behind_edge_1920x1080.jpg) | 转身背对据点，菱形与方向箭头夹在屏幕安全边缘。 |
+| [19_behind_edge_1280x720.jpg](19_behind_edge_1280x720.jpg) | 同一背后目标在 720p 下仍完整显示。 |
+| [20_pedestal_F_1280x720.jpg](20_pedestal_F_1280x720.jpg) | 插旗后据点标记隐藏；增益台绿色 F 菱形在范围内高亮。 |
+| [21_boss_full_1920x1080.jpg](21_boss_full_1920x1080.jpg) | Boss 900/900、红色目标、副标题「打倒 Boss」；同方向核心标记移开并用细线关联投影点。 |
+| [22_boss_trail_1920x1080.jpg](22_boss_trail_1920x1080.jpg) | 42 点实际伤害后 858/900，白条保留损失部分。 |
+| [23_boss_fallen_1280x720.jpg](23_boss_fallen_1280x720.jpg) | 已倒下灰态、Boss 标记隐藏，核心开启，任务切换为锤击据点，副标题「砸碎城市核心，按 E」。 |
+
+16–20 用伤害 API 清除守卫、冻结 AI，再以真实 E 输入逐次砸完建筑；F 实际打开通关增益选卡。21–23 载入真实 Boss 地图，通过伤害 API 驱动血条；22 仅冻结血条计时以捕获短暂白条，随后恢复逐帧处理并确认自然回落。站位和朝向由取证脚本布置，不声称是手工走位或实弹击杀。
+
+画面检查发现并修正了同方向 Boss/核心标记重叠和距离文字压到准星的问题。首轮取证把玩家放在小关锤击范围外（3.6 米），已改到 3 米；没有修改战斗范围来让取证通过。增益台原有的世界文字仍保留，靠近时会比新 F 菱形大。标记距离取相机到目标原点的三维距离并四舍五入，交互判定仍使用玩家位置，故范围内可能显示“3米”。
+
+`hud_test` 的 F 交互边界检查放在距离 2.39 米处，而不是名义上的 2.4 米：`Vector3.RIGHT * 2.4` 在 float32 下实际是 2.4000001 米，会正确落在 `<= 2.4` 范围外；这是测试卡得过紧，不是交互范围的问题。
+
+## 自动回归（第一、二步）
 
 导入完成，无导入错误。全部 12 个 `tests/*_test.tscn` 进程退出码均为 0、断言均通过；退出资源提示单独记录，不将日志描述为全部无错误。
 
 | 场景 | 断言结果 |
 | --- | --- |
-| `boss_test` | `ALL PASSED (0 failed)` |
+| `boss_test` | `ALL PASSED (62 checks, 0 failed)` |
 | `buff_run_test` | `ALL PASSED (0 failed)` |
 | `capture_hammer_test` | `ALL PASSED (0 failed)` |
 | `combat_traits_test` | `COMBAT TRAITS: ALL PASSED (0 failed)` |
 | `fixture_test` | `ALL PASSED (0 failed)` |
-| `hud_test` | 67 项，`ALL PASSED (0 failed)`，最终日志无退出资源提示 |
+| `hud_test` | 242 项，`ALL PASSED (0 failed)`，最终日志无退出资源提示 |
 | `melee_test` | `ALL PASSED (0 failed)` |
 | `reflected_round_test` | `REFLECTED ROUND: ALL PASSED (0 failed)` |
 | `reinforcement_test` | `ALL PASSED (0 failed)` |

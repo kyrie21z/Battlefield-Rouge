@@ -9,7 +9,7 @@ var _bindings := {
 	"move_left": [_key(KEY_A)],
 	"move_right": [_key(KEY_D)],
 	"jump": [_key(KEY_SPACE)],
-	"sprint": [_key(KEY_SHIFT)],
+	"dash": [_key(KEY_SHIFT)],
 	"fire": [_mouse(MOUSE_BUTTON_LEFT)],
 	"aim": [_mouse(MOUSE_BUTTON_RIGHT)],
 	"reload": [_key(KEY_R)],

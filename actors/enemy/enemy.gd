@@ -1,11 +1,13 @@
 class_name Enemy
 extends CharacterBody3D
 ## Soldier AI, simplified from origin/sheji/characters/bots/bot.gd.
-## Idles until it sees or hears the player or is shot, then chases, fights in
-## short bursts and falls back to cover when hurt. The zone director calls
-## setup() with the target and cover points; the enemy never looks them up.
+## Idles until it sees or hears the player or is shot, then looks for a firing
+## position with a clear shot, fights in short bursts and falls back to cover
+## when hurt. The zone director calls setup() with the target, cover points and
+## the zone's firing position board; the enemy never looks them up.
 
-enum State { IDLE, CHASE, ENGAGE, COVER, DEAD, FLEE }
+## SEEK is after FLEE so the older state numbers stay put.
+enum State { IDLE, CHASE, ENGAGE, COVER, DEAD, FLEE, SEEK }
 
 const AIM_HEIGHT := 1.3
 
@@ -34,6 +36,34 @@ const AIM_HEIGHT := 1.3
 @export var moving_target_penalty := 1.6
 @export var damage_min := 8.0
 @export var damage_max := 12.0
+## Closer than this the enemy backs off to a firing position instead of firing.
+@export var min_engage_distance := 6.0
+
+@export_category("Firing position")
+## Minimum seconds between two position searches, so a failed search cannot
+## run every frame.
+@export var seek_interval := 0.5
+## How long the target may stay out of sight before the enemy repositions.
+@export var seek_lost_sight_delay := 0.5
+@export var seek_min_player_distance := 8.0
+@export var seek_max_player_distance := 20.0
+## Ring samples around the player: this many fixed directions, at these radii.
+@export var seek_ring_directions := 12
+@export var seek_ring_radii := PackedFloat32Array([8.0, 20.0])
+## Upper bound on line-of-sight rays per search.
+@export var seek_max_rays := 32
+## A candidate farther than this from the navigation mesh is not reachable.
+@export var seek_nav_snap := 1.5
+## Close enough to the picked spot to start fighting from it.
+@export var seek_arrive_distance := 0.6
+## Walking to a spot for this long without arriving falls back to chasing.
+@export var seek_timeout := 8.0
+## Another enemy's reserved spot this close counts as taken.
+@export var seek_spacing := 3.5
+## Score discount for standing next to cover. Lower score wins.
+@export var seek_cover_bonus := 6.0
+## Cover this close to a candidate counts as cover for it.
+@export var seek_cover_near := 2.0
 
 @export_category("Movement")
 @export var run_speed := 4.6
@@ -61,6 +91,8 @@ var team := 1
 var state := State.IDLE
 var target: CharacterBody3D
 var cover_points: Array[CoverPoint] = []
+## Spot this enemy picked and reserved, Vector3.INF when it has none.
+var firing_position := Vector3.INF
 
 var _last_known := Vector3.ZERO
 var _sees_target := false
@@ -75,6 +107,12 @@ var _strafe_dir := 1.0
 var _strafe_left := 0.0
 var _hitbox_rids: Array[RID] = []
 var _gunshot: AudioStreamWAV
+var _firing_board: FiringPositionBoard
+var _seek_center := Vector3.ZERO
+var _seek_goal := Vector3.ZERO
+var _seek_elapsed := 0.0
+var _seek_retry := 0.0
+var _sight_lost := 0.0
 ## Knockback from a melee hit. Overrides the AI's own steering while it lasts.
 var _impact_velocity := Vector3.ZERO
 var _impact_left := 0.0
@@ -114,6 +152,7 @@ func _ready() -> void:
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	Events.gunshot.connect(_on_gunshot)
+	Events.hammer_struck.connect(_on_hammer_struck)
 	_anim.play("Idle")
 
 
@@ -133,9 +172,20 @@ func _swap_model() -> void:
 	_anim = model.get_node("AnimationPlayer")
 
 
-func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint]) -> void:
+func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint],
+		p_firing_board: FiringPositionBoard = null) -> void:
 	target = p_target
 	cover_points = p_cover_points
+	_firing_board = p_firing_board
+
+
+## A reinforcement that spawns in already knows where the player is (issue
+## #40): skip the idle watch and look for a firing position at once.
+func begin_hunt() -> void:
+	if state == State.DEAD or state == State.FLEE or target == null:
+		return
+	_last_known = target.global_position
+	_start_seek(_last_known)
 
 
 ## Stop attacking and run to `goal` along the navmesh. Reaching it, or running
@@ -145,6 +195,7 @@ func begin_retreat(goal: Vector3, timeout: float) -> void:
 	if state == State.DEAD or state == State.FLEE:
 		return
 	_leave_cover()
+	_release_firing_position()
 	_impact_left = 0.0
 	_impact_velocity = Vector3.ZERO
 	_shots_left = 0
@@ -186,6 +237,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
+	_seek_retry = maxf(_seek_retry - delta, 0.0)
 	_sight_timer -= delta
 	if _sight_timer <= 0.0:
 		_sight_timer = 0.1
@@ -200,9 +252,11 @@ func _physics_process(delta: float) -> void:
 			_move_to(_last_known, run_speed)
 			if _sees_target and _distance_to_target() <= engage_range:
 				_enter_engage()
-			elif _agent.is_navigation_finished() and not _sees_target:
-				state = State.IDLE
+			elif _agent.is_navigation_finished() and not _sees_target and _seek_retry <= 0.0:
+				_start_seek(_last_known)
 			_face(_agent.get_next_path_position() - global_position, delta)
+		State.SEEK:
+			_process_seek(delta)
 		State.ENGAGE:
 			_process_engage(delta)
 		State.COVER:
@@ -231,11 +285,46 @@ func _depart() -> void:
 	queue_free()
 
 
+func _process_seek(delta: float) -> void:
+	_seek_elapsed += delta
+	var flat := Vector2(global_position.x - _seek_goal.x, global_position.z - _seek_goal.z).length()
+	if flat <= seek_arrive_distance:
+		_stop()
+		_face(_seek_center - global_position, delta)
+		if _sees_target:
+			_enter_engage()
+			return
+		_sight_lost += delta
+		if _sight_lost >= seek_lost_sight_delay and _seek_retry <= 0.0:
+			_start_seek(_last_known)
+		return
+	if _seek_elapsed >= seek_timeout:
+		_alert(target.global_position)
+		return
+	_move_to(_seek_goal, run_speed)
+	_face(_agent.get_next_path_position() - global_position, delta)
+
+
 func _process_engage(delta: float) -> void:
-	if not _sees_target or _distance_to_target() > engage_range * 1.2:
+	var sees := _sees_target
+	if sees:
+		_sight_lost = 0.0
+	else:
+		_sight_lost += delta
+	var distance := _distance_to_target()
+	if distance > engage_range * 1.2:
+		_release_firing_position()
 		state = State.CHASE
 		return
-	_face(target.global_position - global_position, delta)
+	# A rifle should not be fired from arm's length: back off to a firing spot.
+	if distance < min_engage_distance:
+		_start_seek(_last_known)
+		return
+	if not sees and _sight_lost >= seek_lost_sight_delay:
+		_start_seek(_last_known)
+		return
+	var aim := _target_point() if sees else _last_known + Vector3.UP * AIM_HEIGHT
+	_face(aim - global_position, delta)
 
 	# Short sidesteps between pauses, so the enemy is not a fixed target.
 	_strafe_left -= delta
@@ -247,7 +336,7 @@ func _process_engage(delta: float) -> void:
 	velocity.z = side.z
 
 	_react_left -= delta
-	if _react_left > 0.0:
+	if _react_left > 0.0 or not sees:
 		return
 	_shot_timer -= delta
 	if _shot_timer > 0.0:
@@ -295,12 +384,98 @@ func _update_sight() -> void:
 func _alert(position: Vector3) -> void:
 	_last_known = position
 	_react_left = reaction_time
+	_release_firing_position()
 	state = State.CHASE
 
 
 func _enter_engage() -> void:
 	state = State.ENGAGE
+	_sight_lost = 0.0
 	_react_left = maxf(_react_left, reaction_time * 0.5)
+
+
+## Pick a reachable spot with a clear shot at `center` and reserve it.
+## Returns false and falls back to chasing when no candidate passes.
+func _start_seek(center: Vector3) -> bool:
+	if state == State.DEAD or state == State.FLEE or target == null:
+		return false
+	_leave_cover()
+	_release_firing_position()
+	_seek_center = center
+	_seek_goal = center
+	_seek_elapsed = 0.0
+	_sight_lost = 0.0
+	_seek_retry = seek_interval
+	if not _find_firing_position():
+		_alert(target.global_position)
+		return false
+	state = State.SEEK
+	return true
+
+
+## Candidates: the zone's cover points, then a fixed-direction ring around the
+## target. No random numbers, so the same battlefield picks the same spot.
+func _find_firing_position() -> bool:
+	var aim := _seek_center + Vector3.UP * AIM_HEIGHT
+	var best := Vector3.INF
+	var best_score := INF
+	var rays := 0
+	for candidate in _candidate_positions():
+		if rays >= seek_max_rays:
+			break
+		var point := NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map, candidate)
+		if point.distance_to(candidate) > seek_nav_snap:
+			continue
+		var player_gap := Vector2(point.x - _seek_center.x, point.z - _seek_center.z).length()
+		if player_gap < seek_min_player_distance or player_gap > seek_max_player_distance:
+			continue
+		if _firing_board != null and _firing_board.is_taken(point, seek_spacing, self):
+			continue
+		var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * eye_height, aim, CollisionLayers.WORLD)
+		rays += 1
+		if not get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+			continue
+		var score := Vector2(point.x - global_position.x, point.z - global_position.z).length()
+		if _cover_near(point):
+			score -= seek_cover_bonus
+		if score < best_score:
+			best = point
+			best_score = score
+	if best == Vector3.INF:
+		return false
+	_seek_goal = best
+	firing_position = best
+	if _firing_board != null:
+		_firing_board.claim(self, best)
+	return true
+
+
+func _candidate_positions() -> Array[Vector3]:
+	var points: Array[Vector3] = []
+	for cover in cover_points:
+		if is_instance_valid(cover):
+			points.append(cover.global_position)
+	var directions := maxi(seek_ring_directions, 1)
+	for radius in seek_ring_radii:
+		for index in directions:
+			var angle := TAU * float(index) / float(directions)
+			points.append(_seek_center + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius))
+	return points
+
+
+func _cover_near(point: Vector3) -> bool:
+	for cover in cover_points:
+		if not is_instance_valid(cover):
+			continue
+		if Vector2(cover.global_position.x - point.x, cover.global_position.z - point.z).length() <= seek_cover_near:
+			return true
+	return false
+
+
+func _release_firing_position() -> void:
+	if _firing_board != null:
+		_firing_board.release(self)
+	firing_position = Vector3.INF
 
 
 func _fire_shot() -> void:
@@ -337,6 +512,7 @@ func _try_take_cover() -> bool:
 		best_distance = distance
 	if best == null:
 		return false
+	_release_firing_position()
 	_cover = best
 	_cover.occupant = self
 	_cover_left = cover_time
@@ -374,8 +550,15 @@ func _on_gunshot(position: Vector3) -> void:
 		_alert(position)
 
 
+## Hammering the capture point is a noise like a gunshot (issue #40).
+func _on_hammer_struck(position: Vector3) -> void:
+	if state == State.IDLE and global_position.distance_to(position) <= hearing_range:
+		_alert(position)
+
+
 func _on_died(_source: Node) -> void:
 	_leave_cover()
+	_release_firing_position()
 	state = State.DEAD
 	velocity = Vector3.ZERO
 	collision_layer = 0
@@ -415,7 +598,7 @@ func _update_animation() -> void:
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.3
 	var anim := "Idle"
 	match state:
-		State.CHASE:
+		State.CHASE, State.SEEK:
 			anim = "Run_Gun" if moving else "Idle"
 		State.ENGAGE:
 			anim = "Walk_Shoot" if moving else "Idle_Shoot"

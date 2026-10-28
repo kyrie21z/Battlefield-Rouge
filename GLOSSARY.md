@@ -47,11 +47,15 @@
 | 选择历史 | `RunState.selection_history` | 关卡、enter/clear、卡片 id 和名称。完整获胜是开局进一、过一、过二，共三条。小关 2 和 Boss 进场不选。（原为进一、过一、进二、过二、进 Boss，共五条。） |
 | 刀具增益 | `Stats.MELEE_DAMAGE` / `MELEE_SPEED` / `MELEE_RANGE` | 叠在当前 `MeleeWeapon` 上。基数都是 1，没选刀具卡时三把近战保持 `.tres` 原值。 |
 | 主动护盾 | `PlayerShield`，`shield` 动作（G） | 任意技能卡解锁，基础 1 秒无敌，结束后冷却 8 秒；紫色反馈。Q 是切近战。F 是 `interact`，小关插旗后在增益台读取。 |
+| 冲刺 | `PlayerDash`，`dash` 动作（Shift） | 沿面朝方向（含俯仰）冲 5 米：无输入时取镜头前方，有输入时在镜头基下合成方向并归一化，A/D 仍沿水平轴。持续 0.18 秒；速度 = 距离 ÷ 持续时间，冲刺期间接管完整 `velocity`（含 y，不受重力），结束时交还水平走路速度并把 `velocity.y` 归零。2 格充能，每 1.5 秒按顺序回 1 格，HUD 左下的两个小格显示剩余与回充进度。空中每次离地只能冲 1 次，落地恢复。冲刺期间 `Health.dash_invulnerable` 提供 0.18 秒无敌；它和护盾的 `invulnerable` 分开记，所以两者同时生效时互不覆盖。冲刺打断开镜，不打断换弹；视野短暂外扩后回落，死亡时取消。 |
 | 三张核心卡 | `CombatTraits` | 危险弹匣为空仓换弹完成后储存一枚、C 主动投掷；子弹收藏家为挥刀弹反、下次开枪释放收藏；反击护盾为挡伤后到期在 7 米内固定反击。详见当前九增益说明。 |
+| 危险弹匣 | `CombatTraits`，`ReloadCharge`，`throw_magazine` 动作（C） | 对应增益解锁；成功完成空仓换弹后最多储存一枚，持有不计引信。切枪保留已储存枚，取消换弹不发放；C 投出时消耗库存并读取当前 Stats。投速 24 米/秒，投出后引信 1.5 秒；每层在 1 米内造成 120 伤害，向 3.5 米边缘衰减至 60，墙体阻挡。死亡或换关清除临时库存。 |
+| 能力槽 | `AbilityBar`，`AbilitySlot` | 图形 HUD 右下方的 G 护盾、V 近战、C 弹匣方槽。C 无增益时锁定，有增益但未储存时暗态 `0/1`，储存后亮态 `1/1`，投出回暗态；不在护盾槽重复画危险弹匣角标。 |
 | 数值 | `Stats` | 基础数值加上增益修正。新的 9 条也只走这里。 |
 | 战区控制 | `ZoneDirector` | 管阶段、开放据点、增援、冲击波、增益台、弹出选择或结算、切场景。 |
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
-| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
+| 射击位 | `Enemy.State.SEEK`，`Enemy.firing_position`，`FiringPositionBoard` | 交火时站的、能看到玩家的位置。候选是现有掩体点加玩家周围固定方向的两圈采样点（8 / 20 米），只保留导航可达、从眼睛高度到玩家不被世界挡住的点；离自己近的优先，挨着掩体减分。多个敌人共用一个 `FiringPositionBoard`，3.5 米内别人已订的点不再选。走到后进入交火；看不见玩家 0.5 秒或离玩家近于 6 米就重找。找不到才退回朝玩家追。增援出生即寻位，不抽随机数。 |
+| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
 
 ## 设计目标（Cut-001b）
 
@@ -66,6 +70,6 @@
 | 九条增益 | `BuffPool.ALL` | 每派 3 条，共 9 条，图标不同（AC-08）；当前效果为可调试玩默认，非最终平衡锁定。 |
 | 进关选择 | `ZoneDirector._offer_buff("enter")` | 只在一局第一关（`RunState.zone_index == 0`）开打前选 1 条。小关 2 和 Boss 进场不选。按是不是一局的第一关判断，不按 fixture 起点（AC-04）。 |
 | 关末再选 | `ZoneDirector._offer_buff("clear")`，`BuffPedestal` | 两个小关插旗后，到旗旁增益台按 F 才各选 1 条，本局叠加；Boss 结束后不选（AC-04）。 |
-| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）加周围 6 个小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
+| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和 4 名放在前沿 / 中段的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |

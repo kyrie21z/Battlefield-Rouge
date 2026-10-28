@@ -5,6 +5,7 @@ extends Node
 var _out := "res://docs/proof/active-buffs"
 var _checks := 0
 var _failures := 0
+const MAX_JPEG_BYTES := 300000
 
 
 func _ready() -> void:
@@ -21,13 +22,14 @@ func _ready() -> void:
 		push_error("Cannot create visual proof output directory")
 		get_tree().quit(1)
 		return
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	await _run()
 	print("ACTIVE MAGAZINE VISUAL: %d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(0 if _failures == 0 else 1)
 
 
 func _run() -> void:
-	RunState.start_new_run()
+	RunState.start_fixture(RunFixture.by_id("FX-001"))
 	BuffPool.reset(40408)
 	var scene: Node = load(RunState.zone_scene()).instantiate()
 	scene.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -36,10 +38,17 @@ func _run() -> void:
 	var player := scene.get_node("Player") as Player
 	(director.selection.get_node("Center/Box/Choices").get_child(0) as Button).pressed.emit()
 	await get_tree().process_frame
+	# Isolate the three C states after the real entry choice closes. The card
+	# is granted below through the same Stats/event path used by the fixtures.
+	player.stats.clear_buffs()
+	RunState.start_fixture(RunFixture.by_id("FX-001"))
 	player.set_physics_process(false)
 	player.set_process(false)
 	player.global_position = Vector3(60, 0, 0)
+	player.aim_at(Vector3(60, 1.6, -23))
 	_add_lane(scene)
+	var hud := scene.get_node("HUD") as CanvasLayer
+	var magazine_slot := hud.get_node("AbilityBar/Magazine") as AbilitySlot
 	var guards := get_tree().get_nodes_in_group("enemy")
 	for index in guards.size():
 		var enemy := guards[index] as Enemy
@@ -49,6 +58,16 @@ func _run() -> void:
 		enemy.health.health = 1000.0
 	for frame in 4:
 		await get_tree().physics_frame
+	await _frames(2)
+	_check("C slot is locked before receiving the perk", magazine_slot.locked
+		and not magazine_slot.slot_ready and magazine_slot.count_text.is_empty())
+	await _shot("magazine-01-C-locked")
+	Events.buff_chosen.emit(BuffPool.ALL[0])
+	player.stats.apply_buff(BuffPool.ALL[0])
+	await _frames(2)
+	_check("unlocked C slot is dim and reads 0/1", not magazine_slot.locked
+		and not magazine_slot.slot_ready and magazine_slot.count_text == "0/1")
+	await _shot("magazine-02-C-empty")
 	var thrown: Array[Node3D] = []
 	player.combat_traits.reload_charge_thrown.connect(func(value: Node3D): thrown.append(value))
 	player.weapon.ammo = 0
@@ -59,7 +78,14 @@ func _run() -> void:
 	_check("completed empty reload leaves one held magazine", player.combat_traits.has_reload_charge() and thrown.is_empty())
 	await get_tree().create_timer(ReloadCharge.FUSE_TIME + 0.1).timeout
 	_check("waiting in hand does not start the fuse", player.combat_traits.has_reload_charge() and thrown.is_empty())
-	await _shot("magazine-01-held-C-ready")
+	_check("stored C slot lights up and reads 1/1", not magazine_slot.locked
+		and magazine_slot.slot_ready and magazine_slot.count_text == "1/1")
+	await _shot("magazine-03-C-ready")
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	await _frames(5)
+	_check("C ready state survives the 720p layout", magazine_slot.slot_ready
+		and magazine_slot.count_text == "1/1")
+	await _shot("magazine-04-C-ready-720p")
 	var launch := player.global_position
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# Inject before the process callbacks, not at the preceding frame's draw
@@ -79,6 +105,8 @@ func _run() -> void:
 	Input.flush_buffered_events()
 	await get_tree().process_frame
 	_check("physical C launches one held magazine", thrown.size() == 1 and not player.combat_traits.has_reload_charge())
+	_check("physical C returns the graphical slot to dim 0/1", not magazine_slot.slot_ready
+		and magazine_slot.count_text == "0/1")
 	if thrown.is_empty():
 		scene.queue_free()
 		return
@@ -91,17 +119,15 @@ func _run() -> void:
 	)
 	await get_tree().create_timer(0.55).timeout
 	_check("charge is visibly travelling down the distant lane", is_instance_valid(charge) and charge.global_position.z < -12.0)
-	await _shot("magazine-02-distant-flight")
 	if is_instance_valid(charge) and not charge.exploded_once:
 		await charge.exploded
 	await get_tree().create_timer(0.05).timeout
-	await _shot("magazine-03-distant-impact")
+	await _shot("magazine-05-distant-impact")
 	var distance := launch.distance_to(state["point"] as Vector3)
 	_check("real explosion damages enemies at least 18m away", int(state["hits"]) > 0 and distance >= 18.0)
 	_check("the stronger explosion deals at least 60 damage to a distant enemy", guards.any(func(enemy: Enemy): return enemy.health.health <= 940.0))
 	print("VISUAL THROW: %.2f m; actual targets=%d" % [distance, state["hits"]])
 	await get_tree().create_timer(0.9).timeout
-	await _shot("magazine-04-clear-view")
 	_check("explosion automatically recycles", not is_instance_valid(state["effect"]))
 	get_tree().paused = false
 	scene.queue_free()
@@ -148,9 +174,23 @@ func _add_lane(parent: Node) -> void:
 
 func _shot(file_name: String) -> void:
 	await RenderingServer.frame_post_draw
-	var path := _out.path_join(file_name + ".png")
-	_check("saved " + file_name, get_viewport().get_texture().get_image().save_png(path) == OK)
-	print("SCREENSHOT " + path)
+	var frame := get_viewport().get_texture().get_image()
+	var path := _out.path_join(file_name + ".jpg")
+	var quality := 0.82
+	var result := frame.save_jpg(path, quality)
+	var byte_count := FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	while result == OK and byte_count > MAX_JPEG_BYTES and quality > 0.56:
+		quality -= 0.05
+		result = frame.save_jpg(path, quality)
+		byte_count = FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	_check("saved " + file_name + " as JPEG under 300 KB", result == OK
+		and byte_count > 0 and byte_count <= MAX_JPEG_BYTES)
+	print("SCREENSHOT %s (%s, %d bytes, quality %.2f)" % [path, frame.get_size(), byte_count, quality])
+
+
+func _frames(count: int) -> void:
+	for frame in count:
+		await get_tree().process_frame
 
 
 func _check(label: String, ok: bool) -> void:

@@ -8,14 +8,39 @@ A layout with `boss` adds one big enemy there; `enemies` are then the small ones
 around it. A layout with `core` has a bigger objective. The core stays shut
 until the boss dies, and one hammer then finishes it (`boss_capture_config.tres`).
 `spawns` are rear reinforcement markers (small zones only). The boss zone has none.
+
+Enemies are `(x, z, yaw_degrees)`. The yaw is the Godot rotation around Y:
+0 faces -z, 90 faces -x, 180 faces +z. Guards are spread over three depth
+thirds (front/mid/point) so an idle guard near the spawn never has the player
+inside its 120 degree view cone: they look across or down the battlefield, not
+back at the entrance.
 """
 
 import math
 
 
+def facing(x, z, yaw_deg):
+    """Transform3D for an enemy at (x, z) turned `yaw_deg` around Y.
+
+    A Godot Y rotation of 0 faces -z and 180 faces +z; the basis is written
+    row by row, the way the .tscn format stores it.
+    """
+    r = math.radians(yaw_deg)
+    c = round(math.cos(r), 6) + 0.0
+    s = round(math.sin(r), 6) + 0.0
+    ns = 0.0 if s == 0.0 else -s
+    return f'Transform3D({c:g}, 0, {s:g}, 0, 1, 0, {ns:g}, 0, {c:g}, {x}, 0, {z})'
+
+
 def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spawns=None):
     walls = [("Floor",(60,1,60),(0,-0.5,0)),("WallN",(60,4,1),(0,2,-30)),("WallS",(60,4,1),(0,2,30)),
              ("WallE",(1,4,60),(30,2,0)),("WallW",(1,4,60),(-30,2,0))]
+    # Invisible collision above the visible walls: a pitched dash can lift the
+    # player over the 4 m rim. They sit outside the navigation group, so the
+    # baked mesh ignores them. The highest reachable spot is the 3.5 m core plus
+    # a jump and one 5 m dash, under 10 m, well below the 30 m top.
+    bounds = [("WallNHigh",(60,26,1),(0,17,-30)),("WallSHigh",(60,26,1),(0,17,30)),
+              ("WallEHigh",(1,26,60),(30,17,0)),("WallWHigh",(1,26,60),(-30,17,0))]
     boxes = walls + boxes
     # The city core of the boss zone: a bigger building with a wider hammer reach.
     size = "Vector3(4.4, 3.5, 4.4)" if core else "Vector3(2.4, 2, 2.4)"
@@ -46,6 +71,9 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
         v = 'Vector3(%s, %s, %s)' % s
         sub += [f'[sub_resource type="BoxMesh" id="Mesh_{i}"]','material = SubResource("Mat_grey")',f'size = {v}','',
                 f'[sub_resource type="BoxShape3D" id="Shape_{i}"]',f'size = {v}','']
+    for i,(n,s,p) in enumerate(bounds):
+        v = 'Vector3(%s, %s, %s)' % s
+        sub += [f'[sub_resource type="BoxShape3D" id="Shape_bound{i}"]',f'size = {v}','']
     T = lambda x,y,z: f'Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x}, {y}, {z})'
     nodes = [f'[node name="{name}" type="Node3D"]','',
              '[node name="WorldEnvironment" type="WorldEnvironment" parent="."]','environment = SubResource("Env")','',
@@ -56,6 +84,13 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
         nodes += [f'[node name="{n}" type="StaticBody3D" parent="Geometry"]',f'transform = {T(*p)}','',
                   f'[node name="Mesh" type="MeshInstance3D" parent="Geometry/{n}"]',f'mesh = SubResource("Mesh_{i}")','',
                   f'[node name="Shape" type="CollisionShape3D" parent="Geometry/{n}"]',f'shape = SubResource("Shape_{i}")','']
+    nodes += ['[node name="Boundary" type="Node3D" parent="."]','']
+    for i,(n,s,p) in enumerate(bounds):
+        # Layer 5 (CollisionLayers.BOUNDARY): the player collides with it, the
+        # WORLD|HITBOXES bullet ray does not, so shots still leave the map.
+        nodes += [f'[node name="{n}" type="StaticBody3D" parent="Boundary"]',f'transform = {T(*p)}',
+                  'collision_layer = 16','',
+                  f'[node name="Shape" type="CollisionShape3D" parent="Boundary/{n}"]',f'shape = SubResource("Shape_bound{i}")','']
     nodes += ['[node name="CoverPoints" type="Node3D" parent="."]','']
     k = 0
     for n,s,p in boxes:
@@ -73,10 +108,10 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
               '[node name="Mesh" type="MeshInstance3D" parent="CapturePoint/Objective"]','mesh = SubResource("Mesh_objective")','',
               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint/Objective"]','shape = SubResource("Shape_objective")','',
               '[node name="Player" parent="." instance=ExtResource("1_player")]',f'transform = {T(spawn[0],0,spawn[1])}','']
-    for i,(x,z) in enumerate(enemies):
-        nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {x}, 0, {z})','']
+    for i,(x,z,yaw) in enumerate(enemies):
+        nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = {facing(x, z, yaw)}','']
     if boss:
-        nodes += ['[node name="Boss" parent="." instance=ExtResource("7_boss")]',f'transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, {boss[0]}, 0, {boss[1]})','']
+        nodes += ['[node name="Boss" parent="." instance=ExtResource("7_boss")]',f'transform = {facing(*boss)}','']
     if spawns:
         nodes += ['[node name="ReinforcementSpawns" type="Node3D" parent="."]','']
         for i, (x, z) in enumerate(spawns):
@@ -95,32 +130,42 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
     out = [f'[gd_scene load_steps={nsub+len(ext)+1} format=3]',''] + ext + [''] + sub + nodes
     return "\n".join(out), k
 
-# The boss stands in front of the city core with six small enemies in a ring around it.
-BOSS_AT = (0, -19)
-RING = [(round(BOSS_AT[0] + 4 * math.cos(math.radians(a)), 2), round(BOSS_AT[1] + 4 * math.sin(math.radians(a)), 2))
-        for a in range(0, 360, 60)]
+# The boss stands in front of the city core with two escorts at its side; the
+# other four small enemies hold the front and middle of the arena.
+BOSS_AT = (0, -19, 180)
 
 # Small zones: the player enters from +z. The building sits back at z=-8, near
 # the reinforcement markers, so a spawn about 12 m behind it is a few seconds
-# of running. Guards stand around the building. The centre corridor (x near 0,
-# from the spawns up to the building) stays open. The boss layout is unchanged.
+# of running. The guards are spread over the whole run-in: the front third
+# (closest to the spawn), the middle third and around the building. Each one
+# stands beside a cover crate, and the idle ones face across the arena instead
+# of back at the entrance, so the player is outside every 120 degree view cone
+# at spawn (issue #42). The centre corridor (x near 0, from the spawns up to
+# the building) stays open.
 zones = {
+ # 4 guards: 1 front / 1 middle / 2 at the building.
  "maps/zone_1.tscn": dict(name="Zone1", grey=(0.55,0.56,0.58), spawn=(0,14), capture=(0,-8),
-   enemies=[(-6,-4),(6,-4),(-5,-12),(5,-11)],
+   enemies=[(13.5,7.2,30),(-9.5,1.5,-45),(-7,-6,-60),(7,-6,60)],
    spawns=[(-8,-21),(0,-20),(8,-21)],
    boxes=[("Cover1",(3,1.2,1),(-8,0.6,6)),("Cover2",(3,1.2,1),(8,0.6,6)),
           ("Cover3",(1,2.5,4),(-14,1.25,-8)),("Cover4",(1,2.5,4),(14,1.25,-8)),
-          ("Cover5",(3,1.2,1),(-12,0.6,-16)),("Cover6",(3,1.2,1),(12,0.6,-16))]),
+          ("Cover5",(3,1.2,1),(-12,0.6,-16)),("Cover6",(3,1.2,1),(12,0.6,-16)),
+          ("Cover7",(2,1.2,1),(13.5,0.6,5.4)),("Cover8",(2,1.2,1),(-9.5,0.6,-0.3)),
+          ("Cover9",(2,1.2,1),(-7,0.6,-4.2)),("Cover10",(2,1.2,1),(7,0.6,-4.2))]),
+ # 6 guards: 2 front / 2 middle / 2 at the building.
  "maps/zone_2.tscn": dict(name="Zone2", grey=(0.6,0.55,0.5), spawn=(0,16), capture=(0,-8),
-   enemies=[(-7,-3),(7,-3),(-5,-8),(6,-9),(-8,-13),(8,-12)],
+   enemies=[(-13.5,9,-30),(13.5,9,30),(-8.5,1.8,-45),(8.5,1.8,45),(-14,-1.5,-60),(14,-1.5,60)],
    spawns=[(-10,-21),(0,-20),(10,-21)],
    boxes=[("Cover1",(4,1.2,1),(-9,0.6,8)),("Cover2",(4,1.2,1),(9,0.6,8)),
           ("Cover3",(1,2.5,5),(-16,1.25,-2)),("Cover4",(1,2.5,5),(16,1.25,-2)),
           ("Cover5",(3,1.2,1),(-12,0.6,-14)),("Cover6",(3,1.2,1),(12,0.6,-14)),
           ("Cover7",(2,2.5,2),(-14,1.25,-18)),("Cover8",(2,2.5,2),(14,1.25,-18)),
-          ("Cover9",(3,1.2,1),(-6,0.6,2)),("Cover10",(3,1.2,1),(6,0.6,2))]),
+          ("Cover9",(3,1.2,1),(-6,0.6,2)),("Cover10",(3,1.2,1),(6,0.6,2)),
+          ("Cover11",(1.5,1.2,2),(-15.5,0.6,9)),("Cover12",(1.5,1.2,2),(15.5,0.6,9))]),
+ # 6 small enemies: 2 front / 2 middle / 2 escorts beside the boss at the core.
  "maps/boss.tscn": dict(name="Boss", grey=(0.45,0.47,0.52), spawn=(0,26), capture=(0,-26.5),
-   enemies=RING, boss=BOSS_AT, core=True,
+   enemies=[(-11,15,-45),(11,15,45),(-13,0.5,-45),(13,0.5,45),(-3.5,-22.5,-90),(3.5,-22.5,90)],
+   boss=BOSS_AT, core=True,
    boxes=[("Cover1",(4,1.2,1),(-8,0.6,16)),("Cover2",(4,1.2,1),(8,0.6,16)),
           ("Cover3",(1,2.5,5),(0,1.25,8)),
           ("Cover4",(5,1.2,1),(-12,0.6,2)),("Cover5",(5,1.2,1),(12,0.6,2)),

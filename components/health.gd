@@ -20,6 +20,9 @@ signal parried(amount: float, source: Node)
 var health := 0.0
 ## Temporary invulnerability granted by a component such as PlayerShield.
 var invulnerable := false
+## Dash immunity. Kept apart from `invulnerable` because PlayerShield rewrites
+## that flag every frame and would otherwise erase a dash's protection.
+var dash_invulnerable := false
 var parrying := false
 
 
@@ -46,7 +49,7 @@ func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null
 	if parrying and source != null:
 		parried.emit(amount, source)
 		return 0.0
-	if invulnerable:
+	if invulnerable or dash_invulnerable:
 		blocked.emit(amount, source)
 		return 0.0
 

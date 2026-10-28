@@ -11,3 +11,7 @@ const ACTORS := 1 << 1
 const ENEMIES := 1 << 2
 ## Hitbox bodies that take damage. Layer 4.
 const HITBOXES := 1 << 3
+## Invisible walls above the map rim, which only the player moves into: a
+## pitched dash can lift it over the 4 m boundary. They are not WORLD, so
+## bullets pass through instead of stopping short of the map edge. Layer 5.
+const BOUNDARY := 1 << 4

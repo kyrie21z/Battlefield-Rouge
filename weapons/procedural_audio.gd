@@ -38,6 +38,8 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _knife_swing(0.34, 0.5, 0.4, 0.2)
 		"melee_hit":
 			return _knife_hit(0.15, 0.6)
+		"dash":
+			return _knife_swing(0.24, 0.55, 0.6, 0.18)
 		"hammer_hit":
 			return _noise_burst(0.16, 22.0, 0.95, 0.07)
 		"hammer_perfect":

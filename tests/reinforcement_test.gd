@@ -75,12 +75,21 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	_check("%s spawns sit behind the building" % path.get_file(), behind)
 	var guards := _enemies(scene)
 	_check("%s guard count" % path.get_file(), guards.size() == guard_count)
-	var around := true
+	# Since issue #42 the guards are spread over the whole approach instead of
+	# ringing the building: none inside the hammer reach, but at least one close
+	# enough to defend the point and one out in the battlefield.
+	var nearest := INF
+	var farthest := 0.0
+	var clear := true
 	for enemy in guards:
 		var gap := enemy.global_position.distance_to(point.global_position)
-		if gap < 2.0 or gap > 12.0:
-			around = false
-	_check("%s guards stand around the building" % path.get_file(), around)
+		nearest = minf(nearest, gap)
+		farthest = maxf(farthest, gap)
+		if gap < 3.2:
+			clear = false
+	_check("%s guards stay out of the hammer reach (nearest %.1f m)" % [path.get_file(), nearest], clear)
+	_check("%s guards defend the point and the approach (%.1f-%.1f m)" % [
+		path.get_file(), nearest, farthest], nearest <= 16.0 and farthest > 15.0)
 	_check("%s uses the cadence resource" % path.get_file(), director.reinforcement_config != null and director.reinforcement_config.resource_path == CONFIG_PATH)
 	_check("%s has not spawned yet" % path.get_file(), director.reinforcement_spawn_log.is_empty())
 	await _close(scene)

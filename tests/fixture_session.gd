@@ -75,6 +75,13 @@ func _run() -> void:
 	if _failures > 0:
 		return
 
+	print("== the session starts every zone")
+	# `--fixture=` also asks the game to start that zone. On a test scene that
+	# would be a throwaway run before the first, warming the navigation map, so
+	# run 1 would move on its first tick while run 2 waits one tick (#39).
+	_check("no zone runs before the session starts the first",
+		get_tree().get_first_node_in_group("zone_director") == null)
+
 	print("== the seed")
 	_check("a zone seed is the same each time", _zone_seed_of(7, 1) == _zone_seed_of(7, 1))
 	_check("another seed gives another zone seed", _zone_seed_of(7, 1) != _zone_seed_of(8, 1))

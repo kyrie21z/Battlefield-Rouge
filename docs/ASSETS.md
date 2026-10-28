@@ -104,6 +104,16 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 | 枪声、换弹声、空仓声 | `weapons/procedural_audio.gd`，运行时生成 | MIT，移植自 Ironline 1944，许可证全文见 [`docs/licenses/ironline-1944-MIT.txt`](licenses/ironline-1944-MIT.txt) |
 | 准星 | `ui/crosshair.gd`，运行时绘制 | 本项目 |
 
+## HUD 武器剪影图标
+
+`assets/ui/weapons/{ak,shotgun,sniper,knife,axe,tachi}.png` 由本仓库已有武器模型用 `tools/render_icons.tscn` 渲染：256×128、透明背景、不发光白色剪影、统一侧视（枪口 / 刀尖朝右）。它们不是新增第三方素材，许可证随上表对应模型。重新生成：
+
+```bash
+godot --path . res://tools/render_icons.tscn
+```
+
+护盾技能图标 `assets/ui/abilities/shield.svg` 为本项目绘制。
+
 ## 本项目原创
 
 AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [STYLE.md](STYLE.md)。本项目绘制，不是第三方包，也不从 `../origin/` 拷贝。随本仓库使用。

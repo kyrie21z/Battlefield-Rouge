@@ -5,6 +5,7 @@ extends Node
 var _out := "res://docs/proof/active-buffs"
 var _failures := 0
 var _checks := 0
+const MAX_JPEG_BYTES := 300000
 
 
 func _ready() -> void:
@@ -22,6 +23,7 @@ func _ready() -> void:
 		push_error("Cannot create visual proof output directory")
 		get_tree().quit(1)
 		return
+	DisplayServer.window_set_size(Vector2i(1280, 720))
 	await _run()
 	print("PURPLE SHIELD VISUAL: %d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(0 if _failures == 0 else 1)
@@ -30,8 +32,6 @@ func _ready() -> void:
 func _run() -> void:
 	RunState.start_new_run()
 	BuffPool.reset(40408)
-	var icon_path := _out.path_join("black-panther-icon.png")
-	_check("saved actual imported Black Panther icon", BuffPool.ALL[6].icon.get_image().save_png(icon_path) == OK)
 	var scene := (load(RunState.zone_scene()) as PackedScene).instantiate()
 	scene.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(scene)
@@ -39,7 +39,6 @@ func _run() -> void:
 	var player := scene.get_node("Player") as Player
 	for frame in 3:
 		await get_tree().process_frame
-	await _shot("shield-01-purple-cards")
 	var skill_card := director.selection.get_node("Center/Box/Choices").get_child(2) as Button
 	skill_card.pressed.emit()
 	await get_tree().process_frame
@@ -74,13 +73,12 @@ func _run() -> void:
 	await get_tree().create_timer(0.15).timeout
 	_check("real incoming projectile is absorbed", player.health.health == health_before
 		and player.combat_traits.feedback.contains("蓄能"))
-	await _shot("shield-02-purple-active")
 	if player.shield.is_active():
 		await player.shield.expired
 	await get_tree().create_timer(0.12).timeout
 	_check("7m shield reaches a real enemy beyond the old 3.5m range once for 25 body damage", pulses[0] == 1
 		and is_equal_approx(target_before - source.health.health, 25.0))
-	await _shot("shield-03-purple-pulse")
+	await _shot("shield-01-purple-pulse")
 	# An additional observation camera makes the outward pulse colour visible;
 	# it exists only in this fixture and never changes the gameplay camera.
 	var observer := Camera3D.new()
@@ -89,7 +87,9 @@ func _run() -> void:
 	observer.global_position = Vector3(69.5, 7.0, 10.0)
 	observer.look_at(Vector3(60, 1, -1.0))
 	observer.make_current()
-	await _shot("shield-04-purple-pulse-wide")
+	# The outside view records the same wave near its full seven-metre extent.
+	await get_tree().create_timer(0.18).timeout
+	await _shot("shield-02-purple-pulse-wide")
 	await get_tree().create_timer(0.65).timeout
 	_check("shield overlay ends and normal cooldown remains", not player.shield.is_active()
 		and not player.health.invulnerable and player.shield.cooldown_duration() == 8.0)
@@ -100,10 +100,18 @@ func _run() -> void:
 
 func _shot(file_name: String) -> void:
 	await RenderingServer.frame_post_draw
-	var path := _out.path_join(file_name + ".png")
-	var result := get_viewport().get_texture().get_image().save_png(path)
-	_check("saved " + file_name, result == OK)
-	print("SCREENSHOT " + path)
+	var frame := get_viewport().get_texture().get_image()
+	var path := _out.path_join(file_name + ".jpg")
+	var quality := 0.82
+	var result := frame.save_jpg(path, quality)
+	var byte_count := FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	while result == OK and byte_count > MAX_JPEG_BYTES and quality > 0.56:
+		quality -= 0.05
+		result = frame.save_jpg(path, quality)
+		byte_count = FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	_check("saved " + file_name + " as JPEG under 300 KB", result == OK
+		and byte_count > 0 and byte_count <= MAX_JPEG_BYTES)
+	print("SCREENSHOT %s (%s, %d bytes, quality %.2f)" % [path, frame.get_size(), byte_count, quality])
 
 
 func _check(label: String, ok: bool) -> void:

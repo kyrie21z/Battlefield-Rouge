@@ -3,8 +3,9 @@ extends Node
 ## This fixture grants all cores for demonstration; normal choice timing is
 ## independently verified by buff_run_test. Enemy AI is held still for framing.
 
-var _out := "res://docs/proof/ac-04-ac-08"
+var _out := "res://docs/proof/active-buffs"
 var _failures := 0
+const MAX_JPEG_BYTES := 300000
 
 
 func _ready() -> void:
@@ -99,10 +100,18 @@ func _grant(player: Player, buff: Buff) -> void:
 
 func _shot(file_name: String) -> void:
 	await RenderingServer.frame_post_draw
-	var path := _out.path_join(file_name + ".png")
-	var result := get_viewport().get_texture().get_image().save_png(path)
-	print("SCREENSHOT %s: %s" % [path, "ok" if result == OK else "FAIL"])
-	_check("saved " + file_name, result == OK)
+	var frame := get_viewport().get_texture().get_image()
+	var path := _out.path_join(file_name + ".jpg")
+	var quality := 0.82
+	var result := frame.save_jpg(path, quality)
+	var byte_count := FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	while result == OK and byte_count > MAX_JPEG_BYTES and quality > 0.56:
+		quality -= 0.05
+		result = frame.save_jpg(path, quality)
+		byte_count = FileAccess.get_file_as_bytes(path).size() if result == OK else 0
+	_check("saved " + file_name + " as JPEG under 300 KB", result == OK
+		and byte_count > 0 and byte_count <= MAX_JPEG_BYTES)
+	print("SCREENSHOT %s (%s, %d bytes, quality %.2f)" % [path, frame.get_size(), byte_count, quality])
 
 
 func _check(label: String, ok: bool) -> void:

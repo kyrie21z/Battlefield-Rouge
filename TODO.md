@@ -4,10 +4,6 @@
 
 设计排期以 `docs/MVP_Scope.md` 和 `docs/Cut-001b.md` 为准。下面是当前可玩版本（锤砸占点）的手感债，不是新 MVP 的任务列表。
 
-## 手感
-
-- [ ] **冲刺感不明显**（试玩反馈，2026-10-23）。冲刺 6.6 m/s，慢跑 4.4 m/s。可能是灰盒场景缺少参照物，等战区换上真实场景后再确认。如果还是不明显，可以考虑：冲刺时视野放大几度、加镜头晃动、冲刺时把枪放低。
-
 ## 场景
 
 - [ ] 三个战区还是灰盒（纯色方块）。下一步可以用 Toon Shooter Game Kit 自带的环境模型（集装箱、木箱、沙袋、围栏等）替换掩体方块，地面和墙换成 Kenney Factory Kit / City Kit (Industrial)。替换时保留每个掩体的碰撞体和 `navigation_geometry` 分组。
@@ -16,7 +12,7 @@
 
 ## 敌人
 
-- [ ] **Boss 关强度待试玩确认**（ADR 0004）。玩家站着不动、不还手，Boss 加 6 个小敌人 1.7–2.6 秒（多次实测）就能打死。Boss 的数在 `actors/enemy/boss.tscn`，站位在 `tools/gen_zones.py` 的 `BOSS_AT` 和 `RING`。
+- [ ] **Boss 关强度待试玩确认**（ADR 0004）。玩家站着不动、不还手，Boss 加 6 个小敌人 1.7–2.6 秒（多次实测）就能打死。Boss 的数在 `actors/enemy/boss.tscn`，站位在 `tools/gen_zones.py` 的 `BOSS_AT` 和 `enemies`。
 - [ ] **敌人强度待试玩确认**。敌人子弹是 18 m/s 的慢速弹，不做提前量预判：20 米外单个敌人 8 秒内，玩家站着不动掉约 100 血，左右横移几乎不掉血。4 个敌人同时站桩对射仍然很快阵亡。可调参数在 `actors/enemy/enemy.gd`：`projectile_speed`、`accuracy_deg`、`burst_pause`、`damage_min`/`damage_max`、`reaction_time`。
 - [ ] 子弹迎面飞来时，开头几米会和敌人模型重叠，不太容易看清。可以考虑加枪口火光（见下一条）或子弹拖尾。
 - [ ] 敌人开枪时没有枪口火光，玩家只能靠声音和弹着点判断谁在开枪。

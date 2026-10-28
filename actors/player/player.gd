@@ -99,42 +99,46 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if health.is_dead():
 		return
-	if not is_on_floor():
-		velocity.y -= gravity * delta
-	elif Input.is_action_just_pressed("jump"):
-		velocity.y = jump_velocity
+	# The dash owns the whole velocity while it lasts, gravity and jump included,
+	# so a pitched dash is a straight line. Its last step still moves at dash
+	# speed; only then is the walk speed handed back, so the dash neither ends a
+	# frame short nor leaves a 27 m/s slide behind. The vertical is zeroed on the
+	# hand-back so a rising dash does not fling the player past its end point.
+	var dashing := _dash_left > 0.0
+	if dashing:
+		_dash_left = maxf(_dash_left - delta, 0.0)
+		velocity = _dash_velocity
+	else:
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+		elif Input.is_action_just_pressed("jump"):
+			velocity.y = jump_velocity
 
 	# A dash drops the sights for its duration: holding aim through it does not
 	# keep the player scoped mid-dash. Reloading is left alone.
 	var aiming := Input.is_action_pressed("aim") and not weapon.is_reloading() \
-		and not dash.is_dashing()
+		and not dashing
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
 	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED)
 	if aiming:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel
-	velocity.x = move_toward(velocity.x, direction.x * speed, accel * speed * delta)
-	velocity.z = move_toward(velocity.z, direction.z * speed, accel * speed * delta)
-	# A melee swing carries the player: the step overrides the walked velocity for
-	# its short duration, so the distance is exactly `speed * duration` instead of
-	# building up frame by frame.
-	if _lunge_left > 0.0:
-		_lunge_left = maxf(_lunge_left - delta, 0.0)
-		velocity.x = _lunge.x
-		velocity.z = _lunge.z
-	# The dash owns the horizontal velocity outright while it lasts. Its last
-	# step still moves at dash speed; only then is the walk speed handed back,
-	# so the dash neither ends a frame short nor leaves a 27 m/s slide behind.
-	var dashing := _dash_left > 0.0
-	if dashing:
-		_dash_left = maxf(_dash_left - delta, 0.0)
-		velocity.x = _dash_velocity.x
-		velocity.z = _dash_velocity.z
+	if not dashing:
+		velocity.x = move_toward(velocity.x, direction.x * speed, accel * speed * delta)
+		velocity.z = move_toward(velocity.z, direction.z * speed, accel * speed * delta)
+		# A melee swing carries the player: the step overrides the walked velocity
+		# for its short duration, so the distance is exactly `speed * duration`
+		# instead of building up frame by frame.
+		if _lunge_left > 0.0:
+			_lunge_left = maxf(_lunge_left - delta, 0.0)
+			velocity.x = _lunge.x
+			velocity.z = _lunge.z
 	move_and_slide()
 	if dashing and _dash_left <= 0.0:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
+		velocity.y = 0.0
 
 	weapon.aiming = aiming
 	weapon.moving = Vector2(velocity.x, velocity.z).length() > 0.5
@@ -181,7 +185,7 @@ func _on_melee_lunge(direction: Vector3, speed: float, duration: float) -> void:
 
 
 func _on_dash(direction: Vector3, speed: float, duration: float) -> void:
-	_dash_velocity = Vector3(direction.x, 0.0, direction.z).normalized() * speed
+	_dash_velocity = direction.normalized() * speed
 	_dash_left = duration
 
 

@@ -36,6 +36,7 @@ var _dash_left := 0.0
 var _invulnerable_left := 0.0
 var _air_used := 0
 var _player: CharacterBody3D
+var _camera: Camera3D
 var _health: Health
 var _audio: AudioStreamPlayer
 
@@ -47,6 +48,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	_player = get_parent() as CharacterBody3D
+	_camera = _player.get_node("Head/Camera3D") as Camera3D
 	_health = _player.get_node("Health") as Health
 	_charges = max_charges
 	_audio = AudioStreamPlayer.new()
@@ -57,17 +59,19 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_tick_recharge(delta)
-	_tick_invulnerable(delta)
-	if _dash_left > 0.0:
-		_dash_left = maxf(_dash_left - delta, 0.0)
-		if _dash_left <= 0.0:
-			dash_finished.emit()
 	if _health == null or _health.is_dead():
 		return
 	if _player.is_on_floor():
 		_air_used = 0
 	if Input.is_action_just_pressed("dash"):
 		try_dash()
+	# After try_dash(), so a dash started this tick also spends its first tick
+	# here and both timers end on the same tick as the Player's copy.
+	_tick_invulnerable(delta)
+	if _dash_left > 0.0:
+		_dash_left = maxf(_dash_left - delta, 0.0)
+		if _dash_left <= 0.0:
+			dash_finished.emit()
 
 
 ## Starts a dash if a charge is free and the air allows it. Returns whether one
@@ -125,15 +129,13 @@ func cancel() -> void:
 		_health.dash_invulnerable = false
 
 
+## The dash follows where the camera is facing, pitch included. W/S follow the
+## pitch; A/D stay horizontal because the camera's x axis is not tilted by it.
 func _direction() -> Vector3:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var direction: Vector3
-	if input.length_squared() > 0.0001:
-		direction = _player.transform.basis * Vector3(input.x, 0.0, input.y)
-	else:
-		direction = -_player.transform.basis.z
-	direction.y = 0.0
-	return direction.normalized()
+	if input.length_squared() <= 0.0001:
+		return -_camera.global_basis.z
+	return (_camera.global_basis * Vector3(input.x, 0.0, input.y)).normalized()
 
 
 func _tick_recharge(delta: float) -> void:

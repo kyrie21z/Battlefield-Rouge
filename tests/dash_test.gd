@@ -3,12 +3,14 @@ extends Node
 ##   godot --headless --path . res://tests/dash_test.tscn
 ## Prints one line per check and exits 1 if anything failed.
 ##
-## The dash is measured on a flat test floor with no enemies, through the real
-## input actions. Distances come from where the body actually ended up, not from
-## reading the exported numbers back.
+## The dash is measured on a flat test floor inside the same 30 m boundary as
+## the real maps, through the real input actions. Distances come from where the
+## body actually ended up, not from reading the exported numbers back; pitched
+## dashes are measured in 3D.
 
 const DISTANCE_TOLERANCE := 0.3
 const FLOOR_SIZE := 80.0
+const BOUNDARY := 30.0
 
 var _failures := 0
 var _finished := false
@@ -163,6 +165,54 @@ func _run() -> void:
 	_check("HUD follows the live charge count", _vitals.dash_charges == _player.dash_charges()
 		and _vitals.dash_max_charges == _player.dash_max_charges())
 
+	print("== the dash follows the camera pitch")
+	await _wait_for_charges(2, 300)
+	await _place(Vector3(0.0, 0.05, 0.0))
+	var before_up := _player.global_position
+	_aim(Vector3(0.0, 10.0, -10.0))
+	await _start_dash([])
+	await _wait_dash_end()
+	var end_vy := _player.velocity.y
+	var up := _player.global_position - before_up
+	_check("a 45° pitch lifts the dash (%.2f m up)" % up.y, up.y > 2.0)
+	_check("its 3D length is still 5 m (%.2f m)" % up.length(),
+		absf(up.length() - 5.0) <= DISTANCE_TOLERANCE)
+	_check("the hand-back zeroes velocity.y (%.2f m/s)" % end_vy, is_zero_approx(end_vy))
+
+	print("== a level dash stays level")
+	await _wait_for_charges(2, 300)
+	await _place(Vector3(0.0, 0.05, 0.0))
+	var level := await _dash_aimed(Vector3(0.0, 0.0, -10.0))
+	_check("no vertical drift (%.2f m)" % level.y, absf(level.y) < 0.1)
+	_check("it still covers 5 m (%.2f m)" % level.length(),
+		absf(level.length() - 5.0) <= DISTANCE_TOLERANCE)
+
+	print("== a downward dash slides along the floor")
+	await _wait_for_charges(2, 300)
+	await _place(Vector3(0.0, 0.05, 0.0))
+	var down := await _dash_aimed(Vector3(0.0, -10.0, -10.0))
+	var slide := Vector2(down.x, down.z).length()
+	_check("a 45° down dash still covers ground (%.2f m)" % slide, slide > 2.0)
+	_check("it does not sink through the floor (%.2f m)" % down.y, down.y >= -0.1)
+
+	print("== the boundary stops a pitched dash")
+	await _wait_for_charges(2, 300)
+	await _place(Vector3(28.0, 0.05, 28.0))
+	Input.action_press("jump")
+	await get_tree().physics_frame
+	Input.action_release("jump")
+	for i in 3:
+		await get_tree().physics_frame
+	_check("the jump left the floor", not _player.is_on_floor())
+	_aim(Vector3(10.0, 10.0, 10.0))
+	await _start_dash([])
+	await _wait_dash_end()
+	var at_wall := _player.global_position
+	_check("jump + upward dash stays inside x ±30 (%.2f)" % at_wall.x,
+		at_wall.x <= BOUNDARY)
+	_check("jump + upward dash stays inside z ±30 (%.2f)" % at_wall.z,
+		at_wall.z <= BOUNDARY)
+
 	_finished = true
 
 
@@ -178,10 +228,58 @@ func _build_world() -> void:
 	floor.add_child(shape)
 	add_child(floor)
 
+	_add_wall(Vector3(60.0, 36.0, 1.0), Vector3(0.0, 18.0, -BOUNDARY))
+	_add_wall(Vector3(60.0, 36.0, 1.0), Vector3(0.0, 18.0, BOUNDARY))
+	_add_wall(Vector3(1.0, 36.0, 60.0), Vector3(BOUNDARY, 18.0, 0.0))
+	_add_wall(Vector3(1.0, 36.0, 60.0), Vector3(-BOUNDARY, 18.0, 0.0))
+
 	_player = load("res://actors/player/player.tscn").instantiate() as Player
 	_player.position = Vector3(0.0, 0.05, 0.0)
 	add_child(_player)
 	await _settle(12)
+
+
+func _add_wall(size: Vector3, position: Vector3) -> void:
+	var wall := StaticBody3D.new()
+	wall.collision_layer = CollisionLayers.BOUNDARY
+	wall.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	shape.position = position
+	wall.add_child(shape)
+	add_child(wall)
+
+
+## Puts the body on the floor at `position` with the camera level.
+func _place(position: Vector3) -> void:
+	_player.velocity = Vector3.ZERO
+	_player.global_position = position
+	_player.global_rotation = Vector3.ZERO
+	_aim(Vector3(0.0, 0.0, -10.0))
+	await _wait_until_floor(180)
+	await _settle(2)
+
+
+## Points the camera so its forward axis is `direction`, in camera space: -Z
+## ahead, +Y up.
+func _aim(direction: Vector3) -> void:
+	_player.aim_at(_camera_pos() + direction)
+
+
+func _camera_pos() -> Vector3:
+	return (_player.get_node("Head/Camera3D") as Camera3D).global_position
+
+
+## One dash with the camera tilted along `aim`, measured in 3D after the
+## hand-back.
+func _dash_aimed(aim: Vector3) -> Vector3:
+	_aim(aim)
+	var before := _player.global_position
+	await _start_dash([])
+	await _wait_dash_end()
+	return _player.global_position - before
 
 
 ## Dashes from a settled standstill and returns the horizontal displacement,
@@ -189,6 +287,7 @@ func _build_world() -> void:
 func _dash_from(actions: Array[String]) -> Vector3:
 	await _settle(6)
 	_player.global_rotation = Vector3.ZERO
+	_aim(Vector3(0.0, 0.0, -10.0))
 	_player.velocity = Vector3.ZERO
 	await _settle(2)
 	var before := _player.global_position

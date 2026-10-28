@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=49 format=3]
 
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
@@ -143,6 +143,18 @@ size = Vector3(3, 1.2, 1)
 [sub_resource type="BoxShape3D" id="Shape_13"]
 size = Vector3(3, 1.2, 1)
 
+[sub_resource type="BoxShape3D" id="Shape_bound0"]
+size = Vector3(60, 26, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_bound1"]
+size = Vector3(60, 26, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_bound2"]
+size = Vector3(1, 26, 60)
+
+[sub_resource type="BoxShape3D" id="Shape_bound3"]
+size = Vector3(1, 26, 60)
+
 [node name="Boss" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -282,6 +294,36 @@ mesh = SubResource("Mesh_13")
 
 [node name="Shape" type="CollisionShape3D" parent="Geometry/Cover9"]
 shape = SubResource("Shape_13")
+
+[node name="Boundary" type="Node3D" parent="."]
+
+[node name="WallNHigh" type="StaticBody3D" parent="Boundary"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17, -30)
+collision_layer = 16
+
+[node name="Shape" type="CollisionShape3D" parent="Boundary/WallNHigh"]
+shape = SubResource("Shape_bound0")
+
+[node name="WallSHigh" type="StaticBody3D" parent="Boundary"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 17, 30)
+collision_layer = 16
+
+[node name="Shape" type="CollisionShape3D" parent="Boundary/WallSHigh"]
+shape = SubResource("Shape_bound1")
+
+[node name="WallEHigh" type="StaticBody3D" parent="Boundary"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 17, 0)
+collision_layer = 16
+
+[node name="Shape" type="CollisionShape3D" parent="Boundary/WallEHigh"]
+shape = SubResource("Shape_bound2")
+
+[node name="WallWHigh" type="StaticBody3D" parent="Boundary"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 17, 0)
+collision_layer = 16
+
+[node name="Shape" type="CollisionShape3D" parent="Boundary/WallWHigh"]
+shape = SubResource("Shape_bound3")
 
 [node name="CoverPoints" type="Node3D" parent="."]
 

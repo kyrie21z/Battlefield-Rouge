@@ -493,22 +493,22 @@ shape = SubResource("Shape_objective")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 26)
 
 [node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4.0, 0, -19.0)
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -11, 0, 15)
 
 [node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.0, 0, -15.54)
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 11, 0, 15)
 
 [node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -2.0, 0, -15.54)
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -13, 0, 0.5)
 
 [node name="Enemy4" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4.0, 0, -19.0)
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 13, 0, 0.5)
 
 [node name="Enemy5" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -2.0, 0, -22.46)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -3.5, 0, -22.5)
 
 [node name="Enemy6" parent="." instance=ExtResource("2_enemy")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.0, 0, -22.46)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.5, 0, -22.5)
 
 [node name="Boss" parent="." instance=ExtResource("7_boss")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -19)

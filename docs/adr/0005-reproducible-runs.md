@@ -23,7 +23,7 @@
 4. **游戏时间用 `SimClock`，不读墙钟。** `SimClock.now()` 是从战区开头数起的物理 tick 数除以 tick 率。`CapturePoint.beat_time()`（命中时刻）和 `Enemy` 的掩体冷却改用它。从战区开头归零，是因为两个很大的时间相减，舍入结果会随绝对值不同而差最后几位，节拍偏移差最后一位也会让记录里的一行不同，哈希就变了（实际遇到过）。
 5. **要求固定步长。** 复现只在 `--fixed-fps 60` 下成立：每帧 delta 恰好 1/60，每帧恰好一个物理 tick。正常游玩不受影响，`SimClock` 在正常游玩时会把当前 tick 已过去的那部分加上，节拍照样平滑。
 6. **关掉导航的异步迭代**（`project.godot` 的 `[navigation]`：`world/map_use_async_iterations=false`、`world/region_use_async_iterations=false`）。开着时路径查询的结果取决于线程调度，同一个 fixture 在不同进程里偶尔会分叉（遇到过：同一起点一次 875 tick、一次 806 tick）。
-7. **起点可以从命令行指定，也看得见。** `godot --path . -- --fixture=FX-002` 从该 fixture 起点开始游戏。F3 调试条多一行“起点 FX-002  种子 2002”，普通局显示“普通局（无 fixture）”和它的种子。
+7. **起点可以从命令行指定，也看得见。** `godot --path . -- --fixture=FX-002` 从该 fixture 起点开始游戏。F3 调试条多一行“起点 FX-002  种子 2002”，普通局显示“普通局（无 fixture）”和它的种子。命令行入口只改正常启动（当前场景是项目主场景）的场景；`fixture_test.tscn` 这类以别的场景启动的情况由该场景自己启动每一局，否则首轮会先跑一局做预热，导航图已经同步，和新进程后续轮次的首帧不同（#39）。
 8. **证明用机器人玩一遍，再比较记录的哈希。** `tests/fixture_test.tscn` 对每个 fixture 用 `FixtureBot` 走真实流程（战区场景、选增益、结算界面、重开按钮）打若干遍，每遍写一份记录（击杀、占点、增益、每一锤、死亡/胜利，以及每隔 `--sample-every` 个 tick 一次玩家、敌人和占点的状态快照），取 sha256 前 16 位。检查：
    - 同一 fixture 的每一遍哈希、结果、tick 数都相同；
    - 起点确实是 fixture 规定的（战区、增益、种子）；
@@ -38,7 +38,7 @@
 godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn -- [--fixture=FX-001] [--runs=3] [--trace-dir=<目录>] [--sample-every=30]
 ```
 
-退出码 0 全部通过，1 有失败或没打完。哈希写在最后的 `== hashes` 里，记录写进 `--trace-dir`，文件名 `<ID>_run<N>.txt`，对照局 `<ID>_seed<种子>.txt`。可以拿两份记录 `diff`，第一处不同就是分叉点。
+退出码 0 全部通过，1 有失败或没打完。哈希写在最后的 `== hashes` 里，记录写进 `--trace-dir`，文件名 `<ID>_run<N>.txt`，对照局 `<ID>_seed<种子>.txt`。可以拿两份记录 `diff`，第一处不同就是分叉点。单独跑一个 fixture（`--fixture=FX-002 --runs=3`）时，第一轮就是新进程的第一局；`== the session starts every zone` 一项检查没有别的节点提前启动战区，各轮哈希也必须相同。
 
 ## 不保证
 

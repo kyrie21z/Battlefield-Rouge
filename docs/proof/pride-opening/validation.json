@@ -1,0 +1,117 @@
+[
+  {
+    "exit": 0,
+    "scene": "active_magazine_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "boss_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "buff_run_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "capture_hammer_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "combat_traits_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "dash_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "enemy_layout_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "firing_position_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "fixture_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "hud_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "melee_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "opening_boot_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "reflected_round_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "reinforcement_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "reload_blast_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "school_icons_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "shield_visual_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "weapons_test.tscn",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "FX-001",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "FX-002",
+    "passed": true
+  },
+  {
+    "exit": 0,
+    "scene": "native-opening-integration",
+    "passed": true
+  },
+  {
+    "scene": "pride_opening_flow_test.gd",
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "scene": "pride_avatar_bounds_test.gd",
+    "exit": 0,
+    "passed": true
+  }
+]

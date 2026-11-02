@@ -145,3 +145,11 @@ AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [ST
 | `assets/ui/buffs/skill_cooldown.svg` | 能量回流；沿用用户版本的紫色环形回流 SVG | `fd2adce06a32b4f5e016f86c199262e0be759dd64f23a8948b4034058aac027f` |
 
 每张 SVG 的 `.import` 设置随文件提交；不提交 `.godot` 导入缓存。爆炸弹匣、收藏弹、护盾遮罩与反击波由现有组件绘制，不新增外部贴图或模型。本次保留团队两小关加 Boss 的地图与素材，没有迁入城市素材版或未来候选内容。
+
+## 2026-11-01：Pride 开场图集
+
+按用户要求将已完成的 Sloth 开场任务 #45 开场放在本游戏启动前。`ui/pride_opening/assets/pride-atlas.png` 为本次项目内 imagegen 生成与编辑的六格透明图集（1024×1536），不是从 `origin` 或剧集提取的素材，不标为 CC0。仅借鉴用户给出的复古卡通表演参考，没有提交剧集截图或原角色素材。来源、提示词和手绘皇冠设计见 [生成记录](levels/sloth-opening/assets/PROMPT.md)。
+
+SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。保留工程内导入设置；灰白几何、渐变材质和提示音由脚本生成，字体调用系统已有字体，未打包外部字体文件。开场资源全部在本仓库内，运行不依赖 Mind-Freak 文件夹。
+
+概念评审图 `docs/levels/sloth-opening/assets/pride-concept.jpg` 同为本次生成，仅 JPEG 重编码；SHA-256：`87a6b70ae81c35fd982244d66800d3d440731bd206db548363576f4312e0a67b`，不被运行时代码引用。

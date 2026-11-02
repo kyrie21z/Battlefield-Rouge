@@ -1,0 +1,12 @@
+{
+  "mode": "click_to_advance",
+  "objective": "消灭 Sloth，让这里重新前进。",
+  "direction": "穿过眼前的入口，进入停滞广场。",
+  "shots": [
+    {"id": "S01", "title": "头顶的声音", "line": "我是 Pride，你头顶的皇冠。准备好向前了吗？", "pose": "greeting", "position": [0.0, 0.25, -3.2]},
+    {"id": "S02", "title": "停摆的世界", "line": "看，连巨环都停住了。这里被 Sloth 困住了。", "pose": "explaining", "position": [-1.2, 0.55, -3.5]},
+    {"id": "S03", "title": "消灭 Sloth", "line": "消灭 Sloth，让这里重新前进。", "pose": "encouraging", "position": [0.9, 0.45, -3.4]},
+    {"id": "S04", "title": "可见的方向", "line": "入口就在巨环下面。我们马上就到。", "pose": "greeting", "position": [1.35, 0.95, -3.8]},
+    {"id": "S05", "title": "由你开始", "line": "我会陪着你。什么时候出发，由你决定。", "pose": "waiting", "position": [-0.8, 0.7, -3.6]}
+  ]
+}

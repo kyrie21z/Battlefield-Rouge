@@ -9,6 +9,7 @@
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
 | 一局 | Run，`RunState` | 从第 1 个战区开始，到死亡或胜利结束。死亡后所有增益清空。 |
+| Pride 开场 | `ui/game_start.tscn`、`ui/pride_opening/opening.tscn` | 普通启动自动播放的五句引导，可逐句推进、观察和跳过；确认后进入原开局三选一。每次启动播放一次，死亡重开和 fixture 不重播。 |
 | 战区 | Zone | 一张场景，有一组敌人和一个据点。现在 `RunState.ZONE_SCENES` 里是三张图：两张小关和 Boss 关。 |
 | 清敌 | `Events.zone_cleared` | 战区内的守卫全部被消灭，据点建筑随之开放。 |
 | 据点 | `CapturePoint` | 占点建筑（灰盒方块）。清守卫前锁定；开放后用锤砸，进度到 100% 插旗。进度只增不减。 |

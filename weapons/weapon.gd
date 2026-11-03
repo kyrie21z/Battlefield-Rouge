@@ -21,10 +21,24 @@ signal hit_landed(headshot: bool, killed: bool)
 signal recoil(pitch: float, yaw: float, manual: float)
 ## The gun in hand changed, by wheel or by `select()`. The HUD names it.
 signal selected(index: int, data: WeaponData)
+## Camera shake for this shot, already scaled for aiming / scope: peak degrees,
+## FOV punch as a fraction of the current FOV, and its length in seconds. Pure
+## presentation; the owner applies it to the view, never to where bullets go.
+signal shake(degrees: float, fov_punch: float, duration: float)
 ## The scope magnification changed. The HUD redraws its readout.
 signal zoom_changed(level: float)
 
 const SHOOT_MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
+## Voices for gunshots. A shot rings on its own voice, so a burst cannot cut the
+## tail of the one before it (assigning a new stream to a playing
+## AudioStreamPlayer stops it).
+const SHOT_VOICES := 6
+## Fixed seed for every random thing the player *sees or hears* from the gun
+## (kick direction, pitch). Separate from the global generator, which belongs to
+## the simulation (ADR 0005).
+const FEEL_SEED := 0x6B1CC
+## A scope drops the rotation shake and keeps this share of the FOV punch.
+const SCOPED_PUNCH_SCALE := 0.5
 
 ## The guns carried, in wheel order. Must not be empty.
 @export var data_set: Array[WeaponData] = []
@@ -56,7 +70,13 @@ var _view: Node3D
 ## Optional `Muzzle/Flash` node in the view scene, shown for one frame per shot.
 var _flash: Node3D
 var _flash_left := 0.0
-var _audio: AudioStreamPlayer
+var _shot_voices: Array[AudioStreamPlayer] = []
+var _next_voice := 0
+## Reload and dry-fire clicks. Never shares a voice with a gunshot.
+var _handling_voice: AudioStreamPlayer
+var _spring := ViewSpring.new()
+var _view_base := Vector3.ZERO
+var _feel_rng := RandomNumberGenerator.new()
 var _gunshots: Array[AudioStreamWAV] = []
 var _reload_sound: AudioStreamWAV
 var _dry_sound: AudioStreamWAV
@@ -68,9 +88,13 @@ var _slot_reserve: Array[int] = []
 func _ready() -> void:
 	_reload_sound = ProceduralAudio.generate("reload")
 	_dry_sound = ProceduralAudio.generate("dry")
-	_audio = AudioStreamPlayer.new()
-	_audio.max_polyphony = 4
-	add_child(_audio)
+	_feel_rng.seed = FEEL_SEED
+	_handling_voice = AudioStreamPlayer.new()
+	add_child(_handling_voice)
+	for voice in SHOT_VOICES:
+		var player := AudioStreamPlayer.new()
+		add_child(player)
+		_shot_voices.append(player)
 	for slot in data_set.size():
 		var slot_data := data_set[slot]
 		var view: Node3D = slot_data.view_scene.instantiate() if slot_data.view_scene != null \
@@ -108,9 +132,14 @@ func select(new_index: int) -> void:
 	ammo = _slot_ammo[index]
 	reserve = _slot_reserve[index]
 	_view = _views[index]
+	_spring.reset()
+	_spring.stiffness = data.view_spring_stiffness
+	_spring.damping = data.view_spring_damping
 	zoom_index = clampi(zoom_index, 0, maxi(data.scope_zoom_levels.size() - 1, 0))
 	_apply_view_visibility()
-	_view.position = data.hip_position
+	_view_base = data.hip_position
+	_view.position = _view_base
+	_view.rotation = Vector3.ZERO
 	_flash = _view.get_node_or_null("Muzzle/Flash")
 	selected.emit(index, data)
 	ammo_changed.emit(ammo, reserve)
@@ -188,7 +217,8 @@ func _process(delta: float) -> void:
 		_flash.visible = _flash_left > 0.0
 	_spread = move_toward(_spread, 0.0, data.spread_recovery * delta)
 	var target := data.ads_position if aiming else data.hip_position
-	_view.position = _view.position.lerp(target, minf(14.0 * delta, 1.0))
+	_view_base = _view_base.lerp(target, minf(14.0 * delta, 1.0))
+	_apply_view_pose(delta)
 	# Behind a scope the model would fill the aperture, so it steps out of the way.
 	_apply_view_visibility()
 
@@ -212,6 +242,14 @@ func _process(delta: float) -> void:
 		else Input.is_action_just_pressed("fire")
 	if trigger and trigger_enabled and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		try_fire()
+
+
+## ADS / hip position, plus whatever the shot spring is still doing on top.
+func _apply_view_pose(delta: float) -> void:
+	_spring.step(delta)
+	_view.position = _view_base + _spring.position
+	_view.rotation = Vector3(deg_to_rad(_spring.rotation.x), deg_to_rad(_spring.rotation.y),
+		deg_to_rad(_spring.rotation.z))
 
 
 ## Hides the gun while a melee weapon is swung. `false` also ignores the trigger,
@@ -244,7 +282,7 @@ func try_fire() -> bool:
 		if reserve > 0:
 			try_reload()
 		elif Input.is_action_just_pressed("fire"):
-			_play(_dry_sound, -4.0)
+			_play_handling(_dry_sound, -4.0)
 		return false
 
 	ammo -= 1
@@ -254,12 +292,12 @@ func try_fire() -> bool:
 		_shoot_ray(camera.global_position, _spread_direction(-camera.global_basis.z, spread))
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
 
-	_play(_gunshots[index])
+	_play_shot(_gunshots[index])
 	if _flash != null:
 		_flash.rotation.z = randf() * TAU
 		_flash.visible = true
 		_flash_left = 0.04
-	_view.position.z += 0.04
+	_kick_view()
 	recoil.emit(data.camera_kick, data.camera_kick * _next_pattern_value(), data.recoil_manual)
 	fired.emit()
 	Events.gunshot.emit(global_position)
@@ -273,7 +311,7 @@ func try_reload() -> void:
 	if data == null or is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
 		return
 	_reload_left = _reload_duration(ammo == 0)
-	_play(_reload_sound, -2.0)
+	_play_handling(_reload_sound, -2.0)
 	reload_started.emit(_reload_left)
 
 
@@ -346,10 +384,42 @@ func _store_slot() -> void:
 	_slot_reserve[index] = reserve
 
 
-func _play(stream: AudioStream, volume_db := 0.0) -> void:
-	_audio.stream = stream
-	_audio.volume_db = volume_db
-	_audio.play()
+## Gunshot on the next free voice, with a little pitch and level variation. If
+## all voices are busy the oldest one is taken over.
+func _play_shot(stream: AudioStream) -> void:
+	var voice := _shot_voices[_next_voice]
+	for offset in SHOT_VOICES:
+		var candidate := _shot_voices[(_next_voice + offset) % SHOT_VOICES]
+		if not candidate.playing:
+			voice = candidate
+			_next_voice = (_next_voice + offset) % SHOT_VOICES
+			break
+	_next_voice = (_next_voice + 1) % SHOT_VOICES
+	if voice.stream != stream:
+		voice.stream = stream
+	voice.pitch_scale = 1.0 + _feel_rng.randf_range(-0.05, 0.05)
+	voice.volume_db = _feel_rng.randf_range(-0.6, 0.0)
+	voice.play()
+
+
+func _play_handling(stream: AudioStream, volume_db := 0.0) -> void:
+	_handling_voice.stream = stream
+	_handling_voice.volume_db = volume_db
+	_handling_voice.play()
+
+
+## The viewmodel spring and the camera shake for one shot. Both shrink while
+## aiming; behind a scope there is no rotation shake, only a small FOV punch.
+func _kick_view() -> void:
+	var feel := data.aim_feel_scale if aiming else 1.0
+	_spring.kick(
+		Vector3(0.0, 0.0, data.view_kick_back) * feel,
+		Vector3(data.view_kick_pitch, _feel_rng.randf_range(-1.0, 1.0) * data.view_kick_yaw,
+			_feel_rng.randf_range(-1.0, 1.0) * data.view_kick_roll) * feel)
+	if is_scoped():
+		shake.emit(0.0, data.shake_fov_punch * feel * SCOPED_PUNCH_SCALE, data.shake_duration)
+	else:
+		shake.emit(data.shake_degrees * feel, data.shake_fov_punch * feel, data.shake_duration)
 
 
 func _placeholder_view() -> Node3D:

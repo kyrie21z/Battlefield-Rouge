@@ -15,6 +15,10 @@ extends CharacterBody3D
 ## How fast the self-recovering part of recoil settles, per second.
 @export var recoil_recovery := 8.0
 
+## Seed of the shake's own random generator: what the player sees must never
+## draw from the global sequence (ADR 0005).
+const FEEL_SEED := 0x5A4E
+
 ## Read by Health to ignore friendly fire.
 var team := 0
 
@@ -26,6 +30,16 @@ var _lunge_left := 0.0
 ## The dash overwrites horizontal velocity for `_dash_left`, same idea as the lunge.
 var _dash_velocity := Vector3.ZERO
 var _dash_left := 0.0
+## Camera shake state, see _on_weapon_shake().
+var _shake_degrees := 0.0
+var _shake_left := 0.0
+var _shake_total := 0.0
+var _punch := 0.0
+var _punch_left := 0.0
+var _punch_total := 0.0
+var _shake_phase := Vector3.ZERO
+var _shake_time := 0.0
+var _feel_rng := RandomNumberGenerator.new()
 
 @onready var stats: Stats = $Stats
 @onready var health: Health = $Health
@@ -37,12 +51,19 @@ var _dash_left := 0.0
 @onready var combat_traits: CombatTraits = $CombatTraits
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
+## The camera that actually renders. `_camera` stays exactly where the player
+## aims, and everything that reads the aim (rays, melee, throws) keeps reading
+## it; shake and FOV punch only ever touch this child.
+@onready var view_camera: Camera3D = $Head/Camera3D/ViewCamera
 
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_camera.fov = base_fov
+	_feel_rng.seed = FEEL_SEED
+	view_camera.fov = base_fov
 	weapon.recoil.connect(_on_weapon_recoil)
+	weapon.shake.connect(_on_weapon_shake)
 	melee.recoil.connect(_on_weapon_recoil)
 	melee.lunge.connect(_on_melee_lunge)
 	melee.swing_started.connect(_on_melee_swing_started)
@@ -153,6 +174,7 @@ func _process(delta: float) -> void:
 	_camera.fov = lerpf(_camera.fov, target_fov, minf(fov_lerp_speed * delta, 1.0))
 	_visual_kick = _visual_kick.lerp(Vector2.ZERO, minf(recoil_recovery * delta, 1.0))
 	_apply_look()
+	_update_view_camera(delta)
 
 
 ## The manual share goes straight into the aim, so the player has to pull the
@@ -161,6 +183,51 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 	_pitch = clampf(_pitch + deg_to_rad(pitch * manual), deg_to_rad(-89.0), deg_to_rad(89.0))
 	rotate_y(deg_to_rad(-yaw * manual))
 	_visual_kick += Vector2(pitch, -yaw) * (1.0 - manual)
+
+
+## One shot's camera shake and FOV punch (both already scaled by the weapon for
+## aiming and scope). A new shot takes over only if it is stronger than what is
+## left of the last, so a burst shudders instead of piling up.
+func _on_weapon_shake(degrees: float, fov_punch: float, duration: float) -> void:
+	var left_fraction := _shake_left / maxf(_shake_total, 0.001)
+	if degrees >= _shake_degrees * left_fraction * left_fraction:
+		_shake_degrees = degrees
+		_shake_left = duration
+		_shake_total = duration
+		_shake_phase = Vector3(_feel_rng.randf() * TAU, _feel_rng.randf() * TAU, _feel_rng.randf() * TAU)
+	var punch_fraction := _punch_left / maxf(_punch_total, 0.001)
+	if fov_punch >= _punch * punch_fraction * punch_fraction:
+		_punch = fov_punch
+		_punch_left = duration
+		_punch_total = duration
+
+
+## Poses the rendering camera: shake rotation on its local transform and the FOV
+## punch on top of the aimed field of view. Settles back to exactly identity.
+func _update_view_camera(delta: float) -> void:
+	var rotation_shake := Vector3.ZERO
+	if _shake_left > 0.0:
+		_shake_left = maxf(_shake_left - delta, 0.0)
+		_shake_time += delta
+		var fade := _shake_left / _shake_total
+		var amp := _shake_degrees * fade * fade
+		rotation_shake = Vector3(
+			sin(_shake_time * 61.0 + _shake_phase.x) * amp,
+			sin(_shake_time * 47.0 + _shake_phase.y) * amp * 0.6,
+			sin(_shake_time * 38.0 + _shake_phase.z) * amp * 0.9)
+	view_camera.transform = Transform3D(Basis.from_euler(Vector3(
+		deg_to_rad(rotation_shake.x), deg_to_rad(rotation_shake.y), deg_to_rad(rotation_shake.z))), Vector3.ZERO)
+	var punch := 0.0
+	if _punch_left > 0.0:
+		_punch_left = maxf(_punch_left - delta, 0.0)
+		var fade := _punch_left / _punch_total
+		punch = _punch * fade * fade
+	view_camera.fov = _camera.fov * (1.0 + punch)
+
+
+## True while the rendering camera is off the aim camera. For tests.
+func view_is_shaking() -> bool:
+	return _shake_left > 0.0 or _punch_left > 0.0
 
 
 func _on_died(_source: Node) -> void:

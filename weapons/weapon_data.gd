@@ -46,6 +46,31 @@ enum FireMode { AUTO, SEMI }
 ## Fraction of the kick that stays until the player pulls the mouse down.
 @export_range(0.0, 1.0) var recoil_manual := 0.7
 
+@export_category("Feel")
+## Presentation only. None of these move a bullet or change a gameplay number.
+## Viewmodel kick per shot: metres pushed back along +Z (towards the eye)...
+@export var view_kick_back := 0.04
+## ...degrees the muzzle rises, and the random yaw / roll (+-) on top.
+@export var view_kick_pitch := 1.5
+@export var view_kick_yaw := 0.4
+@export var view_kick_roll := 0.6
+## The viewmodel spring. Damping ratio = damping / (2 * sqrt(stiffness)); under
+## 1 it rings once or twice, which is what gives a heavy gun its weight.
+@export var view_spring_stiffness := 260.0
+@export var view_spring_damping := 20.0
+## Camera shake per shot: peak degrees, FOV punch as a fraction of the current
+## FOV, and how long it takes to die away (seconds).
+@export var shake_degrees := 0.1
+@export var shake_fov_punch := 0.01
+@export var shake_duration := 0.12
+## Both kick and shake are scaled by this while aiming down iron sights. A scope
+## drops the rotation shake altogether and keeps half of the FOV punch.
+@export_range(0.0, 1.0) var aim_feel_scale := 0.5
+## Casing thrown out of the ejection port per shot (0 = none).
+@export var casings_per_shot := 1
+## Tracers drawn per shot, at most (a shotgun draws a few of its nine pellets).
+@export var max_tracers := 1
+
 @export_category("Ammo")
 @export var magazine_size := 30
 @export var reserve_ammo := 120

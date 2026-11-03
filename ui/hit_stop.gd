@@ -10,6 +10,9 @@ extends RefCounted
 
 ## Tests set this to exercise the real thing without a window.
 static var allow_headless := false
+## The duration the last caller asked for, even when the stop was refused.
+## For tests: the headless path never actually slows the game.
+static var last_requested := 0.0
 
 static var _active := false
 static var _saved_scale := 1.0
@@ -18,6 +21,7 @@ static var _saved_scale := 1.0
 ## Starts a stop of `duration` real seconds. False when refused (headless,
 ## already stopping, no tree).
 static func request(tree: SceneTree, duration := 0.05, time_scale := 0.04) -> bool:
+	last_requested = duration
 	if tree == null or _active:
 		return false
 	if DisplayServer.get_name() == "headless" and not allow_headless:

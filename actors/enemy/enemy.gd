@@ -130,6 +130,8 @@ signal departed
 
 ## How fast a shove bleeds off, in m/s².
 const IMPACT_DECAY := 22.0
+## Enemy fire uses the softened player rifle sound, quieter than the player's own.
+const ENEMY_GUNSHOT_DB := -5.0
 
 @onready var health: Health = $Health
 @onready var _agent: NavigationAgent3D = $Agent
@@ -147,8 +149,9 @@ func _ready() -> void:
 	_hitbox_rids.append(get_rid())
 	for hitbox in find_children("*", "Hitbox", true, false):
 		_hitbox_rids.append((hitbox as Hitbox).get_rid())
-	_gunshot = ProceduralAudio.generate("gunshot_ak47")
+	_gunshot = ProceduralAudio.generate("gun_rifle")
 	_audio.stream = _gunshot
+	_audio.volume_db = ENEMY_GUNSHOT_DB
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	Events.gunshot.connect(_on_gunshot)

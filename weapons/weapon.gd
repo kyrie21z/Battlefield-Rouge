@@ -39,6 +39,13 @@ const SHOT_VOICES := 6
 const FEEL_SEED := 0x6B1CC
 ## A scope drops the rotation shake and keeps this share of the FOV punch.
 const SCOPED_PUNCH_SCALE := 0.5
+## Per-shot playback variation: pitch and level, from the private feel generator.
+const SHOT_PITCH_JITTER := 0.05
+const SHOT_VOLUME_JITTER_DB := 1.0
+## A burst overlaps several voices; from this count on the incoming shot is
+## quieter, so sustained rifle fire does not grow louder and harsher.
+const SHOT_VOICE_DUCK_COUNT := 3
+const SHOT_VOICE_DUCK_DB := -2.0
 
 ## The guns carried, in wheel order. Must not be empty.
 @export var data_set: Array[WeaponData] = []
@@ -405,6 +412,10 @@ func _muzzle_position(fallback: Vector3) -> Vector3:
 
 func _play_shot(stream: AudioStream) -> void:
 	var voice := _shot_voices[_next_voice]
+	var playing := 0
+	for player in _shot_voices:
+		if player.playing:
+			playing += 1
 	for offset in SHOT_VOICES:
 		var candidate := _shot_voices[(_next_voice + offset) % SHOT_VOICES]
 		if not candidate.playing:
@@ -414,8 +425,10 @@ func _play_shot(stream: AudioStream) -> void:
 	_next_voice = (_next_voice + 1) % SHOT_VOICES
 	if voice.stream != stream:
 		voice.stream = stream
-	voice.pitch_scale = 1.0 + _feel_rng.randf_range(-0.05, 0.05)
-	voice.volume_db = _feel_rng.randf_range(-0.6, 0.0)
+	voice.pitch_scale = 1.0 + _feel_rng.randf_range(-SHOT_PITCH_JITTER, SHOT_PITCH_JITTER)
+	voice.volume_db = _feel_rng.randf_range(-SHOT_VOLUME_JITTER_DB, SHOT_VOLUME_JITTER_DB)
+	if playing >= SHOT_VOICE_DUCK_COUNT:
+		voice.volume_db += SHOT_VOICE_DUCK_DB
 	voice.play()
 
 

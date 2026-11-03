@@ -5,8 +5,19 @@ extends CanvasLayer
 const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
 const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 
-## A kill freezes the game for this many real seconds (see HitStop).
+## A kill freezes the game for this many real seconds (see HitStop). A headshot
+## kill holds a little longer, which is most of what makes it feel heavier.
 const KILL_HITSTOP := 0.05
+const KILL_HITSTOP_HEAD := 0.075
+
+## Kill confirm text under the crosshair. Consecutive kills inside the window
+## turn into 双杀 / 三杀 / 连杀 ×N.
+const KILL_TEXT_TIME := 0.6
+const KILL_TEXT_POP_TIME := 0.1
+const KILL_TEXT_SCALE := 1.45
+const KILL_TEXT_FADE_TIME := 0.22
+const KILL_COMBO_WINDOW := 2.5
+const KILL_TEXT_GOLD := Color(1.0, 0.82, 0.25)
 
 ## Taking a hit: red edge vignette alpha, from the dealt damage, capped so the
 ## picture never goes fully red, and gone in this many seconds.
@@ -37,6 +48,7 @@ var _hit_tween: Tween
 ## Kill thud and headshot tink play beside the ogg hit sound on their own
 ## players, so layering them never cuts the ogg.
 var _kill_audio: AudioStreamPlayer
+var _kill_head_audio: AudioStreamPlayer
 var _tink_audio: AudioStreamPlayer
 ## Hurt voices and the low-health heartbeat. Kept apart so a new hit never
 ## cuts the heartbeat and vice versa.
@@ -53,11 +65,17 @@ var _heartbeat_left := 0.0
 ## For tests and proofs.
 var hurt_sound_plays := 0
 var low_hp := false
+## Kill confirm state. The combo timer and the text animation are driven by
+## `_process(delta)`, never by a clock.
+var _kill_text_left := 0.0
+var _kill_combo := 0
+var _kill_combo_left := 0.0
 
 @onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
 @onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
+@onready var _kill_text: Label = $KillText
 @onready var _vitals: Vitals = $Vitals
 @onready var _weapon_panel: WeaponPanel = $WeaponPanel
 @onready var _shield_slot: AbilitySlot = $AbilityBar/Shield
@@ -81,6 +99,10 @@ func _ready() -> void:
 	_kill_audio.stream = ProceduralAudio.generate("hit_kill")
 	_kill_audio.volume_db = -2.0
 	add_child(_kill_audio)
+	_kill_head_audio = AudioStreamPlayer.new()
+	_kill_head_audio.stream = ProceduralAudio.generate("hit_kill_head")
+	_kill_head_audio.volume_db = -2.0
+	add_child(_kill_head_audio)
 	_tink_audio = AudioStreamPlayer.new()
 	_tink_audio.stream = ProceduralAudio.generate("hit_tink")
 	_tink_audio.volume_db = -7.0
@@ -131,6 +153,7 @@ func _process(delta: float) -> void:
 	_place_buffs()
 	_refresh_combat_feedback()
 	_update_hurt(delta)
+	_update_kill_text(delta)
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
@@ -175,10 +198,49 @@ func _on_hit_landed(headshot: bool, killed: bool) -> void:
 	if headshot:
 		_tink_audio.play()
 	if killed:
-		_kill_audio.play()
+		if headshot:
+			_kill_head_audio.play()
+		else:
+			_kill_audio.play()
+		_show_kill_text(headshot)
 		# A fixture has to replay identically, so it never takes a hitstop.
 		if RunState.fixture == null and not get_tree().paused:
-			HitStop.request(get_tree(), KILL_HITSTOP)
+			HitStop.request(get_tree(), KILL_HITSTOP_HEAD if headshot else KILL_HITSTOP)
+
+
+## Pops the kill confirm under the crosshair and counts the combo. White for a
+## body kill, gold for a headshot; the combo resets after KILL_COMBO_WINDOW.
+func _show_kill_text(headshot: bool) -> void:
+	_kill_combo = _kill_combo + 1 if _kill_combo_left > 0.0 else 1
+	_kill_combo_left = KILL_COMBO_WINDOW
+	_kill_text_left = KILL_TEXT_TIME
+	var label := "击杀"
+	if _kill_combo >= 4:
+		label = "连杀 ×%d" % _kill_combo
+	elif _kill_combo == 3:
+		label = "三杀"
+	elif _kill_combo == 2:
+		label = "双杀"
+	elif headshot:
+		label = "爆头击杀"
+	_kill_text.text = label
+	_kill_text.add_theme_color_override("font_color", KILL_TEXT_GOLD if headshot else Color.WHITE)
+	_kill_text.modulate.a = 1.0
+	_kill_text.scale = Vector2.ONE * KILL_TEXT_SCALE
+
+
+## Combo window and text pop/fade, all on frame delta.
+func _update_kill_text(delta: float) -> void:
+	if _kill_combo_left > 0.0:
+		_kill_combo_left = maxf(_kill_combo_left - delta, 0.0)
+		if _kill_combo_left <= 0.0:
+			_kill_combo = 0
+	if _kill_text_left <= 0.0:
+		return
+	_kill_text_left = maxf(_kill_text_left - delta, 0.0)
+	var pop := clampf((KILL_TEXT_TIME - _kill_text_left) / KILL_TEXT_POP_TIME, 0.0, 1.0)
+	_kill_text.scale = Vector2.ONE * lerpf(KILL_TEXT_SCALE, 1.0, pop)
+	_kill_text.modulate.a = clampf(_kill_text_left / KILL_TEXT_FADE_TIME, 0.0, 1.0)
 
 
 func _on_player_damaged(amount: float, part: Hitbox.BodyPart, source: Node) -> void:

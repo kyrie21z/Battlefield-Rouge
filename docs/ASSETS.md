@@ -176,3 +176,27 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 （`_Color`、`_EmissionColor`、`_SpecColor`）取自源材质。
 
 出图与实机验证记录见 [docs/proof/crystal-enemy](proof/crystal-enemy/README.md)。
+
+## 2026-11-03：红晶体敌人的动画与碎裂碎片（自有素材）
+
+`assets/models/characters/red_crystal_enemy_animated.glb` 是上一节 `rigged` 的同批网格加 23 个人物
+剪辑；`assets/models/characters/red_crystal_enemy_shards.glb` 是同一批面按 11 个部位切成的 56 片
+碎屑。两份都由本项目的美术导出管线产出（源工程和导出器在仓库外，不随仓库分发），规格、剪辑表和
+用法见 [RED_CRYSTAL_ENEMY.md](RED_CRYSTAL_ENEMY.md)。
+
+| 仓库内文件 | 内容 | 素材包 | 页面 | 许可证 | 导出入库日期 | SHA-256（前 16 位） |
+| --- | --- | --- | --- | --- | --- | --- |
+| `assets/models/characters/red_crystal_enemy_animated.glb` | 11 件蒙皮网格 + 24 骨 + 23 个剪辑（30 fps） | 无（内部导出） | 无 | 项目自有 | 2026-11-03 | `c2a219a3e021b38d` |
+| `assets/models/characters/red_crystal_enemy_shards.glb` | 56 片碎屑，按 `SHARD_m_<部位>_<序号>` 分组 | 无（内部导出） | 无 | 项目自有 | 2026-11-03 | `aa0d516abde333ab` |
+| `assets/materials/red_crystal_crystal_shard.gdshader` | 碎屑着色器：同一套观感，菲涅尔边缘光与高光压低 | 无（本项目编写） | 无 | 项目自有 | 2026-11-03 | `0cb1c522525329d6` |
+| `assets/materials/red_crystal_material_shard.tres` | 上面着色器的现成 `ShaderMaterial` | 无（本项目编写） | 无 | 项目自有 | 2026-11-03 | `dd8fb309ac6953f6` |
+
+**许可：项目自有（内部素材）。** 源工程与来源凭证不随仓库分发，由 Art 负责人归档；要做对外物料
+（宣传素材、发行包）前先找 Art 负责人取凭证。两份 GLB 仍然只当**候选外观**，**没有接进**
+`actors/enemy/`：要当敌人外观用，另开一个 PR 改 `enemy.tscn` 的 `model_scene`。
+
+校验口径与上一节一致：`python tools/crystal_enemy/check_glb.py assets/models/characters/red_crystal_enemy_animated.glb`
+（会打印蒙皮后包围盒 1.687 × 1.948 × 0.394）、
+`python tools/crystal_enemy/check_normals.py assets/models/characters/red_crystal_enemy_*.glb`
+（缠绕与顶点法线一致率 1.000，五个 GLB 都是）；Godot 侧 `--check` 与实机图见
+[docs/proof/crystal-enemy](proof/crystal-enemy/README.md)。

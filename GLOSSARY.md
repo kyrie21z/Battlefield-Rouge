@@ -75,3 +75,13 @@
 | Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和 4 名放在前沿 / 中段的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |
+
+## 红晶体敌人新增术语
+
+| 术语 | 代码里的名字 | 含义 |
+| --- | --- | --- |
+| 红晶体敌人 | `red_crystal_enemy_*.glb` | 低模红衣敌人素材：11 件网格、24 骨、23 个剪辑、56 片碎屑。素材已入库，还没接进 `actors/enemy/`。 |
+| 部位 | `PART_BONE`、`GEO_m_<部位>` | 身体分成的 11 块：`head`、`torso`、`hips`、`upper_arm_L/R`、`forearm_L/R`、`thigh_L/R`、`shin_L/R`。每个部位对应一根主骨。 |
+| 碎屑 | `SHARD_m_<部位>_<序号>`、`red_crystal_enemy_shards.glb` | 每个部位预切好的刚性碎片（合计 56 片），枢轴在自己质心，可直接做成 `RigidBody3D`。 |
+| 按部位碎裂 | `shatter_part(part)`、`shatter_parts([...])` | 把一个部位换成它的碎屑刚体，其余部位继续跟动画走。预览场 `tools/crystal_enemy/anim_shatter.tscn`。 |
+| 骨骼增量 | `_bone_delta(part)` | 碎屑按 T-pose 模型空间导出，贴到当前动画姿势要乘 `bone_global_pose · bone_global_rest⁻¹`。 |

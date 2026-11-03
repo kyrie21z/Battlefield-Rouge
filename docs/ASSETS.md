@@ -153,3 +153,31 @@ AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [ST
 SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。保留工程内导入设置；灰白几何、渐变材质和提示音由脚本生成，字体调用系统已有字体，未打包外部字体文件。开场资源全部在本仓库内，运行不依赖 Mind-Freak 文件夹。
 
 概念评审图 `docs/levels/sloth-opening/assets/pride-concept.jpg` 同为本次生成，仅 JPEG 重编码；SHA-256：`87a6b70ae81c35fd982244d66800d3d440731bd206db548363576f4312e0a67b`，不被运行时代码引用。
+
+## 2026-11-03：红晶体敌人（SUPERHOT 逆向导出）
+
+`assets/models/characters/red_crystal_enemy_*.glb` 是从**本机 Unity 版 SUPERHOT** 的
+`SH_Data/resources.assets` 里解出 `EnemyMimic / EnemyBody` 预制体、转成 glTF 的产物，由
+`tools/crystal_enemy/export_crystal_to_glb.py` 生成（重跑与仓库内文件逐字节一致）。不是素材包，
+也不是从 `../origin/` 拷的。三份文件共用同一批网格：5,155 顶点 / 2,211 三角 / 24 骨，
+规格与用法见 [RED_CRYSTAL_ENEMY.md](RED_CRYSTAL_ENEMY.md)。
+
+| 仓库内文件 | 来源文件 | 素材包 | 页面 | 许可证 | 导出入库日期 | SHA-256（前 16 位） |
+| --- | --- | --- | --- | --- | --- | --- |
+| `assets/models/characters/red_crystal_enemy_static.glb` | `resources.assets` → `EnemyMimic/EnemyBody` 的 11 件 `SkinnedMeshRenderer`，绑定姿势烘焙成单网格 | 无（游戏内资源） | 无 | **未确认**，见下 | 2026-11-03 | `26a978c6888675bc` |
+| `assets/models/characters/red_crystal_enemy_rigged.glb` | 同上，11 件蒙皮 + 24 根关节 | 无（游戏内资源） | 无 | **未确认**，见下 | 2026-11-03 | `2ac40ca2f95aa548` |
+| `assets/models/characters/red_crystal_enemy_parts.glb` | 同上，11 件按各自主骨取枢轴 | 无（游戏内资源） | 无 | **未确认**，见下 | 2026-11-03 | `e4747c1597893f08` |
+
+**许可：未确认。** 这三个 GLB 的几何与材质数值来自商业游戏 SUPERHOT，不是 CC0 / 公有领域。
+按本文开头的政策，清单外素材要先经 **Art + PM 批准**才能入库，这一步还没做。所以：
+
+- 现在只当作**候选外观**放在 `assets/models/characters/`，**没有接进** `actors/enemy/`，也不算进 MVP 优先清单；
+- 拿到批准、或者换成许可清楚的替代模型之前，别把它当已批准的正式素材用（尤其别在宣传素材里出现）；
+- 批准后把上面三行的许可证改成「已批准（批准人 / 日期）」。
+
+配套材质与着色器是本项目写的，不额外登记第三方来源：`assets/materials/red_crystal_material.tres`
+（`StandardMaterial3D` 近似）、`assets/materials/red_crystal_crystal.gdshader` +
+`red_crystal_material_shader.tres`（菲涅尔边缘 + 自发光）。三份文件里的颜色数值
+（`_Color`、`_EmissionColor`、`_SpecColor`）直接取自原材质。
+
+出图与实机验证记录见 [docs/proof/crystal-enemy](proof/crystal-enemy/README.md)。

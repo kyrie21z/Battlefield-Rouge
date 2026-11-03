@@ -34,6 +34,12 @@ const BUFF_CHOICES := 3
 const FLAG_RAISE_TIME := 1.4
 ## Beside the building, clear of the 2.4 m objective and inside a short walk.
 const PEDESTAL_OFFSET := Vector3(3.0, 0.0, 2.2)
+## A reinforcement marker this close to the player is never chosen. A marker the
+## player can see (inside this half angle with a clear WORLD ray at marker
+## height) is avoided too, so a wave does not pop in where the player is looking.
+const MIN_SPAWN_DISTANCE := 14.0
+const SPAWN_VIEW_HALF_ANGLE_DEG := 65.0
+const SPAWN_MARKER_HEIGHT := 1.2
 
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
@@ -78,6 +84,8 @@ var _reinforcing := false
 var _reinforce_wait := 0.0
 var _reinforcement_serial := 0
 var _shockwave_played := false
+## Markers already used by the current wave, so two enemies do not share one.
+var _wave_used_markers: Array[Node3D] = []
 
 
 func _enter_tree() -> void:
@@ -249,12 +257,15 @@ func _spawn_wave() -> void:
 		return
 	var room := reinforcement_config.max_alive - reinforcement_count()
 	var count := mini(reinforcement_config.per_wave, maxi(room, 0))
+	_wave_used_markers.clear()
 	for _i in count:
 		_spawn_one()
 
 
 func _spawn_one() -> void:
-	var point: Node3D = _spawn_points.pick_random()
+	var point := _pick_spawn_marker()
+	if point == null:
+		return
 	var enemy := ENEMY_SCENE.instantiate() as Enemy
 	_reinforcement_serial += 1
 	enemy.name = "Reinforcement%d" % _reinforcement_serial
@@ -267,6 +278,71 @@ func _spawn_one() -> void:
 	enemy.setup(_player, _cover_points, _firing_board)
 	enemy.begin_hunt()
 	reinforcement_spawned.emit(enemy.global_position)
+
+
+## A marker out of the player's sight and at least MIN_SPAWN_DISTANCE away.
+## Falls back to the farthest unused marker when every one is visible or close.
+## The random pick uses the run's seeded global RNG; the fallback draws nothing.
+func _pick_spawn_marker() -> Node3D:
+	if _spawn_points.is_empty():
+		return null
+	if _wave_used_markers.size() >= _spawn_points.size():
+		_wave_used_markers.clear()
+	var candidates: Array[Node3D] = []
+	for point in _spawn_points:
+		if point in _wave_used_markers:
+			continue
+		if _spawn_distance(point) < MIN_SPAWN_DISTANCE:
+			continue
+		if _is_marker_visible(point):
+			continue
+		candidates.append(point)
+	var marker: Node3D
+	if not candidates.is_empty():
+		marker = candidates.pick_random()
+	else:
+		marker = _farthest_unused_marker()
+	if marker != null:
+		_wave_used_markers.append(marker)
+	return marker
+
+
+func _spawn_distance(point: Node3D) -> float:
+	if _player == null or not is_instance_valid(_player):
+		return INF
+	var delta := point.global_position - _player.global_position
+	return Vector2(delta.x, delta.z).length()
+
+
+## True when the marker is inside the player's view cone and a WORLD-only ray
+## from the eye reaches it. Actors and hitboxes do not block sight.
+func _is_marker_visible(point: Node3D) -> bool:
+	if _player == null or not is_instance_valid(_player):
+		return false
+	var eye := _player.eye_position()
+	var target := point.global_position + Vector3.UP * SPAWN_MARKER_HEIGHT
+	var direction := target - eye
+	if direction.length_squared() < 0.0001:
+		return true
+	if _player.view_forward().angle_to(direction.normalized()) > deg_to_rad(SPAWN_VIEW_HALF_ANGLE_DEG):
+		return false
+	var query := PhysicsRayQueryParameters3D.create(eye, target, CollisionLayers.WORLD)
+	return _player.get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+
+
+## Deterministic fallback: the farthest unused marker; ties keep the first in
+## marker order, so no RNG is drawn.
+func _farthest_unused_marker() -> Node3D:
+	var best: Node3D = null
+	var best_distance := -1.0
+	for point in _spawn_points:
+		if point in _wave_used_markers:
+			continue
+		var distance := _spawn_distance(point)
+		if distance > best_distance:
+			best = point
+			best_distance = distance
+	return best
 
 
 func _watch_departure(enemy: Enemy) -> void:

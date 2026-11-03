@@ -7,7 +7,9 @@ Each box named Cover* gets four cover points around it.
 A layout with `boss` adds one big enemy there; `enemies` are then the small ones
 around it. A layout with `core` has a bigger objective. The core stays shut
 until the boss dies, and one hammer then finishes it (`boss_capture_config.tres`).
-`spawns` are rear reinforcement markers (small zones only). The boss zone has none.
+`spawns` are reinforcement markers (small zones only): rear, flank and rear
+corners, so the director can pick one outside the player's view. The boss zone
+has none.
 
 Enemies are `(x, z, yaw_degrees)`. The yaw is the Godot rotation around Y:
 0 faces -z, 90 faces -x, 180 faces +z. Guards are spread over three depth
@@ -134,10 +136,12 @@ def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spaw
 # other four small enemies hold the front and middle of the arena.
 BOSS_AT = (0, -19, 180)
 
-# Small zones: the player enters from +z. The building sits back at z=-8, near
-# the reinforcement markers, so a spawn about 12 m behind it is a few seconds
-# of running. The guards are spread over the whole run-in: the front third
-# (closest to the spawn), the middle third and around the building. Each one
+# Small zones: the player enters from +z. The building sits back at z=-8. Rear
+# markers are a few seconds of running; flank markers hide behind the tall
+# Cover3/Cover4 walls and rear-corner markers sit at the far corners, so the
+# director can usually pick somewhere the player is not looking. The guards are
+# spread over the whole run-in: the front third (closest to the spawn), the
+# middle third and around the building. Each one
 # stands beside a cover crate, and the idle ones face across the arena instead
 # of back at the entrance, so the player is outside every 120 degree view cone
 # at spawn (issue #42). The centre corridor (x near 0, from the spawns up to
@@ -146,7 +150,7 @@ zones = {
  # 4 guards: 1 front / 1 middle / 2 at the building.
  "maps/zone_1.tscn": dict(name="Zone1", grey=(0.55,0.56,0.58), spawn=(0,14), capture=(0,-8),
    enemies=[(13.5,7.2,30),(-9.5,1.5,-45),(-7,-6,-60),(7,-6,60)],
-   spawns=[(-8,-21),(0,-20),(8,-21)],
+   spawns=[(-8,-21),(0,-20),(8,-21),(-17,-8),(17,-8),(-22,-24),(22,-24)],
    boxes=[("Cover1",(3,1.2,1),(-8,0.6,6)),("Cover2",(3,1.2,1),(8,0.6,6)),
           ("Cover3",(1,2.5,4),(-14,1.25,-8)),("Cover4",(1,2.5,4),(14,1.25,-8)),
           ("Cover5",(3,1.2,1),(-12,0.6,-16)),("Cover6",(3,1.2,1),(12,0.6,-16)),
@@ -155,7 +159,7 @@ zones = {
  # 6 guards: 2 front / 2 middle / 2 at the building.
  "maps/zone_2.tscn": dict(name="Zone2", grey=(0.6,0.55,0.5), spawn=(0,16), capture=(0,-8),
    enemies=[(-13.5,9,-30),(13.5,9,30),(-8.5,1.8,-45),(8.5,1.8,45),(-14,-1.5,-60),(14,-1.5,60)],
-   spawns=[(-10,-21),(0,-20),(10,-21)],
+   spawns=[(-10,-21),(0,-20),(10,-21),(-19,-2),(19,-2),(-22,-24),(22,-24)],
    boxes=[("Cover1",(4,1.2,1),(-9,0.6,8)),("Cover2",(4,1.2,1),(9,0.6,8)),
           ("Cover3",(1,2.5,5),(-16,1.25,-2)),("Cover4",(1,2.5,5),(16,1.25,-2)),
           ("Cover5",(3,1.2,1),(-12,0.6,-14)),("Cover6",(3,1.2,1),(12,0.6,-14)),

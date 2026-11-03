@@ -51,20 +51,27 @@ func _behind_the_building() -> void:
 	var player := scene.get_node("Player") as Player
 	_place_player_behind(point, player)
 
-	var blocked := true
-	for marker in _spawns(scene):
-		var from := marker.global_position + Vector3.UP * 1.55
-		var query := PhysicsRayQueryParameters3D.create(from, _player_point(player), CollisionLayers.WORLD)
-		if scene.get_world_3d().direct_space_state.intersect_ray(query).is_empty():
-			blocked = false
-	_check("the building blocks every spawn's view of the player", blocked)
-
 	_freeze_guards(scene)
 	await _settle_navigation()
 	_kill_guards(scene)
 	await get_tree().physics_frame
 	var first := _reinforcements(scene)
 	_check("the first wave spawns", first.size() == 2)
+	# Spawns now include flank and rear-corner markers, so the building no longer
+	# blocks every one of them. The rule is the player's view: a spawn is hidden
+	# when it is outside the view cone or a WORLD ray from the eye is blocked.
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	var hidden := not director.reinforcement_spawn_log.is_empty()
+	for spawn in director.reinforcement_spawn_log:
+		var eye := player.eye_position()
+		var target: Vector3 = spawn + Vector3.UP * ZoneDirector.SPAWN_MARKER_HEIGHT
+		var direction := (target - eye).normalized()
+		if player.view_forward().angle_to(direction) > deg_to_rad(ZoneDirector.SPAWN_VIEW_HALF_ANGLE_DEG):
+			continue
+		var query := PhysicsRayQueryParameters3D.create(eye, target, CollisionLayers.WORLD)
+		if scene.get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+			hidden = false
+	_check("the first wave spawns out of the player's view", hidden)
 	var seeking := not first.is_empty()
 	for enemy in first:
 		if enemy.state == Enemy.State.IDLE or enemy.firing_position == Vector3.INF:

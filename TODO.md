@@ -13,7 +13,7 @@
 ## 敌人
 
 - [ ] **Boss 关强度待试玩确认**（ADR 0004）。玩家站着不动、不还手，Boss 加 6 个小敌人 1.7–2.6 秒（多次实测）就能打死。Boss 的数在 `actors/enemy/boss.tscn`，站位在 `tools/gen_zones.py` 的 `BOSS_AT` 和 `enemies`。
-- [ ] **敌人强度待试玩确认**。敌人子弹是 18 m/s 的慢速弹，不做提前量预判：20 米外单个敌人 8 秒内，玩家站着不动掉约 100 血，左右横移几乎不掉血。4 个敌人同时站桩对射仍然很快阵亡。可调参数在 `actors/enemy/enemy.gd`：`projectile_speed`、`accuracy_deg`、`burst_pause`、`damage_min`/`damage_max`、`reaction_time`。
+- [ ] **敌人强度待试玩确认**。敌人子弹现在是 30 m/s（原 18 m/s），不做提前量预判；下面「20 米外单个敌人 8 秒内，玩家站着不动掉约 100 血，左右横移几乎不掉血」是旧速度下的观测，提速后要重新试玩。4 个敌人同时站桩对射仍然很快阵亡。可调参数在 `actors/enemy/enemy.gd`：`projectile_speed`、`accuracy_deg`、`burst_pause`、`damage_min`/`damage_max`、`reaction_time`。
 - [ ] 子弹迎面飞来时，开头几米会和敌人模型重叠，不太容易看清。可以考虑加枪口火光（见下一条）或子弹拖尾。
 - [ ] 敌人开枪时没有枪口火光，玩家只能靠声音和弹着点判断谁在开枪。
 - [ ] 被击中时没有受击动画（模型自带 `HitReact`，需要用 AnimationTree 叠加播放）。

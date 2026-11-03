@@ -62,6 +62,7 @@
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
 | 射击位 | `Enemy.State.SEEK`，`Enemy.firing_position`，`FiringPositionBoard` | 交火时站的、能看到玩家的位置。候选是现有掩体点加玩家周围固定方向的两圈采样点（8 / 20 米），只保留导航可达、从眼睛高度到玩家不被世界挡住的点；离自己近的优先，挨着掩体减分。多个敌人共用一个 `FiringPositionBoard`，3.5 米内别人已订的点不再选。走到后进入交火；看不见玩家 0.5 秒或离玩家近于 6 米就重找。找不到才退回朝玩家追。增援出生即寻位，不抽随机数。 |
 | 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
+| 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波刷在离玩家至少 14 米、且玩家看不见的刷新点（相机前方 65° 内 + 从眼睛到 1.2 米高度无 WORLD 遮挡）；都不合格时退回离玩家最远的未用点，不抽随机数。同一波不重复用同一个点。zone_1 / zone_2 各有后方、侧翼和后排角落共 7 个点。 |
 
 ## 设计目标（Cut-001b）
 

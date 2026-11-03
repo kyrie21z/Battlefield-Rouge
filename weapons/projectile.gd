@@ -1,12 +1,15 @@
 class_name Projectile
 extends Node3D
-## Slow glowing bullet for enemies, so the player can see it coming and step
-## aside. Moves in a straight line and sweeps a ray each physics frame from its
-## last position, so it cannot tunnel through thin geometry.
+## Glowing tracer for enemy fire. Moves in a straight line and sweeps a ray each
+## physics frame from its last position, so it cannot tunnel through thin
+## geometry even at 30 m/s.
 
 const MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
+## The tracer is this many seconds of travel long, so it reads at any speed.
+const TRACER_SECONDS := 0.035
+const TRACER_MIN_LENGTH := 0.7
 
-var speed := 18.0
+var speed := 30.0
 var damage := 10.0
 var max_distance := 45.0
 ## The shooter, passed to Health as the damage source (for the team check).
@@ -15,6 +18,7 @@ var exclude: Array[RID] = []
 var tint := Color(1.0, 0.55, 0.2)
 
 var _travelled := 0.0
+var _tracer_length := TRACER_MIN_LENGTH
 
 
 static func spawn(parent: Node, from: Vector3, direction: Vector3, p_source: Node, p_damage: float,
@@ -32,16 +36,17 @@ static func spawn(parent: Node, from: Vector3, direction: Vector3, p_source: Nod
 
 
 func _ready() -> void:
+	_tracer_length = maxf(TRACER_MIN_LENGTH, speed * TRACER_SECONDS)
 	var mesh := MeshInstance3D.new()
 	var capsule := CapsuleMesh.new()
 	capsule.radius = 0.045
-	capsule.height = 0.7
+	capsule.height = _tracer_length
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.albedo_color = tint
 	mat.emission_enabled = true
 	mat.emission = tint
-	mat.emission_energy_multiplier = 3.0
+	mat.emission_energy_multiplier = 4.0
 	capsule.material = mat
 	mesh.mesh = capsule
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -63,7 +68,7 @@ func _ready() -> void:
 	texture.width = 64
 	texture.height = 64
 	glow.texture = texture
-	glow.pixel_size = 0.6 / 64.0
+	glow.pixel_size = 0.8 / 64.0
 	glow.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	glow.shaded = false
 	glow.transparent = true
@@ -72,9 +77,14 @@ func _ready() -> void:
 
 	var light := OmniLight3D.new()
 	light.light_color = tint
-	light.light_energy = 0.8
+	light.light_energy = 1.0
 	light.omni_range = 2.0
 	add_child(light)
+
+
+## Length of the visible tracer in metres. For tests.
+func tracer_length() -> float:
+	return _tracer_length
 
 
 func _physics_process(delta: float) -> void:

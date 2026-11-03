@@ -10,3 +10,8 @@ Thumbs.db
 /verification/
 /import.log
 /.local-user/
+tools/crystal_enemy/_out/
+
+# Python tools
+__pycache__/
+*.pyc

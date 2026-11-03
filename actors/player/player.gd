@@ -19,6 +19,13 @@ extends CharacterBody3D
 ## draw from the global sequence (ADR 0005).
 const FEEL_SEED := 0x5A4E
 
+## Getting hit flinches the rendering camera. Degrees grow with the share of
+## max health taken; the cap keeps a burst from throwing the picture around.
+const HURT_SHAKE_BASE := 0.5
+const HURT_SHAKE_PER_HP := 8.0
+const HURT_SHAKE_MAX := 2.2
+const HURT_SHAKE_DURATION := 0.2
+
 ## Read by Health to ignore friendly fire.
 var team := 0
 
@@ -70,6 +77,7 @@ func _ready() -> void:
 	melee.swing_finished.connect(_on_melee_swing_finished)
 	dash.dashing.connect(_on_dash)
 	health.died.connect(_on_died)
+	health.damaged.connect(_on_hurt)
 
 
 ## Read-only dash state for the HUD.
@@ -185,10 +193,11 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 	_visual_kick += Vector2(pitch, -yaw) * (1.0 - manual)
 
 
-## One shot's camera shake and FOV punch (both already scaled by the weapon for
-## aiming and scope). A new shot takes over only if it is stronger than what is
-## left of the last, so a burst shudders instead of piling up.
-func _on_weapon_shake(degrees: float, fov_punch: float, duration: float) -> void:
+## One camera shake and FOV punch (both already scaled by the caller). A new
+## kick takes over only if it is stronger than what is left of the last, so a
+## burst shudders instead of piling up. Public because getting hurt flinches
+## the view through the same path.
+func add_view_shake(degrees: float, fov_punch: float, duration: float) -> void:
 	var left_fraction := _shake_left / maxf(_shake_total, 0.001)
 	if degrees >= _shake_degrees * left_fraction * left_fraction:
 		_shake_degrees = degrees
@@ -200,6 +209,19 @@ func _on_weapon_shake(degrees: float, fov_punch: float, duration: float) -> void
 		_punch = fov_punch
 		_punch_left = duration
 		_punch_total = duration
+
+
+## A shot's camera shake, straight from the weapon.
+func _on_weapon_shake(degrees: float, fov_punch: float, duration: float) -> void:
+	add_view_shake(degrees, fov_punch, duration)
+
+
+## Taking damage knocks the rendering camera only: `$Head/Camera3D` stays where
+## the player aims, so rays, melee and the fixture replay do not move.
+func _on_hurt(dealt: float, _part: Hitbox.BodyPart, _source: Node) -> void:
+	var max_health := maxf(health.max_health, 1.0)
+	add_view_shake(clampf(HURT_SHAKE_BASE + HURT_SHAKE_PER_HP * dealt / max_health,
+		HURT_SHAKE_BASE, HURT_SHAKE_MAX), 0.0, HURT_SHAKE_DURATION)
 
 
 ## Poses the rendering camera: shake rotation on its local transform and the FOV

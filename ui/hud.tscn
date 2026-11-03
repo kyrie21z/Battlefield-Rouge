@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
@@ -13,6 +13,15 @@
 [ext_resource type="Script" path="res://ui/objective_panel.gd" id="11_objective"]
 [ext_resource type="Script" path="res://ui/boss_health.gd" id="12_boss"]
 [ext_resource type="Script" path="res://ui/buff_bar.gd" id="13_buff_bar"]
+[ext_resource type="Shader" path="res://ui/damage_vignette.gdshader" id="14_vignette"]
+[ext_resource type="Script" path="res://ui/damage_indicator.gd" id="15_indicator"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hurt"]
+shader = ExtResource("14_vignette")
+shader_parameter/tint = Color(0.72, 0.03, 0.02, 1)
+shader_parameter/clear_radius = 0.35
+shader_parameter/edge_radius = 0.95
+shader_parameter/max_strength = 0.9
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -38,13 +47,24 @@ mouse_filter = 2
 script = ExtResource("5_scope")
 
 [node name="DamageFlash" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_hurt")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.8, 0, 0, 0)
+color = Color(1, 1, 1, 0)
+
+[node name="DamageIndicator" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("15_indicator")
 
 [node name="Crosshair" type="Control" parent="."]
 layout_mode = 3

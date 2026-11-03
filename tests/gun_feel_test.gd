@@ -41,6 +41,8 @@ func _run() -> void:
 	await _test_hitmarker(scene)
 	await _test_enemy_reaction(scene)
 	await _test_impacts(scene)
+	await _test_tracers_and_casings()
+	await _test_hitstop(scene)
 	_finished = true
 
 
@@ -79,7 +81,7 @@ func _test_spring() -> void:
 
 func _test_wav_layers() -> void:
 	print("== procedural sounds")
-	for kind in ["gun_rifle", "gun_shotgun", "gun_sniper", "hit_kill", "hit_tink", "shell"]:
+	for kind in ["gun_rifle", "gun_shotgun", "gun_sniper", "hit_kill", "hit_tink"]:
 		var wav := ProceduralAudio.generate(kind)
 		var peak := 0
 		for i in range(0, wav.data.size(), 2):
@@ -386,6 +388,124 @@ func _test_impacts(scene: Node) -> void:
 	_check("the chips fly", (world_burst.get_child(0) as Node3D).position != moved_before)
 	await _seconds(1.3)
 	_check("every effect frees itself", scene.get_child_count() <= before and DebrisBurst.alive == 0)
+
+
+func _tracers() -> Array[Node]:
+	return get_children().filter(func(n: Node) -> bool: return n is Tracer)
+
+
+func _test_tracers_and_casings() -> void:
+	print("== tracers and casings")
+	var start := Tracer.spawn(self, Vector3(0, 2, 0), Vector3(0, 2, -40))
+	_check("a tracer flies along muzzle -> hit (%.0f m)" % start._distance, absf(start._distance - 40.0) < 0.01
+		and start._direction.is_equal_approx(Vector3(0, 0, -1)))
+	_check("a sliver of a path draws nothing", Tracer.spawn(self, Vector3.ZERO, Vector3(0, 0, -0.2)) == null)
+	var far := Tracer.spawn(self, Vector3.ZERO, Vector3(0, 0, -5000))
+	_check("a sky shot is capped (%.0f m)" % far._distance, far._distance <= Tracer.MAX_PATH)
+	await _seconds(0.1)
+	var thin := start.mesh as BoxMesh
+	_check("it is a thin stretched box (thickness %.3f, length %.1f)" % [thin.size.x, start.scale.z],
+		thin.size.x < 0.03 and start.scale.z > 1.0)
+	await _seconds(1.6)
+	_check("tracers free themselves", _tracers().is_empty())
+
+	_weapon.select(0)
+	Input.action_release("aim")
+	await _seconds(0.5)
+	_weapon._cooldown = 0.0
+	_weapon.ammo = 30
+	var casings_before := Casing.alive
+	_weapon.try_fire()
+	await get_tree().process_frame
+	_check("one rifle shot draws one tracer (%d)" % _tracers().size(), _tracers().size() == 1)
+	_check("and ejects one casing (%d)" % (Casing.alive - casings_before), Casing.alive - casings_before == 1)
+	await _seconds(1.5)
+	_check("the casing is gone after its short life", Casing.alive == 0 and _tracers().is_empty())
+	_weapon.select(1)
+	await _seconds(0.3)
+	_weapon._cooldown = 0.0
+	_weapon.ammo = 6
+	_weapon.try_fire()
+	await get_tree().process_frame
+	_check("a shotgun blast draws at most %d of its 9 pellets (%d)" % [_weapon.data.max_tracers, _tracers().size()],
+		_tracers().size() == _weapon.data.max_tracers)
+	_check("and throws a (red) shell", Casing.alive == 1)
+	await _seconds(1.5)
+	_weapon.select(2)
+	Input.action_press("aim")
+	await _seconds(0.8)
+	_check("scoped", _weapon.is_scoped())
+	_weapon._cooldown = 0.0
+	_weapon.ammo = 5
+	_weapon.try_fire()
+	await get_tree().process_frame
+	_check("scoped sniper: a tracer but no casing (the gun is off screen)", _tracers().size() == 1 and Casing.alive == 0)
+	Input.action_release("aim")
+	await _seconds(0.8)
+	_weapon._cooldown = 0.0
+	_weapon.ammo = 5
+	_weapon.try_fire()
+	await get_tree().process_frame
+	_check("hip sniper ejects its casing", Casing.alive == 1)
+	await _seconds(1.5)
+	# The cap: a flood of casings cannot grow without bound.
+	for i in 60:
+		Casing.spawn(self, Vector3(0, 5, 0), Vector3.ZERO, Vector3.ZERO, Casing.Kind.RIFLE)
+	_check("casings are capped at %d (%d)" % [Casing.MAX_ALIVE, Casing.alive], Casing.alive == Casing.MAX_ALIVE)
+	# Bullet effects never touch the global random sequence.
+	_weapon.select(0)
+	await _seconds(1.5)
+	_weapon.ammo = 30
+	_weapon._cooldown = 0.0
+	seed(2024)
+	_weapon._tracers_left = 0
+	var casing_off := _weapon.data.casings_per_shot
+	_weapon.data.casings_per_shot = 0
+	var feel_before := _weapon._feel_rng.state
+	_weapon.try_fire()
+	var plain := randi()
+	_weapon.data.casings_per_shot = casing_off
+	_weapon._cooldown = 0.0
+	seed(2024)
+	_weapon.try_fire()
+	var with_effects := randi()
+	_check("tracers + casings add no global random draws", plain == with_effects)
+	_check("they draw from the private generator instead", _weapon._feel_rng.state != feel_before)
+	await _seconds(1.5)
+
+
+func _test_hitstop(scene: Node) -> void:
+	print("== hitstop")
+	_check("headless: HitStop refuses by default", not HitStop.request(get_tree(), 0.05)
+		and Engine.time_scale == 1.0)
+	HitStop.allow_headless = true
+	Engine.time_scale = 0.8
+	_check("when allowed, it starts", HitStop.request(get_tree(), 0.06))
+	_check("and drops the time scale (%.2f)" % Engine.time_scale, Engine.time_scale < 0.1 and HitStop.is_active())
+	_check("a second request while stopping is refused", not HitStop.request(get_tree(), 0.06))
+	HitStop.restore()
+	_check("restore() puts the scale back at once", Engine.time_scale == 0.8 and not HitStop.is_active())
+	Engine.time_scale = 1.0
+	# The HUD's own rule: a kill under a fixture never freezes the game.
+	RunState.fixture = RunFixture.by_id("FX-001")
+	_weapon.hit_landed.emit(false, true)
+	_check("a kill under a fixture takes no hitstop", Engine.time_scale == 1.0 and not HitStop.is_active())
+	RunState.fixture = null
+	_weapon.hit_landed.emit(false, true)
+	_check("a kill in an ordinary run does", HitStop.is_active() and Engine.time_scale < 0.1)
+	HitStop.restore()
+	Engine.time_scale = 0.8
+	HitStop.request(get_tree(), 0.06)
+	scene.free()
+	_check("the scene vanishing mid-stop does not cancel the restore", HitStop.is_active())
+	await get_tree().create_timer(0.3, true, false, true).timeout
+	_check("it restores the previous scale on its own (%.2f)" % Engine.time_scale,
+		is_equal_approx(Engine.time_scale, 0.8) and not HitStop.is_active())
+	Engine.time_scale = 1.0
+	# The HUD refuses it under a fixture. Build the HUD condition directly.
+	HitStop.restore()
+	_check("restore() is idempotent and safe", Engine.time_scale == 1.0)
+	HitStop.allow_headless = false
 
 
 func _playing_voices() -> Array[int]:

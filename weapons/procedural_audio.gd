@@ -35,8 +35,6 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _kill_confirm()
 		"hit_tink":
 			return _ping(0.16, [2900.0, 4300.0], 30.0)
-		"shell":
-			return _ping(0.1, [3600.0, 5400.0, 7100.0], 55.0)
 		"gunshot_sniper":
 			return _noise_burst(0.34, 20.0, 1.0, 0.2)
 		"gunshot_shotgun":

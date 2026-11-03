@@ -79,6 +79,8 @@ var _view_base := Vector3.ZERO
 ## Impacts of the current shot that still get the full debris / droplet effect,
 ## so nine shotgun pellets do not spawn nine full sets.
 var _detail_left := 0
+## Tracers this shot may still draw (`data.max_tracers`).
+var _tracers_left := 0
 var _feel_rng := RandomNumberGenerator.new()
 var _gunshots: Array[AudioStreamWAV] = []
 var _reload_sound: AudioStreamWAV
@@ -292,6 +294,7 @@ func try_fire() -> bool:
 	_cooldown = data.fire_interval / _stat(Stats.FIRE_RATE)
 	var spread := spread_degrees()
 	_detail_left = 3
+	_tracers_left = data.max_tracers
 	for pellet in maxi(data.pellets, 1):
 		_shoot_ray(camera.global_position, _spread_direction(-camera.global_basis.z, spread))
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
@@ -302,6 +305,7 @@ func try_fire() -> bool:
 		_flash.visible = true
 		_flash_left = 0.04
 	_kick_view()
+	_eject_casings()
 	recoil.emit(data.camera_kick, data.camera_kick * _next_pattern_value(), data.recoil_manual)
 	fired.emit()
 	Events.gunshot.emit(global_position)
@@ -339,10 +343,14 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 	if shooter != null:
 		query.exclude = [shooter.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var effects_parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+	if _tracers_left > 0:
+		_tracers_left -= 1
+		Tracer.spawn(effects_parent, _muzzle_position(origin),
+			hit.position if not hit.is_empty() else origin + direction * data.max_range)
 	if hit.is_empty():
 		return
 	var collider: Object = hit.collider
-	var effects_parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
 	Impact.spawn(effects_parent, hit.position, hit.normal, collider is Hitbox, _detail_left > 0)
 	_detail_left -= 1
 	if collider is Hitbox:
@@ -391,6 +399,30 @@ func _store_slot() -> void:
 
 ## Gunshot on the next free voice, with a little pitch and level variation. If
 ## all voices are busy the oldest one is taken over.
+## Where a tracer starts: the model's muzzle, or the eye when the model has none.
+func _muzzle_position(fallback: Vector3) -> Vector3:
+	return (_flash.get_parent() as Node3D).global_position if _flash != null else fallback
+
+
+## Throws `casings_per_shot` spent shells out to the right. Not while scoped or
+## drawn away, because then the gun is not on screen to throw them. Direction and
+## spin come from the private feel generator.
+func _eject_casings() -> void:
+	if data.casings_per_shot <= 0 or not _view.visible:
+		return
+	var kind := Casing.Kind.SHOTGUN if data.pellets > 1 \
+		else (Casing.Kind.SNIPER if not data.scope_zoom_levels.is_empty() else Casing.Kind.RIFLE)
+	var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+	var port := _view.to_global(Vector3(0.03, 0.035, -0.1))
+	var basis := camera.global_basis
+	for i in data.casings_per_shot:
+		var velocity := basis.x * _feel_rng.randf_range(1.8, 3.2) + basis.y * _feel_rng.randf_range(1.0, 2.2) \
+			+ basis.z * _feel_rng.randf_range(-0.4, 0.6)
+		var spin := Vector3(_feel_rng.randf_range(-30.0, 30.0), _feel_rng.randf_range(-30.0, 30.0),
+			_feel_rng.randf_range(-30.0, 30.0))
+		Casing.spawn(parent, port, velocity, spin, kind)
+
+
 func _play_shot(stream: AudioStream) -> void:
 	var voice := _shot_voices[_next_voice]
 	for offset in SHOT_VOICES:

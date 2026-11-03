@@ -66,6 +66,7 @@ func play(from: Node3D, heavy := false) -> void:
 	if not _acquire_model():
 		return
 	_flash_left = FLASH_TIME
+	_overlay.albedo_color.a = FLASH_ALPHA
 	for mesh in _meshes:
 		mesh.material_overlay = _overlay
 	if flinch_enabled and not _health.is_dead() and from != null:

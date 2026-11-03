@@ -35,6 +35,14 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _kill_confirm()
 		"hit_tink":
 			return _ping(0.16, [2900.0, 4300.0], 30.0)
+		# Taking a hit: a low muffled thud with a little grit. The heavy variant
+		# falls deeper and rings longer for big hits and headshots.
+		"player_hurt":
+			return _hurt_thump(0.18, 170.0, 62.0, 26.0, 0.55, 31)
+		"player_hurt_heavy":
+			return _hurt_thump(0.30, 120.0, 42.0, 15.0, 0.8, 32)
+		"heartbeat":
+			return _heartbeat()
 		"gunshot_sniper":
 			return _noise_burst(0.34, 20.0, 1.0, 0.2)
 		"gunshot_shotgun":
@@ -170,6 +178,54 @@ static func _kill_confirm() -> AudioStreamWAV:
 		var value := int(clampf(tanh(knock + snap + ring), -1.0, 1.0) * 32767.0) & 0xFFFF
 		data[i * 2] = value & 0xFF
 		data[i * 2 + 1] = (value >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## Player hurt: a sine thud falling from `from` to `to` Hz with low-passed
+## noise grit on top. The heavy variant starts lower and decays slower.
+static func _hurt_thump(duration: float, from: float, to: float, decay: float,
+		grit: float, seed: int) -> AudioStreamWAV:
+	var sample_count := int(duration * SAMPLE_RATE)
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + seed
+	var phase := 0.0
+	var lowpass := 0.0
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		phase += TAU * lerpf(from, to, 1.0 - exp(-t * 30.0)) / SAMPLE_RATE
+		var thud := sin(phase) * exp(-t * decay) * 0.9
+		lowpass += (rng.randf_range(-1.0, 1.0) - lowpass) * 0.12
+		var dust := lowpass * exp(-t * 34.0) * grit * 1.6
+		var mixed := tanh((thud + dust) * 1.2) * minf(t / 0.003, 1.0)
+		var value := int(clampf(mixed, -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = value & 0xFF
+		data[i * 2 + 1] = (value >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## Low-health heartbeat: two soft low thumps ("lub-dub"). One beat is short so
+## the caller can replay it at a health-dependent rate instead of pitching it.
+static func _heartbeat() -> AudioStreamWAV:
+	var duration := 0.42
+	var beats := [0.0, 0.16]
+	var sample_count := int(duration * SAMPLE_RATE)
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		var value := 0.0
+		for b in beats.size():
+			var local := t - float(beats[b])
+			if local < 0.0:
+				continue
+			var freq := 56.0 if b == 0 else 46.0
+			var amp := 0.9 if b == 0 else 0.65
+			value += sin(TAU * freq * local) * exp(-local * 22.0) * amp * minf(local / 0.006, 1.0)
+		var sample := int(clampf(tanh(value * 1.3), -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = sample & 0xFF
+		data[i * 2 + 1] = (sample >> 8) & 0xFF
 	return _make_wav(data)
 
 

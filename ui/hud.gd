@@ -8,6 +8,29 @@ const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 ## A kill freezes the game for this many real seconds (see HitStop).
 const KILL_HITSTOP := 0.05
 
+## Taking a hit: red edge vignette alpha, from the dealt damage, capped so the
+## picture never goes fully red, and gone in this many seconds.
+const HURT_FLASH_BASE := 0.30
+const HURT_FLASH_PER_HP := 2.0
+const HURT_FLASH_MAX := 0.90
+const HURT_FLASH_DECAY := 0.55
+## Hits arriving this close together are one impact (shotgun pellets).
+const HURT_MERGE_TIME := 0.06
+## A hit this big, or any headshot, uses the heavy hurt sound.
+const HURT_HEAVY_FRACTION := 0.20
+const HURT_VOLUME_MIN_DB := -5.0
+const HURT_VOLUME_MAX_DB := 0.0
+
+## Low health: a pulsing edge that beats faster as HP falls. It stays on until
+## health climbs back past the exit share, so the border cannot flicker.
+const LOW_HP_ENTER := 0.30
+const LOW_HP_EXIT := 0.35
+const LOW_HP_BASE := 0.35
+const LOW_HP_PULSE := 0.20
+const LOW_HP_RATE_SLOW := 1.0
+const LOW_HP_RATE_FAST := 1.6
+const HEARTBEAT_DB := -7.0
+
 var _player: Player
 var _director: ZoneDirector
 var _hit_tween: Tween
@@ -15,6 +38,21 @@ var _hit_tween: Tween
 ## players, so layering them never cuts the ogg.
 var _kill_audio: AudioStreamPlayer
 var _tink_audio: AudioStreamPlayer
+## Hurt voices and the low-health heartbeat. Kept apart so a new hit never
+## cuts the heartbeat and vice versa.
+var _hurt_audio: AudioStreamPlayer
+var _hurt_heavy_audio: AudioStreamPlayer
+var _heartbeat: AudioStreamPlayer
+## Hurt feedback state. The first hit of an impact shows at once; hits within
+## HURT_MERGE_TIME after it only deepen the vignette, without another sound.
+var _hurt_pending := 0.0
+var _hurt_merge_left := 0.0
+var _hurt_flash := 0.0
+var _low_pulse := 0.0
+var _heartbeat_left := 0.0
+## For tests and proofs.
+var hurt_sound_plays := 0
+var low_hp := false
 
 @onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
@@ -27,6 +65,7 @@ var _tink_audio: AudioStreamPlayer
 @onready var _magazine_slot: AbilitySlot = $AbilityBar/Magazine
 @onready var _audio: AudioStreamPlayer = $HitAudio
 @onready var _damage_flash: ColorRect = $DamageFlash
+@onready var _damage_indicator: DamageIndicator = $DamageIndicator
 @onready var _objectives: ObjectivePanel = $Top
 @onready var _boss_health: BossHealth = $BossHealth
 @onready var _markers: Control = $WorldMarkers
@@ -46,6 +85,17 @@ func _ready() -> void:
 	_tink_audio.stream = ProceduralAudio.generate("hit_tink")
 	_tink_audio.volume_db = -7.0
 	add_child(_tink_audio)
+	_hurt_audio = AudioStreamPlayer.new()
+	_hurt_audio.stream = ProceduralAudio.generate("player_hurt")
+	add_child(_hurt_audio)
+	_hurt_heavy_audio = AudioStreamPlayer.new()
+	_hurt_heavy_audio.stream = ProceduralAudio.generate("player_hurt_heavy")
+	add_child(_hurt_heavy_audio)
+	_heartbeat = AudioStreamPlayer.new()
+	_heartbeat.stream = ProceduralAudio.generate("heartbeat")
+	_heartbeat.volume_db = HEARTBEAT_DB
+	add_child(_heartbeat)
+	_damage_indicator.setup(_player)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
 	_player.weapon.zoom_changed.connect(_on_zoom_changed)
 	_player.melee.hit_landed.connect(_on_hit_landed)
@@ -72,7 +122,7 @@ func _ready() -> void:
 	_refresh_combat_feedback()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
 	for marker: WorldMarker in _markers.get_children():
@@ -80,6 +130,7 @@ func _process(_delta: float) -> void:
 	(_markers.get_node("Capture") as WorldMarker).avoid(_markers.get_node("Boss") as WorldMarker)
 	_place_buffs()
 	_refresh_combat_feedback()
+	_update_hurt(delta)
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
@@ -130,9 +181,82 @@ func _on_hit_landed(headshot: bool, killed: bool) -> void:
 			HitStop.request(get_tree(), KILL_HITSTOP)
 
 
-func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:
-	var tween := create_tween()
-	tween.tween_property(_damage_flash, "color:a", 0.0, 0.4).from(clampf(amount / 40.0, 0.15, 0.45))
+func _on_player_damaged(amount: float, part: Hitbox.BodyPart, source: Node) -> void:
+	if amount <= 0.0:
+		return
+	var first := _hurt_merge_left <= 0.0
+	if first:
+		_hurt_pending = 0.0
+		_hurt_merge_left = HURT_MERGE_TIME
+	_hurt_pending += amount
+	_raise_hurt_flash()
+	if first:
+		_play_hurt_sound(amount, part == Hitbox.BodyPart.HEAD)
+	# The source may die before the arc fades; the indicator keeps the position.
+	if source is Node3D:
+		_damage_indicator.add_hit(source as Node3D, amount)
+
+
+## Counts down the merge window, fades the hit vignette and drives the
+## low-health pulse. Everything here is driven by frame delta, never a clock.
+func _update_hurt(delta: float) -> void:
+	_hurt_merge_left = maxf(_hurt_merge_left - delta, 0.0)
+	_hurt_flash = maxf(_hurt_flash - delta / HURT_FLASH_DECAY, 0.0)
+	_damage_flash.color.a = maxf(_hurt_flash, _update_low_health(delta))
+
+
+## The vignette follows the damage of the whole impact so far, never shrinking.
+func _raise_hurt_flash() -> void:
+	var max_health := maxf(_player.health.max_health, 1.0)
+	_hurt_flash = maxf(_hurt_flash, clampf(HURT_FLASH_BASE + HURT_FLASH_PER_HP * _hurt_pending / max_health,
+		HURT_FLASH_BASE, HURT_FLASH_MAX))
+	_damage_flash.color.a = maxf(_damage_flash.color.a, _hurt_flash)
+
+
+## One hurt sound per impact, chosen and scaled by its first hit.
+func _play_hurt_sound(amount: float, headshot: bool) -> void:
+	var max_health := maxf(_player.health.max_health, 1.0)
+	var heavy := headshot or amount >= HURT_HEAVY_FRACTION * max_health
+	var voice := _hurt_heavy_audio if heavy else _hurt_audio
+	var weight := clampf(amount / (HURT_HEAVY_FRACTION * max_health), 0.0, 1.0)
+	voice.volume_db = lerpf(HURT_VOLUME_MIN_DB, HURT_VOLUME_MAX_DB, weight)
+	voice.play()
+	hurt_sound_plays += 1
+
+
+## Returns the low-health edge alpha for this frame (0 when healthy).
+func _update_low_health(delta: float) -> float:
+	var health := _player.health
+	var max_health := maxf(health.max_health, 1.0)
+	var fraction := health.health / max_health
+	var was_low := low_hp
+	if health.is_dead():
+		low_hp = false
+	elif was_low:
+		low_hp = fraction <= LOW_HP_EXIT
+	else:
+		low_hp = fraction < LOW_HP_ENTER
+	if not low_hp:
+		if was_low:
+			_heartbeat.stop()
+		_low_pulse = 0.0
+		_heartbeat_left = 0.0
+		return 0.0
+	if not was_low:
+		_low_pulse = 0.0
+		_heartbeat_left = 0.0
+	var rate := lerpf(LOW_HP_RATE_SLOW, LOW_HP_RATE_FAST,
+		clampf((LOW_HP_ENTER - fraction) / LOW_HP_ENTER, 0.0, 1.0))
+	_low_pulse += TAU * rate * delta
+	_heartbeat_left = maxf(_heartbeat_left - delta, 0.0)
+	if _heartbeat_left <= 0.0:
+		_heartbeat.play()
+		_heartbeat_left = 1.0 / rate
+	return LOW_HP_BASE + LOW_HP_PULSE * (0.5 + 0.5 * sin(_low_pulse))
+
+
+func low_hp_active() -> bool:
+	return low_hp
 
 
 func _refresh_buffs() -> void:

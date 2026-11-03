@@ -19,6 +19,27 @@ const KILL_TEXT_FADE_TIME := 0.22
 const KILL_COMBO_WINDOW := 2.5
 const KILL_TEXT_GOLD := Color(1.0, 0.82, 0.25)
 
+## Hammer feedback: a kick per strike (bigger for perfect), per quarter break
+## and at capture, plus the floating progress text above the crosshair.
+const STRIKE_SHAKE := 0.45
+const STRIKE_PUNCH := 0.012
+const STRIKE_SHAKE_TIME := 0.14
+const PERFECT_SHAKE := 0.9
+const PERFECT_PUNCH := 0.028
+const PERFECT_SHAKE_TIME := 0.22
+const PERFECT_HITSTOP := 0.035
+const FRACTURE_SHAKE := 0.7
+const FRACTURE_SHAKE_TIME := 0.2
+const CAPTURE_SHAKE := 1.6
+const CAPTURE_PUNCH := 0.04
+const CAPTURE_SHAKE_TIME := 0.45
+const STRIKE_TEXT_TIME := 0.6
+const STRIKE_TEXT_RISE := 30.0
+const STRIKE_TEXT_TOP := -196.0
+const STRIKE_TEXT_BOTTOM := -156.0
+const STRIKE_TEXT_POP := 1.35
+const STRIKE_TEXT_GOLD := Color(1.0, 0.82, 0.25)
+
 ## Taking a hit: red edge vignette alpha, from the dealt damage, capped so the
 ## picture never goes fully red, and gone in this many seconds.
 const HURT_FLASH_BASE := 0.30
@@ -70,12 +91,16 @@ var low_hp := false
 var _kill_text_left := 0.0
 var _kill_combo := 0
 var _kill_combo_left := 0.0
+## Hammer strike text and its rise. For tests.
+var _strike_text_left := 0.0
+var last_strike_shake := 0.0
 
 @onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
 @onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
 @onready var _kill_text: Label = $KillText
+@onready var _strike_text: Label = $StrikeText
 @onready var _vitals: Vitals = $Vitals
 @onready var _weapon_panel: WeaponPanel = $WeaponPanel
 @onready var _shield_slot: AbilitySlot = $AbilityBar/Shield
@@ -137,6 +162,9 @@ func _ready() -> void:
 		_markers.add_child(marker)
 		marker.setup(kind, _director, _player)
 	_strike_bar.setup(_director.capture_point)
+	_director.capture_point.struck.connect(_on_capture_struck)
+	_director.capture_point.fractured.connect(_on_capture_fractured)
+	_director.capture_point.captured.connect(_on_capture_captured)
 	_debug.setup(_director)
 	RunState.changed.connect(_refresh_buffs)
 	_refresh_buffs()
@@ -154,6 +182,7 @@ func _process(delta: float) -> void:
 	_refresh_combat_feedback()
 	_update_hurt(delta)
 	_update_kill_text(delta)
+	_update_strike_text(delta)
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
@@ -241,6 +270,53 @@ func _update_kill_text(delta: float) -> void:
 	var pop := clampf((KILL_TEXT_TIME - _kill_text_left) / KILL_TEXT_POP_TIME, 0.0, 1.0)
 	_kill_text.scale = Vector2.ONE * lerpf(KILL_TEXT_SCALE, 1.0, pop)
 	_kill_text.modulate.a = clampf(_kill_text_left / KILL_TEXT_FADE_TIME, 0.0, 1.0)
+
+
+## One hammer strike landed: kick the view and float the progress it was worth.
+func _on_capture_struck(perfect: bool, _offset_ms: float, worth: float) -> void:
+	last_strike_shake = PERFECT_SHAKE if perfect else STRIKE_SHAKE
+	_player.add_view_shake(last_strike_shake, PERFECT_PUNCH if perfect else STRIKE_PUNCH,
+		PERFECT_SHAKE_TIME if perfect else STRIKE_SHAKE_TIME)
+	if perfect and RunState.fixture == null and not get_tree().paused:
+		HitStop.request(get_tree(), PERFECT_HITSTOP)
+	_show_strike_text(worth, perfect)
+
+
+## A quarter of the building came off.
+func _on_capture_fractured(_stage: int) -> void:
+	last_strike_shake = FRACTURE_SHAKE
+	_player.add_view_shake(FRACTURE_SHAKE, 0.0, FRACTURE_SHAKE_TIME)
+
+
+## The clock broke open: the big payoff kick.
+func _on_capture_captured() -> void:
+	last_strike_shake = CAPTURE_SHAKE
+	_player.add_view_shake(CAPTURE_SHAKE, CAPTURE_PUNCH, CAPTURE_SHAKE_TIME)
+
+
+## "+8%" in white or "+12%" in gold (the strike bar already says 完美打击).
+func _show_strike_text(worth: float, perfect: bool) -> void:
+	var percent := roundi(worth * 100.0)
+	_strike_text.text = "+%d%%" % percent
+	_strike_text.add_theme_color_override("font_color", STRIKE_TEXT_GOLD if perfect else Color.WHITE)
+	_strike_text.modulate.a = 1.0
+	_strike_text.scale = Vector2.ONE * STRIKE_TEXT_POP
+	_strike_text.offset_top = STRIKE_TEXT_TOP
+	_strike_text.offset_bottom = STRIKE_TEXT_BOTTOM
+	_strike_text_left = STRIKE_TEXT_TIME
+
+
+## Pops, rises and fades on frame delta.
+func _update_strike_text(delta: float) -> void:
+	if _strike_text_left <= 0.0:
+		return
+	_strike_text_left = maxf(_strike_text_left - delta, 0.0)
+	var t := 1.0 - _strike_text_left / STRIKE_TEXT_TIME
+	_strike_text.scale = Vector2.ONE * lerpf(STRIKE_TEXT_POP, 1.0, clampf(t / 0.15, 0.0, 1.0))
+	_strike_text.modulate.a = clampf(_strike_text_left / 0.25, 0.0, 1.0)
+	var rise := STRIKE_TEXT_RISE * t
+	_strike_text.offset_top = STRIKE_TEXT_TOP - rise
+	_strike_text.offset_bottom = STRIKE_TEXT_BOTTOM - rise
 
 
 func _on_player_damaged(amount: float, part: Hitbox.BodyPart, source: Node) -> void:

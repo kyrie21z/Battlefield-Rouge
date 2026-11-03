@@ -10,8 +10,8 @@ const CRACK_ATTACK := 0.0025
 const CRACK_LOWPASS := 0.65
 const GUN_TAPS := [[0.023, 0.18], [0.037, 0.11], [0.061, 0.07]]
 const GUN_MASTER_ATTACK := 0.003
-## Every gun peaks here, so swapping guns does not jump in level.
-const GUN_TARGET_DB := -3.0
+## Every generated impact peaks here, so swapping sounds does not jump in level.
+const PEAK_TARGET_DB := -3.0
 
 
 static func generate(kind: String) -> AudioStreamWAV:
@@ -86,9 +86,11 @@ static func generate(kind: String) -> AudioStreamWAV:
 		"dash":
 			return _knife_swing(0.24, 0.55, 0.6, 0.18)
 		"hammer_hit":
-			return _noise_burst(0.16, 22.0, 0.95, 0.07)
+			return _hammer_thud(false)
 		"hammer_perfect":
-			return _ping(0.55, [880.0, 1320.0, 1760.0], 7.0)
+			return _hammer_thud(true)
+		"hammer_break":
+			return _hammer_break()
 		"shockwave":
 			return _noise_burst(0.55, 6.0, 1.0, 0.08)
 	return _noise_burst(0.1, 30.0, 0.5, 0.15)
@@ -132,7 +134,7 @@ static func _noise_burst(duration: float, decay: float, amp: float, lp_factor: f
 
 
 ## One gunshot out of four layers plus a few early reflections, soft-clipped
-## and normalised to GUN_TARGET_DB:
+## and normalised to PEAK_TARGET_DB:
 ##  - thump: a sine falling from `thump_from` to `thump_to` Hz (the chest punch),
 ##  - crack: high-passed noise run through a low-pass with a short attack, so it
 ##    is a snap rather than a click,
@@ -173,7 +175,7 @@ static func _layered_gunshot(p: Dictionary) -> AudioStreamWAV:
 		var gain := float(tap[1])
 		for i in range(delay, sample_count):
 			samples[i] += samples[i - delay] * gain
-	return _make_normalised_wav(samples, GUN_TARGET_DB)
+	return _make_normalised_wav(samples, PEAK_TARGET_DB)
 
 
 ## Kill confirm: a low punch plus a short bright transient. The headshot version
@@ -351,6 +353,63 @@ static func _ping(duration: float, partials: Array[float], decay: float) -> Audi
 		data[i * 2] = sample & 0xFF
 		data[i * 2 + 1] = (sample >> 8) & 0xFF
 	return _make_wav(data)
+
+
+## Hammer on stone: a low thud, a short crack and a noise body. A perfect strike
+## adds a bright bell on top so it reads even over the building's flash.
+static func _hammer_thud(bell: bool) -> AudioStreamWAV:
+	var duration := 0.5 if bell else 0.22
+	var sample_count := int(duration * SAMPLE_RATE)
+	var samples := PackedFloat32Array()
+	samples.resize(sample_count)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + (41 if bell else 40)
+	var phase := 0.0
+	var body_lp := 0.0
+	var crack_lp := 0.0
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		phase += TAU * lerpf(140.0, 52.0, 1.0 - exp(-t * 20.0)) / SAMPLE_RATE
+		var thud := sin(phase) * exp(-t * 18.0) * 0.95
+		body_lp += (white - body_lp) * 0.12
+		var body := body_lp * exp(-t * 26.0)
+		crack_lp += (white - crack_lp) * 0.5
+		var crack := (white - crack_lp) * minf(t / 0.002, 1.0) * exp(-t * 60.0) * 0.5
+		var mixed := thud + body + crack
+		if bell:
+			for partial in [1320.0, 1760.0, 2640.0]:
+				mixed += sin(TAU * partial * t) * exp(-t * 6.0) * 0.14
+		samples[i] = tanh(mixed * 1.3) * minf(t / 0.002, 1.0)
+	return _make_normalised_wav(samples, PEAK_TARGET_DB)
+
+
+## The stopped clock breaking open: a heavy crunch, then a clock spring letting
+## go (a fast falling tone) with a small metallic chime over it.
+static func _hammer_break() -> AudioStreamWAV:
+	var duration := 0.95
+	var sample_count := int(duration * SAMPLE_RATE)
+	var samples := PackedFloat32Array()
+	samples.resize(sample_count)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + 44
+	var phase := 0.0
+	var crunch_lp := 0.0
+	var hiss_lp := 0.0
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		phase += TAU * lerpf(130.0, 38.0, 1.0 - exp(-t * 14.0)) / SAMPLE_RATE
+		var thud := sin(phase) * exp(-t * 8.0)
+		crunch_lp += (white - crunch_lp) * 0.28
+		var crunch := crunch_lp * exp(-t * 7.0) * 1.2
+		hiss_lp += (white - hiss_lp) * 0.7
+		var hiss := (white - hiss_lp) * minf(t / 0.004, 1.0) * exp(-t * 26.0) * 0.45
+		var spring := sin(TAU * lerpf(1500.0, 480.0, minf(t / 0.5, 1.0)) * t) \
+			* exp(-t * 3.2) * (0.16 + 0.05 * sin(t * 90.0)) * minf(t / 0.01, 1.0)
+		var chime := sin(TAU * 1980.0 * t) * exp(-t * 4.5) * 0.1
+		samples[i] = tanh((thud + crunch + hiss + spring + chime) * 1.2) * minf(t / 0.002, 1.0)
+	return _make_normalised_wav(samples, PEAK_TARGET_DB)
 
 
 ## Float samples scaled so the loudest one sits at `target_db`, then written as

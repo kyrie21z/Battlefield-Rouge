@@ -38,6 +38,9 @@ func _run() -> void:
 	await _test_camera_shake()
 	await _test_scoped_shake()
 	await _test_audio_voices()
+	await _test_hitmarker(scene)
+	await _test_enemy_reaction(scene)
+	await _test_impacts(scene)
 	_finished = true
 
 
@@ -238,6 +241,151 @@ func _test_audio_voices() -> void:
 		_weapon.try_fire()
 		await get_tree().process_frame
 	_check("twelve rapid shots on six voices do not error", true)
+
+
+func _test_hitmarker(scene: Node) -> void:
+	print("== hit confirmation: hitmarker and sounds")
+	var hud := scene.get_node("HUD")
+	var marker := hud.get_node("Hitmarker") as Label
+	var body_ogg := hud.get_node("HitAudio") as AudioStreamPlayer
+	_weapon.hit_landed.emit(false, false)
+	var plain_pop := marker.scale.x
+	_check("a plain hit pops the marker above rest (%.2f)" % plain_pop, plain_pop > 1.2)
+	await _seconds(0.25)
+	_check("and it settles to 1.0 (%.2f)" % marker.scale.x, absf(marker.scale.x - 1.0) < 0.05)
+	await _seconds(0.4)
+	_weapon.hit_landed.emit(true, false)
+	_check("a headshot is gold and pops bigger (%.2f)" % marker.scale.x,
+		marker.scale.x > plain_pop and marker.modulate.g > 0.7 and marker.modulate.b < 0.4)
+	_check("a headshot plays the ogg and the tink layer together", body_ogg.playing and hud._tink_audio.playing)
+	_check("a headshot is not a kill sound", not hud._kill_audio.playing)
+	await _seconds(0.5)
+	_weapon.hit_landed.emit(false, true)
+	var kill_pop := marker.scale.x
+	_check("a kill is red and the biggest pop (%.2f)" % kill_pop,
+		kill_pop > marker.scale.x - 0.001 and kill_pop >= 2.0 and marker.modulate.r > 0.9 and marker.modulate.g < 0.4)
+	_check("a kill plays its own distinct sound", hud._kill_audio.playing)
+	_check("the kill sound is not the ogg hit stream", hud._kill_audio.stream != body_ogg.stream)
+	await _seconds(0.3)
+	_check("the kill marker settles larger than a plain hit (%.2f)" % marker.scale.x, marker.scale.x > 1.3)
+	_check("headless: a kill does no hitstop", Engine.time_scale == 1.0 and not HitStop.is_active())
+	await _seconds(1.0)
+
+
+func _test_enemy_reaction(scene: Node) -> void:
+	print("== enemy flash and flinch")
+	var guard: Enemy
+	for node in get_tree().get_nodes_in_group("enemy"):
+		guard = node as Enemy
+		break
+	guard.health.max_health = 100000.0
+	guard.health.health = 100000.0
+	var reaction := guard.get_node("HitReaction") as HitReaction
+	var meshes := guard.find_children("*", "MeshInstance3D", true, false)
+	var head_box: Hitbox
+	for node in guard.find_children("*", "Hitbox", true, false):
+		head_box = node as Hitbox
+		break
+	(guard.get_node("Model/AnimationPlayer") as AnimationPlayer).pause()
+	await get_tree().process_frame
+	var hitbox_before := head_box.global_transform
+	var snapshot := _ai_snapshot(guard)
+	_player.global_position = guard.global_position + Vector3(0, 0, 6)
+	var dealt := head_box.apply_hit(20.0, _player)
+	_check("the hit landed (%.1f)" % dealt, dealt > 0.0)
+	_check("a player hit starts the reaction", reaction.is_playing())
+	var overlaid := meshes.filter(func(m: MeshInstance3D) -> bool: return m.material_overlay != null)
+	_check("the model's meshes get a flash overlay (%d of %d)" % [overlaid.size(), meshes.size()], overlaid.size() == meshes.size())
+	_check("the flash does not touch the meshes' own materials",
+		meshes.all(func(m: MeshInstance3D) -> bool: return m.material_override == null))
+	var moved := false
+	var hitbox_moved := false
+	for i in 6:
+		await get_tree().process_frame
+		for m in meshes:
+			if not (m as MeshInstance3D).transform.is_equal_approx(reaction._rest[meshes.find(m)]):
+				moved = true
+		if not head_box.global_transform.is_equal_approx(hitbox_before):
+			hitbox_moved = true
+	_check("the meshes flinch", moved)
+	_check("the hitboxes never move (bullets land where they always did)", not hitbox_moved)
+	await _seconds(0.4)
+	_check("everything is put back: no overlay, rest transforms", not reaction.is_playing()
+		and meshes.all(func(m: MeshInstance3D) -> bool: return m.material_overlay == null)
+		and meshes.all(func(m: MeshInstance3D) -> bool: return m.transform.is_equal_approx(reaction._rest[meshes.find(m)])))
+	var after := _ai_snapshot(guard)
+	for key in snapshot:
+		if key == "health":
+			continue
+		_check("AI field %s unchanged by the reaction" % key, snapshot[key] == after[key])
+	# The global random sequence: play() on its own consumes nothing.
+	seed(777)
+	var want := randi()
+	seed(777)
+	reaction.play(_player)
+	_check("play() does not touch the global random sequence", randi() == want)
+	await _seconds(0.3)
+	# Friendly fire / no source does not flash.
+	var flash_free := guard.get_node("HitReaction") as HitReaction
+	flash_free._on_damaged(5.0, Hitbox.BodyPart.BODY, null)
+	_check("damage with no player source shows nothing", not flash_free.is_playing())
+	# The boss uses the same component with a smaller flinch.
+	var boss: Enemy = load("res://actors/enemy/boss.tscn").instantiate()
+	scene.add_child(boss)
+	boss.set_physics_process(false)
+	await get_tree().process_frame
+	var boss_reaction := boss.get_node("HitReaction") as HitReaction
+	_check("the boss has a reaction with a gentler flinch", boss_reaction.flinch_scale < 0.5)
+	boss_reaction.play(_player, false)
+	var boss_meshes := boss.find_children("*", "MeshInstance3D", true, false)
+	_check("and it flashes the boss model (%d meshes)" % boss_meshes.size(),
+		not boss_meshes.is_empty() and boss_meshes.all(func(m: MeshInstance3D) -> bool: return m.material_overlay != null))
+	await _seconds(0.3)
+	_check("then restores it", boss_meshes.all(func(m: MeshInstance3D) -> bool: return m.material_overlay == null))
+	boss.queue_free()
+
+
+func _ai_snapshot(enemy: Enemy) -> Dictionary:
+	return {
+		"state": enemy.state, "velocity": enemy.velocity, "position": enemy.global_position,
+		"target": enemy.target, "react": enemy._react_left, "shots": enemy._shots_left,
+		"shot_timer": enemy._shot_timer, "cover_left": enemy._cover_left,
+		"cover_ready": enemy._cover_ready_at, "impact_left": enemy._impact_left,
+		"seek_retry": enemy._seek_retry, "sight_timer": enemy._sight_timer,
+		"firing_position": enemy.firing_position, "rotation": enemy.rotation,
+		"health": enemy.health.health,
+	}
+
+
+func _test_impacts(scene: Node) -> void:
+	print("== impact effects")
+	var before := scene.get_child_count()
+	Impact.spawn(scene, Vector3(0, 1, 0), Vector3.UP, true, true)
+	_check("flesh impact with detail: puff + droplet burst (2 nodes)", scene.get_child_count() == before + 2)
+	var flesh_burst := scene.get_child(scene.get_child_count() - 1) as DebrisBurst
+	_check("the droplet burst has 6 droplets", flesh_burst != null and flesh_burst.get_child_count() == 6)
+	Impact.spawn(scene, Vector3(0, 1, 0), Vector3.UP, false, true)
+	var world_burst := scene.get_child(scene.get_child_count() - 1) as DebrisBurst
+	_check("world impact: sparks + chips and dust (5 chips + 3 dust)", world_burst != null and world_burst.get_child_count() == 8)
+	var count := scene.get_child_count()
+	Impact.spawn(scene, Vector3(0, 1, 0), Vector3.UP, false, false)
+	_check("detail off: just the sparks", scene.get_child_count() == count + 1)
+	var flesh := scene.get_child(scene.get_child_count() - 1) as Impact
+	var sparks := flesh.amount
+	_check("sparks are denser than before (%d > 10)" % sparks, sparks > 10)
+	# Nothing the bursts add draws from the global sequence.
+	seed(31337)
+	Impact.spawn(scene, Vector3(0, 1, 0), Vector3.UP, false, false)
+	var without := randi()
+	seed(31337)
+	Impact.spawn(scene, Vector3(0, 1, 0), Vector3.UP, false, true)
+	var with_detail := randi()
+	_check("the droplet / chip / dust bits consume no global random numbers", without == with_detail)
+	var moved_before: Vector3 = (world_burst.get_child(0) as Node3D).position
+	await _seconds(0.2)
+	_check("the chips fly", (world_burst.get_child(0) as Node3D).position != moved_before)
+	await _seconds(1.3)
+	_check("every effect frees itself", scene.get_child_count() <= before and DebrisBurst.alive == 0)
 
 
 func _playing_voices() -> Array[int]:

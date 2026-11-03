@@ -33,3 +33,6 @@ transform = Transform3D(-1.44, 0, 0, 0, 1.44, 0, 0, 0, -1.44, 0, 0, 0)
 
 [node name="GunAudio" parent="." index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.34, 0)
+
+[node name="HitReaction" parent="." index="5"]
+flinch_scale = 0.35

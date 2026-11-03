@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://actors/enemy/enemy.gd" id="1_enemy"]
 [ext_resource type="PackedScene" path="res://assets/models/characters/enemy.gltf" id="2_model"]
 [ext_resource type="Script" path="res://components/health.gd" id="3_health"]
 [ext_resource type="Script" path="res://components/hitbox.gd" id="4_hitbox"]
+[ext_resource type="Script" path="res://components/hit_reaction.gd" id="5_reaction"]
 
 [sub_resource type="CapsuleShape3D" id="Shape_collision"]
 radius = 0.35
@@ -63,3 +64,6 @@ height = 1.75
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
 unit_size = 8.0
 max_polyphony = 3
+
+[node name="HitReaction" type="Node" parent="."]
+script = ExtResource("5_reaction")

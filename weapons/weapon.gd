@@ -76,6 +76,9 @@ var _next_voice := 0
 var _handling_voice: AudioStreamPlayer
 var _spring := ViewSpring.new()
 var _view_base := Vector3.ZERO
+## Impacts of the current shot that still get the full debris / droplet effect,
+## so nine shotgun pellets do not spawn nine full sets.
+var _detail_left := 0
 var _feel_rng := RandomNumberGenerator.new()
 var _gunshots: Array[AudioStreamWAV] = []
 var _reload_sound: AudioStreamWAV
@@ -288,6 +291,7 @@ func try_fire() -> bool:
 	ammo -= 1
 	_cooldown = data.fire_interval / _stat(Stats.FIRE_RATE)
 	var spread := spread_degrees()
+	_detail_left = 3
 	for pellet in maxi(data.pellets, 1):
 		_shoot_ray(camera.global_position, _spread_direction(-camera.global_basis.z, spread))
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
@@ -339,7 +343,8 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		return
 	var collider: Object = hit.collider
 	var effects_parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
-	Impact.spawn(effects_parent, hit.position, hit.normal, collider is Hitbox)
+	Impact.spawn(effects_parent, hit.position, hit.normal, collider is Hitbox, _detail_left > 0)
+	_detail_left -= 1
 	if collider is Hitbox:
 		var hitbox := collider as Hitbox
 		var distance := origin.distance_to(hit.position)

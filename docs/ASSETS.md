@@ -153,3 +153,26 @@ AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [ST
 SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。保留工程内导入设置；灰白几何、渐变材质和提示音由脚本生成，字体调用系统已有字体，未打包外部字体文件。开场资源全部在本仓库内，运行不依赖 Mind-Freak 文件夹。
 
 概念评审图 `docs/levels/sloth-opening/assets/pride-concept.jpg` 同为本次生成，仅 JPEG 重编码；SHA-256：`87a6b70ae81c35fd982244d66800d3d440731bd206db548363576f4312e0a67b`，不被运行时代码引用。
+
+## 2026-11-03：红晶体敌人（自有素材）
+
+`assets/models/characters/red_crystal_enemy_*.glb` 由本项目的美术导出管线产出（源工程和导出器
+在仓库外，不随仓库分发）。三份文件共用同一批网格：5,155 顶点 / 2,211 三角 / 24 骨，规格与用法见
+[RED_CRYSTAL_ENEMY.md](RED_CRYSTAL_ENEMY.md)。
+
+| 仓库内文件 | 内容 | 素材包 | 页面 | 许可证 | 导出入库日期 | SHA-256（前 16 位） |
+| --- | --- | --- | --- | --- | --- | --- |
+| `assets/models/characters/red_crystal_enemy_static.glb` | 11 件网格合并成 1 个，绑定姿势已烘焙 | 无（内部导出） | 无 | 项目自有 | 2026-11-03 | `3f8afcf5dd5bb816` |
+| `assets/models/characters/red_crystal_enemy_rigged.glb` | 11 件蒙皮网格 + 24 根关节 | 无（内部导出） | 无 | 项目自有 | 2026-11-03 | `bfb49c86c7d7f1bd` |
+| `assets/models/characters/red_crystal_enemy_parts.glb` | 11 件刚性部件，按各自主骨取枢轴 | 无（内部导出） | 无 | 项目自有 | 2026-11-03 | `2fa065d1bbe35893` |
+
+**许可：项目自有（内部素材）。** 源工程与来源凭证不随仓库分发，由 Art 负责人归档；要做对外
+物料（宣传素材、发行包）前先找 Art 负责人取凭证。三个文件现在只当**候选外观**放在
+`assets/models/characters/`，**没有接进** `actors/enemy/`，也不算进 MVP 优先清单。
+
+配套材质与着色器是本项目写的，不涉及第三方来源：`assets/materials/red_crystal_material.tres`
+（`StandardMaterial3D` 近似）、`assets/materials/red_crystal_crystal.gdshader` +
+`red_crystal_material_shader.tres`（菲涅尔边缘 + 自发光）。三份文件里的颜色数值
+（`_Color`、`_EmissionColor`、`_SpecColor`）取自源材质。
+
+出图与实机验证记录见 [docs/proof/crystal-enemy](proof/crystal-enemy/README.md)。

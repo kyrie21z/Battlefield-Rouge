@@ -4,6 +4,14 @@ extends RefCounted
 ## Ported from origin/sheji/systems/procedural_audio.gd (MIT).
 
 const SAMPLE_RATE := 22050
+## Gunshots: the crack gets a short attack and a low-pass so it snaps instead of
+## clicking, and a few early reflections give it a room instead of a dry pop.
+const CRACK_ATTACK := 0.0025
+const CRACK_LOWPASS := 0.65
+const GUN_TAPS := [[0.023, 0.18], [0.037, 0.11], [0.061, 0.07]]
+const GUN_MASTER_ATTACK := 0.003
+## Every gun peaks here, so swapping guns does not jump in level.
+const GUN_TARGET_DB := -3.0
 
 
 static func generate(kind: String) -> AudioStreamWAV:
@@ -13,26 +21,28 @@ static func generate(kind: String) -> AudioStreamWAV:
 		"gun_rifle":
 			return _layered_gunshot({
 				"duration": 0.34, "seed": 11,
-				"thump_from": 150.0, "thump_to": 58.0, "thump_decay": 30.0, "thump_amp": 0.55,
-				"crack_decay": 110.0, "crack_amp": 0.5,
-				"body_decay": 26.0, "body_amp": 0.65, "body_lp": 0.24,
-				"tail_decay": 9.0, "tail_amp": 0.22, "tail_lp": 0.07})
+				"thump_from": 150.0, "thump_to": 58.0, "thump_decay": 30.0, "thump_amp": 0.72,
+				"crack_decay": 110.0, "crack_amp": 0.38,
+				"body_decay": 22.0, "body_amp": 0.82, "body_lp": 0.24,
+				"tail_decay": 9.0, "tail_amp": 0.16, "tail_lp": 0.07})
 		"gun_shotgun":
 			return _layered_gunshot({
 				"duration": 0.62, "seed": 12,
-				"thump_from": 110.0, "thump_to": 38.0, "thump_decay": 15.0, "thump_amp": 0.9,
-				"crack_decay": 60.0, "crack_amp": 0.55,
-				"body_decay": 17.0, "body_amp": 0.85, "body_lp": 0.17,
-				"tail_decay": 6.0, "tail_amp": 0.33, "tail_lp": 0.05})
+				"thump_from": 110.0, "thump_to": 38.0, "thump_decay": 15.0, "thump_amp": 1.0,
+				"crack_decay": 60.0, "crack_amp": 0.41,
+				"body_decay": 15.0, "body_amp": 1.0, "body_lp": 0.17,
+				"tail_decay": 6.0, "tail_amp": 0.24, "tail_lp": 0.05})
 		"gun_sniper":
 			return _layered_gunshot({
 				"duration": 0.95, "seed": 13,
-				"thump_from": 90.0, "thump_to": 30.0, "thump_decay": 9.0, "thump_amp": 1.0,
-				"crack_decay": 80.0, "crack_amp": 0.75,
-				"body_decay": 14.0, "body_amp": 0.75, "body_lp": 0.13,
-				"tail_decay": 4.2, "tail_amp": 0.42, "tail_lp": 0.035})
+				"thump_from": 90.0, "thump_to": 30.0, "thump_decay": 9.0, "thump_amp": 1.08,
+				"crack_decay": 80.0, "crack_amp": 0.56,
+				"body_decay": 12.0, "body_amp": 0.9, "body_lp": 0.13,
+				"tail_decay": 4.2, "tail_amp": 0.3, "tail_lp": 0.035})
 		"hit_kill":
-			return _kill_confirm()
+			return _kill_confirm(false)
+		"hit_kill_head":
+			return _kill_confirm(true)
 		"hit_tink":
 			return _ping(0.16, [2900.0, 4300.0], 30.0)
 		# Taking a hit: a low muffled thud with a little grit. The heavy variant
@@ -121,21 +131,26 @@ static func _noise_burst(duration: float, decay: float, amp: float, lp_factor: f
 	return _make_wav(data)
 
 
-## One gunshot out of four layers, mixed and soft-clipped:
+## One gunshot out of four layers plus a few early reflections, soft-clipped
+## and normalised to GUN_TARGET_DB:
 ##  - thump: a sine falling from `thump_from` to `thump_to` Hz (the chest punch),
-##  - crack: high-passed noise that dies almost at once (the snap),
+##  - crack: high-passed noise run through a low-pass with a short attack, so it
+##    is a snap rather than a click,
 ##  - body: low-passed noise (the blast itself),
-##  - tail: very dark noise that rings on (the room).
+##  - tail: very dark noise that rings on (the room),
+##  - early taps at GUN_TAPS, fed back through the dry signal, so the shot is
+##    not bone dry.
 ## Uses its own seeded generator, never the global one.
 static func _layered_gunshot(p: Dictionary) -> AudioStreamWAV:
 	var sample_count := int(p.duration * SAMPLE_RATE)
-	var data := PackedByteArray()
-	data.resize(sample_count * 2)
+	var samples := PackedFloat32Array()
+	samples.resize(sample_count)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 20240712 + int(p.seed)
 	var body_lp := 0.0
 	var tail_lp := 0.0
 	var crack_lp := 0.0
+	var crack_soft := 0.0
 	var phase := 0.0
 	for i in sample_count:
 		var t := float(i) / SAMPLE_RATE
@@ -144,38 +159,49 @@ static func _layered_gunshot(p: Dictionary) -> AudioStreamWAV:
 		phase += TAU * freq / SAMPLE_RATE
 		var thump: float = sin(phase) * exp(-t * p.thump_decay) * p.thump_amp
 		crack_lp += (white - crack_lp) * 0.45
-		var crack: float = (white - crack_lp) * exp(-t * p.crack_decay) * p.crack_amp
+		crack_soft += ((white - crack_lp) - crack_soft) * CRACK_LOWPASS
+		var crack: float = crack_soft * minf(t / CRACK_ATTACK, 1.0) * exp(-t * p.crack_decay) * p.crack_amp
 		body_lp += (white - body_lp) * p.body_lp
 		var body: float = body_lp * exp(-t * p.body_decay) * p.body_amp * 2.2
 		tail_lp += (white - tail_lp) * p.tail_lp
 		var tail: float = tail_lp * exp(-t * p.tail_decay) * p.tail_amp * 3.5
 		# Soft clip, then a few ms of fade-in so the thump does not click on.
-		var mixed := tanh((thump + crack + body + tail) * 1.4) * minf(t / 0.002, 1.0)
-		var value := int(clampf(mixed, -1.0, 1.0) * 32767.0) & 0xFFFF
-		data[i * 2] = value & 0xFF
-		data[i * 2 + 1] = (value >> 8) & 0xFF
-	return _make_wav(data)
+		samples[i] = tanh((thump + crack + body + tail) * 1.4) * minf(t / GUN_MASTER_ATTACK, 1.0)
+	# Early reflections: a handful of taps off the dry signal, decaying.
+	for tap in GUN_TAPS:
+		var delay := int(float(tap[0]) * SAMPLE_RATE)
+		var gain := float(tap[1])
+		for i in range(delay, sample_count):
+			samples[i] += samples[i - delay] * gain
+	return _make_normalised_wav(samples, GUN_TARGET_DB)
 
 
-## Kill confirm: a dull low knock plus a short falling "thud-ping", distinct from
-## the ogg body / head hits.
-static func _kill_confirm() -> AudioStreamWAV:
-	var duration := 0.28
+## Kill confirm: a low punch plus a short bright transient. The headshot version
+## sits higher and rings a little longer, so a headshot kill never sounds like a
+## body kill.
+static func _kill_confirm(head: bool) -> AudioStreamWAV:
+	var duration := 0.32 if head else 0.26
 	var sample_count := int(duration * SAMPLE_RATE)
 	var data := PackedByteArray()
 	data.resize(sample_count * 2)
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 20240712 + 21
+	rng.seed = 20240712 + (22 if head else 21)
+	var punch_from := 240.0 if head else 210.0
+	var punch_to := 78.0 if head else 62.0
+	var confirm := 1560.0 if head else 1180.0
+	var overtone := 2340.0 if head else 1760.0
 	var phase := 0.0
 	var lp := 0.0
 	for i in sample_count:
 		var t := float(i) / SAMPLE_RATE
-		phase += TAU * lerpf(220.0, 70.0, 1.0 - exp(-t * 16.0)) / SAMPLE_RATE
-		var knock := sin(phase) * exp(-t * 14.0) * 0.8
+		phase += TAU * lerpf(punch_from, punch_to, 1.0 - exp(-t * 16.0)) / SAMPLE_RATE
+		var punch := sin(phase) * exp(-t * 13.0) * 1.0
 		lp += (rng.randf_range(-1.0, 1.0) - lp) * 0.3
-		var snap := lp * exp(-t * 70.0) * 0.5
-		var ring := sin(TAU * 1180.0 * t) * exp(-t * 22.0) * 0.25 * minf(t / 0.004, 1.0)
-		var value := int(clampf(tanh(knock + snap + ring), -1.0, 1.0) * 32767.0) & 0xFFFF
+		var snap := lp * exp(-t * 80.0) * 0.35
+		var ring := (sin(TAU * confirm * t) * 0.55 + sin(TAU * overtone * t) * 0.25) \
+			* exp(-t * (15.0 if head else 18.0)) * minf(t / 0.003, 1.0)
+		var mixed := tanh((punch + snap + ring) * 1.3) * minf(t / 0.002, 1.0)
+		var value := int(clampf(mixed, -1.0, 1.0) * 32767.0) & 0xFFFF
 		data[i * 2] = value & 0xFF
 		data[i * 2 + 1] = (value >> 8) & 0xFF
 	return _make_wav(data)
@@ -324,6 +350,22 @@ static func _ping(duration: float, partials: Array[float], decay: float) -> Audi
 		var sample := int(clampf(value, -1.0, 1.0) * 32767.0) & 0xFFFF
 		data[i * 2] = sample & 0xFF
 		data[i * 2 + 1] = (sample >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## Float samples scaled so the loudest one sits at `target_db`, then written as
+## 16-bit PCM. Used to keep the three guns at the same level.
+static func _make_normalised_wav(samples: PackedFloat32Array, target_db: float) -> AudioStreamWAV:
+	var peak := 0.0
+	for value in samples:
+		peak = maxf(peak, absf(value))
+	var gain := pow(10.0, target_db / 20.0) / maxf(peak, 0.0001)
+	var data := PackedByteArray()
+	data.resize(samples.size() * 2)
+	for i in samples.size():
+		var value := int(clampf(samples[i] * gain, -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = value & 0xFF
+		data[i * 2 + 1] = (value >> 8) & 0xFF
 	return _make_wav(data)
 
 

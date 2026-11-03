@@ -63,6 +63,7 @@ height = 1.75
 [node name="GunAudio" type="AudioStreamPlayer3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
 unit_size = 8.0
+max_distance = 60.0
 max_polyphony = 3
 
 [node name="HitReaction" type="Node" parent="."]

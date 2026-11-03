@@ -31,7 +31,7 @@ const AIM_HEIGHT := 1.3
 @export var accuracy_deg := 2.2
 ## Enemy bullets are slow, visible projectiles so the player can dodge them.
 ## Shots aim at where the player is now, with no lead.
-@export var projectile_speed := 18.0
+@export var projectile_speed := 30.0
 ## Spread multiplier when the target moves faster than 3 m/s.
 @export var moving_target_penalty := 1.6
 @export var damage_min := 8.0

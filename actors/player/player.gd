@@ -97,6 +97,16 @@ func is_aiming() -> bool:
 	return weapon.aiming
 
 
+## Eye position and facing direction, for systems that need to know what the
+## player can see (e.g. the reinforcement spawn check).
+func eye_position() -> Vector3:
+	return _camera.global_position
+
+
+func view_forward() -> Vector3:
+	return -_camera.global_basis.z
+
+
 ## Turns to look at `point` in world space, the way moving the mouse would.
 ## For bots and replays; a person uses the mouse.
 func aim_at(point: Vector3) -> void:

@@ -42,7 +42,10 @@ func _run() -> void:
 	var second := await _first_wave(424242)
 	_check("two enemies spawn on capture", first.size() == 2 and second.size() == 2)
 	_check("the spawn sequence matches", _flats(first) == _flats(second))
-	_check("both spawns are behind the building", first.all(func(v: Vector3): return v.z < -19.0))
+	# Spawns are now picked out of sight round the whole arena, not only behind.
+	_check("both spawns stay at least 14 m from the player", first.all(
+		func(v: Vector3): return Vector2(v.x, v.z).distance_to(Vector2(0.0, 14.0)) >= ZoneDirector.MIN_SPAWN_DISTANCE))
+	_check("the two spawns use different markers", _flats(first)[0] != _flats(first)[1])
 
 	print("== reinforcements reach the building without corner jitter")
 	await _approach_without_jitter()
@@ -64,15 +67,21 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	_check("%s building is back near z=-8 (%.2f)" % [path.get_file(), point.global_position.z], absf(point.global_position.z + 8.0) < 1.0)
 	_check("%s player enters from the front" % path.get_file(), player.global_position.z > point.global_position.z + 15.0)
 	var spawns := _spawns(scene)
-	_check("%s has rear spawns" % path.get_file(), spawns.size() >= 2)
-	var behind := true
+	_check("%s has spawn markers round the arena" % path.get_file(), spawns.size() >= 6)
+	var spread := true
+	var behind := 0
 	for marker in spawns:
-		# A few seconds of running, not the old 25 m hike.
-		if marker.global_position.z > point.global_position.z - 8.0:
-			behind = false
-		if marker.global_position.distance_to(point.global_position) > 18.0:
-			behind = false
-	_check("%s spawns sit behind the building" % path.get_file(), behind)
+		# Flank and rear-corner markers are intentional: waves must have
+		# somewhere out of the player's sight. Only keep them inside the walls
+		# and clear of the building; the old "all behind, <=18 m" rule is gone.
+		if absf(marker.global_position.x) > 29.0 or absf(marker.global_position.z) > 29.0:
+			spread = false
+		if marker.global_position.distance_to(point.global_position) < 10.0:
+			spread = false
+		if marker.global_position.z < point.global_position.z - 8.0:
+			behind += 1
+	_check("%s spawns are spread inside the arena, clear of the building" % path.get_file(), spread)
+	_check("%s still has rear markers" % path.get_file(), behind >= 2)
 	var guards := _enemies(scene)
 	_check("%s guard count" % path.get_file(), guards.size() == guard_count)
 	# Since issue #42 the guards are spread over the whole approach instead of

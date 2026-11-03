@@ -10,6 +10,9 @@ extends CharacterBody3D
 @export var air_accel := 4.0
 @export var gravity := 18.0
 @export var mouse_sensitivity := 0.0022
+## Multiplier on top of the look speed while aiming (the settings menu sets it).
+## 1.0 keeps the game exactly as it was before the menu.
+var ads_sensitivity := 1.0
 @export var base_fov := 75.0
 @export var fov_lerp_speed := 14.0
 ## How fast the self-recovering part of recoil settles, per second.
@@ -107,6 +110,13 @@ func view_forward() -> Vector3:
 	return -_camera.global_basis.z
 
 
+## Applied by the settings menu. Only mouse look changes; `aim_at()` and the
+## bots keep their fixed behaviour.
+func set_look_sensitivity(base: float, ads_scale: float) -> void:
+	mouse_sensitivity = maxf(base, 0.0)
+	ads_sensitivity = maxf(ads_scale, 0.0)
+
+
 ## Turns to look at `point` in world space, the way moving the mouse would.
 ## For bots and replays; a person uses the mouse.
 func aim_at(point: Vector3) -> void:
@@ -126,6 +136,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Look speed follows the magnification, or 8x is just a wobbly picture:
 		# the same mouse travel has to move the same number of *targets*.
 		var look := mouse_sensitivity / maxf(weapon.zoom_level(), 1.0)
+		if weapon.aiming:
+			look *= ads_sensitivity
 		rotate_y(-event.relative.x * look)
 		_pitch = clampf(_pitch - event.relative.y * look, deg_to_rad(-89.0), deg_to_rad(89.0))
 	elif event.is_action_pressed("pause"):

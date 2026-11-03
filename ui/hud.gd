@@ -2,6 +2,9 @@ extends CanvasLayer
 ## Health, ammo, crosshair and hit feedback for the player in the scene.
 ## UI may read actors (see ARCHITECTURE.md); actors never read the UI.
 
+## The crosshair line length at size 1.0; the settings menu scales it.
+const CROSSHAIR_LINE_LENGTH := 5.0
+
 const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
 const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 
@@ -65,6 +68,9 @@ const HEARTBEAT_DB := -7.0
 
 var _player: Player
 var _director: ZoneDirector
+## Loaded from user://settings.cfg in a normal run; defaults in tests/fixtures.
+var settings: GameSettings
+var _base_sensitivity := 0.0
 var _hit_tween: Tween
 ## Kill thud and headshot tink play beside the ogg hit sound on their own
 ## players, so layering them never cuts the ogg.
@@ -119,11 +125,18 @@ var _reinforcement_banner_shown := false
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _banner: PhaseBanner = $PhaseBanner
+@onready var _pause_menu: PauseMenu = $PauseMenu
 @onready var _debug: CaptureDebug = $CaptureDebug
 
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player") as Player
+	_base_sensitivity = _player.mouse_sensitivity
+	settings = GameSettings.new()
+	if DisplayServer.get_name() != "headless" and RunState.fixture == null:
+		settings.load_from(GameSettings.settings_path)
+	settings.changed.connect(_apply_settings)
+	_apply_settings()
 	_kill_audio = AudioStreamPlayer.new()
 	_kill_audio.stream = ProceduralAudio.generate("hit_kill")
 	_kill_audio.volume_db = -2.0
@@ -167,6 +180,12 @@ func _ready() -> void:
 		marker.setup(kind, _director, _player)
 	_strike_bar.setup(_director.capture_point)
 	_minimap.setup(_director, _player)
+	_pause_menu.setup(settings, _player, _director)
+	# The HUD does not process while paused, so hide the banner here; _process
+	# decides again once the menu closes.
+	_pause_menu.visibility_changed.connect(func() -> void:
+		if _pause_menu.visible:
+			_banner.set_hidden(true))
 	_director.capture_point.struck.connect(_on_capture_struck)
 	_director.capture_point.fractured.connect(_on_capture_fractured)
 	_director.capture_point.captured.connect(_on_capture_captured)
@@ -199,7 +218,8 @@ func _process(delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
 	var spread := deg_to_rad(_player.weapon.spread_degrees())
-	_crosshair.gap = 2.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
+	var spread_gap := 2.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
+	_crosshair.gap = spread_gap if settings.dynamic_gap else _crosshair.min_gap
 	# Hip: dot and lines. Iron sights: just the dot (the sights are on the target
 	# anyway). Scoped: the scope reticle takes over, so nothing.
 	_crosshair.visible = not _player.weapon.is_scoped()
@@ -220,6 +240,17 @@ func _process(delta: float) -> void:
 		and _director.phase != ZoneDirector.Phase.BUFF_SELECT
 	_banner.set_hidden(scoped or _player.health.is_dead() \
 		or _director.phase == ZoneDirector.Phase.BUFF_SELECT)
+
+
+## Pushes the settings into the crosshair and the player's mouse look. The
+## player never reads the settings file or any UI class (ARCHITECTURE B9).
+func _apply_settings() -> void:
+	_crosshair.style = settings.crosshair_style
+	_crosshair.line_length = CROSSHAIR_LINE_LENGTH * settings.crosshair_size
+	_crosshair.thickness = settings.crosshair_thickness
+	_crosshair.color = Color(settings.crosshair_color, settings.crosshair_alpha)
+	_player.set_look_sensitivity(_base_sensitivity * settings.mouse_sensitivity, settings.ads_sensitivity)
+	_crosshair.queue_redraw()
 
 
 func _on_zoom_changed(level: float) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://ui/damage_indicator.gd" id="15_indicator"]
 [ext_resource type="Script" path="res://ui/minimap.gd" id="16_minimap"]
 [ext_resource type="Script" path="res://ui/phase_banner.gd" id="17_banner"]
+[ext_resource type="Script" path="res://ui/pause_menu.gd" id="18_pause"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hurt"]
 shader = ExtResource("14_vignette")
@@ -380,3 +381,15 @@ theme_override_font_sizes/font_size = 18
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 script = ExtResource("4_debug")
+
+[node name="PauseMenu" type="Control" parent="."]
+visible = false
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("18_pause")

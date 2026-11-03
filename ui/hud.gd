@@ -112,6 +112,7 @@ var last_strike_shake := 0.0
 @onready var _objectives: ObjectivePanel = $Top
 @onready var _boss_health: BossHealth = $BossHealth
 @onready var _markers: Control = $WorldMarkers
+@onready var _minimap: Minimap = $Minimap
 @onready var _buffs: BuffBar = $BuffBar
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
@@ -162,6 +163,7 @@ func _ready() -> void:
 		_markers.add_child(marker)
 		marker.setup(kind, _director, _player)
 	_strike_bar.setup(_director.capture_point)
+	_minimap.setup(_director, _player)
 	_director.capture_point.struck.connect(_on_capture_struck)
 	_director.capture_point.fractured.connect(_on_capture_fractured)
 	_director.capture_point.captured.connect(_on_capture_captured)
@@ -202,6 +204,10 @@ func _process(delta: float) -> void:
 	if scoped:
 		_reticle.zoom = _player.weapon.zoom_level()
 		_reticle.queue_redraw()
+	# The scope owns the screen; the buff and end screens are layer-10 overlays
+	# above the HUD, so this only has to handle the scope and death.
+	_minimap.visible = not scoped and not _player.health.is_dead() \
+		and _director.phase != ZoneDirector.Phase.BUFF_SELECT
 
 
 func _on_zoom_changed(level: float) -> void:

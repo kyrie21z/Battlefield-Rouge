@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://ui/buff_bar.gd" id="13_buff_bar"]
 [ext_resource type="Shader" path="res://ui/damage_vignette.gdshader" id="14_vignette"]
 [ext_resource type="Script" path="res://ui/damage_indicator.gd" id="15_indicator"]
+[ext_resource type="Script" path="res://ui/minimap.gd" id="16_minimap"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hurt"]
 shader = ExtResource("14_vignette")
@@ -206,6 +207,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="Minimap" type="Control" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 220.0
+grow_horizontal = 0
+grow_vertical = 1
+mouse_filter = 2
+script = ExtResource("16_minimap")
 
 [node name="Top" type="Control" parent="."]
 offset_left = 32.0

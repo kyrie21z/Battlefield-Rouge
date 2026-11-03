@@ -94,6 +94,8 @@ var _kill_combo_left := 0.0
 ## Hammer strike text and its rise. For tests.
 var _strike_text_left := 0.0
 var last_strike_shake := 0.0
+## The reinforcement warning is one per zone.
+var _reinforcement_banner_shown := false
 
 @onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
@@ -116,6 +118,7 @@ var last_strike_shake := 0.0
 @onready var _buffs: BuffBar = $BuffBar
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
+@onready var _banner: PhaseBanner = $PhaseBanner
 @onready var _debug: CaptureDebug = $CaptureDebug
 
 
@@ -167,6 +170,13 @@ func _ready() -> void:
 	_director.capture_point.struck.connect(_on_capture_struck)
 	_director.capture_point.fractured.connect(_on_capture_fractured)
 	_director.capture_point.captured.connect(_on_capture_captured)
+	_director.phase_changed.connect(_on_phase_changed)
+	_director.reinforcement_spawned.connect(_on_banner_reinforcement)
+	# Zones 2 and the boss start their phase before this HUD exists; zone 1 shows
+	# its CLEAR_GUARDS prompt when the entry card is chosen and phase_changed fires.
+	if _director.phase == ZoneDirector.Phase.CLEAR_GUARDS \
+			or _director.phase == ZoneDirector.Phase.BOSS_STANDING:
+		_on_phase_changed(_director.phase)
 	_debug.setup(_director)
 	RunState.changed.connect(_refresh_buffs)
 	_refresh_buffs()
@@ -208,6 +218,8 @@ func _process(delta: float) -> void:
 	# above the HUD, so this only has to handle the scope and death.
 	_minimap.visible = not scoped and not _player.health.is_dead() \
 		and _director.phase != ZoneDirector.Phase.BUFF_SELECT
+	_banner.set_hidden(scoped or _player.health.is_dead() \
+		or _director.phase == ZoneDirector.Phase.BUFF_SELECT)
 
 
 func _on_zoom_changed(level: float) -> void:
@@ -298,6 +310,37 @@ func _on_capture_fractured(_stage: int) -> void:
 func _on_capture_captured() -> void:
 	last_strike_shake = CAPTURE_SHAKE
 	_player.add_view_shake(CAPTURE_SHAKE, CAPTURE_PUNCH, CAPTURE_SHAKE_TIME)
+
+
+## Big centre prompt on every phase change. The top-left panel stays the
+## persistent reminder; this is the headline for the moment.
+func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
+	match phase:
+		ZoneDirector.Phase.CLEAR_GUARDS:
+			_banner.play("战斗开始", "消灭所有守卫，据点才会开放", PhaseBanner.TITLE_WHITE)
+		ZoneDirector.Phase.HAMMER_POINT:
+			if _director.is_boss_zone:
+				_banner.play("砸碎城市核心", "按 E 挥锤", PhaseBanner.TITLE_GOLD)
+			else:
+				_banner.play("据点开放", "前往据点，按 E 挥锤 · 金色区间是完美打击", PhaseBanner.TITLE_GOLD)
+		ZoneDirector.Phase.FLAG_PLANTED:
+			# The boss zone wins straight from the core; only small zones have a
+			# pedestal to point at.
+			if not _director.is_boss_zone:
+				_banner.play("据点已占领", "增援撤退 · 到旗旁增益台按 F 领取增益", PhaseBanner.TITLE_GREEN)
+		ZoneDirector.Phase.BOSS_STANDING:
+			_banner.play("Boss 现身", "击倒 Boss，城市核心才会打开", PhaseBanner.TITLE_RED)
+		ZoneDirector.Phase.BUFF_SELECT:
+			pass
+
+
+## The first reinforcement of a zone gets a warning. If "据点开放" is still
+## young, the warning waits for it instead of cutting it short.
+func _on_banner_reinforcement(_position: Vector3) -> void:
+	if _director.is_boss_zone or _reinforcement_banner_shown:
+		return
+	_reinforcement_banner_shown = true
+	_banner.play("增援来袭", "守住据点，继续砸", PhaseBanner.TITLE_RED, PhaseBanner.QUEUE_MIN_HOLD)
 
 
 ## "+8%" in white or "+12%" in gold (the strike bar already says 完美打击).

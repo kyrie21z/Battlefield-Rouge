@@ -50,12 +50,12 @@ func _active() -> bool:
 	return _point != null and not _point.locked and not _point.is_captured() and _point.player_in_reach
 
 
-func _on_struck(perfect: bool, offset_ms: float, worth: float) -> void:
-	var gain := "+%s%%" % String.num(snappedf(worth * 100.0, 0.1))
+## Only the timing verdict: the progress gained floats above the crosshair.
+func _on_struck(perfect: bool, offset_ms: float, _worth: float) -> void:
 	if perfect:
-		_result.text = "完美打击  %s" % gain
+		_result.text = "完美打击"
 	else:
-		_result.text = "%s  %s %d ms" % [gain, "偏早" if offset_ms < 0.0 else "偏晚", roundi(absf(offset_ms))]
+		_result.text = "%s %d ms" % ["偏早" if offset_ms < 0.0 else "偏晚", roundi(absf(offset_ms))]
 	_result.add_theme_color_override("font_color", COLOR_PERFECT if perfect else COLOR_NORMAL)
 	_result.pivot_offset = _result.size * 0.5
 	_result.scale = Vector2.ONE * (1.5 if perfect else 1.0)

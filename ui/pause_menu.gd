@@ -95,9 +95,9 @@ func _build() -> void:
 	panel.anchor_right = 0.5
 	panel.anchor_bottom = 0.5
 	panel.offset_left = -410.0
-	panel.offset_top = -370.0
+	panel.offset_top = -395.0
 	panel.offset_right = 410.0
-	panel.offset_bottom = 370.0
+	panel.offset_bottom = 395.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = HudStyle.DARK
 	style.border_color = HudStyle.PANEL_LINE
@@ -122,7 +122,8 @@ func _build() -> void:
 		["ads", "开镜灵敏度", GameSettings.ADS_MIN, GameSettings.ADS_MAX, 0.05, "ads_sensitivity"],
 		["size", "准星大小", GameSettings.SIZE_MIN, GameSettings.SIZE_MAX, 0.05, "crosshair_size"],
 		["thickness", "准星粗细", GameSettings.THICKNESS_MIN, GameSettings.THICKNESS_MAX, 0.5, "crosshair_thickness"],
-		["alpha", "准星透明度", GameSettings.ALPHA_MIN, GameSettings.ALPHA_MAX, 0.05, "crosshair_alpha"]]
+		["alpha", "准星透明度", GameSettings.ALPHA_MIN, GameSettings.ALPHA_MAX, 0.05, "crosshair_alpha"],
+		["music", "音乐音量", 0.0, 1.0, 0.05, "music_volume"]]
 	for row in rows:
 		_slider(box, row[0], row[1], row[2], row[3], row[4], row[5])
 
@@ -267,6 +268,8 @@ func _refresh() -> void:
 
 
 func _format(key: String, value: float) -> String:
+	if key == "music":
+		return "%d%%" % roundi(value * 100.0)
 	return "%.1f px" % value if key == "thickness" else "%.2f" % value
 
 

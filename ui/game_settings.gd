@@ -1,9 +1,9 @@
 class_name GameSettings
 extends RefCounted
-## Player-facing options: mouse look sensitivity and crosshair look. Pure data;
-## the HUD applies it and the pause menu edits and saves it. Every default
-## reproduces the game before this menu existed, so a missing or untrusted file
-## never changes the feel.
+## Player-facing options: mouse look sensitivity, crosshair look and music
+## volume. Pure data; the HUD applies it and the pause menu edits and saves it.
+## Every default reproduces the game before this menu existed (music at 70%), so
+## a missing or untrusted file never changes the feel.
 
 signal changed
 
@@ -22,6 +22,7 @@ const THICKNESS_MIN := 1.0
 const THICKNESS_MAX := 4.0
 const ALPHA_MIN := 0.2
 const ALPHA_MAX := 1.0
+const MUSIC_DEFAULT := 0.7
 ## RGB only; the alpha slider is separate.
 const COLOR_PRESETS: Array[Color] = [
 	Color(1.0, 1.0, 1.0), Color(0.35, 0.95, 0.45), Color(0.3, 0.9, 0.95),
@@ -39,6 +40,8 @@ var crosshair_thickness := 1.5
 ## Today's crosshair colour alpha.
 var crosshair_alpha := 0.9
 var dynamic_gap := true
+## Linear 0..1 level of the Music bus; 0 mutes it.
+var music_volume := MUSIC_DEFAULT
 
 
 func clamp_values() -> void:
@@ -49,6 +52,7 @@ func clamp_values() -> void:
 	crosshair_size = clampf(crosshair_size, SIZE_MIN, SIZE_MAX)
 	crosshair_thickness = clampf(crosshair_thickness, THICKNESS_MIN, THICKNESS_MAX)
 	crosshair_alpha = clampf(crosshair_alpha, ALPHA_MIN, ALPHA_MAX)
+	music_volume = clampf(music_volume, 0.0, 1.0)
 
 
 func reset_defaults() -> void:
@@ -60,6 +64,7 @@ func reset_defaults() -> void:
 	crosshair_thickness = 1.5
 	crosshair_alpha = 0.9
 	dynamic_gap = true
+	music_volume = MUSIC_DEFAULT
 	changed.emit()
 
 
@@ -78,6 +83,7 @@ func load_from(path: String) -> bool:
 	crosshair_thickness = float(config.get_value("crosshair", "thickness", crosshair_thickness))
 	crosshair_alpha = float(config.get_value("crosshair", "alpha", crosshair_alpha))
 	dynamic_gap = bool(config.get_value("crosshair", "dynamic_gap", dynamic_gap))
+	music_volume = float(config.get_value("audio", "music_volume", music_volume))
 	clamp_values()
 	changed.emit()
 	return true
@@ -94,4 +100,5 @@ func save_to(path: String) -> Error:
 	config.set_value("crosshair", "thickness", crosshair_thickness)
 	config.set_value("crosshair", "alpha", crosshair_alpha)
 	config.set_value("crosshair", "dynamic_gap", dynamic_gap)
+	config.set_value("audio", "music_volume", music_volume)
 	return config.save(path)

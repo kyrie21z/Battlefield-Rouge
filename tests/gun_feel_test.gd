@@ -41,7 +41,7 @@ func _run() -> void:
 	await _test_hitmarker(scene)
 	await _test_enemy_reaction(scene)
 	await _test_impacts(scene)
-	await _test_tracers_and_casings()
+	await _test_tracers()
 	await _test_hitstop(scene)
 	_finished = true
 
@@ -394,8 +394,8 @@ func _tracers() -> Array[Node]:
 	return get_children().filter(func(n: Node) -> bool: return n is Tracer)
 
 
-func _test_tracers_and_casings() -> void:
-	print("== tracers and casings")
+func _test_tracers() -> void:
+	print("== tracers")
 	var start := Tracer.spawn(self, Vector3(0, 2, 0), Vector3(0, 2, -40))
 	_check("a tracer flies along muzzle -> hit (%.0f m)" % start._distance, absf(start._distance - 40.0) < 0.01
 		and start._direction.is_equal_approx(Vector3(0, 0, -1)))
@@ -414,13 +414,11 @@ func _test_tracers_and_casings() -> void:
 	await _seconds(0.5)
 	_weapon._cooldown = 0.0
 	_weapon.ammo = 30
-	var casings_before := Casing.alive
 	_weapon.try_fire()
 	await get_tree().process_frame
 	_check("one rifle shot draws one tracer (%d)" % _tracers().size(), _tracers().size() == 1)
-	_check("and ejects one casing (%d)" % (Casing.alive - casings_before), Casing.alive - casings_before == 1)
 	await _seconds(1.5)
-	_check("the casing is gone after its short life", Casing.alive == 0 and _tracers().is_empty())
+	_check("the tracer is gone after its short life", _tracers().is_empty())
 	_weapon.select(1)
 	await _seconds(0.3)
 	_weapon._cooldown = 0.0
@@ -429,7 +427,6 @@ func _test_tracers_and_casings() -> void:
 	await get_tree().process_frame
 	_check("a shotgun blast draws at most %d of its 9 pellets (%d)" % [_weapon.data.max_tracers, _tracers().size()],
 		_tracers().size() == _weapon.data.max_tracers)
-	_check("and throws a (red) shell", Casing.alive == 1)
 	await _seconds(1.5)
 	_weapon.select(2)
 	Input.action_press("aim")
@@ -439,19 +436,15 @@ func _test_tracers_and_casings() -> void:
 	_weapon.ammo = 5
 	_weapon.try_fire()
 	await get_tree().process_frame
-	_check("scoped sniper: a tracer but no casing (the gun is off screen)", _tracers().size() == 1 and Casing.alive == 0)
+	_check("scoped sniper still draws a tracer", _tracers().size() == 1)
 	Input.action_release("aim")
 	await _seconds(0.8)
 	_weapon._cooldown = 0.0
 	_weapon.ammo = 5
 	_weapon.try_fire()
 	await get_tree().process_frame
-	_check("hip sniper ejects its casing", Casing.alive == 1)
+	_check("hip sniper draws a tracer", _tracers().size() == 1)
 	await _seconds(1.5)
-	# The cap: a flood of casings cannot grow without bound.
-	for i in 60:
-		Casing.spawn(self, Vector3(0, 5, 0), Vector3.ZERO, Vector3.ZERO, Casing.Kind.RIFLE)
-	_check("casings are capped at %d (%d)" % [Casing.MAX_ALIVE, Casing.alive], Casing.alive == Casing.MAX_ALIVE)
 	# Bullet effects never touch the global random sequence.
 	_weapon.select(0)
 	await _seconds(1.5)
@@ -459,17 +452,14 @@ func _test_tracers_and_casings() -> void:
 	_weapon._cooldown = 0.0
 	seed(2024)
 	_weapon._tracers_left = 0
-	var casing_off := _weapon.data.casings_per_shot
-	_weapon.data.casings_per_shot = 0
 	var feel_before := _weapon._feel_rng.state
 	_weapon.try_fire()
 	var plain := randi()
-	_weapon.data.casings_per_shot = casing_off
 	_weapon._cooldown = 0.0
 	seed(2024)
 	_weapon.try_fire()
 	var with_effects := randi()
-	_check("tracers + casings add no global random draws", plain == with_effects)
+	_check("tracers add no global random draws", plain == with_effects)
 	_check("they draw from the private generator instead", _weapon._feel_rng.state != feel_before)
 	await _seconds(1.5)
 

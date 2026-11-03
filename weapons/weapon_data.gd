@@ -66,8 +66,6 @@ enum FireMode { AUTO, SEMI }
 ## Both kick and shake are scaled by this while aiming down iron sights. A scope
 ## drops the rotation shake altogether and keeps half of the FOV punch.
 @export_range(0.0, 1.0) var aim_feel_scale := 0.5
-## Casing thrown out of the ejection port per shot (0 = none).
-@export var casings_per_shot := 1
 ## Tracers drawn per shot, at most (a shotgun draws a few of its nine pellets).
 @export var max_tracers := 1
 

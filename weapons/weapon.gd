@@ -305,7 +305,6 @@ func try_fire() -> bool:
 		_flash.visible = true
 		_flash_left = 0.04
 	_kick_view()
-	_eject_casings()
 	recoil.emit(data.camera_kick, data.camera_kick * _next_pattern_value(), data.recoil_manual)
 	fired.emit()
 	Events.gunshot.emit(global_position)
@@ -402,25 +401,6 @@ func _store_slot() -> void:
 ## Where a tracer starts: the model's muzzle, or the eye when the model has none.
 func _muzzle_position(fallback: Vector3) -> Vector3:
 	return (_flash.get_parent() as Node3D).global_position if _flash != null else fallback
-
-
-## Throws `casings_per_shot` spent shells out to the right. Not while scoped or
-## drawn away, because then the gun is not on screen to throw them. Direction and
-## spin come from the private feel generator.
-func _eject_casings() -> void:
-	if data.casings_per_shot <= 0 or not _view.visible:
-		return
-	var kind := Casing.Kind.SHOTGUN if data.pellets > 1 \
-		else (Casing.Kind.SNIPER if not data.scope_zoom_levels.is_empty() else Casing.Kind.RIFLE)
-	var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
-	var port := _view.to_global(Vector3(0.03, 0.035, -0.1))
-	var basis := camera.global_basis
-	for i in data.casings_per_shot:
-		var velocity := basis.x * _feel_rng.randf_range(1.8, 3.2) + basis.y * _feel_rng.randf_range(1.0, 2.2) \
-			+ basis.z * _feel_rng.randf_range(-0.4, 0.6)
-		var spin := Vector3(_feel_rng.randf_range(-30.0, 30.0), _feel_rng.randf_range(-30.0, 30.0),
-			_feel_rng.randf_range(-30.0, 30.0))
-		Casing.spawn(parent, port, velocity, spin, kind)
 
 
 func _play_shot(stream: AudioStream) -> void:

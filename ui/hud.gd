@@ -70,6 +70,8 @@ var _player: Player
 var _director: ZoneDirector
 ## Loaded from user://settings.cfg in a normal run; defaults in tests/fixtures.
 var settings: GameSettings
+## Background music; null under fixtures and headless runs.
+var music: MusicDirector
 var _base_sensitivity := 0.0
 var _hit_tween: Tween
 ## Kill thud and headshot tink play beside the ogg hit sound on their own
@@ -181,6 +183,11 @@ func _ready() -> void:
 	_strike_bar.setup(_director.capture_point)
 	_minimap.setup(_director, _player)
 	_pause_menu.setup(settings, _player, _director)
+	if MusicDirector.enabled():
+		music = MusicDirector.new()
+		music.name = "Music"
+		add_child(music)
+		music.setup(_director)
 	# The HUD does not process while paused, so hide the banner here; _process
 	# decides again once the menu closes.
 	_pause_menu.visibility_changed.connect(func() -> void:
@@ -251,6 +258,10 @@ func _apply_settings() -> void:
 	_crosshair.color = Color(settings.crosshair_color, settings.crosshair_alpha)
 	_player.set_look_sensitivity(_base_sensitivity * settings.mouse_sensitivity, settings.ads_sensitivity)
 	_crosshair.queue_redraw()
+	var bus := AudioServer.get_bus_index(MusicDirector.BUS)
+	if bus >= 0:
+		AudioServer.set_bus_mute(bus, settings.music_volume <= 0.001)
+		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(settings.music_volume, 0.001)))
 
 
 func _on_zoom_changed(level: float) -> void:

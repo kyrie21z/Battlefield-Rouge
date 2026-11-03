@@ -16,7 +16,7 @@
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
 | `tools/` | 编辑器外的辅助脚本 |
-| `docs/` | 设计文档。范围和验收以 `docs/Cut-001b.md`、`docs/MVP_Scope.md` 为准，叙事适配以 `docs/Cut-002.md` 为准 |
+| `docs/` | 设计文档。游戏方向以 `docs/CREATIVE_VISION.md` 为准；本轮范围和验收看 `docs/Cut-002.md`，它未改动的玩法规则沿用 `docs/Cut-001b.md`、`docs/MVP_Scope.md` |
 | `docs/adr/` | 架构决策记录 |
 
 ## 依赖规则

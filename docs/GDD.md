@@ -1,5 +1,7 @@
 # 《Battlefield Rouge》游戏设计文档
 
+> 2026-11-03：本文是早期 Battlefield Rouge 原型的规则，描述当前代码的行为，改动现有系统时仍以它为依据。游戏方向以 [Creative Vision](CREATIVE_VISION.md) 为准，冲突时以愿景为准；新的玩法范围按轮次写在 Cut 文档里（当前是 [Cut-002](Cut-002.md)）。
+
 ## 概述
 
 - **名称**：Battlefield Rouge

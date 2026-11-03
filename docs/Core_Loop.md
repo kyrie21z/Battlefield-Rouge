@@ -1,5 +1,7 @@
 # 核心循环
 
+> 2026-11-03：本文是早期 Battlefield Rouge 原型的规则，描述当前代码的行为，改动现有系统时仍以它为依据。游戏方向以 [Creative Vision](CREATIVE_VISION.md) 为准，冲突时以愿景为准；新的玩法范围按轮次写在 Cut 文档里（当前是 [Cut-002](Cut-002.md)）。
+
 > 腾讯游戏学堂《AI游戏进化论》EP.04。循环句不超过 100 字。验收编号在 [Cut-001b](Cut-001b.md) 的 AC-01 至 AC-08。
 > 当前代码已是清守卫 → 在增援里锤砸占点 → 插旗冲击波 → 增益台按 F 再选。增益 3 次：开局前 1 次（弹窗）+ 两个小关结束各 1 次（增益台）；小关 2 和 Boss 进场不选；Boss 后不选。Boss 关先打倒 Boss，再一锤击碎核心，没有增援和冲击波（AC-02）。设计以 Cut-001b 和 [MVP_Scope.md](MVP_Scope.md) 为准。节奏见 [ADR 0007](adr/0007-reinforcements-shockwave-pedestal.md)。
 

@@ -7,6 +7,7 @@
 > **状态**：供团队讨论与原型验证，**不代表全部机制已批准开发**
 > **预期平台 / 引擎**：当前工程为 Battlefield-Rouge / Godot 4.7.2；Sloth 完整关卡仍待实现
 > **设计来源**：用户提供的 SLOTH_LEVEL_DESIGN.md v0.1
+> **上位文档**：[Creative Vision](../CREATIVE_VISION.md) · [Weapon Art Direction](../WEAPON_ART_DIRECTION.md)（2026-11-03 迁入本仓库）
 
 ## 0. 阅读约定与决策状态
 

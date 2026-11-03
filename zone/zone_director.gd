@@ -21,6 +21,9 @@ enum Phase { CLEAR_GUARDS, HAMMER_POINT, FLAG_PLANTED, BUFF_SELECT, BOSS_STANDIN
 signal objective_changed(text: String)
 signal phase_changed(phase: Phase)
 signal enemies_changed(alive: int, total: int)
+## A reinforcement was placed in the zone. Emitted after placement for
+## listeners; it never changes the spawn order or the run's timing.
+signal reinforcement_spawned(position: Vector3)
 
 const BUFF_SELECT := preload("res://ui/buff_select.tscn")
 const RUN_END := preload("res://ui/run_end.tscn")
@@ -263,6 +266,7 @@ func _spawn_one() -> void:
 	_watch_departure(enemy)
 	enemy.setup(_player, _cover_points, _firing_board)
 	enemy.begin_hunt()
+	reinforcement_spawned.emit(enemy.global_position)
 
 
 func _watch_departure(enemy: Enemy) -> void:
@@ -294,6 +298,15 @@ func _living_minions() -> Array[Enemy]:
 		if enemy == null or enemy.is_boss or enemy.state == Enemy.State.DEAD:
 			continue
 		found.append(enemy)
+	return found
+
+
+## Every living enemy in this zone, guards, reinforcements (also while they
+## flee) and the boss. Read-only.
+func living_enemies() -> Array[Enemy]:
+	var found := _living_minions()
+	if boss != null and is_instance_valid(boss) and not boss.health.is_dead():
+		found.append(boss)
 	return found
 
 

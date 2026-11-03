@@ -32,9 +32,11 @@ func _on_phase_changed(value: ZoneDirector.Phase) -> void:
 		ZoneDirector.Phase.HAMMER_POINT:
 			_objective.text = "锤击据点"
 			_detail.visible = true
-			_detail.text = "按 E 砸核心" if director.is_boss_zone else "按 E 挥锤"
+			_detail.text = "按 %s 砸核心" % KeyHint.of("hammer") if director.is_boss_zone \
+				else "按 %s 挥锤" % KeyHint.of("hammer")
 		ZoneDirector.Phase.FLAG_PLANTED:
-			_objective.text = "城市核心已夺取" if director.is_boss_zone else "到增益台按 F"
+			_objective.text = "城市核心已夺取" if director.is_boss_zone \
+				else "到增益台按 %s" % KeyHint.of("interact")
 		ZoneDirector.Phase.BUFF_SELECT:
 			_objective.text = "选择增益"
 		ZoneDirector.Phase.BOSS_STANDING:

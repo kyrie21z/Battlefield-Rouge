@@ -20,7 +20,7 @@ func _ready() -> void:
 	body.material_override = material
 	add_child(body)
 	_label = Label3D.new()
-	_label.text = "按 F 领取增益"
+	_label.text = "按 %s 领取增益" % KeyHint.of("interact")
 	_label.font_size = 48
 	_label.pixel_size = 0.0045
 	_label.position = Vector3(0.0, 1.85, 0.0)

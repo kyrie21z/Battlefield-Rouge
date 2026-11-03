@@ -2,7 +2,8 @@ extends Node
 ## Native-window proof frames for the pause menu and crosshair settings:
 ##   godot --path . res://tests/settings_proof.tscn -- --out=docs/proof/settings-menu
 ## Frames: 01 the open pause menu, 02 a bigger green cross+dot in game,
-## 03 the ring style. Needs a real display.
+## 03 the ring style, 04 the key-binding tab after swapping 挥锤 to Q,
+## 05 the menu opened over the buff-select screen. Needs a real display.
 
 const ZONE := "res://maps/zone_1.tscn"
 const PROOF_SETTINGS := "user://settings_proof.cfg"
@@ -37,8 +38,6 @@ func _ready() -> void:
 	var scene: Node = load(ZONE).instantiate()
 	add_child(scene)
 	await _frames(3)
-	await _press_one()
-	get_tree().paused = false
 	_player = scene.get_node("Player") as Player
 	_hud = scene.get_node("HUD")
 	_player.health.max_health = 100000.0
@@ -48,7 +47,19 @@ func _ready() -> void:
 		(node as Enemy).set_physics_process(false)
 	await _frames(3)
 
-	var menu := _hud.get_node("PauseMenu") as PauseMenu
+	var menu := _hud.get_node("PauseLayer/PauseMenu") as PauseMenu
+	# Zone 1 starts paused on the buff choice; the menu may open over it and
+	# closing must keep that pause.
+	menu.try_open()
+	await _frames(3)
+	_shot("05_menu_over_buff")
+	menu.close()
+	await _frames(3)
+
+	await _press_one()
+	get_tree().paused = false
+	await _frames(3)
+
 	menu.try_open()
 	await _frames(3)
 	_shot("01_pause_menu")
@@ -70,6 +81,21 @@ func _ready() -> void:
 	settings.changed.emit()
 	await _frames(4)
 	_shot("03_ring")
+
+	# The binding tab, right after 挥锤 was rebound to Q (its old owner 切换近战
+	# swaps to E, and the status line names the swap).
+	menu.try_open()
+	await _frames(2)
+	menu._tab_bindings.button_pressed = true  # highlights the tab too
+	await _frames(2)
+	menu._on_bind_pressed("hammer")
+	var q := InputEventKey.new()
+	q.physical_keycode = KEY_Q
+	q.pressed = true
+	menu._input(q)
+	await _frames(2)
+	_shot("04_key_bindings")
+	menu.close()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PROOF_SETTINGS))
 	print("proof frames written to %s" % _out_dir)
 	get_tree().quit(0)

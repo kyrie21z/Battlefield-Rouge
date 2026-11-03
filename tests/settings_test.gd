@@ -38,7 +38,7 @@ func _run() -> void:
 	_hud = scene.get_node("HUD")
 	_cross = _hud.get_node("Crosshair") as Crosshair
 	_director = scene.get_node("ZoneDirector") as ZoneDirector
-	_menu = _hud.get_node("PauseMenu") as PauseMenu
+	_menu = _hud.get_node("PauseLayer/PauseMenu") as PauseMenu
 	await _test_defaults_in_game()
 	_test_clamp()
 	await _test_mouse_look()
@@ -185,8 +185,14 @@ func _test_pause() -> void:
 		_check("and the mouse is captured again", Input.mouse_mode == Input.MOUSE_MODE_CAPTURED)
 
 	_director.phase = ZoneDirector.Phase.BUFF_SELECT
-	_check("it refuses under a buff selection", not _menu.try_open())
+	get_tree().paused = true
+	_check("it opens over a buff selection", _menu.try_open())
+	_menu.close()
+	_check("closing over a buff selection keeps the tree paused",
+		get_tree().paused and _director.phase == ZoneDirector.Phase.BUFF_SELECT)
 	_director.phase = ZoneDirector.Phase.CLEAR_GUARDS
+	_check("it refuses while paused outside a buff selection", not _menu.try_open())
+	get_tree().paused = false
 	RunState.fixture = RunFixture.by_id("FX-001")
 	_check("it refuses under a fixture", not _menu.try_open())
 	RunState.fixture = null

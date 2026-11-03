@@ -1,9 +1,9 @@
 class_name GameSettings
 extends RefCounted
-## Player-facing options: mouse look sensitivity, crosshair look and music
-## volume. Pure data; the HUD applies it and the pause menu edits and saves it.
-## Every default reproduces the game before this menu existed (music at 70%), so
-## a missing or untrusted file never changes the feel.
+## Player-facing options: mouse look sensitivity, crosshair look, music
+## volume and key bindings. Pure data; the HUD applies it and the pause menu
+## edits and saves it. Every default reproduces the game before this menu
+## existed (music at 70%), so a missing or untrusted file never changes the feel.
 
 signal changed
 
@@ -42,6 +42,8 @@ var crosshair_alpha := 0.9
 var dynamic_gap := true
 ## Linear 0..1 level of the Music bus; 0 mutes it.
 var music_volume := MUSIC_DEFAULT
+## action → KeyBindings code, only for actions moved off their default.
+var bindings := {}
 
 
 func clamp_values() -> void:
@@ -53,6 +55,7 @@ func clamp_values() -> void:
 	crosshair_thickness = clampf(crosshair_thickness, THICKNESS_MIN, THICKNESS_MAX)
 	crosshair_alpha = clampf(crosshair_alpha, ALPHA_MIN, ALPHA_MAX)
 	music_volume = clampf(music_volume, 0.0, 1.0)
+	bindings = KeyBindings.sanitize(bindings)
 
 
 func reset_defaults() -> void:
@@ -65,6 +68,7 @@ func reset_defaults() -> void:
 	crosshair_alpha = 0.9
 	dynamic_gap = true
 	music_volume = MUSIC_DEFAULT
+	bindings = {}
 	changed.emit()
 
 
@@ -84,6 +88,10 @@ func load_from(path: String) -> bool:
 	crosshair_alpha = float(config.get_value("crosshair", "alpha", crosshair_alpha))
 	dynamic_gap = bool(config.get_value("crosshair", "dynamic_gap", dynamic_gap))
 	music_volume = float(config.get_value("audio", "music_volume", music_volume))
+	bindings = {}
+	if config.has_section("bindings"):
+		for action in config.get_section_keys("bindings"):
+			bindings[action] = str(config.get_value("bindings", action, ""))
 	clamp_values()
 	changed.emit()
 	return true
@@ -101,4 +109,6 @@ func save_to(path: String) -> Error:
 	config.set_value("crosshair", "alpha", crosshair_alpha)
 	config.set_value("crosshair", "dynamic_gap", dynamic_gap)
 	config.set_value("audio", "music_volume", music_volume)
+	for action in bindings:
+		config.set_value("bindings", action, bindings[action])
 	return config.save(path)

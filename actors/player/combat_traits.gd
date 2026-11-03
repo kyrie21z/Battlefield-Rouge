@@ -117,7 +117,7 @@ func _on_reload_finished() -> void:
 		return
 	_reload_charge_stored = true
 	_held_magazine.visible = not weapon.is_scoped()
-	_notify("危险弹匣已储存：按 C 投出")
+	_notify("危险弹匣已储存：按 %s 投出" % KeyHint.of("throw_magazine"))
 
 
 func _on_weapon_selected(_index: int, _data: WeaponData) -> void:

@@ -83,6 +83,21 @@ func _ready() -> void:
 	await _frames(3)
 	_shot("07_kill_marker")
 	await _frames(20)
+
+	# 5. crosshair: hip lines + dot, then iron sights with the dot alone.
+	_player.set_physics_process(true)
+	var names := ["rifle", "shotgun"]
+	for slot in 2:
+		await _stage(slot, 12.0)
+		_player.set_physics_process(true)
+		Input.action_release("aim")
+		await _seconds(0.8)
+		_shot("%02d_%s_hip_crosshair" % [8 + slot * 2, names[slot]])
+		Input.action_press("aim")
+		await _seconds(0.9)
+		_shot("%02d_%s_ads_dot" % [9 + slot * 2, names[slot]])
+		Input.action_release("aim")
+		await _seconds(0.5)
 	print("proof frames written to %s" % _out_dir)
 	get_tree().quit(0)
 
@@ -111,6 +126,16 @@ func _torso() -> Hitbox:
 func _shot(name: String) -> void:
 	var image := get_viewport().get_texture().get_image()
 	image.save_jpg("%s/%s.jpg" % [_out_dir, name], 0.88)
+	# The crosshair frames also get a 4x nearest-neighbour crop of the screen centre.
+	if name.contains("crosshair") or name.contains("ads_dot"):
+		var centre := image.get_size() / 2
+		var crop := image.get_region(Rect2i(centre - Vector2i(100, 70), Vector2i(200, 140)))
+		crop.resize(800, 560, Image.INTERPOLATE_NEAREST)
+		crop.save_jpg("%s/%s_zoom.jpg" % [_out_dir, name], 0.9)
+
+
+func _seconds(t: float) -> void:
+	await get_tree().create_timer(t, true, false, true).timeout
 
 
 func _frames(count: int) -> void:

@@ -16,7 +16,7 @@ var _hit_tween: Tween
 var _kill_audio: AudioStreamPlayer
 var _tink_audio: AudioStreamPlayer
 
-@onready var _crosshair: Control = $Crosshair
+@onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
 @onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
@@ -84,8 +84,11 @@ func _process(_delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
 	var spread := deg_to_rad(_player.weapon.spread_degrees())
-	_crosshair.gap = 4.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
-	_crosshair.visible = not _player.is_aiming()
+	_crosshair.gap = 2.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
+	# Hip: dot and lines. Iron sights: just the dot (the sights are on the target
+	# anyway). Scoped: the scope reticle takes over, so nothing.
+	_crosshair.visible = not _player.weapon.is_scoped()
+	_crosshair.show_lines = not _player.is_aiming()
 	_crosshair.queue_redraw()
 
 	# Sniper scope: the gun hides itself behind the glass, the overlay takes over

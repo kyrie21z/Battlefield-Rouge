@@ -38,6 +38,7 @@ func _run() -> void:
 	await _test_camera_shake()
 	await _test_scoped_shake()
 	await _test_audio_voices()
+	await _test_crosshair(scene)
 	await _test_hitmarker(scene)
 	await _test_enemy_reaction(scene)
 	await _test_impacts(scene)
@@ -243,6 +244,59 @@ func _test_audio_voices() -> void:
 		_weapon.try_fire()
 		await get_tree().process_frame
 	_check("twelve rapid shots on six voices do not error", true)
+
+
+func _test_crosshair(scene: Node) -> void:
+	print("== crosshair: centre dot, clamped gap, ADS, scope")
+	var cross := scene.get_node("HUD/Crosshair") as Crosshair
+	_weapon.select(0)
+	Input.action_release("aim")
+	await _seconds(0.6)
+	var draws := cross.dot_draws
+	await _frames(2)
+	_check("hip: the crosshair is up with its lines", cross.visible and cross.show_lines)
+	_check("hip: the centre dot is drawn every frame", cross.dot_draws > draws)
+	_check("the lines are short and thin (%.0f px, %.1f px)" % [cross.line_length, cross.thickness],
+		cross.line_length <= 6.0 and cross.thickness <= 1.5)
+	_check("the dot is 2-3 px with a dark outline (%.1f px)" % cross.dot_size,
+		cross.dot_size >= 2.0 and cross.dot_size <= 3.0 and cross.outline >= 1.0)
+	cross.gap = 0.5
+	_check("a tiny spread keeps the minimum gap (%.1f)" % cross.drawn_gap(), cross.drawn_gap() == cross.min_gap)
+	cross.gap = 120.0
+	_check("a huge spread is clamped to %.0f px (%.1f)" % [cross.max_gap, cross.drawn_gap()],
+		cross.drawn_gap() == cross.max_gap and cross.max_gap <= 24.0)
+	var real := cross.gap
+	_player.velocity = Vector3(0, 6, 0)
+	_weapon._spread = _weapon.data.max_spread
+	await _frames(2)
+	_check("the real spread still widens the gap (%.1f px, was %.1f)" % [cross.gap, real], cross.gap > 3.0)
+	_check("but the drawn gap never exceeds the clamp (%.1f)" % cross.drawn_gap(), cross.drawn_gap() <= cross.max_gap)
+	_player.velocity = Vector3.ZERO
+
+	for index in 2:
+		_weapon.select(index)
+		Input.action_press("aim")
+		await _seconds(0.7)
+		draws = cross.dot_draws
+		await _frames(2)
+		var name := _weapon.data.display_name
+		_check("%s ADS: the dot stays, the lines go" % name, cross.visible and not cross.show_lines
+			and not _weapon.is_scoped())
+		_check("%s ADS: the dot is still drawn" % name, cross.dot_draws > draws)
+		Input.action_release("aim")
+		await _seconds(0.6)
+
+	_weapon.select(2)
+	Input.action_press("aim")
+	await _seconds(0.7)
+	await _frames(2)
+	_check("scoped: the scope reticle takes over, no crosshair", _weapon.is_scoped() and not cross.visible)
+	Input.action_release("aim")
+	await _seconds(0.6)
+	await _frames(2)
+	_check("scope down: the crosshair is back", cross.visible and cross.show_lines)
+	_weapon.select(0)
+	await _frames(2)
 
 
 func _test_hitmarker(scene: Node) -> void:

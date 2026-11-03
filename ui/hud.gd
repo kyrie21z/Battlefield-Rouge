@@ -5,10 +5,18 @@ extends CanvasLayer
 const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
 const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
 
+## A kill freezes the game for this many real seconds (see HitStop).
+const KILL_HITSTOP := 0.05
+
 var _player: Player
 var _director: ZoneDirector
+var _hit_tween: Tween
+## Kill thud and headshot tink play beside the ogg hit sound on their own
+## players, so layering them never cuts the ogg.
+var _kill_audio: AudioStreamPlayer
+var _tink_audio: AudioStreamPlayer
 
-@onready var _crosshair: Control = $Crosshair
+@onready var _crosshair: Crosshair = $Crosshair
 @onready var _scope: Control = $Scope
 @onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
@@ -30,6 +38,14 @@ var _director: ZoneDirector
 
 func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player") as Player
+	_kill_audio = AudioStreamPlayer.new()
+	_kill_audio.stream = ProceduralAudio.generate("hit_kill")
+	_kill_audio.volume_db = -2.0
+	add_child(_kill_audio)
+	_tink_audio = AudioStreamPlayer.new()
+	_tink_audio.stream = ProceduralAudio.generate("hit_tink")
+	_tink_audio.volume_db = -7.0
+	add_child(_tink_audio)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
 	_player.weapon.zoom_changed.connect(_on_zoom_changed)
 	_player.melee.hit_landed.connect(_on_hit_landed)
@@ -68,8 +84,11 @@ func _process(_delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	var half_height := get_viewport().get_visible_rect().size.y * 0.5
 	var spread := deg_to_rad(_player.weapon.spread_degrees())
-	_crosshair.gap = 4.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
-	_crosshair.visible = not _player.is_aiming()
+	_crosshair.gap = 2.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
+	# Hip: dot and lines. Iron sights: just the dot (the sights are on the target
+	# anyway). Scoped: the scope reticle takes over, so nothing.
+	_crosshair.visible = not _player.weapon.is_scoped()
+	_crosshair.show_lines = not _player.is_aiming()
 	_crosshair.queue_redraw()
 
 	# Sniper scope: the gun hides itself behind the glass, the overlay takes over
@@ -88,12 +107,27 @@ func _on_zoom_changed(level: float) -> void:
 
 
 func _on_hit_landed(headshot: bool, killed: bool) -> void:
-	_hitmarker.modulate = Color(1, 0.25, 0.2) if killed else (Color(1, 0.85, 0.3) if headshot else Color.WHITE)
-	_hitmarker.scale = Vector2.ONE * (1.4 if killed else 1.0)
-	var tween := create_tween()
-	tween.tween_property(_hitmarker, "modulate:a", 0.0, 0.25).from(1.0)
+	_hitmarker.modulate = Color(1, 0.2, 0.15) if killed else (Color(1, 0.85, 0.3) if headshot else Color.WHITE)
+	# Pop big, then settle: a kill ends bigger and holds longer than a plain hit.
+	var pop := 2.3 if killed else (1.7 if headshot else 1.45)
+	var rest := 1.5 if killed else 1.0
+	_hitmarker.scale = Vector2.ONE * pop
+	if _hit_tween != null and _hit_tween.is_valid():
+		_hit_tween.kill()
+	_hit_tween = create_tween()
+	_hit_tween.tween_property(_hitmarker, "scale", Vector2.ONE * rest, 0.09) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_hit_tween.parallel().tween_property(_hitmarker, "modulate:a", 0.0, 0.5 if killed else 0.25) \
+		.from(1.0).set_delay(0.08 if killed else 0.0)
 	_audio.stream = HIT_HEAD if headshot else HIT_BODY
 	_audio.play()
+	if headshot:
+		_tink_audio.play()
+	if killed:
+		_kill_audio.play()
+		# A fixture has to replay identically, so it never takes a hitstop.
+		if RunState.fixture == null and not get_tree().paused:
+			HitStop.request(get_tree(), KILL_HITSTOP)
 
 
 func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:

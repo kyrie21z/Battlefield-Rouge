@@ -8,6 +8,33 @@ const SAMPLE_RATE := 22050
 
 static func generate(kind: String) -> AudioStreamWAV:
 	match kind:
+		# Layered player guns: a low thump, a bright crack, the body of the blast
+		# and a tail. The older single-burst kinds below stay for enemies.
+		"gun_rifle":
+			return _layered_gunshot({
+				"duration": 0.34, "seed": 11,
+				"thump_from": 150.0, "thump_to": 58.0, "thump_decay": 30.0, "thump_amp": 0.55,
+				"crack_decay": 110.0, "crack_amp": 0.5,
+				"body_decay": 26.0, "body_amp": 0.65, "body_lp": 0.24,
+				"tail_decay": 9.0, "tail_amp": 0.22, "tail_lp": 0.07})
+		"gun_shotgun":
+			return _layered_gunshot({
+				"duration": 0.62, "seed": 12,
+				"thump_from": 110.0, "thump_to": 38.0, "thump_decay": 15.0, "thump_amp": 0.9,
+				"crack_decay": 60.0, "crack_amp": 0.55,
+				"body_decay": 17.0, "body_amp": 0.85, "body_lp": 0.17,
+				"tail_decay": 6.0, "tail_amp": 0.33, "tail_lp": 0.05})
+		"gun_sniper":
+			return _layered_gunshot({
+				"duration": 0.95, "seed": 13,
+				"thump_from": 90.0, "thump_to": 30.0, "thump_decay": 9.0, "thump_amp": 1.0,
+				"crack_decay": 80.0, "crack_amp": 0.75,
+				"body_decay": 14.0, "body_amp": 0.75, "body_lp": 0.13,
+				"tail_decay": 4.2, "tail_amp": 0.42, "tail_lp": 0.035})
+		"hit_kill":
+			return _kill_confirm()
+		"hit_tink":
+			return _ping(0.16, [2900.0, 4300.0], 30.0)
 		"gunshot_sniper":
 			return _noise_burst(0.34, 20.0, 1.0, 0.2)
 		"gunshot_shotgun":
@@ -81,6 +108,66 @@ static func _noise_burst(duration: float, decay: float, amp: float, lp_factor: f
 		var white := rng.randf_range(-1.0, 1.0)
 		lowpass += (white - lowpass) * lp_factor
 		var value := int(clampf(lowpass * amp * envelope, -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = value & 0xFF
+		data[i * 2 + 1] = (value >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## One gunshot out of four layers, mixed and soft-clipped:
+##  - thump: a sine falling from `thump_from` to `thump_to` Hz (the chest punch),
+##  - crack: high-passed noise that dies almost at once (the snap),
+##  - body: low-passed noise (the blast itself),
+##  - tail: very dark noise that rings on (the room).
+## Uses its own seeded generator, never the global one.
+static func _layered_gunshot(p: Dictionary) -> AudioStreamWAV:
+	var sample_count := int(p.duration * SAMPLE_RATE)
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + int(p.seed)
+	var body_lp := 0.0
+	var tail_lp := 0.0
+	var crack_lp := 0.0
+	var phase := 0.0
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		var white := rng.randf_range(-1.0, 1.0)
+		var freq := lerpf(p.thump_from, p.thump_to, 1.0 - exp(-t * 40.0))
+		phase += TAU * freq / SAMPLE_RATE
+		var thump: float = sin(phase) * exp(-t * p.thump_decay) * p.thump_amp
+		crack_lp += (white - crack_lp) * 0.45
+		var crack: float = (white - crack_lp) * exp(-t * p.crack_decay) * p.crack_amp
+		body_lp += (white - body_lp) * p.body_lp
+		var body: float = body_lp * exp(-t * p.body_decay) * p.body_amp * 2.2
+		tail_lp += (white - tail_lp) * p.tail_lp
+		var tail: float = tail_lp * exp(-t * p.tail_decay) * p.tail_amp * 3.5
+		# Soft clip, then a few ms of fade-in so the thump does not click on.
+		var mixed := tanh((thump + crack + body + tail) * 1.4) * minf(t / 0.002, 1.0)
+		var value := int(clampf(mixed, -1.0, 1.0) * 32767.0) & 0xFFFF
+		data[i * 2] = value & 0xFF
+		data[i * 2 + 1] = (value >> 8) & 0xFF
+	return _make_wav(data)
+
+
+## Kill confirm: a dull low knock plus a short falling "thud-ping", distinct from
+## the ogg body / head hits.
+static func _kill_confirm() -> AudioStreamWAV:
+	var duration := 0.28
+	var sample_count := int(duration * SAMPLE_RATE)
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20240712 + 21
+	var phase := 0.0
+	var lp := 0.0
+	for i in sample_count:
+		var t := float(i) / SAMPLE_RATE
+		phase += TAU * lerpf(220.0, 70.0, 1.0 - exp(-t * 16.0)) / SAMPLE_RATE
+		var knock := sin(phase) * exp(-t * 14.0) * 0.8
+		lp += (rng.randf_range(-1.0, 1.0) - lp) * 0.3
+		var snap := lp * exp(-t * 70.0) * 0.5
+		var ring := sin(TAU * 1180.0 * t) * exp(-t * 22.0) * 0.25 * minf(t / 0.004, 1.0)
+		var value := int(clampf(tanh(knock + snap + ring), -1.0, 1.0) * 32767.0) & 0xFFFF
 		data[i * 2] = value & 0xFF
 		data[i * 2 + 1] = (value >> 8) & 0xFF
 	return _make_wav(data)

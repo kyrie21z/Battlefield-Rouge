@@ -127,7 +127,7 @@ var _reinforcement_banner_shown := false
 @onready var _combat_feedback: Label = $CombatFeedback
 @onready var _strike_bar: StrikeBar = $StrikeBar
 @onready var _banner: PhaseBanner = $PhaseBanner
-@onready var _pause_menu: PauseMenu = $PauseMenu
+@onready var _pause_menu: PauseMenu = $PauseLayer/PauseMenu
 @onready var _debug: CaptureDebug = $CaptureDebug
 
 
@@ -257,6 +257,14 @@ func _apply_settings() -> void:
 	_crosshair.thickness = settings.crosshair_thickness
 	_crosshair.color = Color(settings.crosshair_color, settings.crosshair_alpha)
 	_player.set_look_sensitivity(_base_sensitivity * settings.mouse_sensitivity, settings.ads_sensitivity)
+	# Push the player's key overrides into the InputMap, then show the ability
+	# keys from whatever is actually bound now.
+	KeyBindings.apply(settings.bindings)
+	_shield_slot.key_text = KeyHint.of("shield")
+	_melee_slot.key_text = KeyHint.of("melee")
+	_magazine_slot.key_text = KeyHint.of("throw_magazine")
+	for slot: AbilitySlot in [_shield_slot, _melee_slot, _magazine_slot]:
+		slot.queue_redraw()
 	_crosshair.queue_redraw()
 	var bus := AudioServer.get_bus_index(MusicDirector.BUS)
 	if bus >= 0:
@@ -362,14 +370,14 @@ func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
 			_banner.play("战斗开始", "消灭所有守卫，据点才会开放", PhaseBanner.TITLE_WHITE)
 		ZoneDirector.Phase.HAMMER_POINT:
 			if _director.is_boss_zone:
-				_banner.play("砸碎城市核心", "按 E 挥锤", PhaseBanner.TITLE_GOLD)
+				_banner.play("砸碎城市核心", "按 %s 挥锤" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
 			else:
-				_banner.play("据点开放", "前往据点，按 E 挥锤 · 金色区间是完美打击", PhaseBanner.TITLE_GOLD)
+				_banner.play("据点开放", "前往据点，按 %s 挥锤 · 金色区间是完美打击" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
 		ZoneDirector.Phase.FLAG_PLANTED:
 			# The boss zone wins straight from the core; only small zones have a
 			# pedestal to point at.
 			if not _director.is_boss_zone:
-				_banner.play("据点已占领", "增援撤退 · 到旗旁增益台按 F 领取增益", PhaseBanner.TITLE_GREEN)
+				_banner.play("据点已占领", "增援撤退 · 到旗旁增益台按 %s 领取增益" % KeyHint.of("interact"), PhaseBanner.TITLE_GREEN)
 		ZoneDirector.Phase.BOSS_STANDING:
 			_banner.play("Boss 现身", "击倒 Boss，城市核心才会打开", PhaseBanner.TITLE_RED)
 		ZoneDirector.Phase.BUFF_SELECT:

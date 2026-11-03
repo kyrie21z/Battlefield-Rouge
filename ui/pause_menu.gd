@@ -1,8 +1,10 @@
 class_name PauseMenu
 extends Control
-## Esc menu with the look and crosshair settings inline. It pauses the tree,
-## releases the mouse and saves on close. It refuses while another screen owns
-## the pause, under a fixture and headless (tests opt in with `allow_headless`).
+## Esc menu with the look, crosshair and key-binding settings on two tabs. It
+## pauses the tree, releases the mouse and saves on close. It refuses while
+## another screen owns the pause (run-end), under a fixture and headless (tests
+## opt in with `allow_headless`); it may open over the buff-select screen, and
+## closing there keeps the pause so the choice stays in control.
 
 static var allow_headless := false
 
@@ -11,6 +13,9 @@ var _settings: GameSettings
 var _player: Player
 var _director: ZoneDirector
 var _open := false
+## Whether the tree was already paused when the menu opened (buff screen).
+var _was_paused := false
+var _prev_mouse_mode := Input.MOUSE_MODE_CAPTURED
 var _updating := false
 var _preview: Crosshair
 var _style: OptionButton
@@ -19,6 +24,13 @@ var _colors: Array[Button] = []
 var _sliders: Dictionary = {}
 var _labels: Dictionary = {}
 var _fields: Dictionary = {}
+var _settings_box: VBoxContainer
+var _bindings_box: VBoxContainer
+var _tab_settings: Button
+var _tab_bindings: Button
+var _status: Label
+var _bind_buttons: Dictionary = {}
+var _awaiting_action := ""
 
 
 func _ready() -> void:
@@ -45,6 +57,8 @@ func try_open() -> bool:
 		return false
 	_open = true
 	visible = true
+	_was_paused = get_tree().paused
+	_prev_mouse_mode = Input.mouse_mode
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_refresh()
@@ -56,31 +70,78 @@ func close() -> void:
 		return
 	_open = false
 	visible = false
+	if not _awaiting_action.is_empty():
+		_end_capture()
 	if _settings != null and (DisplayServer.get_name() != "headless" or allow_headless):
 		_settings.save_to(GameSettings.settings_path)
+	if _was_paused:
+		# Opened over the buff screen: it stays paused with the mouse visible.
+		return
 	get_tree().paused = false
 	capture_requests += 1
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _can_open() -> bool:
-	if get_tree().paused or RunState.fixture != null:
+	# Paused outside a buff selection means the run-end screen owns the pause.
+	if get_tree().paused and (_director == null or _director.phase != ZoneDirector.Phase.BUFF_SELECT):
+		return false
+	if RunState.fixture != null:
 		return false
 	if DisplayServer.get_name() == "headless" and not allow_headless:
 		return false
 	if _player == null or _player.health.is_dead():
 		return false
-	return _director == null or _director.phase != ZoneDirector.Phase.BUFF_SELECT
+	return true
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_echo() or not event.is_action_pressed("pause"):
+	if event.is_echo():
 		return
 	if _open:
-		close()
+		if event.is_action_pressed("pause"):
+			close()
+			get_viewport().set_input_as_handled()
+		elif (event is InputEventKey or event is InputEventMouseButton) and event.is_pressed():
+			# Keys or clicks that fell through the panel must not reach the
+			# buff screen's 1/2/3 or anything else behind the menu.
+			get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("pause") and try_open():
 		get_viewport().set_input_as_handled()
-	elif try_open():
+
+
+func _input(event: InputEvent) -> void:
+	if not _open:
+		return
+	if not _awaiting_action.is_empty():
+		if event is InputEventKey and event.is_echo():
+			return
+		if event is InputEventMouseButton and event.is_pressed():
+			var clicked := _bind_button_at((event as InputEventMouseButton).position)
+			if not clicked.is_empty() and clicked != _awaiting_action:
+				# A click on another binding row switches the capture target
+				# instead of binding the mouse button that clicked it.
+				_end_capture()
+				_on_bind_pressed(clicked)
+				get_viewport().set_input_as_handled()
+				return
+		if (event is InputEventKey or event is InputEventMouseButton) and event.is_pressed():
+			_capture_binding(event)
+			get_viewport().set_input_as_handled()
+		return
+	# While the menu is open, keys never get past it (mouse buttons are stopped
+	# by the panel and the dim layer); Esc passes on to close the menu.
+	if event is InputEventKey and event.is_pressed() and not event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
+
+
+## The binding row under a viewport position, or "" when none is hit.
+func _bind_button_at(pos: Vector2) -> String:
+	for action: String in _bind_buttons:
+		var button := _bind_buttons[action] as Button
+		if button.get_global_rect().has_point(pos):
+			return action
+	return ""
 
 
 func _build() -> void:
@@ -94,12 +155,13 @@ func _build() -> void:
 	panel.anchor_top = 0.5
 	panel.anchor_right = 0.5
 	panel.anchor_bottom = 0.5
-	panel.offset_left = -410.0
-	panel.offset_top = -395.0
-	panel.offset_right = 410.0
-	panel.offset_bottom = 395.0
+	panel.offset_left = -450.0
+	panel.offset_top = -470.0
+	panel.offset_right = 450.0
+	panel.offset_bottom = 470.0
 	var style := StyleBoxFlat.new()
-	style.bg_color = HudStyle.DARK
+	# Nearly opaque: the buff cards must not show through the menu.
+	style.bg_color = Color(HudStyle.DARK, 0.98)
 	style.border_color = HudStyle.PANEL_LINE
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(14)
@@ -117,6 +179,55 @@ func _build() -> void:
 
 	box.add_child(_text("暂停", 40, HudStyle.TEXT))
 	box.add_child(_text("Esc 继续游戏 · 设置改动立即生效，关闭时保存", 20, HudStyle.MUTED))
+
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 10)
+	var group := ButtonGroup.new()
+	for row in [["设置", false], ["按键绑定", true]]:
+		var tab := Button.new()
+		tab.text = row[0]
+		tab.toggle_mode = true
+		tab.button_group = group
+		tab.custom_minimum_size = Vector2(180.0, 42.0)
+		tab.add_theme_font_size_override("font_size", 22)
+		tab.add_theme_color_override("font_pressed_color", HudStyle.ACCENT)
+		var is_bindings: bool = row[1]
+		tab.button_pressed = not is_bindings
+		tab.toggled.connect(_on_tab.bind(is_bindings))
+		tabs.add_child(tab)
+		if is_bindings:
+			_tab_bindings = tab
+		else:
+			_tab_settings = tab
+	box.add_child(tabs)
+
+	_settings_box = VBoxContainer.new()
+	_settings_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_settings_box.add_theme_constant_override("separation", 10)
+	box.add_child(_settings_box)
+	_build_settings(_settings_box)
+
+	_bindings_box = VBoxContainer.new()
+	_bindings_box.visible = false
+	_bindings_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_bindings_box.add_theme_constant_override("separation", 10)
+	box.add_child(_bindings_box)
+	_build_bindings(_bindings_box)
+
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
+	var reset := _button("恢复默认", 180.0)
+	reset.pressed.connect(_on_reset)
+	buttons.add_child(reset)
+	var resume := _button("继续", 180.0)
+	resume.pressed.connect(close)
+	buttons.add_child(resume)
+	box.add_child(buttons)
+
+
+## The look-and-crosshair tab, the settings the menu had before the tabs.
+func _build_settings(parent: VBoxContainer) -> void:
 	var rows := [
 		["mouse", "鼠标灵敏度", GameSettings.SENS_MIN, GameSettings.SENS_MAX, 0.05, "mouse_sensitivity"],
 		["ads", "开镜灵敏度", GameSettings.ADS_MIN, GameSettings.ADS_MAX, 0.05, "ads_sensitivity"],
@@ -125,7 +236,7 @@ func _build() -> void:
 		["alpha", "准星透明度", GameSettings.ALPHA_MIN, GameSettings.ALPHA_MAX, 0.05, "crosshair_alpha"],
 		["music", "音乐音量", 0.0, 1.0, 0.05, "music_volume"]]
 	for row in rows:
-		_slider(box, row[0], row[1], row[2], row[3], row[4], row[5])
+		_slider(parent, row[0], row[1], row[2], row[3], row[4], row[5])
 
 	var style_row := HBoxContainer.new()
 	style_row.add_theme_constant_override("separation", 12)
@@ -141,7 +252,7 @@ func _build() -> void:
 			_after())
 	style_row.add_child(style_label)
 	style_row.add_child(_style)
-	box.add_child(style_row)
+	parent.add_child(style_row)
 
 	var color_row := HBoxContainer.new()
 	color_row.add_theme_constant_override("separation", 10)
@@ -155,7 +266,7 @@ func _build() -> void:
 		button.pressed.connect(_on_color.bind(i))
 		color_row.add_child(button)
 		_colors.append(button)
-	box.add_child(color_row)
+	parent.add_child(color_row)
 
 	_dynamic = CheckButton.new()
 	_dynamic.text = "动态准星（随扩散张开）"
@@ -164,7 +275,7 @@ func _build() -> void:
 		if not _updating:
 			_settings.dynamic_gap = on
 			_after())
-	box.add_child(_dynamic)
+	parent.add_child(_dynamic)
 
 	var preview_row := HBoxContainer.new()
 	preview_row.add_theme_constant_override("separation", 16)
@@ -176,18 +287,48 @@ func _build() -> void:
 	_preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(_preview)
 	preview_row.add_child(holder)
-	box.add_child(preview_row)
+	parent.add_child(preview_row)
 
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 12)
-	var reset := _button("恢复默认", 180.0)
-	reset.pressed.connect(_on_reset)
-	buttons.add_child(reset)
-	var resume := _button("继续", 180.0)
-	resume.pressed.connect(close)
-	buttons.add_child(resume)
-	box.add_child(buttons)
+
+## The key-binding tab: two columns of label + button rows, every action on
+## screen at once (no scrolling).
+func _build_bindings(parent: VBoxContainer) -> void:
+	var hint := _text("点击后按下新按键或鼠标键 · Esc 取消 · 与其它动作冲突时自动互换", 20, HudStyle.MUTED)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	parent.add_child(hint)
+	_status = _text("", 20, HudStyle.ACCENT)
+	parent.add_child(_status)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 24)
+	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	parent.add_child(columns)
+	var grid: Array[VBoxContainer] = [VBoxContainer.new(), VBoxContainer.new()]
+	for column in grid:
+		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_theme_constant_override("separation", 6)
+		columns.add_child(column)
+	for i in KeyBindings.REBINDABLE.size():
+		var row: Array = KeyBindings.REBINDABLE[i]
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 12)
+		var label := _text(row[1], 22, HudStyle.TEXT)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(170.0, 38.0)
+		button.add_theme_font_size_override("font_size", 20)
+		var action: String = row[0]
+		button.pressed.connect(_on_bind_pressed.bind(action))
+		line.add_child(label)
+		line.add_child(button)
+		grid[0 if i < 8 else 1].add_child(line)
+		_bind_buttons[action] = button
+
+
+func _on_tab(on: bool, bindings: bool) -> void:
+	if _settings_box == null or _bindings_box == null:
+		return
+	_settings_box.visible = not (bindings and on)
+	_bindings_box.visible = bindings and on
 
 
 func _text(text: String, font_size: int, color: Color) -> Label:
@@ -249,7 +390,65 @@ func _on_color(index: int) -> void:
 
 func _on_reset() -> void:
 	_settings.reset_defaults()
+	KeyBindings.apply(_settings.bindings)
+	_set_status("", HudStyle.ACCENT)
 	_refresh()
+
+
+func _on_bind_pressed(action: String) -> void:
+	if not _awaiting_action.is_empty():
+		_end_capture()
+	_awaiting_action = action
+	(_bind_buttons[action] as Button).text = "按下按键…"
+	_set_status("", HudStyle.ACCENT)
+
+
+## The next key or mouse press while waiting: Esc cancels, reserved inputs are
+## refused, anything bindable lands on the action (swapping on conflict).
+func _capture_binding(event: InputEvent) -> void:
+	if event.is_action_pressed("pause"):
+		_end_capture()
+		_set_status("已取消", HudStyle.MUTED)
+		return
+	if not KeyBindings.can_bind(event):
+		_set_status("该按键被保留（Esc / F3 / 滚轮），请换一个", HudStyle.WARNING)
+		return
+	var action := _awaiting_action
+	var swapped := KeyBindings.assign(_settings.bindings, action, event)
+	_end_capture()
+	KeyBindings.apply(_settings.bindings)
+	if not swapped.is_empty():
+		_set_status("已与「%s」互换" % _label_of(swapped), HudStyle.ACCENT)
+	else:
+		_set_status("", HudStyle.ACCENT)
+	_settings.changed.emit()
+	_refresh_bindings()
+
+
+func _end_capture() -> void:
+	_awaiting_action = ""
+	_refresh_bindings()
+
+
+func _refresh_bindings() -> void:
+	if _bind_buttons.is_empty():
+		return
+	for action: String in _bind_buttons:
+		(_bind_buttons[action] as Button).text = KeyHint.of(action)
+
+
+func _set_status(text: String, color: Color) -> void:
+	if _status == null:
+		return
+	_status.text = text
+	_status.add_theme_color_override("font_color", color)
+
+
+func _label_of(action: String) -> String:
+	for row in KeyBindings.REBINDABLE:
+		if row[0] == action:
+			return row[1]
+	return action
 
 
 func _refresh() -> void:
@@ -264,6 +463,7 @@ func _refresh() -> void:
 	_dynamic.button_pressed = _settings.dynamic_gap
 	_update_colors()
 	_update_preview()
+	_refresh_bindings()
 	_updating = false
 
 

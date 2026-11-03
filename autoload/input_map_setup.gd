@@ -36,6 +36,13 @@ func _enter_tree() -> void:
 			InputMap.action_add_event(action, event)
 
 
+## A copy of the built-in first binding of `action` (null if it has none), so
+## the key-binding menu can restore defaults after the player rebinds.
+func default_event(action: StringName) -> InputEvent:
+	var events: Array = _bindings.get(String(action), [])
+	return (events[0] as InputEvent).duplicate() if not events.is_empty() else null
+
+
 static func _key(keycode: Key) -> InputEventKey:
 	var event := InputEventKey.new()
 	event.physical_keycode = keycode

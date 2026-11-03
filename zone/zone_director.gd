@@ -200,7 +200,7 @@ func _open_boss_core() -> void:
 	if phase != Phase.BOSS_STANDING or _ended:
 		return
 	capture_point.open()
-	_set_phase(Phase.HAMMER_POINT, "砸碎城市核心，按 E")
+	_set_phase(Phase.HAMMER_POINT, "砸碎城市核心，按 %s" % KeyHint.of("hammer"))
 
 
 func _open_capture_point() -> void:
@@ -208,7 +208,7 @@ func _open_capture_point() -> void:
 		return
 	Events.zone_cleared.emit(zone_index)
 	capture_point.open()
-	_set_phase(Phase.HAMMER_POINT, "前往据点，按 E 挥锤砸点")
+	_set_phase(Phase.HAMMER_POINT, "前往据点，按 %s 挥锤砸点" % KeyHint.of("hammer"))
 	_begin_reinforcements()
 
 
@@ -216,7 +216,8 @@ func _on_point_captured() -> void:
 	if _ended or _capture_handled or not _combat_started or phase != Phase.HAMMER_POINT:
 		return
 	_capture_handled = true
-	var flag_text := "旗已插上" if is_boss_zone else "旗已插上，到增益台按 F 领取增益"
+	var flag_text := "旗已插上" if is_boss_zone \
+		else "旗已插上，到增益台按 %s 领取增益" % KeyHint.of("interact")
 	_set_phase(Phase.FLAG_PLANTED, flag_text)
 	Events.point_captured.emit(zone_index)
 	if not is_boss_zone:

@@ -16,6 +16,8 @@ func setup(title: String, subtitle: String) -> void:
 func _ready() -> void:
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# The restart key follows the player's reload binding.
+	_button.text = "重新开始（%s）" % KeyHint.of("reload")
 	_button.pressed.connect(_on_restart)
 	_button.grab_focus()
 

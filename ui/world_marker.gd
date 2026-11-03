@@ -152,7 +152,7 @@ func _draw() -> void:
 		draw_colored_polygon(triangle, color)
 	var font := ThemeDB.fallback_font
 	if kind == Kind.PEDESTAL:
-		HudStyle.draw_text_centered(self, font, center.x, center.y + 8.0, "F", 24, color)
+		HudStyle.draw_text_centered(self, font, center.x, center.y + 8.0, KeyHint.of("interact"), 24, color)
 	var text_size := font.get_string_size(distance_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
 	# A downward edge arrow owns the space below the diamond; move the label above it.
 	var text_y := 47.0

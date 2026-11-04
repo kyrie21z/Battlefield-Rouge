@@ -1,5 +1,5 @@
 extends Node
-## Behavior checks for held magazines, real projectile travel and the wider shield.
+## Immediate last-shot storage, active throwing, projectile travel and shield range.
 
 class Source extends Node3D:
 	var team := 1
@@ -28,6 +28,7 @@ func _process(delta: float) -> void:
 
 func _run() -> void:
 	var arena := Node3D.new()
+	arena.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(arena)
 	var player: Player = load("res://actors/player/player.tscn").instantiate()
 	arena.add_child(player)
@@ -39,93 +40,147 @@ func _run() -> void:
 	var traits := player.combat_traits
 	var weapon := player.weapon
 	var thrown: Array[Node3D] = []
+	var stored: Array[Dictionary] = []
 	traits.reload_charge_thrown.connect(func(charge: Node3D): thrown.append(charge))
+	traits.reload_charge_stored.connect(func():
+		stored.append({"frame": Engine.get_process_frames(), "ammo": weapon.ammo,
+			"reloading": weapon.is_reloading()})
+	)
 	_check("no charge can be thrown before the buff", not traits.try_throw_reload_charge())
-	weapon.ammo = 0
+	weapon.ammo = 1
+	weapon.reserve = 0
+	_check("ordinary last shot fires without the perk", weapon.try_fire())
+	_check("last shot without perk cannot store a charge", not traits.has_reload_charge() and stored.is_empty())
+	weapon.reserve = 100
 	weapon.try_reload()
 	_finish_reload(weapon)
-	_check("an ordinary completed empty reload cannot grant a charge", not traits.has_reload_charge())
+	_check("ordinary empty reload cannot grant a charge", not traits.has_reload_charge())
 	player.stats.apply_buff(BuffPool.ALL[0])
 	_check("first stack has 120 explosive damage", player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE) == 120.0)
 	weapon.ammo = 1
 	weapon.try_reload()
 	_finish_reload(weapon)
-	_check("completed tactical reload does not store a charge", not traits.has_reload_charge())
+	_check("completed tactical reload cannot store a charge", not traits.has_reload_charge())
 	weapon.ammo = 0
 	weapon.try_reload()
 	weapon.try_reload()
-	_check("starting and repeating R does not grant an unfinished charge", not traits.has_reload_charge() and thrown.is_empty())
+	_check("starting and repeating R on empty cannot grant a charge", not traits.has_reload_charge())
 	weapon.select_next()
 	weapon._finish_reload()
-	_check("switching guns cancels an unfinished reload candidate", not traits.has_reload_charge())
-	weapon.ammo = 0
+	_check("cancelled or completed empty reload cannot grant a charge", not traits.has_reload_charge())
+	weapon.select(0)
+	weapon.ammo = 2
 	weapon.reserve = 100
-	weapon.try_reload()
-	_finish_reload(weapon)
-	_check("completed empty reload stores exactly one charge without launching", traits.has_reload_charge() and thrown.is_empty())
+	weapon._cooldown = 0.0
+	_check("penultimate shot fires", weapon.try_fire())
+	_check("penultimate shot does not grant a charge", not traits.has_reload_charge())
+	weapon._cooldown = 0.0
+	var final_shot_frame := Engine.get_process_frames()
+	_check("final shot fires", weapon.try_fire())
+	var snapshot: Dictionary = stored.back() if not stored.is_empty() else {}
+	_check("last round stores one charge in the same frame", traits.has_reload_charge()
+		and stored.size() == 1 and snapshot.get("frame", -1) == final_shot_frame)
+	_check("storage precedes automatic reload", snapshot.get("ammo", -1) == 0
+		and not snapshot.get("reloading", true) and weapon.is_reloading())
+	_check("storage does not automatically throw or explode", thrown.is_empty())
 	var held := player.get_node("Head/Camera3D/HeldReloadCharge") as Node3D
-	_check("the stored magazine is visible in hand", held.visible)
-	# There is no live projectile or fuse while the magazine is in the hand.
-	await get_tree().create_timer(ReloadCharge.FUSE_TIME + 0.2).timeout
-	_check("holding past the fuse duration neither throws nor explodes", traits.has_reload_charge() and thrown.is_empty())
-	weapon.select_next()
-	_check("switching guns preserves an existing held magazine", traits.has_reload_charge())
+	_check("stored magazine is immediately visible", held.visible)
+	_check("can throw immediately while the original reload runs", traits.try_throw_reload_charge()
+		and weapon.is_reloading() and thrown.size() == 1)
+	if not thrown.is_empty():
+		var first_charge := thrown[0] as ReloadCharge
+		_check("throw uses 6m radius", first_charge.radius == 6.0)
+		_check("fuse starts at release", is_equal_approx(first_charge.fuse_remaining, ReloadCharge.FUSE_TIME))
+		first_charge.queue_free()
+	_finish_reload(weapon)
+	_check("finishing the original reload cannot refill spent charge", not traits.has_reload_charge() and stored.size() == 1)
+	weapon.ammo = 1
+	weapon._cooldown = 0.0
+	weapon.try_fire()
+	_check("a later final shot stores a fresh charge", traits.has_reload_charge() and stored.size() == 2)
+	weapon.select(2)
+	_check("switching guns and cancelling reload preserve inventory", traits.has_reload_charge())
 	weapon.aiming = true
 	traits._process(0.0)
-	_check("a scope hides the held model without spending inventory", not held.visible and traits.has_reload_charge())
+	_check("scope hides held model without spending inventory", not held.visible and traits.has_reload_charge())
 	weapon.aiming = false
 	traits._process(0.0)
-	_check("leaving the scope restores the held model", held.visible)
-	weapon.ammo = 0
+	_check("leaving scope restores held model", held.visible)
+	await get_tree().create_timer(ReloadCharge.FUSE_TIME + 0.2).timeout
+	_check("holding past fuse time neither throws nor explodes", traits.has_reload_charge() and thrown.size() == 1)
+	weapon.ammo = 1
 	weapon.reserve = 100
-	weapon.try_reload()
+	weapon.try_fire()
+	_check("another final shot does not duplicate or replace held inventory", traits.has_reload_charge() and stored.size() == 2)
 	_finish_reload(weapon)
-	_check("another completed empty reload cannot duplicate the inventory", traits.has_reload_charge() and thrown.is_empty())
+	_check("another completed reload cannot duplicate inventory", traits.has_reload_charge() and stored.size() == 2)
 	get_tree().paused = true
-	_check("the public throw path cannot consume inventory while paused", not traits.try_throw_reload_charge() and traits.has_reload_charge())
+	_check("public throw path cannot spend inventory while paused", not traits.try_throw_reload_charge() and traits.has_reload_charge())
 	get_tree().paused = false
+	traits.clear()
+	# Each gun must store once on its real final shot even with no reserve.
+	# Shotgun pellets share one fired signal and cannot produce extra inventory.
+	for slot in weapon.data_set.size():
+		weapon.select(slot)
+		weapon.ammo = 1
+		weapon.reserve = 0
+		var stores_before := stored.size()
+		_check("gun %d final shot fires without reserve" % slot, weapon.try_fire())
+		_check("gun %d immediately stores exactly one charge" % slot,
+			traits.has_reload_charge() and stored.size() == stores_before + 1 and not weapon.is_reloading())
+		weapon._cooldown = 0.0
+		_check("gun %d dry fire cannot grant another charge" % slot,
+			not weapon.try_fire() and stored.size() == stores_before + 1)
+		traits.clear()
+		weapon.try_reload()
+		_check("gun %d empty reload without reserve grants nothing" % slot,
+			not weapon.is_reloading() and not traits.has_reload_charge())
+		weapon.select(slot)
+		player.stats.changed.emit()
+		_check("gun %d empty selection and Stats refresh grant nothing" % slot, not traits.has_reload_charge())
+	weapon.select(0)
+	weapon.ammo = 1
+	weapon.reserve = 100
+	weapon.try_fire()
 	player.stats.apply_buff(BuffPool.ALL[0])
-	# A further reload can run while the already-held magazine is thrown.
-	weapon.ammo = 0
-	weapon.try_reload()
-	_check("held magazine can be thrown during another reload", weapon.is_reloading() and traits.try_throw_reload_charge())
-	_check("one launch consumes the sole inventory and repeated throws fail", thrown.size() == 1 and not traits.has_reload_charge() and not traits.try_throw_reload_charge())
-	if not thrown.is_empty():
+	_check("held charge can be thrown while another reload runs", weapon.is_reloading() and traits.try_throw_reload_charge())
+	_check("one launch consumes the sole inventory", thrown.size() == 2 and not traits.has_reload_charge() and not traits.try_throw_reload_charge())
+	if thrown.size() == 2:
 		var charge := thrown.back() as ReloadCharge
-		_check("the throw reads current stacked damage", charge.damage == 240.0)
-		_check("fuse starts at release", is_equal_approx(charge.fuse_remaining, ReloadCharge.FUSE_TIME))
+		_check("throw samples current stacked damage", charge.damage == 240.0)
 		charge.queue_free()
 	_finish_reload(weapon)
-	traits.clear()
-	weapon.ammo = 0
-	weapon.reserve = 0
-	weapon.try_reload()
-	_check("no-reserve reload cannot create a magazine", not weapon.is_reloading() and not traits.has_reload_charge())
-	weapon.reserve = 100
-	weapon.try_reload()
-	traits.clear()
-	_finish_reload(weapon)
-	_check("clearing cancels an unfinished reload candidate", not traits.has_reload_charge())
-	weapon.ammo = 0
-	weapon.try_reload()
-	_finish_reload(weapon)
-	_check("a fresh completed reload can store another charge", traits.has_reload_charge())
+	_check("reload completion after throwing grants nothing", not traits.has_reload_charge())
+	get_tree().paused = true
+	weapon.ammo = 1
+	weapon._cooldown = 0.0
+	weapon.try_fire()
+	_check("paused final-shot calls cannot grant inventory", not traits.has_reload_charge())
+	get_tree().paused = false
+	weapon.select(0)
+	weapon.ammo = 1
+	weapon.try_fire()
+	_check("fresh last shot restores an inventory for input checks", traits.has_reload_charge())
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		await _key(KEY_C)
-		_check("C outside captured gameplay does not throw", traits.has_reload_charge() and thrown.size() == 1)
+		_check("C outside captured gameplay cannot throw", traits.has_reload_charge() and thrown.size() == 2)
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		await _key(KEY_C)
-		_check("physical C input throws exactly one held magazine", not traits.has_reload_charge() and thrown.size() == 2)
-		for charge in thrown:
-			if is_instance_valid(charge):
-				charge.queue_free()
-		weapon.ammo = 0
-		weapon.try_reload()
-		_finish_reload(weapon)
+		_check("physical C throws exactly one stored magazine", not traits.has_reload_charge() and thrown.size() == 3)
+		if thrown.size() == 3:
+			thrown.back().queue_free()
+		weapon.select(0)
+		weapon.ammo = 1
+		weapon.try_fire()
 	player.health.health = 0.0
 	player.health.died.emit(null)
-	_check("death discards the held magazine and denies throwing", not traits.has_reload_charge() and not traits.try_throw_reload_charge() and not held.visible)
+	_check("death discards held magazine and denies throwing", not traits.has_reload_charge() and not traits.try_throw_reload_charge() and not held.visible)
+	weapon._reload_left = 0.0
+	weapon._cooldown = 0.0
+	weapon.ammo = 1
+	weapon.try_fire()
+	_check("dead final-shot calls cannot restore inventory", not traits.has_reload_charge())
 	player.queue_free()
 	await get_tree().process_frame
 	await _flight_checks(arena)

@@ -50,7 +50,7 @@ func _run() -> void:
 	_check("one blast damages a multi-hitbox enemy once", is_equal_approx(target.health, 970.0) and effect.get_meta("targets_hit") == 1)
 	_check("blast ignores allies and player", friend.health == 1000.0 and player.health.health == 100.0)
 	_check("blast does not pass through walls", hidden.health == 1000.0)
-	print("== empty reload core")
+	print("== last-shot storage core")
 	var thrown: Array[Node3D] = []
 	traits.reload_charge_thrown.connect(func(charge: Node3D): thrown.append(charge))
 	player.stats.apply_buff(BuffPool.ALL[0])
@@ -61,9 +61,13 @@ func _run() -> void:
 	player.weapon.ammo = 0
 	player.weapon.try_reload()
 	player.weapon.try_reload()
-	_check("empty reload does not throw before completion", thrown.is_empty() and not traits.has_reload_charge())
+	_check("starting empty reload neither throws nor stores a charge", thrown.is_empty() and not traits.has_reload_charge())
 	player.weapon._finish_reload()
-	_check("completed reload stores the magazine without throwing", traits.has_reload_charge() and thrown.is_empty())
+	_check("completed empty reload cannot store a charge", not traits.has_reload_charge())
+	player.weapon.ammo = 1
+	_check("last round fires", player.weapon.try_fire())
+	_check("last round stores the magazine before reload finishes", traits.has_reload_charge()
+		and player.weapon.is_reloading() and thrown.is_empty())
 	_check("active throw consumes one stored magazine", traits.try_throw_reload_charge() and thrown.size() == 1)
 	var charge := thrown[0] as ReloadCharge
 	var explosions := [0]

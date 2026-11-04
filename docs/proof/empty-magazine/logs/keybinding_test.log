@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== encode and decode
+  [ok] a key encodes to key:<code>
+  [ok] and decodes to the same event
+  [ok] a mouse button encodes to mouse:<button>
+  [ok] and decodes to the same button
+  [ok] garbage decodes to null
+== reserved inputs
+  [ok] Esc cannot be bound
+  [ok] F3 cannot be bound
+  [ok] the wheel cannot be bound
+  [ok] ordinary keys and buttons can
+== bindings in game
+  [ok] assign + apply rebinds the action in the InputMap
+  [ok] KeyHint.of follows the new binding
+  [ok] a conflict swaps with the other action
+  [ok] binding back to the default drops the override
+  [ok] save the temp file
+  [ok] load the temp file
+  [ok] bindings survive the round trip
+  [ok] sanitize drops unknown actions
+  [ok] reset_defaults restores the InputMap
+== menu capture flow
+  [ok] the menu opens in game
+  [ok] the menu opens on the settings tab
+  [ok] switching tabs keeps highlight and content in sync
+  [ok] the row asks for a key
+  [ok] the captured key lands on the action
+  [ok] the InputMap and the row follow
+  [ok] Esc cancels the capture
+  [ok] a reserved key is refused
+  [ok] clicking another binding row switches the capture
+  [ok] a left click elsewhere binds 左键
+  [ok] closing unpauses and asks for the mouse
+== Esc over the buff screen
+  [ok] Esc opens the menu over a buff selection
+  [ok] closing keeps the tree paused
+  [ok] it refuses while paused outside a buff selection
+== prompts follow bindings
+  [ok] the objective panel shows the new key
+ALL PASSED (0 failed)

@@ -1,0 +1,46 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] inner 1.5m deals exactly 120 once across two hitboxes
+  [ok] 3.75m deals 90
+  [ok] 6m edge deals 60
+  [ok] overlapping shape with centre beyond 6m is unharmed
+  [ok] solid wall blocks both enemy hitboxes
+  [ok] ally and player are unharmed
+  [ok] three unique enemies were damaged
+  [ok] explosion has hot core and pressure ring
+  [ok] explosion has smoke sparks and a brief light
+  [ok] second layer doubles inner damage
+  [ok] second layer doubles middle damage
+  [ok] second layer doubles edge damage
+  [ok] shield pulse retains uniform 25 damage
+  [ok] shield pulse keeps its own visual
+  [ok] explosion and pulse recycle themselves
+  [ok] partial-cover fixture really blocks the head ray
+  [ok] covered head does not suppress visible torso
+  [ok] flying magazine detonates on enemy before fuse expires
+  [ok] enemy collision deals full core damage
+  [ok] flying magazine explodes once on world geometry
+  [ok] wall impact cannot damage enemy behind that wall
+  [ok] manual empty reload creates no charge or flight
+  [ok] reload completion cannot grant a charge
+  [ok] last round near cover fires
+  [ok] last round stores a charge before reload completes
+  [ok] active input can launch immediately during reload
+  [ok] close wall keeps magazine on player's side
+  [ok] manual detonation cannot repeat
+  [ok] tactical reload produces no extra charge
+  [ok] magazine launched inside the shooter's own hitbox does not detonate
+  [ok] unobstructed flight detonates once on fuse
+  [ok] passing 0.4m from an enemy detonates beside it
+  [ok] proximity detonation deals full damage
+  [ok] passing 0.8m from an enemy does not detonate
+  [ok] enemy outside the sweep is unharmed
+  [ok] danger magazine blast radius is 6m
+  [ok] enemy at 5.5m takes falloff damage
+  [ok] enemy beyond 6m is outside the blast
+  [ok] enemy at 1.4m takes full 120
+  [ok] base shield lasts 2 seconds
+  [ok] shield activates for 2 seconds
+  [ok] shield still active just before 2 seconds
+  [ok] shield expires after 2 seconds
+RELOAD BLAST: 43 checks, 0 failed

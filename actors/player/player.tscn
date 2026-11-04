@@ -15,7 +15,7 @@
 [ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
 [ext_resource type="Script" path="res://actors/player/shadow_body.gd" id="14_shadow_body"]
 [ext_resource type="Script" path="res://actors/player/dash.gd" id="16_dash"]
-[ext_resource type="PackedScene" uid="uid://dnu3c7o0snwdt" path="res://assets/models/characters/soldier.gltf" id="15_soldier"]
+[ext_resource type="PackedScene" path="res://actors/player/protagonist_body.tscn" id="15_body"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -48,8 +48,7 @@ shape = SubResource("CapsuleShape3D_body")
 [node name="ShadowBody" type="Node3D" parent="."]
 script = ExtResource("14_shadow_body")
 
-[node name="Model" parent="ShadowBody" instance=ExtResource("15_soldier")]
-transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+[node name="Model" parent="ShadowBody" instance=ExtResource("15_body")]
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://dtue7id0qw85j" path="res://assets/models/characters/red_crystal_enemy_animated.glb" id="1_body"]
+
+[node name="ProtagonistBody" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_body")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0)

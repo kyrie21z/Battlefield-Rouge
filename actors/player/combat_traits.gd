@@ -8,7 +8,7 @@ signal rounds_released(count: int)
 signal shield_pulsed
 
 const PARRY_WINDOW := 0.24
-const BLAST_RADIUS := 3.5
+const BLAST_RADIUS := 5.0
 const SHIELD_PULSE_RADIUS := 7.0
 const COLLECTED_ROUND_DAMAGE := 18.0
 

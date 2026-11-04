@@ -67,7 +67,7 @@ const AIM_HEIGHT := 1.3
 @export var seek_cover_near := 2.0
 
 @export_category("Movement")
-@export var run_speed := 4.6
+@export var run_speed := 3.6
 @export var strafe_speed := 1.8
 @export var turn_speed := 8.0
 @export var gravity := 18.0

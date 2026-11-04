@@ -178,7 +178,7 @@ func _combat_checks() -> void:
 	player.stats.apply_buff(BuffPool.ALL[6])
 	player.stats.apply_buff(BuffPool.ALL[7])
 	player.stats.apply_buff(BuffPool.ALL[8])
-	_check("shield duration and cooldown upgraded", player.stats.get_value(Stats.SHIELD_DURATION) > 1.0 and player.shield.cooldown_duration() < 8.0)
+	_check("shield duration and cooldown upgraded", is_equal_approx(player.stats.get_value(Stats.SHIELD_DURATION), 2.5) and player.shield.cooldown_duration() < 8.0)
 	_check("unlocked shield activates", player.shield.try_activate() and player.shield.is_active())
 	original_health = player.health.health
 	player.health.apply_damage(50.0, Hitbox.BodyPart.BODY)

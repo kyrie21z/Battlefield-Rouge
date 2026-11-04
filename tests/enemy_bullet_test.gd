@@ -15,10 +15,10 @@ func _ready() -> void:
 
 func _run() -> void:
 	var enemy := load("res://actors/enemy/enemy.tscn").instantiate() as Enemy
-	_check("enemy bullets default to 30 m/s", is_equal_approx(enemy.projectile_speed, 30.0))
+	_check("enemy bullets default to 22 m/s", is_equal_approx(enemy.projectile_speed, 22.0))
 	enemy.free()
 	var idle := Projectile.new()
-	_check("the projectile default is 30 m/s too", is_equal_approx(idle.speed, 30.0))
+	_check("the projectile class default stays 30 m/s (enemies pass their own)", is_equal_approx(idle.speed, 30.0))
 	idle.free()
 
 	var arena := Node3D.new()

@@ -29,9 +29,9 @@ func _run() -> void:
 	print("== config")
 	var config := load(CONFIG_PATH) as ReinforcementConfig
 	_check("cadence resource is zone/reinforcement_config.tres", config != null and config.resource_path == CONFIG_PATH)
-	_check("a wave is every 8 s", is_equal_approx(config.interval_seconds, 8.0))
+	_check("a wave is every 10 s", is_equal_approx(config.interval_seconds, 10.0))
 	_check("a wave is 2 enemies", config.per_wave == 2)
-	_check("at most 6 reinforcements stay out", config.max_alive == 6)
+	_check("at most 5 reinforcements stay out", config.max_alive == 5)
 
 	print("== layout")
 	await _check_layout("res://maps/zone_1.tscn", 0, 4)

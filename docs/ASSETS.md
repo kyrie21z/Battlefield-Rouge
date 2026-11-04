@@ -228,3 +228,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ### Sloth备用修订：藏青与按命中点碎裂
 
 仅在独立备用实例中改藏青，沿用已登记的56片red_crystal_enemy_shards.glb；新增sloth_shatter.gd负责当前姿态、命中点起裂、暂停和回收。新版01-lineup.jpg、02-mantle-rear.jpg、03-impact-shatter.jpg、04-cloak-throw.jpg均为原生渲染截图；文件来源与SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。正式模型、材质和玩法不变。
+
+### Sloth备用披风强化
+
+新增05-cloak-evade.jpg、06-charge-lock.jpg、07-fast-release.jpg为Godot原生截图，分别展示闪避反馈、凝聚锁向和快速释放；05使用强制触发演示。只作JPEG重编码，没有新增第三方素材。最新SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。

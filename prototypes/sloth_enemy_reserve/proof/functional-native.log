@@ -6,6 +6,7 @@ Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 La
   [ok] an active cast cannot be duplicated
   [ok] the warning phase cannot hurt the player
   [ok] no projectiles are launched during the warning
+  [ok] the final warning locks aim after slow formation
   [ok] two visible projectiles are released after the warning
   [ok] both projectiles keep the original direction after the player moves
   [ok] a lateral dodge avoids the locked volley
@@ -53,4 +54,4 @@ Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 La
   [ok] attack time remains frozen during a pause
   [ok] a warning cannot turn into a slow while paused
   [ok] resuming advances the same attack into its active field
-SLOTH ENEMIES: ALL PASSED (42 checks, 0 failed)
+SLOTH ENEMIES: ALL PASSED (43 checks, 0 failed)

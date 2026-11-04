@@ -18,7 +18,7 @@ godot --path "../Sloth-Enemy-Review"
 
 输出必须是全新目录；工具只读取固定基线，不改正式工程或用户已有备用目录。Godot未加入PATH时，请使用自己的引擎路径。
 
-展厅：0并排，1/2/3单体，左键拖动、滚轮缩放、空格开壳/张开斗篷，B演示命中头部后的碎裂。命令行`--break=head/leg`可以对比碎裂起点。真实技能预警可运行`res://tools/sloth_enemies/ability_view.tscn -- --kind=0`。
+展厅：0并排，1/2/3单体，左键拖动、滚轮缩放、空格开壳/张开斗篷，B演示命中头部后的碎裂。命令行`--break=head/leg`可以对比碎裂起点。真实技能演示可运行`res://tools/sloth_enemies/ability_view.tscn -- --kind=0 --stage=locked`；stage可选forming、locked、flight、dodge，最后一种强制触发一次闪避供查看反馈。
 
 独立副本中的战斗与检查：
 
@@ -26,12 +26,19 @@ godot --path "../Sloth-Enemy-Review"
 godot --path "../Sloth-Enemy-Review" res://maps/zone_1.tscn -- --skip-opening
 godot --headless --fixed-fps 60 --path "../Sloth-Enemy-Review" res://tests/sloth_enemy_test.tscn
 godot --headless --fixed-fps 60 --path "../Sloth-Enemy-Review" res://tests/sloth_revision_test.tscn
+godot --headless --fixed-fps 60 --path "../Sloth-Enemy-Review" res://tests/cloak_defense_test.tscn
 ```
+
+## 披风强化默认值
+
+闭合披风受到敌对子弹命中时，有30%概率闪避该次伤害；成功后冷却2.5秒，并显示侧身与“闪避”反馈。只避开单次子弹，不让整轮霰弹失效；近战、区域伤害和披风张开/恢复窗口始终正常结算。
+
+双弹用2秒逐渐凝聚，前1.55秒调整瞄向，最后0.45秒亮白锁向；释放后以40m/s直线飞行，每枚9伤、间隔0.18秒。看锁向横移、掩体和近战打断仍有效。
 
 ## 验证与边界
 
-现有战斗42项、修订检查27项均通过无界面与原生检查。原生检查固定角色视角、关闭测试角色鼠标视角输入，避免窗口捕获影响测量；冲刺两组均5.093米，没有修改冲刺数值或放宽断言。原始v1的40/42记录保存在proof/history，不再作为当前结果。
+当前战斗43项、修订27项和披风防御21项均通过无界面与原生检查。原生检查固定角色视角、关闭测试角色鼠标视角输入，避免窗口捕获影响测量；冲刺两组均5.093米，没有修改冲刺数值或放宽断言。原始v1的40/42记录保存在proof/history，不再作为当前结果。
 
 仍保留宿主shader缓存/编辑器设置路径提示、无界面音频退出诊断。真人平衡、性能和跨平台仍未完成。完整Sloth关卡、巨像、休憩和战后叙事没有制作；#47/#46不因本包自动完成。
 
-26个overlay文件与独立接入补丁组成一个相互依赖的备用实验；没有重复提交整套工程、GLB或本地启动器。入口修复PR #94已先行上传并合并，用户已确认恢复本轮上传。敌人仍只保存备用，不接入主游戏。
+31个overlay文件与独立接入补丁组成一个相互依赖的备用实验；没有重复提交整套工程、GLB或本地启动器。入口修复PR #94已先行上传并合并，用户已确认恢复本轮上传。敌人仍只保存备用，不接入主游戏。

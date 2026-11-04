@@ -241,7 +241,7 @@
  	for i in 6:
 --- a/components/hitbox.gd
 +++ b/components/hitbox.gd
-@@ -12,6 +12,10 @@
+@@ -12,6 +12,12 @@
  @export var health_path: NodePath
  
  var health: Health
@@ -249,15 +249,19 @@
 +var resolving_surface_hit := false
 +var surface_point := Vector3.ZERO
 +var surface_direction := Vector3.ZERO
++var surface_can_evade := false
++var surface_evaded := false
  
  
  func _ready() -> void:
-@@ -26,6 +30,15 @@
+@@ -26,6 +32,17 @@
  	return health.apply_damage(amount, body_part, source)
  
  
-+func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3) -> float:
++func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3, can_evade := false) -> float:
 +	resolving_surface_hit = true
++	surface_can_evade = can_evade
++	surface_evaded = false
 +	surface_point = point
 +	surface_direction = direction
 +	var dealt := apply_hit(amount, source)
@@ -270,15 +274,27 @@
  		return get_node_or_null(health_path) as Health
 --- a/weapons/weapon.gd
 +++ b/weapons/weapon.gd
-@@ -362,7 +362,7 @@
+@@ -357,14 +357,17 @@
+ 	if hit.is_empty():
+ 		return
+ 	var collider: Object = hit.collider
+-	Impact.spawn(effects_parent, hit.position, hit.normal, collider is Hitbox, _detail_left > 0)
+-	_detail_left -= 1
  	if collider is Hitbox:
  		var hitbox := collider as Hitbox
  		var distance := origin.distance_to(hit.position)
 -		var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter)
-+		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction)
++		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction, true)
++		if not hitbox.surface_evaded:
++			Impact.spawn(effects_parent, hit.position, hit.normal, true, _detail_left > 0)
  		if dealt > 0.0:
  			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
++	else:
++		Impact.spawn(effects_parent, hit.position, hit.normal, false, _detail_left > 0)
++	_detail_left -= 1
  
+ 
+ func _falloff(distance: float) -> float:
 --- a/weapons/projectile.gd
 +++ b/weapons/projectile.gd
 @@ -98,7 +98,7 @@
@@ -286,7 +302,7 @@
  			Impact.spawn(get_parent(), hit.position, hit.normal, false)
  		else:
 -			(hit.collider as Hitbox).apply_hit(damage, source)
-+			(hit.collider as Hitbox).apply_hit_at(damage, source, hit.position, -global_basis.z)
++			(hit.collider as Hitbox).apply_hit_at(damage, source, hit.position, -global_basis.z, true)
  		queue_free()
  		return
  	global_position = to

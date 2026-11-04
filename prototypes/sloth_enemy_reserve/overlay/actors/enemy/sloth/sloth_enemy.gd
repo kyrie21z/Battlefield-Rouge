@@ -12,6 +12,11 @@ var _exposed_left := 0.0
 var last_hit_point := Vector3.INF
 var last_hit_direction := Vector3.ZERO
 var cloak_recover_left := 0.0
+@export_range(0.0, 1.0) var evade_chance := 0.30
+@export_range(0.1, 10.0) var evade_cooldown := 2.5
+var evade_cooldown_left := 0.0
+var evade_count := 0
+
 
 
 func _enter_tree() -> void:
@@ -54,6 +59,7 @@ func begin_retreat(goal: Vector3, timeout: float) -> void:
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
+	evade_cooldown_left = maxf(0.0, evade_cooldown_left - delta)
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	if state == State.FLEE:
@@ -191,3 +197,25 @@ func _on_died(_source: Node) -> void:
 
 func _exit_tree() -> void:
 	_cancel_attack()
+
+
+func try_cloak_evade() -> bool:
+	if kind != Kind.LINGERER or state in [State.DEAD, State.FLEE] \
+			or evade_cooldown_left > 0.0 or evade_chance <= 0.0 \
+			or cloak_recover_left > 0.0 or $CoreHitbox.collision_layer != 0:
+		return false
+	var contact: Hitbox
+	for node in find_children("*", "Hitbox", true, false):
+		var hitbox := node as Hitbox
+		if hitbox.resolving_surface_hit and hitbox.surface_can_evade:
+			contact = hitbox
+			break
+	if contact == null or randf() >= evade_chance:
+		return false
+	evade_count += 1
+	evade_cooldown_left = evade_cooldown
+	contact.surface_evaded = true
+	visual.play_evade(-1.0 if evade_count % 2 == 0 else 1.0)
+	if state == State.IDLE:
+		_alert(global_position - contact.surface_direction * 6.0)
+	return true

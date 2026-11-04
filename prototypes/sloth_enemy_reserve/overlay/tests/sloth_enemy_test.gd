@@ -43,15 +43,19 @@ func _run() -> void:
 	var lingerer := _enemy(0, Vector3.ZERO)
 	_check("a lingerer can start one attack", lingerer.cast_attack())
 	_check("an active cast cannot be duplicated", not lingerer.cast_attack())
-	var original_aim := _player.global_position + Vector3.UP * Enemy.AIM_HEIGHT
+	var original_aim := Vector3.ZERO
 	var initial_health := _player.health.health
 	await _frames(42)
 	_check("the warning phase cannot hurt the player", is_equal_approx(_player.health.health, initial_health))
 	_check("no projectiles are launched during the warning", _projectiles().is_empty())
+	_player.global_position.x = 1.0
+	await _frames(56)
+	original_aim = _player.global_position + Vector3.UP * Enemy.AIM_HEIGHT
+	_check("the final warning locks aim after slow formation", lingerer.active_attack.aim_locked)
 	_player.global_position.x = 5.0
-	await _frames(31)
+	await _frames(36)
 	var bullets := _projectiles()
-	_check("two visible projectiles are released after the warning", bullets.size() == 2)
+	_check("two visible projectiles are released after the warning", bullets.size() == 2 and bullets.all(func(p: Projectile) -> bool: return is_equal_approx(p.speed, 40.0)))
 	_check("both projectiles keep the original direction after the player moves",
 		bullets.size() == 2 and bullets.all(func(p: Projectile) -> bool:
 			return (-p.global_basis.z).dot((original_aim - p.global_position).normalized()) > 0.9999))
@@ -61,7 +65,7 @@ func _run() -> void:
 	lingerer = _enemy(0, Vector3.ZERO)
 	initial_health = _player.health.health
 	lingerer.cast_attack()
-	await _frames(120)
+	await _frames(150)
 	_check("standing on the announced trajectory actually receives damage",
 		_player.health.health < initial_health)
 
@@ -71,13 +75,13 @@ func _run() -> void:
 	lingerer.cast_attack()
 	await _frames(25)
 	lingerer.health.apply_damage(9999.0, Hitbox.BodyPart.BODY, _player)
-	await _frames(70)
+	await _frames(140)
 	_check("killing the caster cancels an unreleased volley", _projectiles().is_empty())
 	lingerer = _enemy(0, Vector3(3, 0, 0))
 	lingerer.cast_attack()
 	await _frames(15)
 	lingerer.begin_retreat(Vector3(20, 0, 0), 5.0)
-	await _frames(75)
+	await _frames(140)
 	_check("retreat cancels pending attacks without releasing bullets", _projectiles().is_empty())
 	var recluse := _enemy(2, Vector3.ZERO)
 	recluse.cast_attack()
@@ -279,6 +283,7 @@ func _world(player_position: Vector3) -> void:
 func _enemy(kind: int, position_value: Vector3) -> SlothEnemy:
 	var actor := ENEMY_SCENE.instantiate() as SlothEnemy
 	actor.kind = kind
+	actor.evade_chance = 0.0
 	actor.position = position_value
 	_arena.add_child(actor)
 	actor.set_physics_process(false)

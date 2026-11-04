@@ -1,6 +1,7 @@
 extends Node
 var checks := 0
 var failures := 0
+var finished := false
 var arena: Node3D
 var player: Player
 
@@ -12,7 +13,7 @@ func _ready() -> void:
 	arena.queue_free()
 	await get_tree().process_frame
 	print("NAVY REVISION: %d checks, %d failed" % [checks, failures])
-	get_tree().quit(0 if failures == 0 else 1)
+	get_tree().quit(0 if failures == 0 and finished else 1)
 
 
 func _run() -> void:
@@ -62,7 +63,7 @@ func _run() -> void:
 	var cloak := _enemy(0)
 	cloak.setup(player, [])
 	cloak.cast_attack()
-	await _frames(42)
+	await _frames(88)
 	_check("cloak opens during its delayed throw", cloak.visual._mantle_open > 0.25)
 	_check("opening the cloak exposes its hourglass chest weak point", cloak.get_node("CoreHitbox").collision_layer == CollisionLayers.HITBOXES)
 	_check("cloak cast uses short tell marks", cloak.active_attack._graphics.get_child_count() == 6)
@@ -86,11 +87,13 @@ func _run() -> void:
 	sample.visual.die(sample.global_position + Vector3.UP, Vector3.BACK)
 	_check("shattering does not consume gameplay random numbers", randi() == expected)
 	await _frames(125)
+	finished = true
 
 
 func _enemy(kind: int) -> SlothEnemy:
 	var enemy := load("res://actors/enemy/sloth/sloth_enemy.tscn").instantiate() as SlothEnemy
 	enemy.kind = kind
+	enemy.evade_chance = 0.0
 	arena.add_child(enemy)
 	enemy.set_physics_process(false)
 	return enemy

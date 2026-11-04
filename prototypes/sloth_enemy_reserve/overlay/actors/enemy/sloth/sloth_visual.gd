@@ -31,6 +31,11 @@ var _built := false
 var _mantle_open := 0.0
 var _mantle: Node3D
 var shatter: SlothShatter
+var _evade_left := 0.0
+var _evade_sign := 1.0
+var _evade_origin := Vector3.ZERO
+var _evade_rotation := 0.0
+var _evade_label: Label3D
 
 
 func configure(value: int) -> void:
@@ -153,6 +158,8 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	if _dead:
 		return
 	_dead = true
+	if is_instance_valid(_evade_label):
+		_evade_label.hide()
 	set_cast(0.0)
 	if animation != null:
 		animation.pause()
@@ -170,6 +177,17 @@ func _process(delta: float) -> void:
 	_lining.set_shader_parameter("visual_time", _time)
 	if not _dead:
 		_update_bones()
+		if _evade_left > 0.0:
+			_evade_left = maxf(0.0, _evade_left - delta)
+			var wave := sin(PI * (1.0 - _evade_left / 0.25))
+			position = _evade_origin + Vector3.RIGHT * wave * 0.24 * _evade_sign
+			rotation.z = _evade_rotation + wave * 0.08 * _evade_sign
+			_crystal.set_shader_parameter("rim_strength", 0.55 + wave * 0.6)
+			_evade_label.modulate.a = minf(1.0, _evade_left * 8.0)
+			if _evade_left <= 0.0:
+				position = _evade_origin
+				rotation.z = _evade_rotation
+				_evade_label.hide()
 
 
 func _follow(bone: String, label: String) -> Node3D:
@@ -569,3 +587,22 @@ func _batch_meshes(parent: Node3D) -> void:
 			st.append_from(child.mesh, 0, child.transform)
 			child.free()
 		_mesh(parent, st, mat, "OutfitDetailBatch")
+
+
+func play_evade(side: float) -> void:
+	if _dead:
+		return
+	_evade_origin = position
+	_evade_rotation = rotation.z
+	_evade_sign = side
+	_evade_left = 0.25
+	if not is_instance_valid(_evade_label):
+		_evade_label = Label3D.new()
+		_evade_label.text = "闪避"
+		_evade_label.font_size = 36
+		_evade_label.pixel_size = 0.003
+		_evade_label.position = Vector3(0,2.16,0)
+		_evade_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_evade_label.modulate = Color(0.72,0.87,1.0)
+		add_child(_evade_label)
+	_evade_label.show()

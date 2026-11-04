@@ -5,12 +5,16 @@ var actors: Array[SlothEnemy] = []
 var frames := 0
 var shot := ""
 var kind := 0
+var stage := "locked"
+var target: Player
 
 
 func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--shot="):
 			shot = arg.trim_prefix("--shot=")
+		if arg.begins_with("--stage="):
+			stage = arg.trim_prefix("--stage=")
 		if arg.begins_with("--kind="):
 			kind = int(arg.trim_prefix("--kind="))
 	gallery = load("res://tools/sloth_enemies/gallery.tscn").instantiate() as Node3D
@@ -20,7 +24,7 @@ func _ready() -> void:
 	gallery._update_camera()
 	for visual in gallery._specimens:
 		visual.hide()
-	var target := load("res://actors/player/player.tscn").instantiate() as Player
+	target = load("res://actors/player/player.tscn").instantiate() as Player
 	add_child(target)
 	target.position = Vector3(0,0,-3.2)
 	target.set_physics_process(false)
@@ -41,9 +45,17 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	frames += 1
 	if frames == 25:
-		actors[kind].cast_attack()
-	if frames == 68 and not shot.is_empty():
+		if stage == "dodge":
+			actors[0].evade_chance = 1.0
+			var hitbox := actors[0].get_node("TorsoHitbox") as Hitbox
+			hitbox.apply_hit_at(1.0, target, hitbox.global_position, Vector3.BACK, true)
+		else:
+			actors[kind].cast_attack()
+	var capture_frame := 68
+	if kind == 0:
+		capture_frame = 128 if stage == "locked" else (147 if stage == "flight" else (32 if stage == "dodge" else 68))
+	if frames == capture_frame and not shot.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(shot)
-		print("SLOTH ABILITY: captured real warning phase")
+		print("SLOTH ABILITY: captured real cast/evasion stage: ", stage, "")
 		get_tree().quit()

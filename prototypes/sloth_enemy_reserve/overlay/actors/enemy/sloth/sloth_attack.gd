@@ -1,8 +1,11 @@
 class_name SlothAttack
 extends Node3D
-## All warning geometry and aim are captured once. Delta-driven phases freeze
-## with the scene; cancel removes fields synchronously before queuing deletion.
+## Volley aim follows during formation, then locks before release. Field/wave
+## coordinates stay fixed. Scene pause freezes phases; cancel clears fields.
 
+const LINGER_CHARGE_TIME := 2.0
+const LINGER_LOCK_WARNING := 0.45
+const LINGER_SHOT_SPEED := 40.0
 const FIELD_RADIUS := 3.2
 const WAVE_RADIUS := 7.0
 const GAP_HALF_ANGLE := deg_to_rad(22.0)
@@ -16,6 +19,8 @@ var field_center := Vector3.ZERO
 var _origin := Vector3.ZERO
 var _volley: Array[Vector3] = []
 var _volley_directions: Array[Vector3] = []
+var _fins: Array[MeshInstance3D] = []
+var aim_locked := false
 var _released := 0
 var _hit := false
 var _cancelled := false
@@ -29,7 +34,7 @@ var _last_radius := 0.0
 
 
 func warning_time() -> float:
-	return 1.0 if kind == 0 else 0.95
+	return LINGER_CHARGE_TIME if kind == 0 else 0.95
 
 
 func _ready() -> void:
@@ -69,11 +74,18 @@ func _physics_process(delta: float) -> void:
 		var progress := elapsed / warning_time()
 		_mat.emission_energy_multiplier = 0.35 + progress * 0.5
 		if kind == 0:
+			if not aim_locked:
+				_update_volley_aim(target.global_position + Vector3.UP * Enemy.AIM_HEIGHT)
+				if elapsed >= warning_time() - LINGER_LOCK_WARNING:
+					aim_locked = true
+					_audio.pitch_scale = 1.4
+					_audio.play()
+			_mat.albedo_color = Color(0.75,0.9,1.0,0.95) if aim_locked else Color(0.18,0.40,0.62,0.65)
 			caster.visual.set_mantle_open(smoothstep(0.45, 0.9, progress))
 			caster.set_core_exposed(progress > 0.65)
 			for orb in _orbs:
 				orb.rotation += Vector3(0.0, 0.6, 0.0) * delta
-				orb.scale = Vector3.ONE * (0.8 + progress * 0.6)
+				orb.scale = Vector3.ONE * (0.15 + progress * 1.25)
 		else:
 			_ring.scale = Vector3.ONE
 			_mat.albedo_color.a = 0.22 + progress * 0.45
@@ -84,6 +96,7 @@ func _physics_process(delta: float) -> void:
 	if phase == 0:
 		phase = 1
 		_mat.albedo_color = Color(0.32, 0.62, 0.82, 0.8)
+		_audio.pitch_scale = 1.0
 		_audio.stream = _tone(true)
 		_audio.play()
 		if kind == 0:
@@ -94,7 +107,7 @@ func _physics_process(delta: float) -> void:
 			while _released < 2 and active_time >= float(_released) * 0.18:
 				var from := _volley[_released]
 				Projectile.spawn(caster.get_parent(), from, _volley_directions[_released], caster,
-					9.0, 13.0, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
+					9.0, LINGER_SHOT_SPEED, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
 				_orbs[_released].hide()
 				_released += 1
 			if active_time >= 0.25:
@@ -203,6 +216,7 @@ func _build_volley() -> void:
 		orb.mesh = mesh
 		orb.material_override = _mat
 		orb.position = from
+		orb.scale = Vector3.ONE * 0.15
 		_graphics.add_child(orb)
 		_orbs.append(orb)
 		# Small chevrons announce the locked direction without long floating beams.
@@ -210,11 +224,26 @@ func _build_volley() -> void:
 			var fin := MeshInstance3D.new()
 			var marker := BoxMesh.new()
 			marker.size = Vector3(0.012, 0.012, 0.18)
+			_fins.append(fin)
 			fin.mesh = marker
 			fin.material_override = _detail_mat
 			_graphics.add_child(fin)
 			fin.position = from + direction * 0.25 + side * flank * 0.045
 			fin.look_at(fin.position + direction)
+			fin.rotate_y(flank * 0.4)
+
+
+func _update_volley_aim(point: Vector3) -> void:
+	locked_direction = (point - _origin).normalized()
+	var side := locked_direction.cross(Vector3.UP).normalized()
+	for i in _volley.size():
+		var direction := (point - _volley[i]).normalized()
+		_volley_directions[i] = direction
+		for j in 2:
+			var flank := -1.0 if j == 0 else 1.0
+			var fin := _fins[i * 2 + j]
+			fin.position = _volley[i] + direction * 0.25 + side * flank * 0.045
+			fin.look_at(fin.position + direction, Vector3.UP if absf(direction.y) < 0.99 else Vector3.RIGHT)
 			fin.rotate_y(flank * 0.4)
 
 

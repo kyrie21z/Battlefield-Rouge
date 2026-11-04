@@ -1,8 +1,8 @@
 extends Node
 ## Native-window timing proof for the opening -> zone handoff:
 ##   godot --path . res://tests/opening_transition_proof.tscn -- [--old] [--out=<dir>]
-## Default mode plays the real opening, lets it warm the zone for 8 s, then
-## enters. --old skips the opening and preload and does the old synchronous
+## Default mode plays the real opening for 8 s, then fades and loads.
+## --old skips the opening and fade and does the direct synchronous
 ## change_scene_to_file, to compare the entry cost in a separate process.
 ## Needs a real display (the screenshots are the point).
 
@@ -78,16 +78,11 @@ func _run_new() -> void:
 		get_tree().quit(1)
 		return
 
-	# Watch the opening like a player would; the zone warms up behind it.
+	# Watch the opening without starting a background scene/script request.
 	var watch_start := Time.get_ticks_usec()
-	var ready_ms := -1.0
 	while Time.get_ticks_usec() - watch_start < WATCH_USEC:
-		if ready_ms < 0.0 and boot._preload_done:
-			ready_ms = (Time.get_ticks_usec() - watch_start) / 1000.0
 		await get_tree().process_frame
-	var ready: bool = boot._preload_done and is_instance_valid(boot._packed)
-	print("TIMING mode=new watched_ms=8000 preload_ready_ms=%.1f preload_ok=%s"
-		% [ready_ms, str(ready)])
+	print("TIMING mode=new watched_ms=8000 background_zone_load=false")
 
 	_begin_measuring()
 	var t0 := Time.get_ticks_usec()

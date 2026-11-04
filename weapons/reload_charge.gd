@@ -12,7 +12,13 @@ const GRAVITY := 9.0
 const ACCENT := Color(1.0, 0.42, 0.08)
 const MAX_QUERY_RESULTS := 256
 const TRAIL_POINTS := 8
-const FULL_DAMAGE_RADIUS := 1.0
+## Enemies within this distance of the flight path detonate the charge, so a
+## near miss still lands. The sphere sweep notices them; a bare ray cannot.
+const HIT_RADIUS := 0.5
+## Dead hitboxes can block a sweep. Re-cast past them this many times per tick.
+const MAX_SWEEP_PASSES := 3
+const SWEEP_EPSILON := 0.002
+const FULL_DAMAGE_RADIUS := 1.5
 const EDGE_DAMAGE_SCALE := 0.5
 const SHIELD_WAVE_REACH_TIME := 0.48
 const SHIELD_WAVE_FADE_AT := 0.62
@@ -23,7 +29,7 @@ static var _shield_sound: AudioStreamWAV
 
 var shooter: CollisionObject3D
 var damage := 0.0
-var radius := 3.5
+var radius := 5.0
 var velocity := Vector3.ZERO
 var fuse_remaining := FUSE_TIME
 var exploded_once := false
@@ -35,7 +41,7 @@ var _trail_material: StandardMaterial3D
 
 
 static func spawn(parent: Node, origin: Vector3, direction: Vector3,
-		p_shooter: CollisionObject3D, p_damage: float, p_radius: float = 3.5) -> Node3D:
+		p_shooter: CollisionObject3D, p_damage: float, p_radius: float = 5.0) -> Node3D:
 	var charge := ReloadCharge.new()
 	charge.name = "ReloadCharge"
 	charge.shooter = p_shooter
@@ -172,18 +178,22 @@ func _physics_process(delta: float) -> void:
 	var from := global_position
 	velocity.y -= GRAVITY * delta
 	var to := from + velocity * delta
-	var query := PhysicsRayQueryParameters3D.create(from, to,
-		CollisionLayers.WORLD | CollisionLayers.HITBOXES)
-	query.hit_from_inside = true
-	if is_instance_valid(shooter):
-		var excluded: Array[RID] = [shooter.get_rid()]
-		for hitbox in shooter.find_children("*", "Hitbox", true, false):
-			excluded.append((hitbox as Hitbox).get_rid())
-		query.exclude = excluded
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	if not hit.is_empty():
+	var space := get_world_3d().direct_space_state
+	var exclusions := _excluded_rids()
+	var world_hit := _ray_hit(space, from, to, exclusions)
+	# Walls stop the magazine; enemies only need to be close. Whichever the
+	# flight reaches first along this tick decides where it detonates.
+	var enemy_hit := _sweep_enemies(space, from, to, exclusions)
+	if not enemy_hit.is_empty():
+		var world_fraction := 1.0
+		if not world_hit.is_empty():
+			world_fraction = _path_fraction(from, to, world_hit.position)
+		if float(enemy_hit["fraction"]) <= world_fraction:
+			_detonate(enemy_hit["position"] as Vector3)
+			return
+	if not world_hit.is_empty():
 		# Keep the blast just outside the impact surface for its visibility rays.
-		_detonate(hit.position + hit.normal * 0.04)
+		_detonate(world_hit.position + world_hit.normal * 0.04)
 		return
 	global_position = to
 	_model.rotate_x(delta * 8.0)
@@ -192,6 +202,90 @@ func _physics_process(delta: float) -> void:
 	fuse_remaining -= delta
 	if fuse_remaining <= 0.0:
 		detonate()
+
+
+## The shooter and its own hitboxes must never trigger the charge, whether it
+## is sitting in the hand at launch or leaving the camera.
+func _excluded_rids() -> Array[RID]:
+	var excluded: Array[RID] = []
+	if is_instance_valid(shooter):
+		excluded.append(shooter.get_rid())
+		for hitbox in shooter.find_children("*", "Hitbox", true, false):
+			excluded.append((hitbox as Hitbox).get_rid())
+	return excluded
+
+
+func _ray_hit(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3,
+		exclusions: Array[RID]) -> Dictionary:
+	var query := PhysicsRayQueryParameters3D.create(from, to, CollisionLayers.WORLD)
+	query.hit_from_inside = true
+	query.exclude = exclusions
+	return space.intersect_ray(query)
+
+
+## Continuous sphere sweep along this tick's segment. `cast_motion` reports the
+## fraction where the sphere first touches a hitbox, so the 0.4 m covered per
+## tick at 24 m/s cannot tunnel past an enemy. Dead bodies do not count: they
+## are excluded and the sweep continues behind them.
+func _sweep_enemies(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3,
+		exclusions: Array[RID]) -> Dictionary:
+	var motion := to - from
+	if motion.is_zero_approx():
+		return {}
+	var forward := motion.normalized()
+	var shape := SphereShape3D.new()
+	shape.radius = HIT_RADIUS
+	# The probe is a touch larger so a grazing contact still finds its body.
+	var probe_shape := SphereShape3D.new()
+	probe_shape.radius = HIT_RADIUS + 0.01
+	var start := from
+	var ignored := exclusions.duplicate()
+	for _pass in MAX_SWEEP_PASSES:
+		var query := PhysicsShapeQueryParameters3D.new()
+		query.shape = shape
+		query.transform = Transform3D(Basis.IDENTITY, start)
+		query.motion = motion
+		query.collision_mask = CollisionLayers.HITBOXES
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		query.exclude = ignored
+		var safe: float = space.cast_motion(query)[0]
+		if safe >= 1.0:
+			return {}
+		var contact := start + motion * safe
+		# cast_motion only reports a fraction, so re-query at the contact point
+		# to check whether the body in the way is still alive.
+		var probe := PhysicsShapeQueryParameters3D.new()
+		probe.shape = probe_shape
+		probe.transform = Transform3D(Basis.IDENTITY, contact + forward * SWEEP_EPSILON)
+		probe.collision_mask = CollisionLayers.HITBOXES
+		probe.collide_with_areas = false
+		probe.collide_with_bodies = true
+		probe.exclude = ignored
+		var dead: Array[RID] = []
+		for result: Dictionary in space.intersect_shape(probe, MAX_QUERY_RESULTS):
+			var hitbox := result.get("collider") as Hitbox
+			if hitbox == null:
+				continue
+			if is_instance_valid(hitbox.health) and not hitbox.health.is_dead():
+				return {"position": contact, "fraction": _path_fraction(from, to, contact)}
+			dead.append(hitbox.get_rid())
+		if dead.is_empty():
+			return {}
+		ignored.append_array(dead)
+		var remaining := motion * (1.0 - safe) - forward * SWEEP_EPSILON
+		if remaining.dot(forward) <= 0.0:
+			return {}
+		start = contact + forward * SWEEP_EPSILON
+		motion = remaining
+	return {}
+
+
+func _path_fraction(from: Vector3, to: Vector3, point: Vector3) -> float:
+	var length := from.distance_to(to)
+	if length <= 0.0:
+		return 0.0
+	return clampf(from.distance_to(point) / length, 0.0, 1.0)
 
 
 ## Public for fixtures; repeated calls cannot deal a second explosion.

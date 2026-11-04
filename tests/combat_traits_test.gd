@@ -46,7 +46,7 @@ func _run() -> void:
 	for frame_index in 3:
 		await get_tree().physics_frame
 	print("== explosion filtering")
-	var effect := ReloadCharge.blast(arena, Vector3(0, 1, 0), player, 30.0, 3.5)
+	var effect := ReloadCharge.blast(arena, Vector3(0, 1, 0), player, 30.0, CombatTraits.BLAST_RADIUS)
 	_check("one blast damages a multi-hitbox enemy once", is_equal_approx(target.health, 970.0) and effect.get_meta("targets_hit") == 1)
 	_check("blast ignores allies and player", friend.health == 1000.0 and player.health.health == 100.0)
 	_check("blast does not pass through walls", hidden.health == 1000.0)

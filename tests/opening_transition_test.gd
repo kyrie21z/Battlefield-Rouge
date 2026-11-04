@@ -4,6 +4,7 @@ extends Node
 
 const BOOT := preload("res://ui/game_start.tscn")
 const FADE := preload("res://ui/scene_fade.gd")
+const FAILING_BOOT := preload("res://tests/support/failing_game_start.gd")
 
 var _failures := 0
 var _finished := false
@@ -23,6 +24,8 @@ func _run() -> void:
 	await get_tree().process_frame
 	await _test_fade()
 	await _test_opening_entry()
+	for empty_scene in [false, true]:
+		await _test_loading_failure_retry(empty_scene)
 	await _test_fixture_entry()
 	_finished = true
 
@@ -67,15 +70,16 @@ func _test_opening_entry() -> void:
 	var boot := BOOT.instantiate()
 	get_tree().root.add_child(boot)
 	get_tree().current_scene = boot
-	_check("the opening starts a threaded warm-up for the first zone",
-		boot._zone_path == path and boot._preload_active
-		and not boot._preload_path.is_empty()
-		and ResourceLoader.load_threaded_get_status(boot._preload_path)
-		!= ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
-	_check("the warm-up loads the zone's own dependencies first",
-		boot._preload_path in ResourceLoader.get_dependencies(path))
-	_check("the opening, not a zone, owns the screen during the load",
+	_check("the opening records its destination without loading the zone",
+		boot._zone_path == path and boot._packed == null)
+	_check("the opening starts no background request for the zone",
+		ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
+	_check("only the opening owns the screen before departure",
 		is_instance_valid(boot.opening) and get_tree().current_scene == boot)
+	await _frames(5)
+	_check("reading the opening leaves the zone unloaded and starts no threaded work",
+		boot._packed == null
+		and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
 
 	boot.opening.combat_entry_requested.emit()
 	var black := false
@@ -89,29 +93,89 @@ func _test_opening_entry() -> void:
 			break
 		await get_tree().process_frame
 	_check("entering from the opening fades to black first", black)
-	if black and is_instance_valid(boot) and not boot._preload_done:
-		var showing_label := func() -> bool:
-			var overlays := _fade_nodes()
-			return not overlays.is_empty() and overlays[0].is_loading()
-		var showing := await _wait_for(showing_label, 5000)
-		_check("it shows the loading hint while the warm-up is still running", showing)
-
 	var switched := false
+	var loading_frames := 0
 	deadline = Time.get_ticks_msec() + 60000
 	while Time.get_ticks_msec() < deadline:
+		var overlays := _fade_nodes()
+		if not overlays.is_empty() and overlays[0].is_loading():
+			loading_frames += 1
 		var current := get_tree().current_scene
 		if current != null and current.scene_file_path == path:
 			switched = true
 			break
 		await get_tree().process_frame
+	_check("the loading hint is presented before synchronous scene loading", loading_frames >= 2)
 	_check("the zone becomes the current scene", switched)
 	var covered := _fade_nodes()
-	_check("the fade survives the scene change and stays black for the warm-up",
+	_check("the fade survives the scene change and covers its first frames",
 		covered.size() == 1 and covered[0].is_black())
 	var gone := await _wait_for(func() -> bool: return _fade_nodes().is_empty())
 	_check("the overlay fades out on its own and frees itself", gone)
 	_check("the zone is still current after the fade", get_tree().current_scene != null
 		and get_tree().current_scene.scene_file_path == path)
+	await _close_current_scene()
+
+
+func _test_loading_failure_retry(empty_scene: bool) -> void:
+	print("== loading %s failure and retry" % ["empty scene" if empty_scene else "missing resource"])
+	RunState.clear_fixture()
+	RunState.start_new_run()
+	get_tree().paused = false
+	var path := RunState.zone_scene()
+	var original_seed := RunState.run_seed
+	# Run the actual error/retry flow for both a missing resource and a resource
+	# that loads but cannot instantiate. Avoid preloading a combat class.
+	var observations := {"attempts": 0, "loading_visible": [], "empty_scene": empty_scene}
+	var boot := FAILING_BOOT.new()
+	boot.observations = observations
+	get_tree().root.add_child(boot)
+	get_tree().current_scene = boot
+	boot.opening.combat_entry_requested.emit()
+	boot._enter_game()
+	var failed := await _wait_for(func() -> bool:
+		return observations["attempts"] == 1 and not boot._load_requested, 5000)
+	_check("the failed read finishes and duplicate entry does not start another load", failed)
+	if not failed:
+		await _close_current_scene()
+		for overlay in _fade_nodes():
+			overlay.discard()
+		await _frames(2)
+		return
+	var overlays := _fade_nodes()
+	_check("failure keeps a single black overlay over the opening", overlays.size() == 1
+		and overlays[0].is_black() and get_tree().current_scene == boot)
+	if overlays.is_empty():
+		await _close_current_scene()
+		return
+	var fade: SceneFade = overlays[0]
+	_check("failure replaces the loading hint with an available retry button",
+		not fade.is_loading() and not fade._label.visible
+		and fade._retry_button.is_visible_in_tree() and not fade._retry_button.disabled)
+	_check("failure also offers a visible exit button",
+		fade._quit_button.is_visible_in_tree() and not fade._quit_button.disabled)
+	if not empty_scene:
+		await _capture_loading_error()
+	_check("the actual resource read follows the loading hint", observations["loading_visible"] == [true])
+	_check("failed entry leaves run state intact and releases its guard",
+		RunState.run_seed == original_seed and RunState.buffs.is_empty()
+		and RunState.selection_history.is_empty() and not boot._load_requested)
+	await _frames(3)
+	_check("failure waits for the player without automatically retrying", observations["attempts"] == 1)
+	# Use the real error button, not a second call to the private entry path.
+	fade._retry_button.pressed.emit()
+	fade._retry_button.pressed.emit()
+	var switched := await _wait_for(func() -> bool:
+		var current := get_tree().current_scene
+		return current != null and current.scene_file_path == path, 30000)
+	_check("the retry button successfully enters the intended zone", switched)
+	_check("repeated retry input starts just one further read", observations["attempts"] == 2)
+	_check("every read presents the loading hint first", observations["loading_visible"] == [true, true])
+	var gone := await _wait_for(func() -> bool: return _fade_nodes().is_empty(), 5000)
+	_check("successful retry removes the error and fade overlays", gone)
+	_check("successful retry preserves the seed and initial selection state",
+		RunState.run_seed == original_seed and RunState.buffs.is_empty()
+		and RunState.selection_history.is_empty())
 	await _close_current_scene()
 
 
@@ -139,6 +203,18 @@ func _test_fixture_entry() -> void:
 	_check("it never creates a fade overlay", not overlay_seen and _fade_nodes().is_empty())
 	await _close_current_scene()
 	RunState.clear_fixture()
+
+
+func _capture_loading_error() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--error-proof="):
+			var output := argument.trim_prefix("--error-proof=")
+			DirAccess.make_dir_recursive_absolute(output)
+			await RenderingServer.frame_post_draw
+			var frame := get_viewport().get_texture().get_image()
+			_check("saved the real retry and exit screen", frame.save_jpg(output.path_join("load-error.jpg"), 0.82) == OK)
 
 
 func _close_current_scene() -> void:

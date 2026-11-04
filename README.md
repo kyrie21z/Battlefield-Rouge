@@ -1,6 +1,6 @@
 # Battlefield Rouge
 
-普通启动现在先自动播放 Pride 开场：点击画面或按 Enter / 空格逐句推进，右上角可跳过。确认“开始行动”后直接进入原来的开局增益三选一，再继续两小关与 Boss。死亡重开不重播开场。双击原有的本地“启动游戏.cmd”即可看到；编辑器请用 F5 运行项目。直接运行战区场景、指定 fixture 或使用 `--skip-opening` 会跳过开场。接入说明见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
+普通启动现在先自动播放 Pride 开场：点击画面或按 Enter / 空格逐句推进，右上角可跳过。确认“开始行动”后先淡黑并显示“加载中…”，再加载第一关、淡入原来的开局增益三选一；关卡资源读取失败时可重试或退出，见 [开场加载卡住修复](docs/proof/loading-stall/README.md)。之后继续两小关与 Boss，死亡重开不重播开场。双击原有的本地“启动游戏.cmd”即可看到；编辑器请用 F5 运行项目。直接运行战区场景、指定 fixture 或使用 `--skip-opening` 会跳过开场。接入说明见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
 游戏方向见 [Creative Vision](docs/CREATIVE_VISION.md)：抽象精神世界里的 FPS 肉鸽，头顶的皇冠 Pride 引导玩家逐层消灭心魔，最后与 Pride 和解；第一层是 Sloth（[关卡设计](docs/levels/SLOTH_LEVEL_DESIGN.md)）。下面描述的是当前原型。
 

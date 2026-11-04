@@ -16,6 +16,10 @@ enum Phase { IDLE, TO_BLACK, READY, HOLD, TO_CLEAR }
 
 var _rect: ColorRect
 var _label: Label
+var _error_panel: CenterContainer
+var _error_label: Label
+var _retry_button: Button
+var _quit_button: Button
 var _phase: Phase = Phase.IDLE
 var _duration := 0.0
 var _elapsed := 0.0
@@ -46,6 +50,29 @@ func _init() -> void:
 	font.font_names = PackedStringArray(["Microsoft YaHei", "Noto Sans CJK SC", "sans-serif"])
 	_label.add_theme_font_override("font", font)
 	add_child(_label)
+	_error_panel = CenterContainer.new()
+	_error_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_error_panel.hide()
+	add_child(_error_panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 20)
+	_error_panel.add_child(box)
+	_error_label = Label.new()
+	_error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_error_label.add_theme_font_override("font", font)
+	_error_label.add_theme_font_size_override("font_size", LOADING_FONT_SIZE)
+	box.add_child(_error_label)
+	_retry_button = Button.new()
+	_retry_button.text = "重试加载"
+	_retry_button.custom_minimum_size = Vector2(320, 56)
+	_retry_button.add_theme_font_override("font", font)
+	box.add_child(_retry_button)
+	_quit_button = Button.new()
+	_quit_button.text = "退出游戏"
+	_quit_button.custom_minimum_size = Vector2(320, 56)
+	_quit_button.add_theme_font_override("font", font)
+	_quit_button.pressed.connect(func(): get_tree().quit())
+	box.add_child(_quit_button)
 
 
 func _ready() -> void:
@@ -69,7 +96,21 @@ func set_alpha(value: float) -> void:
 
 
 func show_loading() -> void:
+	_error_panel.hide()
 	_label.visible = true
+	_label.text = LOADING_TEXT
+
+
+## A failed load must release the spinner and give the player a way forward.
+func show_error(message: String, retry: Callable) -> void:
+	set_process(false)
+	_phase = Phase.READY
+	set_alpha(1.0)
+	_label.hide()
+	_error_label.text = message
+	_retry_button.pressed.connect(retry, CONNECT_ONE_SHOT)
+	_error_panel.show()
+	_retry_button.grab_focus()
 
 
 ## Coroutine: goes fully black over `duration` (callbacks get the 0..1 progress)

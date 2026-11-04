@@ -2,15 +2,10 @@ extends Node
 ## Entry only. The existing RunState and ZoneDirector still own the whole run.
 const OPENING := preload("res://ui/pride_opening/opening.tscn")
 const FADE := preload("res://ui/scene_fade.gd")
-## The opening warms the first zone while the player reads. The entry then only
-## fades, waits for that load and holds black over the new scene's first frames.
-## Fixture / --skip-opening keep the plain synchronous entry (ADR 0005/0009).
-##
-## The warm-up requests one resource at a time: Godot 4.7.2's threaded loader
-## can deadlock while a single request spawns several heavy dependencies at
-## once (reproduced on maps/zone_1.tscn, progress frozen forever). Loading the
-## scene's direct dependencies sequentially, cached one by one, has been
-## reliable; the zone request that follows then has almost nothing left to do.
+## Finish the opening and draw the loading overlay before loading the zone.
+## Godot 4.7.2 can leave threaded scene/script loads in IN_PROGRESS forever.
+## No background request may own the same resource when we enter the game.
+## Fixture / --skip-opening keep the original direct entry (ADR 0005/0009).
 const BLACK_SECONDS := 0.45
 const REVEAL_SECONDS := 0.6
 const HOLD_FRAMES := 3
@@ -18,10 +13,6 @@ var opening: Node3D
 var _load_requested := false
 var _zone_path := ""
 var _fade: SceneFade
-var _preload_queue: Array[String] = []
-var _preload_path := ""
-var _preload_active := false
-var _preload_done := false
 var _packed: PackedScene
 
 
@@ -35,50 +26,7 @@ func _ready() -> void:
 	opening.combat_entry_requested.connect(_enter_game, CONNECT_ONE_SHOT)
 	add_child(opening)
 	opening.flow.start()
-	_start_zone_preload()
-
-
-func _start_zone_preload() -> void:
 	_zone_path = RunState.zone_scene()
-	for dependency in ResourceLoader.get_dependencies(_zone_path):
-		_preload_queue.append(String(dependency))
-	if _preload_queue.is_empty():
-		push_error("Cannot read the dependencies of the first zone: " + _zone_path)
-		_preload_done = true
-		return
-	_warm_zone()
-
-
-func _warm_zone() -> void:
-	while not _preload_queue.is_empty():
-		var path: String = _preload_queue.pop_front()
-		var loaded: Resource = await _request(path, "")
-		if loaded == null:
-			push_error("Cannot preload a zone dependency: " + path)
-	var zone: Resource = await _request(_zone_path, "PackedScene")
-	_packed = zone as PackedScene
-	if _packed == null:
-		push_error("Cannot preload the first zone: " + _zone_path)
-	_preload_done = true
-
-
-## Requests `path`, waits for it without blocking the main thread and collects
-## the result. Returns null when the loader reports anything but LOADED.
-func _request(path: String, type_hint: String) -> Resource:
-	var result := ResourceLoader.load_threaded_request(path, type_hint, true)
-	if result != OK:
-		return null
-	_preload_active = true
-	_preload_path = path
-	var status := ResourceLoader.load_threaded_get_status(path)
-	while status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-		await get_tree().process_frame
-		status = ResourceLoader.load_threaded_get_status(path)
-	_preload_active = false
-	_preload_path = ""
-	if status != ResourceLoader.THREAD_LOAD_LOADED:
-		return null
-	return ResourceLoader.load_threaded_get(path)
 
 
 func _enter_game() -> void:
@@ -93,7 +41,7 @@ func _enter_game() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var target := RunState.zone_scene()
 	if _zone_path.is_empty() or _zone_path != target:
-		# Fixture and --skip-opening enter exactly as before: no fade, no threads.
+		# Fixture and --skip-opening enter directly, without an opening fade.
 		_enter_synchronously(target)
 		return
 	_enter_from_opening(target)
@@ -107,6 +55,8 @@ func _enter_synchronously(target: String) -> void:
 
 
 func _enter_from_opening(target: String) -> void:
+	if is_instance_valid(_fade):
+		_fade.discard()
 	_fade = FADE.new()
 	get_tree().root.add_child(_fade)
 	var audio: AudioStreamPlayer = opening.get("audio") if is_instance_valid(opening) else null
@@ -118,14 +68,19 @@ func _enter_from_opening(target: String) -> void:
 	if is_instance_valid(audio):
 		audio.stop()
 
-	if not _preload_done:
-		_fade.show_loading()
-		while not _preload_done:
-			await get_tree().process_frame
-	if not is_instance_valid(_packed):
-		push_error("Background zone load failed, entering synchronously: " + target)
+	# Give the black overlay and loading label an actual rendered frame before
+	# the synchronous load. The opening stays smooth and no loader worker can
+	# deadlock against the main thread while compiling gameplay scripts.
+	_fade.show_loading()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_inside_tree() or get_tree().current_scene != self:
 		_fade.discard()
-		_enter_synchronously(target)
+		return
+	_packed = _load_zone(target)
+	if _packed == null or not _packed.can_instantiate():
+		_load_requested = false
+		_fade.show_error("关卡加载失败，请重试。", _enter_game)
 		return
 
 	# The overlay lives on the root, so the scene change cannot take it away.
@@ -135,7 +90,10 @@ func _enter_from_opening(target: String) -> void:
 	var result := get_tree().change_scene_to_packed(packed)
 	if result != OK:
 		_load_requested = false
-		push_error("Cannot enter the existing game: " + target)
-		fade.discard()
+		fade.show_error("关卡切换失败，请重试。", _enter_game)
 		return
 	fade.reveal(HOLD_FRAMES, REVEAL_SECONDS)
+
+
+func _load_zone(target: String) -> PackedScene:
+	return ResourceLoader.load(target, "PackedScene") as PackedScene

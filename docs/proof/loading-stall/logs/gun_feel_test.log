@@ -1,0 +1,199 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== the viewmodel spring
+  [ok] a kick displaces it at once
+  [ok] an underdamped heavy gun swings through rest (z min -0.0158 < 0)
+  [ok] and settles back to rest
+  [ok] exactly where it started (|p|=0.00000 |r|=0.0000)
+  [ok] a 0.5 s frame stays finite and bounded
+  [ok] a burst of kicks is capped (z 0.044 <= 0.044)
+== procedural sounds
+  [ok] gun_rifle has samples (0.34 s) and is not silent or clipped flat
+  [ok] gun_shotgun has samples (0.62 s) and is not silent or clipped flat
+  [ok] gun_sniper has samples (0.95 s) and is not silent or clipped flat
+  [ok] hit_kill has samples (0.26 s) and is not silent or clipped flat
+  [ok] hit_tink has samples (0.16 s) and is not silent or clipped flat
+  [ok] heavier guns ring longer (rifle < shotgun < sniper)
+  [ok] generation is deterministic
+== the gun in hand kicks and comes back
+  [ok] 突击步枪 rests at its hip position
+  [ok] 突击步枪: a shot pushes the model back (+z) and the muzzle up
+  [ok] 突击步枪: and 2.5 s later it is back (d=0.0000)
+  [ok] kick scales with weight: back 0.026 m, rise 1.3 deg
+  [ok] 霰弹枪 rests at its hip position
+  [ok] 霰弹枪: a shot pushes the model back (+z) and the muzzle up
+  [ok] 霰弹枪: and 2.5 s later it is back (d=0.0001)
+  [ok] kick scales with weight: back 0.140 m, rise 7.0 deg
+  [ok] 狙击枪 rests at its hip position
+  [ok] 狙击枪: a shot pushes the model back (+z) and the muzzle up
+  [ok] 狙击枪: and 2.5 s later it is back (d=0.0001)
+  [ok] kick scales with weight: back 0.180 m, rise 9.0 deg
+  [ok] rifle < shotgun < sniper in kickback
+  [ok] ADS lerp still lands on ads_position
+  [ok] an ADS shot kicks less (0.0130 < 0.0260) and returns to ads_position
+== camera shake leaves the aim alone
+  [ok] the rendering camera is the current one
+  [ok] the shot shakes the rendering camera (peak 0.56 deg)
+  [ok] and punches the FOV (peak 4.2%)
+  [ok] the aim camera is never offset from the head by the shake
+  [ok] the aim camera's own FOV is not punched (75.00)
+  [ok] shake dies away to identity
+  [ok] and the FOV returns to the aimed value
+  [ok] mid-shake the ray origin / direction are still the head's
+  [ok] aim transform before == after (same)
+== sniper, scoped: a thump but no blur
+  [ok] scoped
+  [ok] one shake signal
+  [ok] no rotation shake behind the scope
+  [ok] a small FOV punch remains (0.0138)
+  [ok] the scoped aim camera is level
+== audio: a burst does not cut the previous tail
+  [ok] shot 1 uses one voice (1)
+  [ok] shot 2 uses another and shot 1 is still ringing (2)
+  [ok] their pitches differ a little
+  [ok] starting a reload does not stop the gunshots
+  [ok] the reload sound is on its own voice
+  (info) re-assigning a stream to a playing player: playing before=true after=false
+  [ok] twelve rapid shots on six voices do not error
+== crosshair: centre dot, clamped gap, ADS, scope
+  [ok] hip: the crosshair is up with its lines
+  [ok] hip: the centre dot is drawn every frame
+  [ok] the lines are short and thin (5 px, 1.5 px)
+  [ok] the dot is 2-3 px with a dark outline (3.0 px)
+  [ok] a tiny spread keeps the minimum gap (2.0)
+  [ok] a huge spread is clamped to 24 px (24.0)
+  [ok] the real spread still widens the gap (77.1 px, was 120.0)
+  [ok] but the drawn gap never exceeds the clamp (24.0)
+  [ok] 突击步枪 ADS: the dot stays, the lines go
+  [ok] 突击步枪 ADS: the dot is still drawn
+  [ok] 霰弹枪 ADS: the dot stays, the lines go
+  [ok] 霰弹枪 ADS: the dot is still drawn
+  [ok] scoped: the scope reticle takes over, no crosshair
+  [ok] scope down: the crosshair is back
+== hit confirmation: hitmarker and sounds
+  [ok] a plain hit pops the marker above rest (1.45)
+  [ok] and it settles to 1.0 (1.00)
+  [ok] a headshot is gold and pops bigger (1.70)
+  [ok] a headshot plays the ogg and the tink layer together
+  [ok] a headshot is not a kill sound
+  [ok] a kill is red and the biggest pop (2.30)
+  [ok] a kill plays its own distinct sound
+  [ok] the kill sound is not the ogg hit stream
+  [ok] the kill marker settles larger than a plain hit (1.50)
+  [ok] headless: a kill does no hitstop
+== enemy flash and flinch
+  [ok] the hit landed (50.0)
+  [ok] a player hit starts the reaction
+  [ok] the model's meshes get a flash overlay (16 of 16)
+  [ok] the flash does not touch the meshes' own materials
+  [ok] the meshes flinch
+  [ok] the hitboxes never move (bullets land where they always did)
+  [ok] everything is put back: no overlay, rest transforms
+  [ok] AI field state unchanged by the reaction
+  [ok] AI field velocity unchanged by the reaction
+  [ok] AI field position unchanged by the reaction
+  [ok] AI field target unchanged by the reaction
+  [ok] AI field react unchanged by the reaction
+  [ok] AI field shots unchanged by the reaction
+  [ok] AI field shot_timer unchanged by the reaction
+  [ok] AI field cover_left unchanged by the reaction
+  [ok] AI field cover_ready unchanged by the reaction
+  [ok] AI field impact_left unchanged by the reaction
+  [ok] AI field seek_retry unchanged by the reaction
+  [ok] AI field sight_timer unchanged by the reaction
+  [ok] AI field firing_position unchanged by the reaction
+  [ok] AI field rotation unchanged by the reaction
+  [ok] play() does not touch the global random sequence
+  [ok] damage with no player source shows nothing
+  [ok] the boss has a reaction with a gentler flinch
+  [ok] and it flashes the boss model (30 meshes)
+  [ok] then restores it
+== impact effects
+  [ok] flesh impact with detail: puff + droplet burst (2 nodes)
+  [ok] the droplet burst has 6 droplets
+  [ok] world impact: sparks + chips and dust (5 chips + 3 dust)
+  [ok] detail off: just the sparks
+  [ok] sparks are denser than before (14 > 10)
+  [ok] the droplet / chip / dust bits consume no global random numbers
+  [ok] the chips fly
+  [ok] every effect frees itself
+== tracers
+  [ok] forward / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] forward / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] forward / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000004m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] pitch up / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] pitch up / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] pitch up / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] pitch down / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] pitch down / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] pitch down / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] vertical up / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical up / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical up / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical down / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical down / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical down / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / identity parent / initial: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / identity parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / identity parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] forward / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] forward / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] forward / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 45 / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 90 / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] yaw 135 / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] pitch up / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] pitch up / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] pitch up / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000006m, width 0.0140 x 0.0140m
+  [ok] pitch down / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] pitch down / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] pitch down / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000004m, width 0.0140 x 0.0140m
+  [ok] vertical up / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] vertical up / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000000m, width 0.0140 x 0.0140m
+  [ok] vertical up / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] vertical down / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] vertical down / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] vertical down / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / rotated and scaled parent / initial: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / rotated and scaled parent / full flight: mesh axis 1.000000, endpoint error 0.000001m, width 0.0140 x 0.0140m
+  [ok] nearly vertical / rotated and scaled parent / shortened tail: mesh axis 1.000000, endpoint error 0.000002m, width 0.0140 x 0.0140m
+  [ok] a tracer flies along muzzle -> hit (40 m)
+  [ok] a sliver of a path draws nothing
+  [ok] a sky shot is capped (120 m)
+  [ok] it is a thin stretched box (thickness 0.014, length 5.0)
+  [ok] tracers free themselves
+  [ok] one rifle shot draws one tracer (1)
+  [ok] the tracer is gone after its short life
+  [ok] a shotgun blast draws at most 3 of its 9 pellets (3)
+  [ok] scoped
+  [ok] scoped sniper still draws a tracer
+  [ok] hip sniper draws a tracer
+  [ok] tracers add no global random draws
+  [ok] they draw from the private generator instead
+== hitstop
+  [ok] headless: HitStop refuses by default
+  [ok] when allowed, it starts
+  [ok] and drops the time scale (0.04)
+  [ok] a second request while stopping is refused
+  [ok] restore() puts the scale back at once
+  [ok] a kill under a fixture takes no hitstop
+  [ok] a kill in an ordinary run does
+  [ok] the scene vanishing mid-stop does not cancel the restore
+  [ok] it restores the previous scale on its own (0.80)
+  [ok] restore() is idempotent and safe
+ALL PASSED (0 failed)

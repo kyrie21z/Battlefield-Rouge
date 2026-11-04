@@ -218,3 +218,8 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 `sniper.glb`，均为上面已登记的既有素材，没有新增资产）。截图与复现命令见
 [docs/proof/protagonist-body](proof/protagonist-body/README.md)。
 这次只把 GLB 用于玩家的影子，敌人外观仍未接入 `actors/enemy/`。
+
+
+## 2026-11-04 · Sloth敌人独立备用包
+
+[备用目录](../prototypes/sloth_enemy_reserve/README.md)由.gdignore隔离，未接入正式游戏。`sloth_visual.gd`构建原创披风/链环/茧壳，`sloth_cloth.gdshader`为原创布料材质；`01-lineup.jpg`、`02-mantle-rear.jpg`为本项目Godot原生截图。来源与SHA-256见[包内登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。复用既有红晶体GLB，不重复或新增第三方资源。

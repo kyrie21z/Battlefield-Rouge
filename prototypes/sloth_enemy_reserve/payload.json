@@ -1,0 +1,22 @@
+{
+  "base_commit": "5004e8cd64d8d7dec12e879033e43d356168d74f",
+  "sha256": {
+    "overlay/actors/enemy/sloth/sloth_attack.gd": "e7ad3c18bc3b741fc5268fa7dd85fc6af2ad08be1b56975b644ba0bc712222da",
+    "overlay/actors/enemy/sloth/sloth_attack.gd.uid": "3c8a925917515564237db50c4f420710ccbda907c178e7bc45ba7e942d8f912c",
+    "overlay/actors/enemy/sloth/sloth_enemy.gd": "d0a088ed26d50ce661885599546d05e192cec4848a19dc35f384643576be3368",
+    "overlay/actors/enemy/sloth/sloth_enemy.gd.uid": "fefdeaad62b91743317379ae2f38a73c4e1692d1f9a428c9dd1788af35b84860",
+    "overlay/actors/enemy/sloth/sloth_enemy.tscn": "2a9e27f51ca39e5da673b93897dffadc4a9016e55c6de43632f34f76437abb54",
+    "overlay/actors/enemy/sloth/sloth_visual.gd": "823c07f988c6c00979b5d7129451eb8e7e03a06172e05d57ddccaeab4e65e0c1",
+    "overlay/actors/enemy/sloth/sloth_visual.gd.uid": "50e50148ea83bb829284d506f87f7f6d60d3acea5e9afca36cab830011a76256",
+    "overlay/assets/materials/sloth_cloth.gdshader": "147a480aa8eb42d0ee125b4e6c5f711780a0c9d9c5a2f60f79b13c4914b1d48b",
+    "overlay/assets/materials/sloth_cloth.gdshader.uid": "a11a6b633be0d1439471d206d062333c1cc49bc5720d9e95e9b77eb6ea676b0c",
+    "overlay/project.godot": "b676af3cd5aa0eff417ccca8a225bf4453d15aeaaefb9c3c48012362c13268c9",
+    "overlay/tests/sloth_enemy_test.gd": "f36fd8dacd221c9f40a2a2494c362eb8a9c56fc53b2d093f6be20af45a3578b7",
+    "overlay/tests/sloth_enemy_test.gd.uid": "9ac7e2dcbc12c6a77f8c63a9dab2c809a6df8a0712958bbf2c8c91903ef5d48f",
+    "overlay/tests/sloth_enemy_test.tscn": "2b1bee86c4144dd7916c2a44db70e992c4c594d9f8d203cd985fe0be8aa819df",
+    "overlay/tools/sloth_enemies/gallery.gd": "ed2c86d961982094a4e809de87a78a60ae29d54700dd5d74780aec311a970f0e",
+    "overlay/tools/sloth_enemies/gallery.gd.uid": "087bc45cd420dfe52903092cc1b78cc3e271ae16ddc783ea1c40dd657d9165d6",
+    "overlay/tools/sloth_enemies/gallery.tscn": "6ccbe4fbdda723ace15bbacc25620794f9530161a6fd02e3cbbf59aabff04018",
+    "integration.patch": "a7a24ee883b65a46b621b8b34dc890219af24744d34ddede9310009020b77a05"
+  }
+}

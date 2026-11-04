@@ -1,0 +1,177 @@
+class_name SlothEnemy
+extends Enemy
+## Crystal Sloth variants keep the Enemy contract used by zones and weapons.
+## No soldier skeleton, gun, random spread or last-second homing is involved.
+
+enum Kind { LINGERER, ANCHOR, RECLUSE }
+@export_enum("Lingerer", "Anchor", "Recluse") var kind: int = Kind.LINGERER
+var visual: SlothVisual
+var active_attack: SlothAttack
+var cooldown_left := 1.3
+var _exposed_left := 0.0
+
+
+func _enter_tree() -> void:
+	# Child _ready runs first; choose its outfit before it builds any meshes.
+	($Model as SlothVisual).configure(kind)
+
+
+func _ready() -> void:
+	visual = $Model as SlothVisual
+	visual.configure(kind)
+	visual.play_motion("CowerIdle" if kind == Kind.RECLUSE else "idle")
+	run_speed = 1.8 if kind == Kind.LINGERER else 1.2
+	eye_height = 1.65
+	min_engage_distance = 4.0
+	engage_range = [24.0, 18.0, 6.0][kind]
+	_hitbox_rids.append(get_rid())
+	for hitbox in find_children("*", "Hitbox", true, false):
+		_hitbox_rids.append((hitbox as Hitbox).get_rid())
+	health.max_health = [90.0, 140.0, 180.0][kind]
+	health.health = health.max_health
+	health.headshot_multiplier = 2.0
+	health.damaged.connect(_on_damaged)
+	health.died.connect(_on_died)
+	Events.gunshot.connect(_on_gunshot)
+	Events.hammer_struck.connect(_on_hammer_struck)
+	# A visible chest aperture rewards aim without making the shell invulnerable.
+	set_core_exposed(false)
+
+
+func begin_hunt() -> void:
+	if is_instance_valid(target) and state != State.DEAD and state != State.FLEE:
+		_start_seek(target.global_position)
+
+
+func begin_retreat(goal: Vector3, timeout: float) -> void:
+	_cancel_attack()
+	super.begin_retreat(goal, timeout)
+
+
+func _physics_process(delta: float) -> void:
+	if state == State.DEAD:
+		return
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+	if state == State.FLEE:
+		_process_flee(delta)
+		if not _departed:
+			move_and_slide()
+			visual.play_motion("run")
+		return
+	if _impact_left > 0.0:
+		_impact_left -= delta
+		velocity.x = _impact_velocity.x
+		velocity.z = _impact_velocity.z
+		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO, IMPACT_DECAY * delta)
+		move_and_slide()
+		return
+	_stop()
+	if not is_instance_valid(target) or (target is Player and target.health.is_dead()):
+		_cancel_attack()
+		move_and_slide()
+		return
+	_sight_timer -= delta
+	if _sight_timer <= 0.0:
+		_sight_timer = 0.1
+		_update_sight()
+	if state == State.IDLE and _sees_target:
+		_alert(target.global_position)
+	if state == State.IDLE:
+		move_and_slide()
+		return
+	cooldown_left = maxf(0.0, cooldown_left - delta)
+	_seek_retry = maxf(0.0, _seek_retry - delta)
+	_exposed_left = maxf(0.0, _exposed_left - delta)
+	_face(_target_point() - global_position, delta)
+	if is_instance_valid(active_attack):
+		visual.set_cast(clampf(active_attack.elapsed / active_attack.warning_time(), 0.0, 1.0))
+		move_and_slide()
+		return
+	visual.set_cast(0.0)
+	visual.set_shell_open(1.0 if _exposed_left > 0.0 else 0.0)
+	set_core_exposed(_exposed_left > 0.0)
+	if state == State.SEEK and kind == Kind.LINGERER:
+		_process_seek(delta)
+		visual.play_motion("walk" if Vector2(velocity.x, velocity.z).length() > 0.2 else "idle")
+		move_and_slide()
+		return
+	if _sees_target and _distance_to_target() <= engage_range:
+		state = State.ENGAGE
+		if cooldown_left <= 0.0:
+			cast_attack()
+	elif kind != Kind.ANCHOR:
+		# A deterministic path toward the last observed position also brings a
+		# cloaked reinforcement around cover instead of shooting through it.
+		state = State.CHASE
+		if kind == Kind.LINGERER and _seek_retry <= 0.0:
+			_start_seek(_last_known)
+		else:
+			_move_to(_last_known, run_speed)
+	visual.play_motion("walk" if Vector2(velocity.x, velocity.z).length() > 0.2 else
+		("CowerIdle" if kind == Kind.RECLUSE and _exposed_left <= 0.0 else "idle"))
+	move_and_slide()
+
+
+func cast_attack() -> bool:
+	if state == State.DEAD or state == State.FLEE or not is_instance_valid(target) \
+			or is_instance_valid(active_attack):
+		return false
+	active_attack = SlothAttack.new()
+	active_attack.caster = self
+	active_attack.target = target
+	active_attack.kind = kind
+	# Owned by the caster, while the telegraph uses locked world coordinates.
+	add_child(active_attack)
+	cooldown_left = [3.6, 6.2, 5.5][kind]
+	visual.play_motion("Aim" if kind == Kind.LINGERER else "EnterCower")
+	return true
+
+
+func attack_finished() -> void:
+	active_attack = null
+	_exposed_left = 1.6 if kind == Kind.RECLUSE else 0.0
+	visual.set_cast(0.0)
+	set_core_exposed(_exposed_left > 0.0)
+
+
+func set_core_exposed(exposed: bool) -> void:
+	$CoreHitbox.collision_layer = CollisionLayers.HITBOXES if exposed and kind == Kind.RECLUSE else 0
+
+
+func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
+	if is_instance_valid(active_attack) and active_attack.phase == 0:
+		_cancel_attack()
+		cooldown_left = maxf(cooldown_left, 1.6)
+		_exposed_left = 1.6
+	super.apply_impact(direction, force, stagger)
+
+
+func _cancel_attack() -> void:
+	if is_instance_valid(active_attack):
+		active_attack.cancel()
+	active_attack = null
+	if is_instance_valid(visual):
+		visual.set_cast(0.0)
+
+
+func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
+	if state == State.IDLE:
+		_alert(source.global_position if source is Node3D else global_position)
+
+
+func _on_died(_source: Node) -> void:
+	_cancel_attack()
+	_leave_cover()
+	_release_firing_position()
+	state = State.DEAD
+	velocity = Vector3.ZERO
+	collision_layer = 0
+	for hitbox in find_children("*", "Hitbox", true, false):
+		(hitbox as Hitbox).collision_layer = 0
+	visual.die()
+	Events.enemy_killed.emit(self)
+
+
+func _exit_tree() -> void:
+	_cancel_attack()

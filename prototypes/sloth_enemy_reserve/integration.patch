@@ -1,0 +1,241 @@
+--- a/actors/player/player.gd
++++ b/actors/player/player.gd
+@@ -31,6 +31,32 @@
+ 
+ ## Read by Health to ignore friendly fire.
+ var team := 0
++
++## Independent sources take the strongest field, never multiply. Weak handles
++## also restore walking speed if a caster disappears during a scene change.
++var _stasis_sources: Dictionary = {}
++
++
++func set_stasis_source(source: Node, multiplier: float) -> void:
++	if is_instance_valid(source):
++		_stasis_sources[source.get_instance_id()] = [weakref(source), clampf(multiplier, 0.75, 1.0)]
++
++
++func clear_stasis_source(source: Node) -> void:
++	if is_instance_valid(source):
++		_stasis_sources.erase(source.get_instance_id())
++
++
++func stasis_multiplier() -> float:
++	var result := 1.0
++	for id in _stasis_sources.keys():
++		var entry: Array = _stasis_sources[id]
++		var source: Node = entry[0].get_ref()
++		if not is_instance_valid(source) or source.is_queued_for_deletion():
++			_stasis_sources.erase(id)
++		else:
++			result = minf(result, entry[1])
++	return result
+ 
+ var _pitch := 0.0
+ var _visual_kick := Vector2.ZERO
+@@ -171,7 +197,7 @@
+ 		and not dashing
+ 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+ 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
+-	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED)
++	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED) * stasis_multiplier()
+ 	if aiming:
+ 		speed *= weapon.data.ads_move_scale
+ 	var accel := ground_accel if is_on_floor() else air_accel
+--- a/zone/zone_director.gd
++++ b/zone/zone_director.gd
+@@ -27,7 +27,7 @@
+ 
+ const BUFF_SELECT := preload("res://ui/buff_select.tscn")
+ const RUN_END := preload("res://ui/run_end.tscn")
+-const ENEMY_SCENE := preload("res://actors/enemy/enemy.tscn")
++const ENEMY_SCENE := preload("res://actors/enemy/sloth/sloth_enemy.tscn")
+ const BUFF_CHOICES := 3
+ ## Seconds between the flag going up and the boss victory screen. A small zone
+ ## does not pause on its own; the pedestal waits for interact.
+--- a/tools/gen_zones.py
++++ b/tools/gen_zones.py
+@@ -34,7 +34,7 @@
+     return f'Transform3D({c:g}, 0, {s:g}, 0, 1, 0, {ns:g}, 0, {c:g}, {x}, 0, {z})'
+ 
+ 
+-def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spawns=None):
++def zone(name, boxes, enemies, capture, spawn, grey, boss=None, core=False, spawns=None, sloth_kinds=None):
+     walls = [("Floor",(60,1,60),(0,-0.5,0)),("WallN",(60,4,1),(0,2,-30)),("WallS",(60,4,1),(0,2,30)),
+              ("WallE",(1,4,60),(30,2,0)),("WallW",(1,4,60),(-30,2,0))]
+     # Invisible collision above the visible walls: a pitched dash can lift the
+@@ -49,7 +49,7 @@
+     reach = 4.2 if core else 3.2
+     objective_y = 1.75 if core else 1
+     ext = ['[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]',
+-           '[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]',
++           '[ext_resource type="PackedScene" path="res://actors/enemy/sloth/sloth_enemy.tscn" id="2_enemy"]',
+            '[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]',
+            '[ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]',
+            '[ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]',
+@@ -111,7 +111,8 @@
+               '[node name="Shape" type="CollisionShape3D" parent="CapturePoint/Objective"]','shape = SubResource("Shape_objective")','',
+               '[node name="Player" parent="." instance=ExtResource("1_player")]',f'transform = {T(spawn[0],0,spawn[1])}','']
+     for i,(x,z,yaw) in enumerate(enemies):
+-        nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = {facing(x, z, yaw)}','']
++        kind = (sloth_kinds or [0] * len(enemies))[i]
++        nodes += [f'[node name="Enemy{i+1}" parent="." instance=ExtResource("2_enemy")]',f'transform = {facing(x, z, yaw)}',f'kind = {kind}','']
+     if boss:
+         nodes += ['[node name="Boss" parent="." instance=ExtResource("7_boss")]',f'transform = {facing(*boss)}','']
+     if spawns:
+@@ -158,6 +159,7 @@
+           ("Cover9",(2,1.2,1),(-7,0.6,-4.2)),("Cover10",(2,1.2,1),(7,0.6,-4.2))]),
+  # 6 guards: 2 front / 2 middle / 2 at the building.
+  "maps/zone_2.tscn": dict(name="Zone2", grey=(0.6,0.55,0.5), spawn=(0,16), capture=(0,-8),
++   sloth_kinds=[0,0,1,0,1,2],
+    enemies=[(-13.5,9,-30),(13.5,9,30),(-8.5,1.8,-45),(8.5,1.8,45),(-14,-1.5,-60),(14,-1.5,60)],
+    spawns=[(-10,-21),(0,-20),(10,-21),(-19,-2),(19,-2),(-22,-24),(22,-24)],
+    boxes=[("Cover1",(4,1.2,1),(-9,0.6,8)),("Cover2",(4,1.2,1),(9,0.6,8)),
+@@ -168,6 +170,7 @@
+           ("Cover11",(1.5,1.2,2),(-15.5,0.6,9)),("Cover12",(1.5,1.2,2),(15.5,0.6,9))]),
+  # 6 small enemies: 2 front / 2 middle / 2 escorts beside the boss at the core.
+  "maps/boss.tscn": dict(name="Boss", grey=(0.45,0.47,0.52), spawn=(0,26), capture=(0,-26.5),
++   sloth_kinds=[0,0,1,1,2,0],
+    enemies=[(-11,15,-45),(11,15,45),(-13,0.5,-45),(13,0.5,45),(-3.5,-22.5,-90),(3.5,-22.5,90)],
+    boss=BOSS_AT, core=True,
+    boxes=[("Cover1",(4,1.2,1),(-8,0.6,16)),("Cover2",(4,1.2,1),(8,0.6,16)),
+--- a/maps/zone_1.tscn
++++ b/maps/zone_1.tscn
+@@ -1,7 +1,7 @@
+ [gd_scene load_steps=50 format=3]
+ 
+ [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
+-[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
++[ext_resource type="PackedScene" path="res://actors/enemy/sloth/sloth_enemy.tscn" id="2_enemy"]
+ [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]
+ [ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]
+ [ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]
+@@ -524,15 +524,19 @@
+ 
+ [node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 13.5, 0, 7.2)
++kind = 0
+ 
+ [node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -9.5, 0, 1.5)
++kind = 0
+ 
+ [node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, -7, 0, -6)
++kind = 0
+ 
+ [node name="Enemy4" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 7, 0, -6)
++kind = 0
+ 
+ [node name="ReinforcementSpawns" type="Node3D" parent="."]
+ 
+--- a/maps/zone_2.tscn
++++ b/maps/zone_2.tscn
+@@ -1,7 +1,7 @@
+ [gd_scene load_steps=54 format=3]
+ 
+ [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
+-[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
++[ext_resource type="PackedScene" path="res://actors/enemy/sloth/sloth_enemy.tscn" id="2_enemy"]
+ [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]
+ [ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]
+ [ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]
+@@ -588,21 +588,27 @@
+ 
+ [node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -13.5, 0, 9)
++kind = 0
+ 
+ [node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 13.5, 0, 9)
++kind = 0
+ 
+ [node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -8.5, 0, 1.8)
++kind = 1
+ 
+ [node name="Enemy4" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 8.5, 0, 1.8)
++kind = 0
+ 
+ [node name="Enemy5" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, -14, 0, -1.5)
++kind = 1
+ 
+ [node name="Enemy6" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 14, 0, -1.5)
++kind = 2
+ 
+ [node name="ReinforcementSpawns" type="Node3D" parent="."]
+ 
+--- a/maps/boss.tscn
++++ b/maps/boss.tscn
+@@ -1,7 +1,7 @@
+ [gd_scene load_steps=49 format=3]
+ 
+ [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="1_player"]
+-[ext_resource type="PackedScene" path="res://actors/enemy/enemy.tscn" id="2_enemy"]
++[ext_resource type="PackedScene" path="res://actors/enemy/sloth/sloth_enemy.tscn" id="2_enemy"]
+ [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]
+ [ext_resource type="Script" path="res://zone/zone_director.gd" id="4_director"]
+ [ext_resource type="Script" path="res://zone/cover_point.gd" id="5_cover"]
+@@ -494,21 +494,27 @@
+ 
+ [node name="Enemy1" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -11, 0, 15)
++kind = 0
+ 
+ [node name="Enemy2" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 11, 0, 15)
++kind = 0
+ 
+ [node name="Enemy3" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -13, 0, 0.5)
++kind = 1
+ 
+ [node name="Enemy4" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 13, 0, 0.5)
++kind = 1
+ 
+ [node name="Enemy5" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -3.5, 0, -22.5)
++kind = 2
+ 
+ [node name="Enemy6" parent="." instance=ExtResource("2_enemy")]
+ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.5, 0, -22.5)
++kind = 0
+ 
+ [node name="Boss" parent="." instance=ExtResource("7_boss")]
+ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -19)
+--- a/tests/boss_test.gd
++++ b/tests/boss_test.gd
+@@ -51,7 +51,8 @@
+ 	_check("the boss shoots from higher up", boss.eye_height > sample.eye_height)
+ 	_check("the boss wears the Hazmat model", boss.find_child("Character_Hazmat", true, false) != null
+ 		and boss.find_child("Character_Enemy", true, false) == null)
+-	_check("the small enemies keep the Enemy model", sample.find_child("Character_Enemy", true, false) != null)
++	_check("the small enemies use the Sloth crystal variants", sample is SlothEnemy
++		and sample.find_child("GEO_m_head", true, false) != null)
+ 	var boss_head := boss.find_child("HeadHitbox", true, false) as Hitbox
+ 	_check("the boss head hitbox moved onto the new skeleton",
+ 		boss_head != null and boss_head.get_parent().get_parent() == boss.get_node("Model/CharacterArmature/Skeleton3D"))
+--- a/tests/gun_feel_test.gd
++++ b/tests/gun_feel_test.gd
+@@ -338,6 +338,7 @@
+ 	guard.health.health = 100000.0
+ 	var reaction := guard.get_node("HitReaction") as HitReaction
+ 	var meshes := guard.find_children("*", "MeshInstance3D", true, false)
++	var own_materials := meshes.map(func(m: MeshInstance3D) -> Material: return m.material_override)
+ 	var head_box: Hitbox
+ 	for node in guard.find_children("*", "Hitbox", true, false):
+ 		head_box = node as Hitbox
+@@ -353,7 +354,7 @@
+ 	var overlaid := meshes.filter(func(m: MeshInstance3D) -> bool: return m.material_overlay != null)
+ 	_check("the model's meshes get a flash overlay (%d of %d)" % [overlaid.size(), meshes.size()], overlaid.size() == meshes.size())
+ 	_check("the flash does not touch the meshes' own materials",
+-		meshes.all(func(m: MeshInstance3D) -> bool: return m.material_override == null))
++		meshes.all(func(m: MeshInstance3D) -> bool: return m.material_override == own_materials[meshes.find(m)]))
+ 	var moved := false
+ 	var hitbox_moved := false
+ 	for i in 6:

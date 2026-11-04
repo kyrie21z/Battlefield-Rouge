@@ -1,0 +1,2 @@
+# Unified-diff context contains a leading space before original tabs/blank lines.
+integration.patch -whitespace

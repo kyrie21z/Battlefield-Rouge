@@ -69,7 +69,7 @@ Quaternius 与 Kenney 的素材是 CC0。署名不强制，欢迎保留。Quater
 
 - `enemy.gltf`：小怪（`actors/enemy/enemy.tscn`）。
 - `hazmat.gltf`：Boss。`boss.tscn` 设 `Enemy.model_scene`，运行时换掉默认模型，挂在骨骼上的头、躯干命中框原样搬到新骨骼上。
-- `soldier.gltf`：玩家的影子身体（`actors/player/shadow_body.gd`）。只投影子，镜头里看不到；站着放 `Idle`，移动放 `Run_Gun`。
+- `soldier.gltf`：原玩家的影子身体，2026-11-03 起不再使用（玩家改成下面的灰白晶体人形）；文件保留在仓库。
 
 截图见 `docs/proof/characters/`。
 
@@ -200,3 +200,19 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 `python tools/crystal_enemy/check_normals.py assets/models/characters/red_crystal_enemy_*.glb`
 （缠绕与顶点法线一致率 1.000，五个 GLB 都是）；Godot 侧 `--check` 与实机图见
 [docs/proof/crystal-enemy](proof/crystal-enemy/README.md)。
+
+## 2026-11-03：玩家晶体身体（自有材质）
+
+玩家的影子身体从 `soldier.gltf` 换成了 `red_crystal_enemy_animated.glb` 的灰白版本：
+`actors/player/protagonist_body.tscn` 实例化上面已登记的 GLB（统一缩放 0.9，身高 1.75 m），
+`actors/player/shadow_body.gd` 在 `SHADOWS_ONLY` 下只投影子，站着播 `idle`、移动播 `run`。
+模型本身不重复登记，这里只新增材质。
+
+| 仓库内文件 | 内容 | 素材包 | 页面 | 许可证 | 导出入库日期 | SHA-256（前 16 位） |
+| --- | --- | --- | --- | --- | --- | --- |
+| `assets/materials/protagonist_crystal_material.tres` | 玩家影子身体材质：复用 `red_crystal_crystal.gdshader`，灰白基色、弱自发光、冷色边缘光 | 无（本项目编写） | 无 | 项目自有 | 2026-11-03 | `dfa5b91de24cd05e` |
+
+该着色器写 `ALPHA`，混合材质不参与阴影贴图，所以 `shadow_body.gd` 用一层不透明的灰白
+`StandardMaterial3D` 当 `material_override` 负责投影，晶体材质放在 `material_overlay`
+负责外观。截图与复现命令见 [docs/proof/protagonist-body](proof/protagonist-body/README.md)。
+这次只把 GLB 用于玩家的影子，敌人外观仍未接入 `actors/enemy/`。

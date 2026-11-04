@@ -239,3 +239,65 @@
  	var moved := false
  	var hitbox_moved := false
  	for i in 6:
+--- a/components/hitbox.gd
++++ b/components/hitbox.gd
+@@ -12,6 +12,10 @@
+ @export var health_path: NodePath
+ 
+ var health: Health
++## Exact contact is scoped to one synchronous damage application.
++var resolving_surface_hit := false
++var surface_point := Vector3.ZERO
++var surface_direction := Vector3.ZERO
+ 
+ 
+ func _ready() -> void:
+@@ -26,6 +30,15 @@
+ 	return health.apply_damage(amount, body_part, source)
+ 
+ 
++func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3) -> float:
++	resolving_surface_hit = true
++	surface_point = point
++	surface_direction = direction
++	var dealt := apply_hit(amount, source)
++	resolving_surface_hit = false
++	return dealt
++
++
+ func _resolve_health() -> Health:
+ 	if not health_path.is_empty():
+ 		return get_node_or_null(health_path) as Health
+--- a/weapons/weapon.gd
++++ b/weapons/weapon.gd
+@@ -362,7 +362,7 @@
+ 	if collider is Hitbox:
+ 		var hitbox := collider as Hitbox
+ 		var distance := origin.distance_to(hit.position)
+-		var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter)
++		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction)
+ 		if dealt > 0.0:
+ 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
+ 
+--- a/weapons/projectile.gd
++++ b/weapons/projectile.gd
+@@ -98,7 +98,7 @@
+ 		if not hit.collider is Hitbox:
+ 			Impact.spawn(get_parent(), hit.position, hit.normal, false)
+ 		else:
+-			(hit.collider as Hitbox).apply_hit(damage, source)
++			(hit.collider as Hitbox).apply_hit_at(damage, source, hit.position, -global_basis.z)
+ 		queue_free()
+ 		return
+ 	global_position = to
+--- a/weapons/melee/melee_weapon.gd
++++ b/weapons/melee/melee_weapon.gd
+@@ -471,7 +471,7 @@
+ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vector3) -> bool:
+ 	var health := hitbox.health
+ 	_struck.append(health)
+-	var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter)
++	var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter, hitbox.global_position, forward)
+ 	if dealt <= 0.0:
+ 		return false
+ 

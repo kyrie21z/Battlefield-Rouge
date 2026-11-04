@@ -268,6 +268,9 @@ func _world(player_position: Vector3) -> void:
 	_player.position = player_position
 	_arena.add_child(_player)
 	_player.set_physics_process(false)
+	_player.set_process_unhandled_input(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_player.aim_at(_player.eye_position() + Vector3.FORWARD * 10.0)
 	_player.health.max_health = 1000.0
 	_player.health.health = 1000.0
 	await _frames(2)

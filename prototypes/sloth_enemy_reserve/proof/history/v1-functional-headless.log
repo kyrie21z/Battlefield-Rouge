@@ -1,0 +1,55 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== delayed volley: warning, fixed aim and real hits
+  [ok] a lingerer can start one attack
+  [ok] an active cast cannot be duplicated
+  [ok] the warning phase cannot hurt the player
+  [ok] no projectiles are launched during the warning
+  [ok] two visible projectiles are released after the warning
+  [ok] both projectiles keep the original direction after the player moves
+  [ok] a lateral dodge avoids the locked volley
+  [ok] standing on the announced trajectory actually receives damage
+== interrupted casts and retreat
+  [ok] killing the caster cancels an unreleased volley
+  [ok] retreat cancels pending attacks without releasing bullets
+  [ok] a melee shove interrupts a winding-up recluse
+  [ok] an interrupted wave causes no later damage
+== anchored field: telegraph, overlap, escape and death cleanup
+  [ok] a field does not slow during its warning
+  [ok] the field's announced position never follows the player
+  [ok] leaving the announced zone before activation avoids the slow
+  [ok] entering the active field applies a bounded 25 percent slow
+  [ok] overlapping fields do not stack the movement penalty
+  [ok] destroying one source preserves the remaining field
+  [ok] destroying the final anchor removes the slow immediately
+  [ok] a new field can apply after prior sources were destroyed
+  [ok] walking out clears the slow on the next physics update
+  [ok] a field expires rather than slowing indefinitely
+== the slowing field respects solid cover
+  [ok] a solid wall blocks the field between its center and the player
+== slowing keeps the player's dash available and at full distance
+  [ok] the unmodified dash control starts normally
+  [ok] the unmodified dash control travels five meters (5.093)
+  [ok] the real player is slowed before the dash
+  [ok] a dash remains available inside the slowing field
+  [ok] the slowed dash matches its five-meter control (5.093 vs 5.093)
+  dash samples: steps=15, control dt=0.016667..0.016667, slowed dt=0.016667..0.016667
+== recluse wave: safe opening, one hit, cover and jump
+  [ok] remaining inside the announced open wedge is safe
+  [ok] a wave's warning deals no damage even outside its opening
+  [ok] crossing the wave receives exactly one 14-damage hit
+  [ok] solid cover blocks the wave's damage
+  [ok] ordinary SPACE input lifts the real player over the arriving wave (peak 0.681, crossing 0.576)
+  [ok] an ordinary jump avoids the incoming wave
+  jump samples: peak=0.681, wave crossing samples=6, crossing health=1000.0
+== a closed shell remains damageable; its opening rewards aimed fire
+  [ok] the closed shell exposes a normal body hitbox
+  [ok] the closed shell is damageable without a special weapon
+  [ok] opening the shell makes the chest core hittable
+  [ok] an aimed core hit rewards the player with double damage
+  [ok] the exposed core closes again after the recovery window
+== pause freezes attack phases
+  [ok] attack time remains frozen during a pause
+  [ok] a warning cannot turn into a slow while paused
+  [ok] resuming advances the same attack into its active field
+SLOTH ENEMIES: ALL PASSED (42 checks, 0 failed)

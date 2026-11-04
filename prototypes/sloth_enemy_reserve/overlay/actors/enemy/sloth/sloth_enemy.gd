@@ -9,6 +9,9 @@ var visual: SlothVisual
 var active_attack: SlothAttack
 var cooldown_left := 1.3
 var _exposed_left := 0.0
+var last_hit_point := Vector3.INF
+var last_hit_direction := Vector3.ZERO
+var cloak_recover_left := 0.0
 
 
 func _enter_tree() -> void:
@@ -81,6 +84,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	cooldown_left = maxf(0.0, cooldown_left - delta)
+	cloak_recover_left = maxf(0.0, cloak_recover_left - delta)
 	_seek_retry = maxf(0.0, _seek_retry - delta)
 	_exposed_left = maxf(0.0, _exposed_left - delta)
 	_face(_target_point() - global_position, delta)
@@ -89,8 +93,9 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	visual.set_cast(0.0)
+	visual.set_mantle_open(0.0 if cloak_recover_left <= 0.0 else 1.0)
 	visual.set_shell_open(1.0 if _exposed_left > 0.0 else 0.0)
-	set_core_exposed(_exposed_left > 0.0)
+	set_core_exposed(_exposed_left > 0.0 or cloak_recover_left > 0.0)
 	if state == State.SEEK and kind == Kind.LINGERER:
 		_process_seek(delta)
 		visual.play_motion("walk" if Vector2(velocity.x, velocity.z).length() > 0.2 else "idle")
@@ -124,26 +129,29 @@ func cast_attack() -> bool:
 	# Owned by the caster, while the telegraph uses locked world coordinates.
 	add_child(active_attack)
 	cooldown_left = [3.6, 6.2, 5.5][kind]
-	visual.play_motion("Aim" if kind == Kind.LINGERER else "EnterCower")
+	visual.play_motion("cast" if kind == Kind.LINGERER else "EnterCower")
 	return true
 
 
 func attack_finished() -> void:
 	active_attack = null
+	cloak_recover_left = 1.0 if kind == Kind.LINGERER else 0.0
 	_exposed_left = 1.6 if kind == Kind.RECLUSE else 0.0
 	visual.set_cast(0.0)
-	set_core_exposed(_exposed_left > 0.0)
+	set_core_exposed(_exposed_left > 0.0 or cloak_recover_left > 0.0)
 
 
 func set_core_exposed(exposed: bool) -> void:
-	$CoreHitbox.collision_layer = CollisionLayers.HITBOXES if exposed and kind == Kind.RECLUSE else 0
+	$CoreHitbox.collision_layer = CollisionLayers.HITBOXES if exposed and kind in [Kind.RECLUSE, Kind.LINGERER] else 0
 
 
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
 	if is_instance_valid(active_attack) and active_attack.phase == 0:
 		_cancel_attack()
 		cooldown_left = maxf(cooldown_left, 1.6)
-		_exposed_left = 1.6
+		_exposed_left = 1.6 if kind == Kind.RECLUSE else 0.0
+		cloak_recover_left = 1.0 if kind == Kind.LINGERER else 0.0
+		set_core_exposed(_exposed_left > 0.0 or cloak_recover_left > 0.0)
 	super.apply_impact(direction, force, stagger)
 
 
@@ -156,6 +164,14 @@ func _cancel_attack() -> void:
 
 
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
+	last_hit_point = global_position + Vector3.UP * (1.75 if _part == Hitbox.BodyPart.HEAD else 1.0)
+	last_hit_direction = (last_hit_point - source.global_position).normalized() if source is Node3D else Vector3.FORWARD
+	for node in find_children("*", "Hitbox", true, false):
+		var hitbox := node as Hitbox
+		if hitbox.resolving_surface_hit:
+			last_hit_point = hitbox.surface_point
+			last_hit_direction = hitbox.surface_direction
+			break
 	if state == State.IDLE:
 		_alert(source.global_position if source is Node3D else global_position)
 
@@ -169,7 +185,7 @@ func _on_died(_source: Node) -> void:
 	collision_layer = 0
 	for hitbox in find_children("*", "Hitbox", true, false):
 		(hitbox as Hitbox).collision_layer = 0
-	visual.die()
+	visual.die(last_hit_point, last_hit_direction)
 	Events.enemy_killed.emit(self)
 
 

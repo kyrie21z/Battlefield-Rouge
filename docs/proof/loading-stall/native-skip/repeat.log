@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[ok] target battle resource is not cached before normal entry
+[ok] entry resource is not preloaded by this observer
+[ok] normal entry scene change is accepted
+[ok] normal startup reaches the five-line opening
+[ok] battle resource remains cold while the opening is visible
+[ok] no combat actor or director runs behind the opening
+[ok] saved native proof res://.local-user/cold-native-skip-repeat/skip-01-opening.jpg
+SCREENSHOT res://.local-user/cold-native-skip-repeat/skip-01-opening.jpg (1280x720, 78535 bytes)
+[ok] route reaches the explicit departure decision
+[ok] decision still has no hidden combat scene
+[ok] saved native proof res://.local-user/cold-native-skip-repeat/skip-02-loading-rendered.jpg
+SCREENSHOT res://.local-user/cold-native-skip-repeat/skip-02-loading-rendered.jpg (1280x720, 15939 bytes)
+[ok] confirmation enters the actual first battle exactly once
+[ok] loading state is exposed before the synchronous scene load
+[ok] the loading label was actually rendered before the battle
+[ok] original entry card selection is paused and offered once
+[ok] KEY1 chooses the real entry card and starts combat
+[ok] a real gun shot succeeds after the cold transition
+[ok] saved native proof res://.local-user/cold-native-skip-repeat/skip-03-combat-visible.jpg
+SCREENSHOT res://.local-user/cold-native-skip-repeat/skip-03-combat-visible.jpg (1280x720, 64164 bytes)
+[ok] the actual death screen is shown
+[ok] death restart returns directly to a new first battle
+COLD TIMING route=skip elapsed_ms=3317 longest_frame_ms=766 frames=103
+COLD OPENING skip: 19 checks, 0 failed

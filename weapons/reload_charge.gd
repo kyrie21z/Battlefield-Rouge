@@ -23,6 +23,9 @@ const EDGE_DAMAGE_SCALE := 0.5
 const SHIELD_WAVE_REACH_TIME := 0.48
 const SHIELD_WAVE_FADE_AT := 0.62
 const SHIELD_WAVE_LIFETIME := 0.82
+const EXPLOSION_REACH_TIME := 0.38
+const EXPLOSION_FADE_AT := 0.52
+const EXPLOSION_LIFETIME := 0.85
 
 static var _blast_sound: AudioStreamWAV
 static var _shield_sound: AudioStreamWAV
@@ -359,8 +362,9 @@ static func _show_blast(effect: Node3D, blast_radius: float, accent: Color, expl
 
 
 static func _show_explosion(effect: Node3D, blast_radius: float, accent: Color) -> void:
-	# A brief hot core marks the actual blast, while a thin fading ring
-	# shows its reach. No full-radius luminous sphere obscures enemies.
+	# An open, double-sided pressure wall remains visible from inside the
+	# player-centred explosion. Thick rims show the actual radius in the world.
+	effect.set_meta("visual_duration", EXPLOSION_LIFETIME)
 	var tween := effect.create_tween().set_parallel(true)
 	var core := _sphere(effect, "FireFlash", Color(1.0, 0.78, 0.3), 0.88)
 	core.scale = Vector3.ONE * 0.12
@@ -368,38 +372,70 @@ static func _show_explosion(effect: Node3D, blast_radius: float, accent: Color) 
 	tween.tween_property(core, "scale", Vector3.ONE * minf(blast_radius * 0.22, 0.8), 0.10) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(core_material, "albedo_color:a", 0.0, 0.18)
-	var ring := MeshInstance3D.new()
-	ring.name = "PressureRing"
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.985
-	torus.outer_radius = 1.0
-	torus.rings = 32
-	torus.ring_segments = 6
-	ring.mesh = torus
-	ring.material_override = _glow_material(accent, 0.35)
-	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	ring.scale = Vector3.ONE * 0.1
-	effect.add_child(ring)
-	tween.tween_property(ring, "scale", Vector3.ONE * blast_radius, 0.32) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(ring.material_override, "albedo_color:a", 0.0, 0.34)
+	var front := MeshInstance3D.new()
+	front.name = "BlastWaveFront"
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = 1.0
+	cylinder.bottom_radius = 1.0
+	cylinder.height = 1.8
+	cylinder.radial_segments = 96
+	cylinder.cap_top = false
+	cylinder.cap_bottom = false
+	front.mesh = cylinder
+	var front_material := _glow_material(accent, 0.12)
+	front_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	front.material_override = front_material
+	front.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	front.scale = Vector3(0.12, 1.0, 0.12)
+	effect.add_child(front)
+	tween.tween_property(front, "scale", Vector3(blast_radius, 1.0, blast_radius),
+		EXPLOSION_REACH_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(front_material, "albedo_color:a", 0.0,
+		EXPLOSION_LIFETIME - EXPLOSION_FADE_AT).set_delay(EXPLOSION_FADE_AT)
+	var rim_specs := [
+		["PressureRing", 0.04, 0.96, 1.0, 0.0, Color(1.0, 0.77, 0.25), 0.95],
+		["BlastUpperRim", 0.70, 0.98, 1.0, 0.0, accent, 0.72],
+		["BlastEcho", 0.12, 0.955, 0.88, 0.09, accent, 0.72],
+	]
+	for spec: Array in rim_specs:
+		var ring := MeshInstance3D.new()
+		ring.name = spec[0]
+		var torus := TorusMesh.new()
+		torus.inner_radius = spec[2]
+		torus.outer_radius = 1.0
+		torus.rings = 96
+		torus.ring_segments = 10
+		ring.mesh = torus
+		var material := _glow_material(spec[5], spec[6])
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		ring.material_override = material
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ring.position.y = spec[1]
+		ring.scale = Vector3.ONE * 0.12
+		effect.add_child(ring)
+		tween.tween_property(ring, "scale", Vector3.ONE * blast_radius * float(spec[3]),
+			EXPLOSION_REACH_TIME).set_delay(spec[4]) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(material, "albedo_color:a", 0.0,
+			EXPLOSION_LIFETIME - EXPLOSION_FADE_AT).set_delay(EXPLOSION_FADE_AT)
 	var spark_material := _glow_material(Color(1.0, 0.56, 0.16), 1.0)
-	for index in 12:
+	for index in 24:
 		var spark := MeshInstance3D.new()
 		spark.name = "Spark%d" % index
 		var spark_mesh := BoxMesh.new()
-		spark_mesh.size = Vector3(0.018, 0.018, 0.11)
+		spark_mesh.size = Vector3(0.035, 0.035, 0.24)
 		spark.mesh = spark_mesh
 		spark.material_override = spark_material
 		spark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		effect.add_child(spark)
-		var angle := float(index) * TAU / 12.0
-		var direction := Vector3(cos(angle), 0.25 + float(index % 3) * 0.28, sin(angle)).normalized()
+		var angle := float(index) * TAU / 24.0
+		var direction := Vector3(cos(angle), 0.1 + float(index % 3) * 0.23, sin(angle)).normalized()
 		spark.look_at(effect.global_position + direction, Vector3.UP)
 		var end := direction * blast_radius * (0.45 + float(index % 4) * 0.1)
 		end.y -= 0.45
 		tween.tween_property(spark, "position", end, 0.42).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(spark_material, "albedo_color:a", 0.0, 0.35).set_delay(0.08)
+	# One shared material needs one fade track, regardless of spark count.
+	tween.tween_property(spark_material, "albedo_color:a", 0.0, 0.38).set_delay(0.10)
 	for index in 3:
 		var smoke := _sphere(effect, "Smoke%d" % index, Color(0.25, 0.23, 0.21), 0.16)
 		var smoke_material := smoke.material_override as StandardMaterial3D
@@ -413,8 +449,8 @@ static func _show_explosion(effect: Node3D, blast_radius: float, accent: Color) 
 	var light := OmniLight3D.new()
 	light.name = "FlashLight"
 	light.light_color = accent
-	light.light_energy = 1.8
-	light.omni_range = minf(blast_radius * 1.4, 5.0)
+	light.light_energy = 3.0
+	light.omni_range = blast_radius
 	light.shadow_enabled = false
 	effect.add_child(light)
 	tween.tween_property(light, "light_energy", 0.0, 0.15)

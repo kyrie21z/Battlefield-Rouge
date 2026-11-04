@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://actors/enemy/sloth/sloth_visual.gd" id="2"]
 [ext_resource type="Script" path="res://components/health.gd" id="3"]
 [ext_resource type="Script" path="res://components/hitbox.gd" id="4"]
-[ext_resource type="Script" path="res://components/hit_reaction.gd" id="5"]
+[ext_resource type="Script" path="res://actors/enemy/sloth/sloth_hit_reaction.gd" id="5"]
 [sub_resource type="CapsuleShape3D" id="Body"]
 radius = 0.34
 height = 1.94
@@ -56,5 +56,6 @@ height = 1.94
 position = Vector3(0, 1.4, 0)
 unit_size = 8.0
 max_distance = 40.0
+
 [node name="HitReaction" type="Node" parent="."]
 script = ExtResource("5")

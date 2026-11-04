@@ -4,11 +4,12 @@ extends Node
 ## this component connects the player's existing combat actions and feedback.
 
 signal reload_charge_thrown(charge: Node3D)
+signal reload_charge_stored
 signal rounds_released(count: int)
 signal shield_pulsed
 
 const PARRY_WINDOW := 0.24
-const BLAST_RADIUS := 5.0
+const BLAST_RADIUS := 6.0
 const SHIELD_PULSE_RADIUS := 7.0
 const COLLECTED_ROUND_DAMAGE := 18.0
 
@@ -25,7 +26,6 @@ var parry_remaining := 0.0
 var feedback := ""
 var feedback_remaining := 0.0
 var _reload_charge_stored := false
-var _empty_reload_pending := false
 var _held_magazine: Node3D
 var _shield_absorbed := false
 var _orbit_time := 0.0
@@ -34,9 +34,6 @@ var _audio := AudioStreamPlayer.new()
 
 
 func _ready() -> void:
-	weapon.reload_started.connect(_on_reload_started)
-	weapon.reload_finished.connect(_on_reload_finished)
-	weapon.selected.connect(_on_weapon_selected)
 	weapon.fired.connect(_on_fired)
 	melee.swing_started.connect(_on_swing_started)
 	health.parried.connect(_on_parried)
@@ -76,7 +73,6 @@ func capacity() -> int:
 func clear() -> void:
 	stored_rounds = 0
 	_reload_charge_stored = false
-	_empty_reload_pending = false
 	_held_magazine.visible = false
 	parry_remaining = 0.0
 	health.parrying = false
@@ -102,26 +98,16 @@ func _process(delta: float) -> void:
 		_orbs[index].position = Vector3(sin(angle) * 0.34, cos(angle) * 0.16 - 0.08, -0.65)
 
 
-func _on_reload_started(_duration: float) -> void:
-	# Switching away cancels this candidate. Granting on completion prevents
-	# empty-reload/cancel loops from manufacturing free explosives.
-	_empty_reload_pending = weapon.ammo == 0 \
-		and stats.get_value(Stats.RELOAD_BLAST_DAMAGE) > 0.0 and not health.is_dead()
-
-
-func _on_reload_finished() -> void:
-	var completed_empty_reload := _empty_reload_pending
-	_empty_reload_pending = false
-	if not completed_empty_reload or weapon.ammo <= 0 or health.is_dead() \
-			or _reload_charge_stored or stats.get_value(Stats.RELOAD_BLAST_DAMAGE) <= 0.0:
+## Only an accepted final shot can grant a charge. No reload callback may
+## manufacture one, and an already-held charge is never replaced.
+func _store_empty_magazine() -> void:
+	if weapon.ammo != 0 or _reload_charge_stored or get_tree().paused or health.is_dead() \
+			or stats.get_value(Stats.RELOAD_BLAST_DAMAGE) <= 0.0:
 		return
 	_reload_charge_stored = true
 	_held_magazine.visible = not weapon.is_scoped()
+	reload_charge_stored.emit()
 	_notify("危险弹匣已储存：按 %s 投出" % KeyHint.of("throw_magazine"))
-
-
-func _on_weapon_selected(_index: int, _data: WeaponData) -> void:
-	_empty_reload_pending = false
 
 
 func has_reload_charge() -> bool:
@@ -166,7 +152,11 @@ func _on_parried(_amount: float, _source: Node) -> void:
 
 
 func _on_fired() -> void:
-	if stored_rounds == 0 or health.is_dead():
+	if get_tree().paused or health.is_dead():
+		return
+	# fired runs once after ammo is consumed, before automatic reload starts.
+	_store_empty_magazine()
+	if stored_rounds == 0:
 		return
 	var count := stored_rounds
 	stored_rounds = 0

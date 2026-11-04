@@ -47,10 +47,10 @@ func _run() -> void:
 	var source := guards[0] as Enemy
 	for frame_index in 4:
 		await get_tree().physics_frame
-	player.weapon.ammo = 0
-	player.weapon.try_reload()
-	player.weapon._finish_reload()
-	_check("completed reload holds a magazine", player.combat_traits.has_reload_charge())
+	player.weapon.ammo = 1
+	_check("last round fires", player.weapon.try_fire())
+	_check("last round immediately stores a magazine before reload completes", player.combat_traits.has_reload_charge()
+		and player.weapon.is_reloading())
 	_check("manual release launches the held magazine", player.combat_traits.try_throw_reload_charge())
 	await get_tree().create_timer(0.10).timeout
 	await _shot("action_01_ejected_magazine")

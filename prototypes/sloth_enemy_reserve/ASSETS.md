@@ -6,7 +6,12 @@
 
 | 文件 | 来源 | SHA-256 |
 | --- | --- | --- |
-| `overlay/actors/enemy/sloth/sloth_visual.gd` | 本项目原创程序几何/材质代码 | `823c07f988c6c00979b5d7129451eb8e7e03a06172e05d57ddccaeab4e65e0c1` |
-| `overlay/assets/materials/sloth_cloth.gdshader` | 本项目原创程序几何/材质代码 | `147a480aa8eb42d0ee125b4e6c5f711780a0c9d9c5a2f60f79b13c4914b1d48b` |
-| `proof/01-lineup.jpg` | 原生渲染截图，压缩为JPEG | `6930317f29d2338a8a8fe622dbcfa40068cc2c3a9f0ba90206eec97c10ca17cd` |
-| `proof/02-mantle-rear.jpg` | 原生渲染截图，压缩为JPEG | `5f9a7af4361a0c283f51480c53073418f47a535baffac967c0e2fb3f3a2d34df` |
+| `overlay/actors/enemy/sloth/sloth_visual.gd` | 本项目原创代码或原生渲染截图 | `4037e19cc1a0f14503b2328a83c297eca1f76f33aefd19bfe47b10aae50c0bc2` |
+| `overlay/actors/enemy/sloth/sloth_shatter.gd` | 本项目原创代码或原生渲染截图 | `69ff9a8adf6963d3881765a4bd30ba32e6bffbba721d8623ffceb0524e4abdd2` |
+| `overlay/assets/materials/sloth_cloth.gdshader` | 本项目原创代码或原生渲染截图 | `3cd8da587583e353f8d587753b34833771f6e5f91838d6411351a45362a7ca59` |
+| `proof/01-lineup.jpg` | 本项目原创代码或原生渲染截图 | `7b6dde9046eb086f5ccddabd5fc4eea73548dcb2a5147a58395c883b0cf546f7` |
+| `proof/02-mantle-rear.jpg` | 本项目原创代码或原生渲染截图 | `31b7b5281058197f70ab2f57e8e582bac19726ae6b7d263e96ef745655228b7a` |
+| `proof/03-impact-shatter.jpg` | 本项目原创代码或原生渲染截图 | `c7f540d31bb63944a1bbd96972deeab6a02c3d02bfd24d94a62f52a1b787f599` |
+| `proof/04-cloak-throw.jpg` | 本项目原创代码或原生渲染截图 | `3d567c3ca02887965b7b89cf51f66020bedeb6cb7166cc6fb8ea5250d920d5ec` |
+
+复用已登记red_crystal_enemy_shards.glb的56片碎屑，实例着色藏青，未增加第三方资源。

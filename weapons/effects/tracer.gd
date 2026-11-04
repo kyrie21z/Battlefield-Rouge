@@ -48,7 +48,10 @@ func _place() -> void:
 	var tail := maxf(_travelled - LENGTH, 0.0)
 	var length := maxf(head - tail, 0.01)
 	var up := Vector3.UP if absf(_direction.dot(Vector3.UP)) < 0.99 else Vector3.RIGHT
-	var basis := Basis.looking_at(_direction, up).scaled(Vector3(1.0, 1.0, length))
+	var basis := Basis.looking_at(_direction, up)
+	# Stretch the local flight axis. World-axis scaling after rotation skews
+	# the streak away from its path when the player turns or pitches the gun.
+	basis.z *= length
 	global_transform = Transform3D(basis, _from + _direction * (head + tail) * 0.5)
 
 

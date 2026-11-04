@@ -28,6 +28,9 @@ var _opening := 0.0
 var _dead := false
 var _death_time := 0.0
 var _built := false
+var _mantle_open := 0.0
+var _mantle: Node3D
+var shatter: SlothShatter
 
 
 func configure(value: int) -> void:
@@ -46,19 +49,25 @@ func _build() -> void:
 	_built = true
 	_cloth = ShaderMaterial.new()
 	_cloth.shader = CLOTH
-	_cloth.set_shader_parameter("cloth_color", Color(0.105, 0.12, 0.145))
+	_cloth.set_shader_parameter("cloth_color", Color(0.025, 0.047, 0.115))
 	_lining = ShaderMaterial.new()
 	_lining.shader = CLOTH
-	_lining.set_shader_parameter("cloth_color", Color(0.105, 0.085, 0.105))
+	_lining.set_shader_parameter("cloth_color", Color(0.07, 0.12, 0.22))
 	_lining.set_shader_parameter("sway", 0.018)
 	_metal = _material(Color(0.22, 0.25, 0.27), 0.7, 0.34)
 	_edge = _material(Color(0.49, 0.46, 0.42), 0.5, 0.42)
-	_dark = _material(Color(0.075, 0.085, 0.10), 0.35, 0.67)
+	_dark = _material(Color(0.025, 0.04, 0.085), 0.35, 0.67)
 	_light = _material(Color(0.65, 0.84, 0.90), 0.2, 0.3)
 	_light.emission_enabled = true
 	_light.emission = Color(0.34, 0.68, 0.8)
 	_light.emission_energy_multiplier = 0.45
 	_crystal = CRYSTAL.duplicate() as ShaderMaterial
+	_crystal.set_shader_parameter("base_color", Color(0.035, 0.075, 0.19))
+	_crystal.set_shader_parameter("emission_color", Color(0.04, 0.08, 0.20))
+	_crystal.set_shader_parameter("rim_color", Color(0.25, 0.48, 0.72))
+	_crystal.set_shader_parameter("spec_color", Color(0.36, 0.52, 0.68))
+	_crystal.set_shader_parameter("inner_glow", 0.06)
+	_crystal.set_shader_parameter("roughness_value", 0.32)
 	model = BODY.instantiate() as Node3D
 	model.name = "RedCrystalBody"
 	add_child(model)
@@ -90,8 +99,8 @@ func set_cast(amount: float) -> void:
 	_cast = clampf(amount, 0.0, 1.0)
 	if _cloth != null:
 		_cloth.set_shader_parameter("cast_amount", _cast)
-		_light.emission_energy_multiplier = 0.45 + _cast * 2.4
-		_crystal.set_shader_parameter("emission_strength", 0.35 + _cast * 0.26)
+		_light.emission_energy_multiplier = 0.35 + _cast * 0.8
+		_crystal.set_shader_parameter("emission_strength", 0.12 + _cast * 0.10)
 
 
 func set_shell_open(amount: float) -> void:
@@ -129,26 +138,38 @@ func play_motion(motion: String) -> void:
 	animation.play(clip, 0.18)
 
 
-func die() -> void:
+func crystal_material() -> ShaderMaterial:
+	return _crystal
+
+
+func set_mantle_open(amount: float) -> void:
+	_mantle_open = clampf(amount, 0.0, 1.0)
+	if _cloth != null:
+		_cloth.set_shader_parameter("mantle_open", _mantle_open)
+		_lining.set_shader_parameter("mantle_open", _mantle_open)
+
+
+func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	if _dead:
 		return
 	_dead = true
 	set_cast(0.0)
 	if animation != null:
-		animation.play("death", 0.12)
+		animation.pause()
+	shatter = SlothShatter.new()
+	# Sibling of the actor, so removing a dead enemy does not orphan the burst.
+	get_parent().get_parent().add_child(shatter)
+	shatter.build(self, global_position + Vector3.UP if point == Vector3.INF else point, direction)
+	model.hide()
+	_outfit.hide()
 
 
 func _process(delta: float) -> void:
 	_time += delta
 	_cloth.set_shader_parameter("visual_time", _time)
 	_lining.set_shader_parameter("visual_time", _time)
-	_update_bones()
-	if _dead:
-		_death_time += delta
-		# Loose clothing folds down with the corpse, then disappears. No standing
-		# cloak or shell remains after the red body has fallen out from under it.
-		_outfit.scale = Vector3.ONE * maxf(0.001, 1.0 - maxf(0.0, _death_time - 0.5) / 0.8)
-		_outfit.visible = _death_time < 1.3
+	if not _dead:
+		_update_bones()
 
 
 func _follow(bone: String, label: String) -> Node3D:
@@ -175,9 +196,19 @@ func _update_bones() -> void:
 
 func _build_lingerer() -> void:
 	var mantle := _follow("Spine", "TornMantle")
+	_mantle = mantle
 	var hood := _follow("Head", "HollowHood")
 	_build_cape(mantle)
 	_build_hood(hood)
+	for side in [-1.0, 1.0]:
+		var shoulder := _plate(mantle, Vector3(side * 0.27, 1.57, 0.05), Vector3(0.42, 0.17, 0.38), _cloth)
+		shoulder.rotation.z = side * -0.2
+	# The hourglass seam repeats on the suspended crystals; readable at range.
+	for path in [[Vector3(-0.16,1.40,0.32),Vector3(0.16,1.40,0.32),Vector3(-0.16,1.07,0.39),Vector3(0.16,1.07,0.39),Vector3(-0.16,1.40,0.32)]]:
+		_polyline(mantle, PackedVector3Array(path), 0.009, _edge)
+
+	_polyline(mantle, PackedVector3Array([Vector3(-0.075,1.39,-0.25),Vector3(0.075,1.39,-0.25),
+		Vector3(-0.075,1.27,-0.26),Vector3(0.075,1.27,-0.26),Vector3(-0.075,1.39,-0.25)]), 0.006, _light)
 	# Split collar, double clasps and the hanging time seals leave the chest red.
 	for side in [-1.0, 1.0]:
 		var collar := _box(mantle, Vector3(side * 0.19, 1.49, -0.14), Vector3(0.20, 0.065, 0.07), _dark)
@@ -199,12 +230,12 @@ func _build_lingerer() -> void:
 
 func _cape_point(u: float, v: float, inner := false) -> Vector3:
 	var angle := lerpf(-2.29, 2.29, u)
-	var r := lerpf(0.40, 0.66, pow(v, 0.7))
+	var r := lerpf(0.43, 0.71, pow(v, 0.7))
 	r += 0.034 * sin(u * 9.0 * TAU + v * 1.9) * sin(PI * v * 0.7)
 	if inner:
 		r -= 0.012
 	var hem := 0.055 * sin(u * 37.0) + 0.038 * sin(u * 79.0 + 1.3)
-	var y := lerpf(1.52 - 0.11 * absf(sin(angle)), 0.38 + hem, v)
+	var y := lerpf(1.64 - 0.11 * absf(sin(angle)), 0.22 + hem, v)
 	return Vector3(sin(angle) * r, y, cos(angle) * r * 0.60 + 0.035)
 
 

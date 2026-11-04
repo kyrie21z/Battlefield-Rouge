@@ -294,12 +294,16 @@ func _test_magazine_slot() -> void:
 	weapon.reserve = 120
 	weapon.try_reload()
 	_magazine_slot.advance(0.0)
-	_check("C stays dark until the empty reload completes", weapon.is_reloading()
+	_check("empty reload alone leaves C dark", weapon.is_reloading()
 		and not traits.has_reload_charge() and not _magazine_slot.slot_ready
 		and _magazine_slot.count_text == "0/1")
 	weapon._process(10.0)
+	weapon.ammo = 1
+	weapon._cooldown = 0.0
+	weapon.try_fire()
 	_magazine_slot.advance(0.0)
-	_check("a completed empty reload lights C and reads 1/1", traits.has_reload_charge()
+	_check("last shot lights C before reload completes and reads 1/1", traits.has_reload_charge()
+		and weapon.is_reloading()
 		and not _magazine_slot.locked and _magazine_slot.slot_ready and _magazine_slot.count_text == "1/1")
 	traits._process(ReloadCharge.FUSE_TIME + 0.1)
 	_magazine_slot.advance(0.0)
@@ -321,12 +325,13 @@ func _test_magazine_slot() -> void:
 		and thrown.size() == 1)
 	for charge in thrown:
 		charge.queue_free()
-	weapon.ammo = 0
+	weapon._reload_left = 0.0
+	weapon._cooldown = 0.0
+	weapon.ammo = 1
 	weapon.reserve = 120
-	weapon.try_reload()
-	weapon._process(10.0)
+	weapon.try_fire()
 	_magazine_slot.advance(0.0)
-	_check("a later completed reload can ready C again", _magazine_slot.slot_ready
+	_check("a later final shot can ready C again", _magazine_slot.slot_ready
 		and _magazine_slot.count_text == "1/1")
 	traits.clear()
 	_magazine_slot.advance(0.0)

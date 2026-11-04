@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[ok] real entry choice enables the dangerous-magazine perk
+[ok] C is unlocked and empty before the final shot
+[ok] saved 01-ready-last-round as JPEG under 300 KB
+SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge-danger-magazine/docs/proof/empty-magazine/01-ready-last-round.jpg ((1280, 720), 60616 bytes)
+[ok] last real rifle shot is accepted
+[ok] one charge is stored synchronously before reload begins
+[ok] automatic reload starts while the charge is already available
+[ok] emptying the gun does not automatically throw or explode
+[ok] C lights up immediately at 1/1 with zero gun ammo
+[ok] saved 02-C-ready-before-reload as JPEG under 300 KB
+SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge-danger-magazine/docs/proof/empty-magazine/02-C-ready-before-reload.jpg ((1280, 720), 67895 bytes)
+[ok] physical C releases one charge before the frozen reload completes
+[ok] C slot returns to 0/1 immediately after release
+[ok] thrown charge uses the requested 6m explosion radius
+[ok] flight explodes exactly once after reaching distant enemies
+[ok] distant explosion applies real damage to multiple enemies
+[ok] distant 6m explosion leaves the thrower unharmed
+[ok] saved 03-distant-impact as JPEG under 300 KB
+SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge-danger-magazine/docs/proof/empty-magazine/03-distant-impact.jpg ((1280, 720), 64518 bytes)
+DISTANT IMPACT: 22.29 m; targets=4; radius=6.0 m
+[ok] world effect freezes during pause
+[ok] orange world wave reaches the advertised 6m radius
+[ok] saved 04-six-metre-pressure-wave as JPEG under 300 KB
+SCREENSHOT D:/CS Games/Rouge/Battlefield-Rouge-danger-magazine/docs/proof/empty-magazine/04-six-metre-pressure-wave.jpg ((1280, 720), 76065 bytes)
+[ok] world explosion recycles after its short presentation
+[ok] proof throws and detonates without finishing the original reload
+EMPTY MAGAZINE VISUAL: 21 checks, 0 failed

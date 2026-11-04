@@ -9,6 +9,7 @@ var _selection := -1
 var _cast := false
 var _yaw := 0.0
 var _distance := 4.7
+var _break_demo := ""
 
 
 func _ready() -> void:
@@ -63,7 +64,7 @@ func _ready() -> void:
 		add_child(pedestal)
 		_label(names[i], Vector3((1-i)*2.7, -0.04,-1.05), 36, Color(0.96,0.93,0.9))
 		_label(subtitles[i], Vector3((1-i)*2.7,-0.28,-1.05), 18, Color(0.54,0.64,0.72))
-	_label("S L O T H   /   R E D   C R Y S T A L   C O V E N", Vector3(0,3.0,0), 30, Color(0.8,0.83,0.87))
+	_label("S L O T H   /   N A V Y   C R Y S T A L   C O V E N", Vector3(0,3.0,0), 30, Color(0.8,0.83,0.87))
 	_label("01   /   ENEMY STUDIES     —     IN-ENGINE MODELS", Vector3(0,2.75,0), 17, Color(0.45,0.55,0.65))
 	_camera = Camera3D.new()
 	_camera.fov = 39
@@ -76,6 +77,8 @@ func _ready() -> void:
 			_selection = int(arg.trim_prefix("--kind="))
 		if arg == "--rear":
 			_yaw = PI
+		if arg.begins_with("--break="):
+			_break_demo = arg.trim_prefix("--break=")
 		if arg == "--cast":
 			_cast = true
 	_update_camera()
@@ -100,6 +103,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_selection = event.keycode - KEY_1
 		elif event.keycode == KEY_0:
 			_selection = -1
+		elif event.keycode == KEY_B:
+			_break_specimen("head")
 		elif event.keycode == KEY_SPACE:
 			_cast = not _cast
 		_update_camera()
@@ -131,8 +136,18 @@ func _process(_delta: float) -> void:
 	for specimen in _specimens:
 		specimen.set_cast(0.8 if _cast else 0.0)
 		specimen.set_shell_open(1.0 if _cast else 0.0)
+		specimen.set_mantle_open(1.0 if _cast else 0.0)
+	if _frames == 76 and not _break_demo.is_empty():
+		_break_specimen(_break_demo)
 	if _frames == 90 and not _shot.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(_shot)
 		print("SLOTH GALLERY: captured ", _shot)
 		get_tree().quit()
+
+
+func _break_specimen(part: String) -> void:
+	var index := maxi(_selection, 0)
+	var specimen := _specimens[index]
+	var offset := Vector3(0, 1.77, -0.1) if part == "head" else Vector3(0.28, 0.55, -0.1)
+	specimen.die(specimen.global_transform * offset, Vector3(0.1, 0.15, 1.0))

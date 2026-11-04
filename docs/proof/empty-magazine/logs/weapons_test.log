@@ -1,0 +1,52 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== the rack (AC-05)
+  [ok] three guns
+  [ok] they are 突击步枪, 霰弹枪, 狙击枪
+  [ok] every gun has a first-person model
+  [ok] the three viewmodels are built
+  [ok] starts on 突击步枪
+== the mouse wheel cycles the rack, and the HUD follows
+  [ok] wheel up moves to 霰弹枪
+  [ok] the HUD shows the gun
+  [ok] wheel up moves to 狙击枪
+  [ok] the wheel wraps around to 突击步枪
+  [ok] wheel down wraps back to 狙击枪
+== every slot keeps its own magazine
+  [ok] 突击步枪 loses one round per shot (30 -> 29)
+  [ok] 霰弹枪 starts full (6 of 6)
+  [ok] switching back keeps 突击步枪's magazine (29)
+  [ok] 霰弹枪's magazine survived too (5)
+== each gun shoots like its own gun
+  [ok] 突击步枪 hits once for 42
+  [ok] 霰弹枪 lands a spread of pellets (99 damage)
+  [ok] 霰弹枪 hurts far more than 突击步枪 up close
+  [ok] 狙击枪 one-shots a guard (115 damage)
+== the numbers behind those three shots
+  [ok] 突击步枪 is automatic with a 30-round magazine
+  [ok] 霰弹枪 fires 9 pellets per trigger pull
+  [ok] 霰弹枪 is one shot per pull
+  [ok] 狙击枪 hits hardest per pull
+  [ok] 狙击枪 is slow and scoped
+  [ok] 霰弹枪 falls off hard with range
+== the empty gun dry-fires and reloads, per slot
+  [ok] an empty 霰弹枪 starts a reload
+  [ok] switching away cancels that reload
+  [ok] ...and the empty magazine is still empty (0)
+== the sniper scope: the wheel zooms instead of switching
+  [ok] 狙击枪 offers 3 magnifications ([2.0, 4.0, 8.0])
+  [ok] hip fire is not scoped
+  [ok] aiming puts the scope up
+  [ok] 2x divides the field of view (37.5° of 75)
+  [ok] the wheel zooms, it does not change guns (狙击枪)
+  [ok] 4x halves the field of view again (18.8°)
+  [ok] the wheel back down returns to 2x
+  [ok] and wraps to the highest magnification (8x)
+  [ok] the scope overlay is on screen
+  [ok] releasing aim drops the scope
+  [ok] the wheel switches guns again once the scope is down (突击步枪)
+ALL PASSED (0 failed)
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

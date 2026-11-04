@@ -16,7 +16,7 @@ import subprocess
 import tarfile
 
 
-BASE_COMMIT = "5004e8cd64d8d7dec12e879033e43d356168d74f"
+BASE_COMMIT = "438fa73e99311607bb6a5d2a0617bf59a7a7b09f"
 PACKAGE = Path(__file__).resolve().parent
 REPOSITORY = PACKAGE.parents[1]
 
@@ -99,7 +99,7 @@ def prepare(output: Path) -> None:
         "[Instructions](reserve-package/README.md) · "
         "[Design](reserve-package/DESIGN.md) · "
         "[Results and pending work](reserve-package/proof/README.md)\n\n"
-        "The default scene is the model gallery. Native dash validation is still pending.\n",
+        "The default scene is the model gallery. See the current validation records for the isolated reserve.\n",
         encoding="utf-8")
     (output / "RESERVE_ORIGIN.json").write_text(
         json.dumps({"base_commit": BASE_COMMIT, "status": "isolated reserve; not integrated"}, indent=2)

@@ -41,8 +41,8 @@ func _ready() -> void:
 	locked_direction = (target.global_position + Vector3.UP * Enemy.AIM_HEIGHT - _origin).normalized()
 	_graphics = Node3D.new()
 	add_child(_graphics)
-	_mat = _material(Color(0.82, 0.26, 0.15, 0.85))
-	_detail_mat = _material(Color(0.82, 0.9, 1.0, 0.85))
+	_mat = _material(Color(0.18, 0.40, 0.62, 0.72))
+	_detail_mat = _material(Color(0.65, 0.79, 0.88, 0.6))
 	if kind == 0:
 		_build_volley()
 	else:
@@ -67,20 +67,23 @@ func _physics_process(delta: float) -> void:
 	elapsed += delta
 	if elapsed < warning_time():
 		var progress := elapsed / warning_time()
-		_mat.emission_energy_multiplier = 0.8 + progress * 1.5
+		_mat.emission_energy_multiplier = 0.35 + progress * 0.5
 		if kind == 0:
+			caster.visual.set_mantle_open(smoothstep(0.45, 0.9, progress))
+			caster.set_core_exposed(progress > 0.65)
 			for orb in _orbs:
-				orb.rotation += Vector3(0.6, 1.7, 0.8) * delta
+				orb.rotation += Vector3(0.0, 0.6, 0.0) * delta
 				orb.scale = Vector3.ONE * (0.8 + progress * 0.6)
 		else:
-			_ring.scale = Vector3.ONE * (0.18 + progress * 0.82)
+			_ring.scale = Vector3.ONE
+			_mat.albedo_color.a = 0.22 + progress * 0.45
 			caster.visual.set_shell_open(progress if kind == 2 else 0.0)
 			if kind == 2:
 				caster.set_core_exposed(progress > 0.65)
 		return
 	if phase == 0:
 		phase = 1
-		_mat.albedo_color = Color(0.9, 0.35, 0.19, 0.9)
+		_mat.albedo_color = Color(0.32, 0.62, 0.82, 0.8)
 		_audio.stream = _tone(true)
 		_audio.play()
 		if kind == 0:
@@ -91,7 +94,7 @@ func _physics_process(delta: float) -> void:
 			while _released < 2 and active_time >= float(_released) * 0.18:
 				var from := _volley[_released]
 				Projectile.spawn(caster.get_parent(), from, _volley_directions[_released], caster,
-					9.0, 13.0, caster._hitbox_rids, Color(1.0, 0.27, 0.12))
+					9.0, 13.0, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
 				_orbs[_released].hide()
 				_released += 1
 			if active_time >= 0.25:
@@ -152,6 +155,8 @@ func _clear_path(from: Vector3, to: Vector3) -> bool:
 
 
 func cancel() -> void:
+	if is_instance_valid(caster) and is_instance_valid(caster.visual):
+		caster.visual.set_mantle_open(0.0)
 	if _cancelled:
 		return
 	_cancelled = true
@@ -190,21 +195,28 @@ func _build_volley() -> void:
 		var direction := (locked_point - from).normalized()
 		_volley_directions.append(direction)
 		var orb := MeshInstance3D.new()
-		var mesh := PrismMesh.new()
-		mesh.size = Vector3(0.17, 0.25, 0.17)
+		var mesh := SphereMesh.new()
+		mesh.radius = 0.075
+		mesh.height = 0.30
+		mesh.radial_segments = 4
+		mesh.rings = 2
 		orb.mesh = mesh
 		orb.material_override = _mat
 		orb.position = from
 		_graphics.add_child(orb)
 		_orbs.append(orb)
-		var direction_mark := MeshInstance3D.new()
-		var marker := BoxMesh.new()
-		marker.size = Vector3(0.025, 0.025, 2.6)
-		direction_mark.mesh = marker
-		direction_mark.material_override = _detail_mat
-		_graphics.add_child(direction_mark)
-		direction_mark.position = from + direction * 1.5
-		direction_mark.look_at(direction_mark.position + direction)
+		# Small chevrons announce the locked direction without long floating beams.
+		for flank in [-1.0, 1.0]:
+			var fin := MeshInstance3D.new()
+			var marker := BoxMesh.new()
+			marker.size = Vector3(0.012, 0.012, 0.18)
+			fin.mesh = marker
+			fin.material_override = _detail_mat
+			_graphics.add_child(fin)
+			fin.position = from + direction * 0.25 + side * flank * 0.045
+			fin.look_at(fin.position + direction)
+			fin.rotate_y(flank * 0.4)
+
 
 
 func _build_field() -> void:
@@ -229,7 +241,7 @@ func _build_field() -> void:
 		box.size = Vector3(0.07, 0.035, 0.32)
 		mark.mesh = box
 		mark.material_override = _detail_mat
-		mark.position = field_center + Vector3(sin(angle + yaw), 0.02, cos(angle + yaw)) * (radius - 0.3)
+		mark.position = field_center + Vector3(sin(angle + yaw), 0.0, cos(angle + yaw)) * (radius - 0.3) + Vector3.UP * 0.02
 		mark.rotation.y = angle + yaw
 		_graphics.add_child(mark)
 	if kind == 2:
@@ -240,7 +252,7 @@ func _build_field() -> void:
 			edge.mesh = box
 			edge.material_override = _detail_mat
 			var angle: float = yaw + gap * sign_value
-			edge.position = field_center + Vector3(sin(angle), 0.03, cos(angle)) * radius * 0.5
+			edge.position = field_center + Vector3(sin(angle), 0.0, cos(angle)) * radius * 0.5 + Vector3.UP * 0.03
 			edge.rotation.y = angle
 			_graphics.add_child(edge)
 
@@ -273,7 +285,7 @@ static func _material(color: Color) -> StandardMaterial3D:
 	material.albedo_color = color
 	material.emission_enabled = true
 	material.emission = color
-	material.emission_energy_multiplier = 1.0
+	material.emission_energy_multiplier = 0.55
 	return material
 
 

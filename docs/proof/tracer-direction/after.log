@@ -1,0 +1,113 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[ok] rifle real shot accepted
+[ok] rifle spawns the configured number of tracers
+[ok] rifle t=0.40 actual mesh endpoints stay on the original shot line
+[ok] rifle t=0.40 actual width stays 0.014m on both local axes
+[ok] rifle t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] rifle t=2.00 actual mesh endpoints stay on the original shot line
+[ok] rifle t=2.00 actual width stays 0.014m on both local axes
+[ok] rifle t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] rifle t=7.00 actual mesh endpoints stay on the original shot line
+[ok] rifle t=7.00 actual width stays 0.014m on both local axes
+[ok] rifle t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000004, head_error=0.000000
+[ok] rifle t=32.23 actual mesh endpoints stay on the original shot line
+[ok] rifle t=32.23 actual width stays 0.014m on both local axes
+[ok] rifle t=32.23 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=32.23: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000001
+[ok] saved after-01-first-person as JPEG under 150KB
+SCREENSHOT after-01-first-person.jpg ((1280, 720), 52089 bytes)
+[ok] saved after-02-observer as JPEG under 150KB
+SCREENSHOT after-02-observer.jpg ((1280, 720), 45201 bytes)
+[ok] shotgun real shot accepted
+[ok] shotgun spawns the configured number of tracers
+[ok] shotgun t=0.40 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=0.40 actual width stays 0.014m on both local axes
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] shotgun t=2.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=2.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] shotgun t=7.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=7.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] shotgun t=61.86 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=61.86 actual width stays 0.014m on both local axes
+[ok] shotgun t=61.86 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.86: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000008, head_error=0.000000
+[ok] shotgun t=0.40 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=0.40 actual width stays 0.014m on both local axes
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000004
+[ok] shotgun t=2.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=2.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000004
+[ok] shotgun t=7.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=7.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] shotgun t=61.84 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=61.84 actual width stays 0.014m on both local axes
+[ok] shotgun t=61.84 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.84: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000002
+[ok] shotgun t=0.40 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=0.40 actual width stays 0.014m on both local axes
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000004
+[ok] shotgun t=2.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=2.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000004
+[ok] shotgun t=7.00 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=7.00 actual width stays 0.014m on both local axes
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] shotgun t=61.85 actual mesh endpoints stay on the original shot line
+[ok] shotgun t=61.85 actual width stays 0.014m on both local axes
+[ok] shotgun t=61.85 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.85: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000008, head_error=0.000008
+[ok] sniper real shot accepted
+[ok] sniper spawns the configured number of tracers
+[ok] sniper t=0.40 actual mesh endpoints stay on the original shot line
+[ok] sniper t=0.40 actual width stays 0.014m on both local axes
+[ok] sniper t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] sniper t=2.00 actual mesh endpoints stay on the original shot line
+[ok] sniper t=2.00 actual width stays 0.014m on both local axes
+[ok] sniper t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] sniper t=7.00 actual mesh endpoints stay on the original shot line
+[ok] sniper t=7.00 actual width stays 0.014m on both local axes
+[ok] sniper t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] sniper t=123.00 actual mesh endpoints stay on the original shot line
+[ok] sniper t=123.00 actual width stays 0.014m on both local axes
+[ok] sniper t=123.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=123.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000004, head_error=0.000000
+[ok] scoped-sniper real shot accepted
+[ok] scoped-sniper spawns the configured number of tracers
+[ok] sniper is genuinely scoped with the gun model hidden
+[ok] scoped-sniper t=0.40 actual mesh endpoints stay on the original shot line
+[ok] scoped-sniper t=0.40 actual width stays 0.014m on both local axes
+[ok] scoped-sniper t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=0.40: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] scoped-sniper t=2.00 actual mesh endpoints stay on the original shot line
+[ok] scoped-sniper t=2.00 actual width stays 0.014m on both local axes
+[ok] scoped-sniper t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=2.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000000, head_error=0.000000
+[ok] scoped-sniper t=7.00 actual mesh endpoints stay on the original shot line
+[ok] scoped-sniper t=7.00 actual width stays 0.014m on both local axes
+[ok] scoped-sniper t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=7.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000004, head_error=0.000008
+[ok] scoped-sniper t=123.00 actual mesh endpoints stay on the original shot line
+[ok] scoped-sniper t=123.00 actual width stays 0.014m on both local axes
+[ok] scoped-sniper t=123.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=123.00: alignment=1.000000, width=(0.014000,0.014000), tail_error=0.000002, head_error=0.000002
+TRACER DIRECTION FIXED: 83 checks, 0 failed

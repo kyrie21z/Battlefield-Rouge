@@ -7,13 +7,13 @@ extends Resource
 ## milliseconds before or after the hit moment.
 @export_range(1.0, 400.0, 1.0, "suffix:ms") var perfect_window_ms := 150.0
 ## Progress an ordinary swing adds, in percent of the whole capture.
-@export_range(0.5, 50.0, 0.5, "suffix:%") var normal_progress_percent := 8.0
+@export_range(0.5, 50.0, 0.5, "suffix:%") var normal_progress_percent := 10.0
 ## A perfect strike adds the ordinary progress times this.
-@export_range(1.0, 5.0, 0.1) var perfect_multiplier := 1.5
+@export_range(1.0, 5.0, 0.1) var perfect_multiplier := 2.0
 ## When this is above 0, every swing that lands adds this fraction of the
 ## capture, perfect or not. 0 keeps the percent and the multiplier. The boss
 ## core sets it to 1 so one hammer finishes the building; small zones leave it
-## at 0 and stay on +8% / ×1.5.
+## at 0 and stay on +10% / ×2.0.
 @export_range(0.0, 1.0, 0.05) var progress_per_swing := 0.0
 
 

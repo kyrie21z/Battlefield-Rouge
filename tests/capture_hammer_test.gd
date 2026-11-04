@@ -35,9 +35,9 @@ func _run() -> void:
 	print("== config (AC-03)")
 	_check("config comes from %s" % CONFIG_PATH, point.config.resource_path == CONFIG_PATH)
 	_check("window is 150 ms", is_equal_approx(point.config.perfect_window_ms, 150.0))
-	_check("ordinary swing is 8%", is_equal_approx(point.config.normal_progress(), 0.08))
-	_check("perfect multiplier is 1.5", is_equal_approx(point.config.perfect_multiplier, 1.5))
-	_check("perfect swing is worth 12%", is_equal_approx(point.config.perfect_progress(), 0.12))
+	_check("ordinary swing is 10%", is_equal_approx(point.config.normal_progress(), 0.10))
+	_check("perfect multiplier is 2.0", is_equal_approx(point.config.perfect_multiplier, 2.0))
+	_check("perfect swing is worth 20%", is_equal_approx(point.config.perfect_progress(), 0.20))
 
 	print("== stage 1: clear the guards (AC-01)")
 	_check("starts in CLEAR_GUARDS", director.phase == ZoneDirector.Phase.CLEAR_GUARDS)
@@ -62,22 +62,23 @@ func _run() -> void:
 	_check("walking up to the building puts the player in reach", point.player_in_reach)
 
 	point.resolve_swing(2.0)
-	_expect_last("on the beat is perfect", true, 0.12)
-	_check("progress is 12%", is_equal_approx(point.progress, 0.12))
+	_expect_last("on the beat is perfect", true, 0.20)
+	_check("progress is 20%", is_equal_approx(point.progress, 0.20))
 	point.resolve_swing(3.14)
-	_expect_last("+140 ms is perfect", true, 0.12)
+	_expect_last("+140 ms is perfect", true, 0.20)
 	point.resolve_swing(3.86)
-	_expect_last("-140 ms is perfect", true, 0.12)
+	_expect_last("-140 ms is perfect", true, 0.20)
 	var before := point.progress
 	point.resolve_swing(5.16)
-	_expect_last("+160 ms is an ordinary swing", false, 0.08)
+	_expect_last("+160 ms is an ordinary swing", false, 0.10)
 	point.resolve_swing(5.84)
-	_expect_last("-160 ms is an ordinary swing", false, 0.08)
+	_expect_last("-160 ms is an ordinary swing", false, 0.10)
 	point.resolve_swing(6.5)
-	_expect_last("mid-way between beats is an ordinary swing", false, 0.08)
-	_check("progress added matches the strikes", is_equal_approx(point.progress, before + 0.24))
+	_expect_last("mid-way between beats is an ordinary swing", false, 0.10)
+	_check("progress added matches the strikes", is_equal_approx(point.progress, before + 0.30))
 
 	print("== feedback is separate (AC-03)")
+	point.progress = 0.0
 	point.resolve_swing(7.0)
 	var perfect_stream := point._audio.stream as AudioStreamWAV
 	var perfect_flash := point._material.emission
@@ -94,12 +95,12 @@ func _run() -> void:
 	var tuned := original.duplicate() as CaptureConfig
 	tuned.perfect_window_ms = 50.0
 	tuned.normal_progress_percent = 2.0
-	tuned.perfect_multiplier = 2.0
+	tuned.perfect_multiplier = 3.0
 	point.config = tuned
 	point.resolve_swing(10.1)
 	_expect_last("+100 ms is ordinary once the window is 50 ms", false, 0.02)
 	point.resolve_swing(11.04)
-	_expect_last("+40 ms is perfect with a 50 ms window (2% x 2.0)", true, 0.04)
+	_expect_last("+40 ms is perfect with a 50 ms window (2% x 3.0)", true, 0.06)
 	point.config = original
 
 	print("== progress never drops")
@@ -183,7 +184,7 @@ func _run() -> void:
 	_check("eight blocks before the first quarter", point.fracture_stage == 0 and point.intact_block_count() == 8)
 	point.add_capture_progress(0.25)
 	_check("25% drops the first pair", point.fracture_stage == 1 and point.intact_block_count() == 6)
-	point.struck.emit(false, 40.0, 0.08)
+	point.struck.emit(false, 40.0, 0.10)
 	_check("an ordinary hit throws chips", point.get_node_or_null("Chips") != null)
 	point.add_capture_progress(0.25)
 	_check("50% drops the next pair", point.fracture_stage == 2 and point.intact_block_count() == 4)

@@ -35,7 +35,7 @@
 | 视图模型亮度 | `MeleeData.view_brightness` | 视图模型不受光，材质亮度只能在这里提。斧头是深炭色，1.6 才看得清；匕首和太刀保持 1.0。 |
 | 命中时刻 | `CapturePoint.BEAT_PERIOD`，`beat_offset()` | 据点开放后每 1 秒出现一次，首次在 0.5 秒后。挥锤时刻离最近的命中时刻有多远，决定是不是完美打击。见 ADR 0003。 |
 | 完美打击 | `CapturePoint.struck(perfect=true)` | 挥锤落在命中时刻 ±`perfect_window_ms` 内：本次进度 ×`perfect_multiplier`，金色音效、闪光和屏幕闪（AC-03）。窗口外是普通锤击：钝响，短促白光，只记普通进度。 |
-| 占点配置 | `CaptureConfig`，`zone/capture_config.tres` | AC-03 的三个数：窗口 150ms、普通 +8%、完美 ×1.5。试玩只改这个文件。节拍周期和冷却是规则，写在代码常量里。 |
+| 占点配置 | `CaptureConfig`，`zone/capture_config.tres` | AC-03 的三个数：窗口 150ms、普通 +10%、完美 ×2.0。试玩只改这个文件。节拍周期和冷却是规则，写在代码常量里。 |
 | 起点 | Fixture，`RunFixture`，`fixtures/*.tres` | 一局的可命名起点：开始的战区、已有增益、随机种子（AC-07）。现有 FX-001（新开一局）、FX-002（Boss 起点）。死亡或胜利后重开回到同一起点。`--fixture=<id>` 从命令行进入。见 ADR 0005。 |
 | 种子 | `RunState.run_seed`，`zone_seed()` | 一局所有随机数的来源。战区开头 `seed(zone_seed())`。普通局每次新开换一个，fixture 局固定。 |
 | 游戏时间 | `SimClock` | 从战区开头数起的物理 tick 时间，不读墙钟。节拍和掩体冷却用它，固定步长下每次运行相同。 |
@@ -55,7 +55,7 @@
 | 能力槽 | `AbilityBar`，`AbilitySlot` | 图形 HUD 右下方的 G 护盾、V 近战、C 弹匣方槽。C 无增益时锁定，有增益但未储存时暗态 `0/1`，储存后亮态 `1/1`，投出回暗态；不在护盾槽重复画危险弹匣角标。 |
 | 受击反馈 | `Health.damaged`，`HUD`，`DamageIndicator` | 玩家中枪时的呈现：边缘红色暗角（中心不填色）、受击音效（0.06 秒内的命中合成一次）、指向攻击者的屏幕边缘弧线（存命中时的世界位置，按玩家朝向每帧重算）、只晃渲染相机的镜头后坐，以及 30% 生命以下的脉冲暗角与心跳（35% 以上退出）。格挡和弹反不是掉血，没有这套反馈。 |
 | 击杀反馈 | `HitReaction`，`HUD.KillText`，`DebrisBurst.spawn_death()` | 击杀时的呈现：模型向射击者反方向偏 23°（只动 mesh，不动 CharacterBody 和 hitbox），胸口（爆头在头部、Boss 2.5 倍）爆出体块与 0.12 秒亮光，准星下方显示「击杀」/「爆头击杀」/「双杀」/「三杀」/「连杀 ×N」；爆头击杀的 hitstop 是 0.075 秒，普通击杀 0.05 秒。 |
-| 锤击反馈 | `CapturePoint.struck` / `fractured` / `captured`，`hammer_hit` / `hammer_perfect` / `hammer_break` | 锤据点时的呈现：每次命中晃渲染相机（普通 0.45°、完美 0.9° 加 0.035 秒 hitstop），未碎方块挤压回弹，普通/完美分别爆 14 / 30 片石屑和尘雾，准星上方浮出白色「+8%」/ 金色「+12%」（打击条只显示「完美打击」或「偏早/偏晚 N ms」）；每 25% 掉落一组方块并爆中号碎屑；100% 时炸出黄铜齿轮、齿圈、细杆等钟表零件，配暖光、尘环和一声重碎的 `hammer_break`。 |
+| 锤击反馈 | `CapturePoint.struck` / `fractured` / `captured`，`hammer_hit` / `hammer_perfect` / `hammer_break` | 锤据点时的呈现：每次命中晃渲染相机（普通 0.45°、完美 0.9° 加 0.035 秒 hitstop），未碎方块挤压回弹，普通/完美分别爆 14 / 30 片石屑和尘雾，准星上方浮出白色「+10%」/ 金色「+20%」（打击条只显示「完美打击」或「偏早/偏晚 N ms」）；每 25% 掉落一组方块并爆中号碎屑；100% 时炸出黄铜齿轮、齿圈、细杆等钟表零件，配暖光、尘环和一声重碎的 `hammer_break`。 |
 | 小地图 | `Minimap`，`ZoneDirector.living_enemies()`，`reinforcement_spawned` | HUD 右上角的圆形小地图（200 px）：玩家居中、随朝向旋转，28 米范围；`Geometry` 下的方块缓存成俯视多边形，敌人红点（逃跑的变淡）、Boss 大暗红菱形、据点/增益台按 WorldMarker 配色，超出范围的目标钳到边缘成小三角；增援出生时在对应方向闪 1.2 秒红脉冲；开镜时隐藏。 |
 | 阶段横幅 | `PhaseBanner`，`HUD/PhaseBanner` | 每次阶段变化在画面 24% 高度处弹出一条大标题 + 副标题：战斗开始、据点开放、增援来袭（每关只一次，排在据点开放之后）、据点已占领、Boss 现身、砸碎城市核心。弹出 0.15 秒、停留约 2.8 秒、淡出 0.4 秒；开镜、增益选择和死亡时隐藏。左上角目标面板仍是常驻提醒，横幅标题不照抄面板原句。 |
 | 数值 | `Stats` | 基础数值加上增益修正。新的 9 条也只走这里。 |

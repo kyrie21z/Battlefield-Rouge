@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_cfg")
-interval_seconds = 8.0
+interval_seconds = 10.0
 per_wave = 2
-max_alive = 6
+max_alive = 5
 flee_timeout_seconds = 14.0

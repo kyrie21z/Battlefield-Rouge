@@ -23,19 +23,20 @@ const AIM_HEIGHT := 1.3
 
 @export_category("Combat")
 @export var engage_range := 25.0
-@export var reaction_time := 0.5
+@export var reaction_time := 0.7
 @export var burst_size := 3
 @export var burst_interval := 0.14
-@export var burst_pause := 1.0
-## Cone half-angle of each shot. At 20 m, 2.2 deg lands about 40% on a still player.
-@export var accuracy_deg := 2.2
+@export var burst_pause := 1.4
+## Cone half-angle of each shot. At 20 m, 3.0 deg spreads the shots over a
+## circle about 2 m across.
+@export var accuracy_deg := 3.0
 ## Enemy bullets are slow, visible projectiles so the player can dodge them.
 ## Shots aim at where the player is now, with no lead.
-@export var projectile_speed := 30.0
+@export var projectile_speed := 22.0
 ## Spread multiplier when the target moves faster than 3 m/s.
 @export var moving_target_penalty := 1.6
-@export var damage_min := 8.0
-@export var damage_max := 12.0
+@export var damage_min := 6.0
+@export var damage_max := 9.0
 ## Closer than this the enemy backs off to a firing position instead of firing.
 @export var min_engage_distance := 6.0
 

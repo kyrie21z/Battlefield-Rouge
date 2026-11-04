@@ -393,7 +393,7 @@ func _on_banner_reinforcement(_position: Vector3) -> void:
 	_banner.play("增援来袭", "守住据点，继续砸", PhaseBanner.TITLE_RED, PhaseBanner.QUEUE_MIN_HOLD)
 
 
-## "+8%" in white or "+12%" in gold (the strike bar already says 完美打击).
+## "+10%" in white or "+20%" in gold (the strike bar already says 完美打击).
 func _show_strike_text(worth: float, perfect: bool) -> void:
 	var percent := roundi(worth * 100.0)
 	_strike_text.text = "+%d%%" % percent

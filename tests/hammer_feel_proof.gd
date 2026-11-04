@@ -50,13 +50,13 @@ func _ready() -> void:
 	_point.player_in_reach = true
 	await _frames(20)
 
-	# 1. Ordinary strike: chips, the block punch and "+8%".
+	# 1. Ordinary strike: chips, the block punch and "+10%".
 	_point.resolve_swing(2.3)
 	await _seconds(0.1)
 	_shot("01_ordinary_strike")
 	await _seconds(0.7)
 
-	# 2. Perfect strike: more chips and the gold "+12%".
+	# 2. Perfect strike: more chips and the gold "+20%".
 	_point.resolve_swing(3.0)
 	await _seconds(0.28)
 	_shot("02_perfect_strike")

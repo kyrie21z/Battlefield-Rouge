@@ -71,6 +71,7 @@ func _test_normal_strike() -> void:
 
 func _test_perfect_strike() -> void:
 	print("== a perfect strike")
+	_point.progress = 0.0
 	var want := "+%d%%" % roundi(_point.config.perfect_progress() * 100.0)
 	_hud.last_strike_shake = 0.0
 	HitStop.last_requested = 0.0

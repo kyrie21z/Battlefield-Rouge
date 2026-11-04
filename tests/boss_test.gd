@@ -98,7 +98,7 @@ func _run() -> void:
 	_check("the core is locked", point.locked)
 	_check("the objective says to fell the boss", director.objective == "打倒 Boss" and objective.text == "击倒 Boss" and objective.visible)
 	_check("one hammer would finish the core", is_equal_approx(point.config.progress_per_swing, 1.0))
-	_check("small zones still use the 8% rhythm", shared.resource_path == CONFIG_PATH and is_zero_approx(shared.progress_per_swing) and is_equal_approx(shared.normal_progress(), 0.08))
+	_check("small zones still use the 10% rhythm", shared.resource_path == CONFIG_PATH and is_zero_approx(shared.progress_per_swing) and is_equal_approx(shared.normal_progress(), 0.10))
 	_check("seven enemies are alive and the core stays shut", director.enemies_total == 7 and not boss.health.is_dead())
 	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
 	for i in 6:

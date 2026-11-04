@@ -450,6 +450,7 @@ func _tracers() -> Array[Node]:
 
 func _test_tracers() -> void:
 	print("== tracers")
+	_test_tracer_geometry()
 	var start := Tracer.spawn(self, Vector3(0, 2, 0), Vector3(0, 2, -40))
 	_check("a tracer flies along muzzle -> hit (%.0f m)" % start._distance, absf(start._distance - 40.0) < 0.01
 		and start._direction.is_equal_approx(Vector3(0, 0, -1)))
@@ -516,6 +517,68 @@ func _test_tracers() -> void:
 	_check("tracers add no global random draws", plain == with_effects)
 	_check("they draw from the private generator instead", _weapon._feel_rng.state != feel_before)
 	await _seconds(1.5)
+
+
+func _test_tracer_geometry() -> void:
+	# Observe face centres and widths of the actual mesh in world space. Merely
+	# checking _direction misses a mesh stretched along the wrong coordinate axes.
+	var cases := {
+		"forward": Vector3.FORWARD,
+		"yaw 45": Vector3.FORWARD.rotated(Vector3.UP, PI * 0.25),
+		"yaw 90": Vector3.FORWARD.rotated(Vector3.UP, PI * 0.5),
+		"yaw 135": Vector3.FORWARD.rotated(Vector3.UP, PI * 0.75),
+		"pitch up": Vector3(-0.4, 0.6, -0.7).normalized(),
+		"pitch down": Vector3(0.4, -0.6, -0.7).normalized(),
+		"vertical up": Vector3.UP,
+		"vertical down": Vector3.DOWN,
+		"nearly vertical": Vector3(0.01, 1.0, -0.01).normalized(),
+	}
+	var origin := Vector3(4.5, 2.7, -9.3)
+	for transformed_parent in [false, true]:
+		var parent := Node3D.new()
+		add_child(parent)
+		if transformed_parent:
+			parent.position = Vector3(3, -2, 1)
+			parent.rotation = Vector3(0.3, -0.4, 0.25)
+			parent.scale = Vector3(2.0, 0.6, 1.7)
+		for label: String in cases:
+			var direction: Vector3 = cases[label]
+			var tracer := Tracer.spawn(parent, origin, origin + direction * 20.0)
+			tracer.set_process(false)
+			var context := "%s / %s parent" % [label, "rotated and scaled" if transformed_parent else "identity"]
+			# At spawn the minimum 0.01m segment is centred on the muzzle. It
+			# is shorter than THICKNESS, so explicitly measure the mesh's Z faces.
+			_check_tracer_mesh(context + " / initial", tracer,
+				origin + direction * 0.005, origin - direction * 0.005, direction)
+			tracer._process(6.5 / Tracer.SPEED)
+			_check_tracer_mesh(context + " / full flight", tracer,
+				origin + direction * 6.5, origin + direction * 1.5, direction)
+			tracer._process(16.0 / Tracer.SPEED)
+			_check_tracer_mesh(context + " / shortened tail", tracer,
+				origin + direction * 20.0, origin + direction * 17.5, direction)
+			tracer.free()
+		parent.free()
+
+
+func _check_tracer_mesh(label: String, tracer: Tracer, expected_head: Vector3,
+		expected_tail: Vector3, direction: Vector3) -> void:
+	var bounds := tracer.mesh.get_aabb()
+	var center := bounds.get_center()
+	var transform := tracer.global_transform
+	var head := transform * (center - Vector3(0, 0, bounds.size.z * 0.5))
+	var tail := transform * (center + Vector3(0, 0, bounds.size.z * 0.5))
+	var left := transform * (center - Vector3(bounds.size.x * 0.5, 0, 0))
+	var right := transform * (center + Vector3(bounds.size.x * 0.5, 0, 0))
+	var bottom := transform * (center - Vector3(0, bounds.size.y * 0.5, 0))
+	var top := transform * (center + Vector3(0, bounds.size.y * 0.5, 0))
+	var width := left.distance_to(right)
+	var height := bottom.distance_to(top)
+	var axis_dot := (head - tail).normalized().dot(direction)
+	var endpoint_error := maxf(head.distance_to(expected_head), tail.distance_to(expected_tail))
+	_check("%s: mesh axis %.6f, endpoint error %.6fm, width %.4f x %.4fm" % [
+		label, axis_dot, endpoint_error, width, height],
+		axis_dot > 0.99999 and endpoint_error < 0.0001
+		and absf(width - Tracer.THICKNESS) < 0.0001 and absf(height - Tracer.THICKNESS) < 0.0001)
 
 
 func _test_hitstop(scene: Node) -> void:

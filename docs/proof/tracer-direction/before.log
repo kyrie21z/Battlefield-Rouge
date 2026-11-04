@@ -1,0 +1,89 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+[ok] rifle real shot accepted
+[ok] rifle spawns the configured number of tracers
+[ok] rifle t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] rifle t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=0.40: alignment=0.957093, width=(0.008575,0.013936), tail_error=0.260605, head_error=0.260605
+[ok] rifle t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] rifle t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=2.00: alignment=0.945168, width=(0.025167,0.014225), tail_error=0.434340, head_error=0.434340
+[ok] rifle t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] rifle t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=7.00: alignment=0.754950, width=(0.060786,0.015708), tail_error=1.737364, head_error=1.737361
+[ok] rifle t=32.23 reproduces the old mesh/shot direction mismatch
+[ok] rifle t=32.23 leaves the shot origin/direction/path unchanged
+GEOMETRY rifle t=32.23: alignment=0.945168, width=(0.025167,0.014225), tail_error=0.434340, head_error=0.434340
+[ok] saved before-01-first-person as JPEG under 150KB
+SCREENSHOT before-01-first-person.jpg ((1280, 720), 52076 bytes)
+[ok] saved before-02-observer as JPEG under 150KB
+SCREENSHOT before-02-observer.jpg ((1280, 720), 45384 bytes)
+[ok] shotgun real shot accepted
+[ok] shotgun spawns the configured number of tracers
+[ok] shotgun t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=0.967824, width=(0.007925,0.013948), tail_error=0.271308, head_error=0.271308
+[ok] shotgun t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=0.950616, width=(0.025917,0.014185), tail_error=0.452174, head_error=0.452174
+[ok] shotgun t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=0.745834, width=(0.063257,0.015418), tail_error=1.808708, head_error=1.808705
+[ok] shotgun t=61.86 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=61.86 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.86: alignment=0.950615, width=(0.025917,0.014185), tail_error=0.452174, head_error=0.452182
+[ok] shotgun t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=0.976673, width=(0.007397,0.013937), tail_error=0.279634, head_error=0.279631
+[ok] shotgun t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=0.958236, width=(0.026469,0.014222), tail_error=0.466055, head_error=0.466051
+[ok] shotgun t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=0.748607, width=(0.065059,0.015692), tail_error=1.864219, head_error=1.864219
+[ok] shotgun t=61.84 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=61.84 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.84: alignment=0.958235, width=(0.026469,0.014222), tail_error=0.466058, head_error=0.466058
+[ok] shotgun t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=0.40: alignment=0.965971, width=(0.008133,0.013892), tail_error=0.269511, head_error=0.269507
+[ok] shotgun t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=2.00: alignment=0.949407, width=(0.025686,0.014380), tail_error=0.449183, head_error=0.449179
+[ok] shotgun t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=7.00: alignment=0.746669, width=(0.062499,0.016800), tail_error=1.796730, head_error=1.796730
+[ok] shotgun t=61.85 reproduces the old mesh/shot direction mismatch
+[ok] shotgun t=61.85 leaves the shot origin/direction/path unchanged
+GEOMETRY shotgun t=61.85: alignment=0.949406, width=(0.025686,0.014380), tail_error=0.449194, head_error=0.449179
+[ok] sniper real shot accepted
+[ok] sniper spawns the configured number of tracers
+[ok] sniper t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] sniper t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=0.40: alignment=0.986106, width=(0.006816,0.013918), tail_error=0.288112, head_error=0.288112
+[ok] sniper t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] sniper t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=2.00: alignment=0.970512, width=(0.027020,0.014291), tail_error=0.480186, head_error=0.480186
+[ok] sniper t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] sniper t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=7.00: alignment=0.774457, width=(0.066849,0.016179), tail_error=1.920745, head_error=1.920745
+[ok] sniper t=123.00 reproduces the old mesh/shot direction mismatch
+[ok] sniper t=123.00 leaves the shot origin/direction/path unchanged
+GEOMETRY sniper t=123.00: alignment=0.970512, width=(0.027020,0.014291), tail_error=0.480186, head_error=0.480186
+[ok] scoped-sniper real shot accepted
+[ok] scoped-sniper spawns the configured number of tracers
+[ok] sniper is genuinely scoped with the gun model hidden
+[ok] scoped-sniper t=0.40 reproduces the old mesh/shot direction mismatch
+[ok] scoped-sniper t=0.40 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=0.40: alignment=0.988303, width=(0.006515,0.013988), tail_error=0.290035, head_error=0.290035
+[ok] scoped-sniper t=2.00 reproduces the old mesh/shot direction mismatch
+[ok] scoped-sniper t=2.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=2.00: alignment=0.974139, width=(0.027284,0.014043), tail_error=0.483393, head_error=0.483393
+[ok] scoped-sniper t=7.00 reproduces the old mesh/shot direction mismatch
+[ok] scoped-sniper t=7.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=7.00: alignment=0.787109, width=(0.067699,0.014337), tail_error=1.933571, head_error=1.933578
+[ok] scoped-sniper t=123.00 reproduces the old mesh/shot direction mismatch
+[ok] scoped-sniper t=123.00 leaves the shot origin/direction/path unchanged
+GEOMETRY scoped-sniper t=123.00: alignment=0.974138, width=(0.027284,0.014043), tail_error=0.483389, head_error=0.483389
+TRACER DIRECTION BASELINE: 59 checks, 0 failed

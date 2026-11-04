@@ -214,5 +214,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 
 该着色器写 `ALPHA`，混合材质不参与阴影贴图，所以 `shadow_body.gd` 用一层不透明的灰白
 `StandardMaterial3D` 当 `material_override` 负责投影，晶体材质放在 `material_overlay`
-负责外观。截图与复现命令见 [docs/proof/protagonist-body](proof/protagonist-body/README.md)。
+负责外观。影子身体还会按玩家手里的枪在右手上举着同一把武器模型（`ak.gltf`、`shotgun.glb`、
+`sniper.glb`，均为上面已登记的既有素材，没有新增资产）。截图与复现命令见
+[docs/proof/protagonist-body](proof/protagonist-body/README.md)。
 这次只把 GLB 用于玩家的影子，敌人外观仍未接入 `actors/enemy/`。

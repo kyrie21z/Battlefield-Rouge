@@ -1,0 +1,131 @@
+{
+	"failures": 0,
+	"finished": true,
+	"metadata": {
+		"cpu": "Intel(R) Core(TM) i7-14650HX",
+		"engine": "4.7.2-stable (official)",
+		"gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+		"max_fps": 0,
+		"os": "Windows",
+		"renderer": "forward_plus",
+		"resolution": [
+			1440,
+			810
+		],
+		"vsync": 0
+	},
+	"results": [
+		{
+			"cpu_render_ms": {
+				"max": 116.00199994278,
+				"median": 0.673999992370605,
+				"n": 1329,
+				"p95": 1.42500002574921
+			},
+			"draw_calls": {
+				"max": 232.0,
+				"median": 191.0,
+				"n": 1329,
+				"p95": 232.0
+			},
+			"gpu_ms": {
+				"max": 2.8529999256134,
+				"median": 0.796000003814697,
+				"n": 1329,
+				"p95": 1.78999996185303
+			},
+			"phase": "six_real_guards",
+			"physics_ms": {
+				"max": 20.451,
+				"median": 1.473,
+				"n": 1329,
+				"p95": 20.451
+			},
+			"wall_ms": {
+				"max": 163.129,
+				"median": 3.194,
+				"n": 1329,
+				"p95": 6.414
+			},
+			"wall_p95_budget_ms": 16.67
+		},
+		{
+			"cpu_ms": 4.816,
+			"phase": "six_additional_spawns"
+		},
+		{
+			"cpu_render_ms": {
+				"max": 78.1959999914169,
+				"median": 1.79400000953674,
+				"n": 657,
+				"p95": 2.41300005531311
+			},
+			"draw_calls": {
+				"max": 474.0,
+				"median": 383.0,
+				"n": 657,
+				"p95": 474.0
+			},
+			"gpu_ms": {
+				"max": 5.30800008773804,
+				"median": 1.52799999713898,
+				"n": 657,
+				"p95": 2.84100008010864
+			},
+			"phase": "twelve_active_actors",
+			"physics_ms": {
+				"max": 25.749,
+				"median": 14.745,
+				"n": 657,
+				"p95": 25.749
+			},
+			"wall_ms": {
+				"max": 110.644,
+				"median": 7.222,
+				"n": 657,
+				"p95": 10.403
+			},
+			"wall_p95_budget_ms": 16.67
+		},
+		{
+			"actors": 12,
+			"cpu_ms": 44.851,
+			"phase": "synchronous_death_build",
+			"shards": 672
+		},
+		{
+			"cpu_render_ms": {
+				"max": 4.79999996566773,
+				"median": 1.50299999809265,
+				"n": 226,
+				"p95": 2.96000009155273
+			},
+			"draw_calls": {
+				"max": 742.0,
+				"median": 742.0,
+				"n": 226,
+				"p95": 742.0
+			},
+			"gpu_ms": {
+				"max": 3.71199989318848,
+				"median": 2.75399994850159,
+				"n": 226,
+				"p95": 3.32299995422363
+			},
+			"phase": "twelve_simultaneous_shatters",
+			"physics_ms": {
+				"max": 44.457,
+				"median": 11.431,
+				"n": 226,
+				"p95": 44.457
+			},
+			"wall_ms": {
+				"max": 100.301,
+				"median": 5.671,
+				"n": 226,
+				"p95": 16.053
+			},
+			"wall_p95_budget_ms": 33.33
+		}
+	]
+}

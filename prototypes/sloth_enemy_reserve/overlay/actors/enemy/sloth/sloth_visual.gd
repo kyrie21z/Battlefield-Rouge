@@ -7,6 +7,7 @@ extends Node3D
 const BODY: PackedScene = preload("res://assets/models/characters/red_crystal_enemy_animated.glb")
 const CRYSTAL: ShaderMaterial = preload("res://assets/materials/red_crystal_material_shader.tres")
 const CLOTH: Shader = preload("res://assets/materials/sloth_cloth.gdshader")
+static var _outfit_templates: Dictionary = {}
 
 var kind := 0
 var model: Node3D
@@ -52,6 +53,7 @@ func _build() -> void:
 	if _built:
 		return
 	_built = true
+	SlothShatter.prepare_templates()
 	_cloth = ShaderMaterial.new()
 	_cloth.shader = CLOTH
 	_cloth.set_shader_parameter("cloth_color", Color(0.025, 0.047, 0.115))
@@ -84,14 +86,18 @@ func _build() -> void:
 	for child in model.find_children("*", "AnimationPlayer", true, false):
 		animation = child as AnimationPlayer
 		break
-	_outfit = Node3D.new()
-	_outfit.name = "SlothOutfit"
-	add_child(_outfit)
-	match kind:
-		0: _build_lingerer()
-		1: _build_anchor()
-		2: _build_recluse()
-	_batch_meshes(_outfit)
+	if _outfit_templates.has(kind):
+		_restore_outfit(_outfit_templates[kind])
+	else:
+		_outfit = Node3D.new()
+		_outfit.name = "SlothOutfit"
+		add_child(_outfit)
+		match kind:
+			0: _build_lingerer()
+			1: _build_anchor()
+			2: _build_recluse()
+		_batch_meshes(_outfit)
+		_cache_outfit()
 	play_motion("idle")
 	if animation != null:
 		animation.advance(0.0)
@@ -199,6 +205,51 @@ func _follow(bone: String, label: String) -> Node3D:
 		if index >= 0:
 			_bones.append({"node": node, "bone": index})
 	return node
+
+
+func _cache_outfit() -> void:
+	# Cache immutable geometry and topology; each actor still owns its materials,
+	# bone-follow nodes and hinges. Reinforcements avoid procedural remeshing.
+	var materials := [_cloth,_lining,_metal,_edge,_dark,_light]
+	for mesh in _outfit.find_children("*","MeshInstance3D",true,false):
+		mesh.set_meta("sloth_material_slot",materials.find(mesh.material_override))
+	_set_template_owner(_outfit)
+	var packed := PackedScene.new()
+	if packed.pack(_outfit) != OK:
+		return
+	var bones: Array[Dictionary] = []
+	for link in _bones:
+		bones.append({"path":_outfit.get_path_to(link.node),"bone":link.bone})
+	var shell: Array[Dictionary] = []
+	for hinge in _shell:
+		var copy := hinge.duplicate()
+		copy.path = _outfit.get_path_to(copy.node)
+		copy.erase("node")
+		shell.append(copy)
+	_outfit_templates[kind] = {"scene":packed,"bones":bones,"shell":shell}
+
+
+func _set_template_owner(parent: Node) -> void:
+	for child in parent.get_children():
+		child.owner = _outfit
+		_set_template_owner(child)
+
+
+func _restore_outfit(template: Dictionary) -> void:
+	_outfit = (template.scene as PackedScene).instantiate() as Node3D
+	add_child(_outfit)
+	var materials := [_cloth,_lining,_metal,_edge,_dark,_light]
+	for mesh in _outfit.find_children("*","MeshInstance3D",true,false):
+		var slot := int(mesh.get_meta("sloth_material_slot",-1))
+		if slot >= 0:
+			mesh.material_override = materials[slot]
+	for link in template.bones:
+		_bones.append({"node":_outfit.get_node(link.path),"bone":link.bone})
+	for hinge in template.shell:
+		var copy: Dictionary = hinge.duplicate()
+		copy.node = _outfit.get_node(copy.path)
+		copy.erase("path")
+		_shell.append(copy)
 
 
 func _update_bones() -> void:

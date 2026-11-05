@@ -232,3 +232,5 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ### Sloth备用披风强化
 
 新增05-cloak-evade.jpg、06-charge-lock.jpg、07-fast-release.jpg为Godot原生截图，分别展示闪避反馈、凝聚锁向和快速释放；05使用强制触发演示。只作JPEG重编码，没有新增第三方素材。最新SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。
+
+2026-11-05新增备用`08-windows-opengl.jpg`为Windows OpenGL实际渲染截图，仅JPEG重编码；SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。没有新增第三方资源。

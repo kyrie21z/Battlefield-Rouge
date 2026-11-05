@@ -1,0 +1,150 @@
+
+== sloth_cache_test
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.74 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+  [ok] cached variant 0 reuses meshes but owns nodes
+  [ok] variant 0 charge materials are independent
+  [ok] variant 0 bone followers belong to the right actor
+  [ok] cached variant 0 preserves all 56 posed shards
+  [ok] killing cached variant 0 leaves its peer visible and alive
+  [ok] cached variant 1 reuses meshes but owns nodes
+  [ok] variant 1 charge materials are independent
+  [ok] variant 1 bone followers belong to the right actor
+  [ok] cached variant 1 preserves all 56 posed shards
+  [ok] killing cached variant 1 leaves its peer visible and alive
+  [ok] cached variant 2 reuses meshes but owns nodes
+  [ok] variant 2 charge materials are independent
+  [ok] variant 2 bone followers belong to the right actor
+  [ok] cached cocoon hinges move independently
+  [ok] cached variant 2 preserves all 56 posed shards
+  [ok] killing cached variant 2 leaves its peer visible and alive
+SLOTH_CACHE_COMPLETE checks=16 failures=0
+ERROR: Can't create shader cache folder, no shader caching will happen: user://
+   at: RasterizerGLES3 (drivers/gles3/rasterizer_gles3.cpp:345)
+
+== sloth_enemy_test
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.74 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+== delayed volley: warning, fixed aim and real hits
+  [ok] a lingerer can start one attack
+  [ok] an active cast cannot be duplicated
+  [ok] the warning phase cannot hurt the player
+  [ok] no projectiles are launched during the warning
+  [ok] the final warning locks aim after slow formation
+  [ok] two visible projectiles are released after the warning
+  [ok] both projectiles keep the original direction after the player moves
+  [ok] a lateral dodge avoids the locked volley
+  [ok] standing on the announced trajectory actually receives damage
+== interrupted casts and retreat
+  [ok] killing the caster cancels an unreleased volley
+  [ok] retreat cancels pending attacks without releasing bullets
+  [ok] a melee shove interrupts a winding-up recluse
+  [ok] an interrupted wave causes no later damage
+== anchored field: telegraph, overlap, escape and death cleanup
+  [ok] a field does not slow during its warning
+  [ok] the field's announced position never follows the player
+  [ok] leaving the announced zone before activation avoids the slow
+  [ok] entering the active field applies a bounded 25 percent slow
+  [ok] overlapping fields do not stack the movement penalty
+  [ok] destroying one source preserves the remaining field
+  [ok] destroying the final anchor removes the slow immediately
+  [ok] a new field can apply after prior sources were destroyed
+  [ok] walking out clears the slow on the next physics update
+  [ok] a field expires rather than slowing indefinitely
+== the slowing field respects solid cover
+  [ok] a solid wall blocks the field between its center and the player
+== slowing keeps the player's dash available and at full distance
+  [ok] the unmodified dash control starts normally
+  [ok] the unmodified dash control travels five meters (5.093)
+  [ok] the real player is slowed before the dash
+  [ok] a dash remains available inside the slowing field
+  [ok] the slowed dash matches its five-meter control (5.093 vs 5.093)
+  dash samples: steps=15, control dt=0.016667..0.016667, slowed dt=0.016667..0.016667
+== recluse wave: safe opening, one hit, cover and jump
+  [ok] remaining inside the announced open wedge is safe
+  [ok] a wave's warning deals no damage even outside its opening
+  [ok] crossing the wave receives exactly one 14-damage hit
+  [ok] solid cover blocks the wave's damage
+  [ok] ordinary SPACE input lifts the real player over the arriving wave (peak 0.681, crossing 0.576)
+  [ok] an ordinary jump avoids the incoming wave
+  jump samples: peak=0.681, wave crossing samples=6, crossing health=1000.0
+== a closed shell remains damageable; its opening rewards aimed fire
+  [ok] the closed shell exposes a normal body hitbox
+  [ok] the closed shell is damageable without a special weapon
+  [ok] opening the shell makes the chest core hittable
+  [ok] an aimed core hit rewards the player with double damage
+  [ok] the exposed core closes again after the recovery window
+== pause freezes attack phases
+  [ok] attack time remains frozen during a pause
+  [ok] a warning cannot turn into a slow while paused
+  [ok] resuming advances the same attack into its active field
+SLOTH ENEMIES: ALL PASSED (43 checks, 0 failed)
+ERROR: Can't create shader cache folder, no shader caching will happen: user://
+   at: RasterizerGLES3 (drivers/gles3/rasterizer_gles3.cpp:345)
+
+== sloth_revision_test
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.74 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+  [ok] body is navy and original material stays red
+  [ok] real weapon kills at head
+  [ok] exact final ray contact retained
+  [ok] death immediately hides body and clothing
+  [ok] death never plays a fall animation
+  [ok] all 56 authored shards are retained
+  [ok] fracture starts at the contacted body part head
+  [ok] contact fragments break before distant fragments
+  [ok] shards pause with combat
+  [ok] shards clean up without a corpse
+  [ok] body is navy and original material stays red
+  [ok] real weapon kills at leg
+  [ok] exact final ray contact retained
+  [ok] death immediately hides body and clothing
+  [ok] death never plays a fall animation
+  [ok] all 56 authored shards are retained
+  [ok] fracture starts at the contacted body part thigh_L
+  [ok] contact fragments break before distant fragments
+  [ok] shards pause with combat
+  [ok] shards clean up without a corpse
+  [ok] cloak opens during its delayed throw
+  [ok] opening the cloak exposes its hourglass chest weak point
+  [ok] cloak cast uses short tell marks
+  [ok] melee breaks the cloak's windup
+  [ok] interrupting the cloak grants a one-second weak-point window
+  [ok] field markings lie on the floor, not a raised crown
+  [ok] shattering does not consume gameplay random numbers
+NAVY REVISION: 27 checks, 0 failed
+ERROR: Can't create shader cache folder, no shader caching will happen: user://
+   at: RasterizerGLES3 (drivers/gles3/rasterizer_gles3.cpp:345)
+
+== cloak_defense_test
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.74 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+  [ok] a closed cloak can evade a real lethal headshot
+  [ok] evading does not falsely confirm damage or overwrite the final hit
+  [ok] evasion has visible feedback and no death burst
+  [ok] the next bullet during cooldown lands and kills
+  [ok] the real lethal contact still drives shattering
+  [ok] opening the cloak disables its dodge
+  [ok] the recovery window also guarantees normal damage
+  [ok] melee contact cannot be dodged
+  [ok] area damage cannot be dodged
+  [ok] all four bypass hits actually reduced health
+  [ok] friendly fire is ignored without consuming the passive
+  [ok] existing immunity does not consume dodge cooldown
+  [ok] a real dodge starts cooldown
+  [ok] a shotgun-like burst loses only one pellet
+  [ok] cooldown freezes during pause
+  [ok] cooldown returns after simulation time
+  [ok] zero probability always allows the bullet
+  [ok] other enemy types do not inherit evasion (1)
+  [ok] other enemy types do not inherit evasion (2)
+  independent eligible contacts: 282/1000 evaded
+  [ok] the default probability produces both hits and dodges
+  [ok] the same gameplay seed repeats the dodge sequence
+CLOAK DEFENSE: 21 checks, 0 failed, finished=true
+ERROR: Can't create shader cache folder, no shader caching will happen: user://
+   at: RasterizerGLES3 (drivers/gles3/rasterizer_gles3.cpp:345)

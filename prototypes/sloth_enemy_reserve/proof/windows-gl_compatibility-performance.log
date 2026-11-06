@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.74 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+SLOTH_PERFORMANCE_METADATA {"cpu":"Intel(R) Core(TM) i7-14650HX","engine":"4.7.2-stable (official)","gpu":"NVIDIA GeForce RTX 4060 Laptop GPU","max_fps":0,"os":"Windows","renderer":"gl_compatibility","resolution":[1440,810],"vsync":0}
+  [ok] real second zone contains six guards
+SLOTH_PERFORMANCE_PHASE {"cpu_render_ms":{"max":321.120002929687,"median":1.07400002574921,"n":1997,"p95":1.2349999961853},"draw_calls":{"max":479.0,"median":444.0,"n":1997,"p95":479.0},"gpu_ms":{"max":2.38100004196167,"median":1.33200001716614,"n":1997,"p95":1.94599997997284},"phase":"six_real_guards","physics_ms":{"max":9.865,"median":2.921,"n":1997,"p95":9.865},"wall_ms":{"max":331.587,"median":2.149,"n":1997,"p95":2.895},"wall_p95_budget_ms":16.67}
+  [ok] six_real_guards keeps combat alive and unpaused
+  [ok] six_real_guards completes real samples within its p95 budget
+SLOTH_PERFORMANCE_PHASE {"cpu_render_ms":{"max":8.54400006866455,"median":1.56999998950958,"n":1639,"p95":1.86200004577637},"draw_calls":{"max":897.0,"median":806.0,"n":1639,"p95":897.0},"gpu_ms":{"max":7.47300004959106,"median":2.01900005340576,"n":1639,"p95":3.15499997138977},"phase":"twelve_active_actors","physics_ms":{"max":10.035,"median":7.043,"n":1639,"p95":10.035},"wall_ms":{"max":19.603,"median":2.893,"n":1639,"p95":3.891},"wall_p95_budget_ms":16.67}
+  [ok] twelve_active_actors keeps combat alive and unpaused
+  [ok] twelve_active_actors completes real samples within its p95 budget
+  [ok] twelve deaths retain all 672 authored shards
+SLOTH_PERFORMANCE_DEATH_BUILD 14.634ms
+  [ok] twelve kills including guard-triggered reinforcement spawn stay below 100ms
+SLOTH_PERFORMANCE_PHASE {"cpu_render_ms":{"max":3.01200004768372,"median":1.30299999523163,"n":735,"p95":1.73700003623962},"draw_calls":{"max":891.0,"median":891.0,"n":735,"p95":891.0},"gpu_ms":{"max":3.24300003051758,"median":0.921000003814697,"n":735,"p95":1.00199997425079},"phase":"twelve_simultaneous_shatters","physics_ms":{"max":6.394,"median":2.989,"n":735,"p95":6.394},"wall_ms":{"max":21.005,"median":2.323,"n":735,"p95":5.52},"wall_p95_budget_ms":33.33}
+  [ok] twelve_simultaneous_shatters keeps combat alive and unpaused
+  [ok] twelve_simultaneous_shatters completes real samples within its p95 budget
+  [ok] all bursts and their fragments are reclaimed
+  [ok] all pending skills are cancelled
+  [ok] stasis sources release after caster deaths
+  [ok] native viewport really renders requested size
+SLOTH_PERFORMANCE_COMPLETE failures=0

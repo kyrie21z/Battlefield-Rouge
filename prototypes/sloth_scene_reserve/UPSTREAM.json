@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/kyrie21z/Battlefield-Rouge",
+  "base_commit": "5292b926939d536f2ac5e46e6aa44d76c1b77bdc",
+  "updated_on": "2026-11-08",
+  "scope": "isolated_scene_reserve",
+  "merged_prerequisites": [
+    88,
+    92
+  ],
+  "production_runtime_modified": false
+}

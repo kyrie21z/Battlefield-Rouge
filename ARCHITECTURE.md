@@ -15,6 +15,7 @@
 | `buffs/` | 增益，每个增益一个 `.tres`。流派身份是 `School`（图标和方向，不含效果数值） |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
+| `environments/sloth/` | 整合草稿的纯场景几何、碰撞、掩体点与材质，不控制关卡进度 |
 | `tools/` | 编辑器外的辅助脚本 |
 | `docs/` | 设计文档。游戏方向以 `docs/CREATIVE_VISION.md` 为准；本轮范围和验收看 `docs/Cut-002.md`，它未改动的玩法规则沿用 `docs/Cut-001b.md`、`docs/MVP_Scope.md` |
 | `docs/adr/` | 架构决策记录 |
@@ -32,16 +33,28 @@
 
 普通项目入口先到 `ui/game_start.tscn`。`GameStart` 只加载 Pride 开场并监听单次完成信号，再读取 `RunState.zone_scene()` 进入原有战区；它不改种子、增益、战区序号或战斗规则。开场期间不实例化玩家、敌人、战区控制和战斗 HUD。fixture 与 `--skip-opening` 直接进战区；已有 `RunState` 延迟重定向与启动器均检查当前场景，先加载的一方完成交接，避免重复预热导航。死亡重开仍由原 `ZoneDirector` 直接载入战区，不返回开场。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
-一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。小关据点在 z≈-8（靠近后方增援）；据点开放后按 `zone/reinforcement_config.tres` 从后方刷增援，插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
+一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。敌人排在 `ZoneDirector` 前面，所以战区控制 `_ready` 时敌人已经 ready。Boss 关的核心在 Boss 倒下前关闭，倒下后一锤击碎，见 [ADR 0004](docs/adr/0004-boss-wave-and-core.md) 文末修订。
 
 1. 保留战区随机种子、`SimClock` 与同步导航烘焙。把已有卡应用到玩家 Stats，收集敌人与掩体。只有 `zone_index == 0` 进入 `BUFF_SELECT` 并暂停；此时敌人还没有玩家目标。小关 2 和 Boss（以及从 Boss 起步的 fixture）解除暂停后直接开打，敌人立刻拿到目标。
 2. 确认 `enter` 卡后记录选择历史，发 `Events.buff_chosen`，立即应用新卡，再给敌人设置目标。小关进入 `CLEAR_GUARDS`。Boss 关（`is_boss_zone`）进入 `BOSS_STANDING`，核心保持关闭，目标是「打倒 Boss」。
-3. 小关守卫全灭开放据点，并开始从后方刷增援。增援不回退进度，也不把据点重新锁上。E 锤命中仍按原节拍配置计进度（+10%，完美 ×2.0）。100% 插旗时冲击波让存活小怪停止攻击并逃向后方刷怪点，到达或超时后移除，不算击杀。旗旁出现增益台，走近按 F 才提供 `clear` 卡；选完暂停并载入下一关。下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 不加这些。Boss 的 `enemy_killed` 才 `capture_point.open()`，目标改为「砸碎城市核心，按 E」；6 只小怪不参与开关。这一锤用 `boss_capture_config.tres` 的 `progress_per_swing = 1`，完美与否都到 100%。插旗 1.4 秒后直接胜利，不再发牌。
+3. 小关守卫全灭开放据点，并开始从后方刷增援。增援不回退进度，也不把据点重新锁上。E 锤命中仍按原节拍配置计进度（+10%，完美 ×2.0）。100% 插旗时冲击波让存活小怪停止攻击并逃向后方刷怪点，到达或超时后移除，不算击杀。旗旁出现增益台，走近按 F 才提供 `clear` 卡；选完暂停并载入下一关。下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 不加这些。Boss 的 `enemy_killed` 才 `capture_point.open()`，目标改为「砸碎城市核心，按 E」；9只小怪不参与开关。这一锤用 `boss_capture_config.tres` 的 `progress_per_swing = 1`，完美与否都到 100%。插旗 1.4 秒后直接胜利，不再发牌。
 4. 死亡清空本局增益、选择历史与卡袋，显示阵亡界面。普通重开回第一关；fixture 模式仍回到同一 fixture 的关卡、预设卡和种子。选择提交、占点回调和场景推进均有防重保护。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。
+
+### Sloth 整合草稿的场景与敌人
+
+三张生成地图仍使用原 `RunState.ZONE_SCENES` 路径。`Geometry` 在 `_ready` 构造纯环境，再由 `ZoneDirector` 同步烘焙 `navigation_geometry` 组内的 WORLD 静态碰撞；漂浮装饰和 BOUNDARY 防坠墙不参加。可走地面带 `sloth_walkable` 组及 `walkable_surface` 元数据，小地图递归读取嵌套实体掩体，过滤可走地面与退化裁剪多边形。导航网格 cell=0.5、height=0.25、agent height=2.0、radius=0.5、climb=0.25。Boss 低台座保留浅坡物理，用连续底板作导航代理，避免机器人在小台阶边界往复；核心实体仍为导航障碍。
+
+紧凑修订中，环境用 `combat_bounds`（小关x±20/z±24）或 `combat_radius`（Boss25米）声明实际战斗范围；`_scenery_building` 在构造外围时直接抑制碰撞创建，避免纯景观的柱顶、桥面进入烘焙。`sloth_scenery` 组用于验证景观没有 PhysicsBody。低栏与高差提示边界，高 BOUNDARY 仅拦玩家冲刺，不参与导航；增援点与掩体全部在核心内。地板、掩体和坡道按米重排，未通过整体缩放改变角色或武器比例。
+
+`SlothEnemy extends Enemy` 保留 `setup`、Health、State、`begin_hunt`、`begin_retreat`、`departed` 契约，`ZoneDirector.reinforcement_scene` 由地图选择迟滞者场景，默认仍为旧 Enemy，防止独立测试场景被隐式换种。增援位置在 `add_child` 前设置。`SlothAttack` 使用物理步长管理预警/四连发/结束；暂停冻结、死亡/撤退/换关取消。锚定减速通过 Player 的弱引用来源列表取最强值，最多减速 25%，不影响冲刺；攻击移除会清理来源。`Hitbox.apply_hit_at` 的同步上下文把真实命中点交给闪避和碎裂，已有 `apply_hit` 保持兼容。
+
+波次微调为每批4名、最多8名后，两小关使用9个生成marker。选择与最远fallback均用缓存的2米高/0.6米半径胶囊查询ENEMIES层占位，避免下一批刷到仍在射击的上一批身上；无空位本批少刷，下一间隔再尝试，不强行堆叠。查询仅刷新时发生，不逐帧执行、不消耗随机数；满场及按空位补充规则保持。
+
+服饰几何/56片碎屑继续缓存，但每个演员独立材质与姿态；地面预警建造时投射到所在楼层并缓存高度，不逐帧射线。敌人不读取 RunState。旧独立备用包保持隔离，不作为运行时依赖。
 
 ## 三把枪怎么切换
 
@@ -88,9 +101,11 @@
 
 ## 九增益与能力组件
 
+2026-11-08反击盾改为持续容量模式：Health提供可选`damage_absorber`返回未吸收伤害，并以嵌套结算深度保证仅最外层发`damage_resolved`；PlayerShield按100基础容量吸收，满盾或再次G通过`counter_released(absorbed)`交给CombatTraits反击。HP/溢出/死亡先完成，致命溢出取消反击；基础限时盾与其他保护分开。UI用`is_active()/charge_fraction()`，不把持续盾当倒计时。持久屏障通过Stats同时提供普通盾+0.5秒/反击盾容量+25。见[ADR0013](docs/adr/0013-persistent-counter-and-active-pressure.md)。
+
 `BuffPool.ALL` 为 `firearm`、`blade`、`skill` 每派三张。每次每派各一张，前三次覆盖九张，用完重洗；发牌只使用战区已播种的全局随机，重开清袋。`Buff` 含稳定 id、独特图标、说明和 Stats 修改，School 只含流派身份。
 
-Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield` 读取护盾解锁/持续/冷却（按键是 G，Q 留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。危险弹匣监听真实成功射击的 `Weapon.fired`，当扣弹后的 `ammo == 0`、增益已解锁且库存未满时，同帧储存一枚；不等待换弹完成，也不依赖备用弹。霰弹枪多颗弹丸共用一次射击事件，上限一枚，重复换弹、取消或完成换弹、切回空枪都不额外发放。`throw_magazine`（C）消耗库存，投出时读取当前 Stats 伤害；手持视觉和库存独立于枪槽，切枪保留，死亡清空。弹匣 6 米与护盾 7 米使用独立范围。当前取舍见 [ADR 0010](docs/adr/0010-empty-magazine-blast.md)；[ADR 0008](docs/adr/0008-held-magazine-and-shield-radius.md) 保留此前获取时机的历史。
+Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield`读取护盾解锁/持续/冷却/容量，普通盾限时，反击卡为持续容量模式（G开盾/手动释放，Q留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。危险弹匣监听真实成功射击的 `Weapon.fired`，当扣弹后的 `ammo == 0`、增益已解锁且库存未满时，同帧储存一枚；不等待换弹完成，也不依赖备用弹。霰弹枪多颗弹丸共用一次射击事件，上限一枚，重复换弹、取消或完成换弹、切回空枪都不额外发放。`throw_magazine`（C）消耗库存，投出时读取当前 Stats 伤害；手持视觉和库存独立于枪槽，切枪保留，死亡清空。弹匣 6 米与护盾 7 米使用独立范围。当前取舍见 [ADR 0010](docs/adr/0010-empty-magazine-blast.md)；[ADR 0008](docs/adr/0008-held-magazine-and-shield-radius.md) 保留此前获取时机的历史。
 
 ## 图形 HUD 与能力状态
 

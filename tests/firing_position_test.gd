@@ -56,7 +56,7 @@ func _behind_the_building() -> void:
 	_kill_guards(scene)
 	await get_tree().physics_frame
 	var first := _reinforcements(scene)
-	_check("the first wave spawns", first.size() == 2)
+	_check("the first reinforcement wave spawns four enemies", first.size() == 4)
 	# Spawns now include flank and rear-corner markers, so the building no longer
 	# blocks every one of them. The rule is the player's view: a spawn is hidden
 	# when it is outside the view cone or a WORLD ray from the eye is blocked.
@@ -79,16 +79,18 @@ func _behind_the_building() -> void:
 	_check("reinforcements pick a firing position on spawn", seeking)
 	var sample: Enemy = first[0] if not first.is_empty() else null
 	var min_distance := sample.min_engage_distance if sample != null else 6.0
-	var eye_height := sample.eye_height if sample != null else 1.55
-
 	var shots: Array[Vector3] = []
-	var on_shot := func(position: Vector3) -> void: shots.append(position)
-	Events.gunshot.connect(on_shot)
+	# Gunshot is a noise event: legacy Enemy sends its feet, Sloth its chest.
+	# Observe actual projectiles after spawn sets their world transform instead.
+	var on_projectile := func(node: Node) -> void:
+		if node is Projectile and node.source is Enemy:
+			_record_projectile.call_deferred(node, shots)
+	scene.child_entered_tree.connect(on_projectile)
 	var waited := 0.0
 	while shots.is_empty() and waited < 15.0:
 		await get_tree().physics_frame
 		waited += get_physics_process_delta_time()
-	Events.gunshot.disconnect(on_shot)
+	scene.child_entered_tree.disconnect(on_projectile)
 	_check("a reinforcement fires within 15 s", not shots.is_empty())
 	var closest := INF
 	for shot in shots:
@@ -96,11 +98,16 @@ func _behind_the_building() -> void:
 	_check("it does not fire from arm's length (closest %.2f m)" % closest,
 		not shots.is_empty() and closest >= min_distance - 0.1)
 	if not shots.is_empty():
-		var query := PhysicsRayQueryParameters3D.create(shots[0] + Vector3.UP * eye_height,
+		var query := PhysicsRayQueryParameters3D.create(shots[0],
 			_player_point(player), CollisionLayers.WORLD)
 		_check("the shot comes from a spot with a clear line of sight",
 			scene.get_world_3d().direct_space_state.intersect_ray(query).is_empty())
 	await _close(scene)
+
+
+func _record_projectile(projectile: Projectile, shots: Array[Vector3]) -> void:
+	if is_instance_valid(projectile):
+		shots.append(projectile.global_position)
 
 
 func _spots_stay_apart() -> void:
@@ -152,11 +159,18 @@ func _hammer_noise() -> void:
 	var player := scene.get_node("Player") as Player
 	_place_player_behind(point, player)
 	var guards := _enemies(scene)
-	_check("the zone starts with four guards", guards.size() == 4)
+	_check("the zone starts with five guards", guards.size() == 5)
 	for index in range(2, guards.size()):
 		guards[index].health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	var near := guards[0]
 	var far := guards[1]
+	# This fixture isolates hearing; normal encounter setup now starts a hunt.
+	for enemy in [near, far]:
+		enemy.set_physics_process(false)
+		if enemy is SlothEnemy:
+			(enemy as SlothEnemy)._cancel_attack()
+		enemy.state = Enemy.State.IDLE
+		enemy._release_firing_position()
 	_take_position(near, point.global_position + Vector3(0.0, 0.0, -5.0), 0.0)
 	_take_position(far, Vector3(25.0, 0.0, 25.0), -PI * 0.5)
 	await _settle_navigation()
@@ -178,7 +192,7 @@ func _hammer_noise() -> void:
 func _deterministic_picks() -> void:
 	var first := await _pick_positions(40043)
 	var second := await _pick_positions(40043)
-	_check("both runs spawn the first wave", first.size() == 2 and second.size() == 2)
+	_check("both runs spawn four reinforcements", first.size() == 4 and second.size() == 4)
 	_check("both runs pick the same positions", first.size() >= 2 and str(first) == str(second))
 
 

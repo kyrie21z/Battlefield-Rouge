@@ -56,8 +56,10 @@ func _run() -> void:
 	_check("rim cannot intercept gameplay input", overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE)
 	_check("uncharged shield does not advertise a counter", not overlay.charged
 		and overlay.counter_remaining == 0.0)
-	shield._process(shield.active_remaining + 0.01)
-	_check("unused protection ends without a free counter or visual wave", pulses[0] == 0
+	shield._process(3.0)
+	_check("unused protection remains beyond the former time limit", shield.is_active() and overlay.visible)
+	shield.try_release()
+	_check("unused protection can close without a free counter or visual wave", pulses[0] == 0
 		and not overlay.visible and overlay.counter_remaining == 0.0 and target.health == 1000.0)
 	shield._process(shield.cooldown_remaining + 0.01)
 	_check("cooldown allows the next raised shield", shield.try_activate() and overlay.visible)
@@ -87,9 +89,9 @@ func _run() -> void:
 		and is_equal_approx(overlay.impact_remaining, impact_before_pause) and overlay.charged)
 	get_tree().paused = false
 	shield.set_process(false)
-	shield._process(shield.active_remaining + 0.01)
-	_check("expiry releases one real 25 BODY counter at six metres", pulses[0] == 1
-		and is_equal_approx(target.health, 975.0))
+	shield.try_release()
+	_check("manual release returns the fifteen absorbed damage once at six metres", pulses[0] == 1
+		and is_equal_approx(target.health, 985.0))
 	_check("outgoing wave is visible from the first-person view after protection ends",
 		not shield.is_active() and not player.health.invulnerable
 		and overlay.visible and overlay.counter_remaining > 0.0)
@@ -122,11 +124,11 @@ func _run() -> void:
 	_check("outgoing overlay clears while the normal eight-second cooldown continues",
 		not overlay.visible and shield.cooldown_remaining > 0.0 and shield.cooldown_duration() == 8.0)
 	_check("extra feedback updates cannot deal a second pulse", pulses[0] == 1
-		and is_equal_approx(target.health, 975.0))
+		and is_equal_approx(target.health, 985.0))
 	shield._process(shield.cooldown_remaining + 0.01)
 	shield.try_activate()
 	player.health.apply_damage(5.0, Hitbox.BodyPart.BODY, source)
-	shield._process(shield.active_remaining + 0.01)
+	shield.try_release()
 	_check("a later actual block can prime a fresh counter", pulses[0] == 2 and overlay.visible)
 	player.health.apply_damage(1000.0, Hitbox.BodyPart.BODY, source)
 	_check("real death clears all shield feedback without another counter", player.health.is_dead()

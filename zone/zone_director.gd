@@ -40,15 +40,21 @@ const PEDESTAL_OFFSET := Vector3(3.0, 0.0, 2.2)
 const MIN_SPAWN_DISTANCE := 14.0
 const SPAWN_VIEW_HALF_ANGLE_DEG := 65.0
 const SPAWN_MARKER_HEIGHT := 1.2
+## Contains the normal enemy body, with extra room to avoid cross-wave stacking.
+const SPAWN_CLEARANCE_RADIUS := 0.6
+const SPAWN_CLEARANCE_HEIGHT := 2.0
 
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
 ## The boss zone. The core stays locked while the boss lives. Its death opens
-## the core; one hammer then plants the flag. The six small enemies do not
+## the core; one hammer then plants the flag. The small enemies do not
 ## gate it, and this zone never spawns reinforcements or a shockwave.
 @export var is_boss_zone := false
 ## Small zones only. Null on the boss zone, which never spawns reinforcements.
 @export var reinforcement_config: ReinforcementConfig
+## Maps choose the actor family; the legacy default keeps standalone fixtures
+## and authored test scenes independent from the Sloth integration draft.
+@export var reinforcement_scene: PackedScene = ENEMY_SCENE
 
 var objective := ""
 var phase := Phase.CLEAR_GUARDS
@@ -86,6 +92,7 @@ var _reinforcement_serial := 0
 var _shockwave_played := false
 ## Markers already used by the current wave, so two enemies do not share one.
 var _wave_used_markers: Array[Node3D] = []
+var _spawn_clearance_shape: CapsuleShape3D
 
 
 func _enter_tree() -> void:
@@ -267,11 +274,13 @@ func _spawn_one() -> void:
 	var point := _pick_spawn_marker()
 	if point == null:
 		return
-	var enemy := ENEMY_SCENE.instantiate() as Enemy
+	var actor_scene := reinforcement_scene if reinforcement_scene != null else ENEMY_SCENE
+	var enemy := actor_scene.instantiate() as Enemy
 	_reinforcement_serial += 1
 	enemy.name = "Reinforcement%d" % _reinforcement_serial
+	# Place before _ready, including the new actors' cached home/visual state.
+	enemy.position = (get_parent() as Node3D).to_local(point.global_position)
 	get_parent().add_child(enemy)
-	enemy.global_position = point.global_position
 	enemy.rotation.y = PI
 	_reinforcements.append(enemy)
 	reinforcement_spawn_log.append(enemy.global_position)
@@ -291,7 +300,7 @@ func _pick_spawn_marker() -> Node3D:
 		_wave_used_markers.clear()
 	var candidates: Array[Node3D] = []
 	for point in _spawn_points:
-		if point in _wave_used_markers:
+		if point in _wave_used_markers or _is_marker_occupied(point):
 			continue
 		if _spawn_distance(point) < MIN_SPAWN_DISTANCE:
 			continue
@@ -315,6 +324,23 @@ func _spawn_distance(point: Node3D) -> float:
 	return Vector2(delta.x, delta.z).length()
 
 
+func _is_marker_occupied(point: Node3D) -> bool:
+	var zone_root := get_parent() as Node3D
+	if zone_root == null or not zone_root.is_inside_tree():
+		return true
+	if _spawn_clearance_shape == null:
+		_spawn_clearance_shape = CapsuleShape3D.new()
+		_spawn_clearance_shape.radius = SPAWN_CLEARANCE_RADIUS
+		_spawn_clearance_shape.height = SPAWN_CLEARANCE_HEIGHT
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = _spawn_clearance_shape
+	query.transform = Transform3D(Basis(), point.global_position + Vector3.UP * SPAWN_CLEARANCE_HEIGHT * 0.5)
+	query.collision_mask = CollisionLayers.ENEMIES
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	return not zone_root.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+
+
 ## True when the marker is inside the player's view cone and a WORLD-only ray
 ## from the eye reaches it. Actors and hitboxes do not block sight.
 func _is_marker_visible(point: Node3D) -> bool:
@@ -331,13 +357,13 @@ func _is_marker_visible(point: Node3D) -> bool:
 	return _player.get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
-## Deterministic fallback: the farthest unused marker; ties keep the first in
+## Deterministic fallback: the farthest unused, unoccupied marker; ties keep the first in
 ## marker order, so no RNG is drawn.
 func _farthest_unused_marker() -> Node3D:
 	var best: Node3D = null
 	var best_distance := -1.0
 	for point in _spawn_points:
-		if point in _wave_used_markers:
+		if point in _wave_used_markers or _is_marker_occupied(point):
 			continue
 		var distance := _spawn_distance(point)
 		if distance > best_distance:

@@ -114,7 +114,9 @@ func _run() -> void:
 	var pulses := [0]
 	traits.shield_pulsed.connect(func(): pulses[0] += 1)
 	player.shield.try_activate()
-	player.shield._process(player.shield.active_remaining + 0.01)
+	player.shield._process(3.0)
+	_check("unused counter shield persists beyond the old duration", player.shield.is_active())
+	player.shield.try_release()
 	_check("unused shield cannot produce a free pulse", pulses[0] == 0)
 	player.shield._process(player.shield.cooldown_remaining + 0.01)
 	player.shield.try_activate()
@@ -123,9 +125,9 @@ func _run() -> void:
 	player.health.apply_damage(30.0, Hitbox.BodyPart.BODY, enemy_source)
 	_check("shield absorbs attacks before countering", player.health.health == health_before and pulses[0] == 0)
 	target_before = target.health
-	player.shield._process(player.shield.active_remaining + 0.01)
+	player.shield.try_release()
 	player.shield._process(0.1)
-	_check("shield ends in exactly one damaging pulse", pulses[0] == 1 and is_equal_approx(target_before - target.health, 25.0))
+	_check("manual release returns the sixty actually absorbed damage exactly once", pulses[0] == 1 and is_equal_approx(target_before - target.health, 60.0))
 	print("== death clears primed combat state")
 	# The parry swing above is still in its windup because this test does not
 	# advance MeleeWeapon. Clear it so the death swing can start and show a blade.

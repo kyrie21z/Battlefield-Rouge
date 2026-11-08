@@ -376,7 +376,9 @@ func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
 		ZoneDirector.Phase.FLAG_PLANTED:
 			# The boss zone wins straight from the core; only small zones have a
 			# pedestal to point at.
-			if not _director.is_boss_zone:
+			if _director.is_boss_zone:
+				_banner.play("核心已击碎", "", PhaseBanner.TITLE_GREEN)
+			else:
 				_banner.play("据点已占领", "增援撤退 · 到旗旁增益台按 %s 领取增益" % KeyHint.of("interact"), PhaseBanner.TITLE_GREEN)
 		ZoneDirector.Phase.BOSS_STANDING:
 			_banner.play("Boss 现身", "击倒 Boss，城市核心才会打开", PhaseBanner.TITLE_RED)

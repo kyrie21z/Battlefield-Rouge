@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-08",
+  "engine": "Godot 4.7.2 Windows",
+  "base_main": "fe0e1c9da838692f30407f6ef1820233f6cad39d",
+  "regression_groups": [
+    {
+      "test": "res://tests/active_magazine_test.tscn",
+      "passed": true,
+      "summary": [],
+      "log_sha256": "7b6e0f53bd001d3ef7fbf3ef5de282d888250e8798f87bb0c75b5dec0b592a54"
+    },
+    {
+      "test": "res://tests/boss_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ],
+      "log_sha256": "ed794f753a23cd5cd70ec0b780dfeb123371b354974cddca57b7508705c39938"
+    },
+    {
+      "test": "res://tests/buff_run_test.tscn",
+      "passed": true,
+      "summary": [
+        "buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "4bf4a28c0182682c2c91f45b33af20f333b852e62044e22ad39ea57e590f194c"
+    },
+    {
+      "test": "res://tests/capture_hammer_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "daf3a9abb3b3b2662bd1f20b52d0db6dbed4f49d5d6c45993276df5e379f96c0"
+    },
+    {
+      "test": "res://tests/combat_traits_test.tscn",
+      "passed": true,
+      "summary": [
+        "COMBAT TRAITS: ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "ed5d4710e5854f5a0fa36836536c275d726d7e548ba4ff61afb9269ecb0975ab"
+    },
+    {
+      "test": "res://tests/dash_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "aa35be4888d27cd0385a51e6243c261053c40a179a387864c96173e91923c824"
+    },
+    {
+      "test": "res://tests/enemy_bullet_test.tscn",
+      "passed": true,
+      "summary": [
+        "ENEMY BULLETS: ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "ce865a25d03d969b4b77a4988daa366505d2cf52cfb2e87d7c50f72d28e77a5e"
+    },
+    {
+      "test": "res://tests/enemy_layout_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (44 checks, 0 failed)"
+      ],
+      "log_sha256": "569d25b4a578ef1dddf35767c2650211539040485941595c7159c75cd7a05125"
+    },
+    {
+      "test": "res://tests/firing_position_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "29fa2f9484f8d570297afe5e598227db19b6ff5d84972ce43e562b4d3a6f4a59"
+    },
+    {
+      "test": "res://tests/gun_feel_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "5cee704074390bc3a4adb2d4416a4b95cfb1291a359a467430a00347c7a43a17"
+    },
+    {
+      "test": "res://tests/hammer_feel_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "8d406dd91cfeea986fbcf489c56bc964edd60cbc3052f2bf84a41851ae09dcfe"
+    },
+    {
+      "test": "res://tests/hit_feel_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "02c1bcba66b2a0f55aa530961a1d233aa3bd51f134451efc2d982977b7f49e98"
+    },
+    {
+      "test": "res://tests/hud_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (287 checks, 0 failed)"
+      ],
+      "log_sha256": "528ba061b9aaa00fee0ace2792ad257805181fd1232da8dcb55336a2d4a57d00"
+    },
+    {
+      "test": "res://tests/hurt_feedback_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "8844b0a06ce00d96b6e76c049df2baad3052e259bd85cd07e03b5d1b03c97e76"
+    },
+    {
+      "test": "res://tests/keybinding_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "33af9e37742f86e20af16cf2a6f7ad276ffbfcf6211d9dff2a1ce9ab7649dad8"
+    },
+    {
+      "test": "res://tests/melee_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "69f0bb9358c74cf7d3766252e63d05d9f8e73332b87750faa09481ab6b9f96d0"
+    },
+    {
+      "test": "res://tests/minimap_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "e2ac1d449f8930692f330488dd827338424835d3ed5c784a31746bf99b59455f"
+    },
+    {
+      "test": "res://tests/music_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "b5afbfa2e6477894090c06d919c819db3e6d3cef57da49d8632e50b88fbb723b"
+    },
+    {
+      "test": "res://tests/opening_boot_test.tscn",
+      "passed": true,
+      "summary": [],
+      "log_sha256": "ce59c8cf15a81dd67bd4a5f40222f9eb217903fece585eaa921fb10b36c99eb6"
+    },
+    {
+      "test": "res://tests/opening_transition_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "3f189787e2bbae234f7eecd7713277243ebc4b1009029621c05f963c1640a6f2"
+    },
+    {
+      "test": "res://tests/phase_banner_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "fa940a5256b70fb305761341866cf3490846e5ba6025c3cf7cac098e884e87d3"
+    },
+    {
+      "test": "res://tests/protagonist_body_test.tscn",
+      "passed": true,
+      "summary": [
+        "PROTAGONIST BODY: ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "7e2721d6aea13df4c6a30b5c7be8e523129e1180447eb0f3a3e591eea4da0628"
+    },
+    {
+      "test": "res://tests/reflected_round_test.tscn",
+      "passed": true,
+      "summary": [
+        "REFLECTED ROUND: ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "5907ac8c6fd89c36fa5b13de98d60a1b13385aa230c3f90121ac037bf839d1c6"
+    },
+    {
+      "test": "res://tests/reinforcement_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "53ade1ee9d9b4a1705a5854637866f53a4a6f8527fab157bcd8ca22646330ea6"
+    },
+    {
+      "test": "res://tests/reload_blast_test.tscn",
+      "passed": true,
+      "summary": [],
+      "log_sha256": "1ba01f5682c4f7415a196ffe32a7abe272ccfb393ece6f1edbbb8cf48861246f"
+    },
+    {
+      "test": "res://tests/school_icons_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "a4f714299719c893db8e5bad5c06a057cb38591dc51502d44fc3917ab69deaed"
+    },
+    {
+      "test": "res://tests/settings_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "11e88bfbd189cd169ab21b27c8d6da241e56bb08584c7f6e01dc8fe209c60662"
+    },
+    {
+      "test": "res://tests/shield_visual_test.tscn",
+      "passed": true,
+      "summary": [],
+      "log_sha256": "3befb3b2bc8ecbe773859b89d0a37d64cd50bf673bb39d4db4e9fb21775eda57"
+    },
+    {
+      "test": "res://tests/spawn_sight_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "fbf144ece61c250ae2685fa2f2b3e5b0ce3dcf3a8686497cab16c959dc16fbbe"
+    },
+    {
+      "test": "res://tests/weapons_test.tscn",
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "log_sha256": "5c34352a8a9981a748cb08257de4de246b62aef7affc8d62a7604858bbdc0aec"
+    }
+  ],
+  "sloth_checks": {
+    "combat": 64,
+    "revision": 27,
+    "cloak_defense": 21,
+    "cache": 16
+  },
+  "integration": {
+    "headless": 120,
+    "native": 130,
+    "failures": 0
+  },
+  "burst_native": {
+    "checks": 25,
+    "failures": 0
+  },
+  "diagnostics": [
+    "Host root certificate store startup error also reproduces in empty project."
+  ],
+  "notes": [
+    "Initial failed layouts and stale fixture assumptions were repaired and relevant groups rerun; summary uses latest logs.",
+    "All screenshots are actual native renderer captures. Automated walkthrough protects player and accelerates hammer cooldown only."
+  ]
+}

@@ -98,7 +98,7 @@ func _physics_process(delta: float) -> void:
 		if not hit.collider is Hitbox:
 			Impact.spawn(get_parent(), hit.position, hit.normal, false)
 		else:
-			(hit.collider as Hitbox).apply_hit(damage, source)
+			(hit.collider as Hitbox).apply_hit_at(damage, source, hit.position, -global_basis.z, true)
 		queue_free()
 		return
 	global_position = to

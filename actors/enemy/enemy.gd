@@ -420,6 +420,11 @@ func _start_seek(center: Vector3) -> bool:
 ## Candidates: the zone's cover points, then a fixed-direction ring around the
 ## target. No random numbers, so the same battlefield picks the same spot.
 func _find_firing_position() -> bool:
+	var map := get_world_3d().navigation_map
+	# Authored scenes and tests may alert an actor before the first server sync.
+	# Retry through the existing CHASE/seek cadence once the map is available.
+	if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
+		return false
 	var aim := _seek_center + Vector3.UP * AIM_HEIGHT
 	var best := Vector3.INF
 	var best_score := INF
@@ -427,7 +432,7 @@ func _find_firing_position() -> bool:
 	for candidate in _candidate_positions():
 		if rays >= seek_max_rays:
 			break
-		var point := NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map, candidate)
+		var point := NavigationServer3D.map_get_closest_point(map, candidate)
 		if point.distance_to(candidate) > seek_nav_snap:
 			continue
 		var player_gap := Vector2(point.x - _seek_center.x, point.z - _seek_center.z).length()

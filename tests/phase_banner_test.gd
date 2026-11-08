@@ -27,6 +27,8 @@ func _run() -> void:
 	_banner = scene.get_node("HUD/PhaseBanner") as PhaseBanner
 	_player.health.max_health = 100000.0
 	_player.health.health = 100000.0
+	# This observes banner transitions, independently of the live opening attack.
+	_player.health.invulnerable = true
 
 	_check("no banner under the entry buff selection", not _banner.is_showing() and not _banner.visible)
 	_choose_entry(scene)
@@ -117,6 +119,13 @@ func _test_boss() -> void:
 	await _frames(3)
 	_check("the open core says 砸碎城市核心", _banner.title_text() == "砸碎城市核心" and _banner.is_showing())
 	_check("with the hammer action", "按 E" in _banner.subtitle_text())
+	_director.capture_point.add_capture_progress(1.0)
+	await _frames(3)
+	_check("captured core replaces the hammer instruction immediately",
+		_banner.title_text() == "核心已击碎" and _banner.subtitle_text().is_empty()
+		and _banner.title_color() == PhaseBanner.TITLE_GREEN)
+	# Let the real delayed victory callback finish before releasing its owner.
+	await _seconds(1.5)
 	await _close(scene)
 
 

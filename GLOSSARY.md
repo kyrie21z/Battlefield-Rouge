@@ -47,10 +47,10 @@
 | 发牌袋 | `BuffPool.reset()` / `pick()` | 每次每派一张，先核心再另两张，用完重洗；全局随机受战区种子控制，新局及 fixture 重开清袋。 |
 | 选择历史 | `RunState.selection_history` | 关卡、enter/clear、卡片 id 和名称。完整获胜是开局进一、过一、过二，共三条。小关 2 和 Boss 进场不选。（原为进一、过一、进二、过二、进 Boss，共五条。） |
 | 刀具增益 | `Stats.MELEE_DAMAGE` / `MELEE_SPEED` / `MELEE_RANGE` | 叠在当前 `MeleeWeapon` 上。基数都是 1，没选刀具卡时三把近战保持 `.tres` 原值。 |
-| 主动护盾 | `PlayerShield`，`shield` 动作（G） | 任意技能卡解锁，基础 2 秒无敌，结束后冷却 8 秒；分层紫色盾缘保留中心视野，挡伤时亮闪，反击卡同时蓄能。Q 是切近战。F 是 `interact`，小关插旗后在增益台读取。 |
-| 护盾反击波 | `CombatTraits`，`PlayerShield.show_counter_pulse()`，`ReloadCharge.blast()` | 反击卡挡伤后到期结算每层 25 BODY、7 米球形范围及墙体遮挡。第一人称有 0.72 秒双层外扩波纹，世界波前到水平半径 7 米后淡出并配能量声；余波不延长无敌，也不再次伤害。 |
+| 主动护盾 | `PlayerShield`，`shield` 动作（G） | 任意技能卡解锁，未选反击卡时为2秒无敌/8秒冷却。反击卡改容量模式：G开启后持续，默认100点，满盾自动/再次G手动释放，释放后8秒冷却；分层紫色盾缘保留中心视野，G槽显示吸收/容量，生命上方紫条显示剩余容量。Q 是切近战。F 是 `interact`，小关插旗后在增益台读取。 |
+| 护盾反击波 | `CombatTraits`，`PlayerShield.show_counter_pulse()`，`ReloadCharge.blast()` | 满容量或再次G时，按实际吸收伤害×卡层数结算7米球形BODY反击，墙体阻挡；破盾超额伤害扣血，致命溢出不死后反击，冲刺/弹反/友伤/外部无敌不充能。第一人称有 0.72 秒双层外扩波纹，世界波前到水平半径 7 米后淡出并配能量声；余波不延长保护，也不再次伤害。 |
 | 冲刺 | `PlayerDash`，`dash` 动作（Shift） | 沿面朝方向（含俯仰）冲 5 米：无输入时取镜头前方，有输入时在镜头基下合成方向并归一化，A/D 仍沿水平轴。持续 0.18 秒；速度 = 距离 ÷ 持续时间，冲刺期间接管完整 `velocity`（含 y，不受重力），结束时交还水平走路速度并把 `velocity.y` 归零。2 格充能，每 1.5 秒按顺序回 1 格，HUD 左下的两个小格显示剩余与回充进度。空中每次离地只能冲 1 次，落地恢复。冲刺期间 `Health.dash_invulnerable` 提供 0.18 秒无敌；它和护盾的 `invulnerable` 分开记，所以两者同时生效时互不覆盖。冲刺打断开镜，不打断换弹；视野短暂外扩后回落，死亡时取消。 |
-| 三张核心卡 | `CombatTraits` | 危险弹匣为最后一发耗尽时立即获得一枚、C 主动投掷；子弹收藏家为挥刀弹反、下次开枪释放收藏；反击护盾为挡伤后到期在 7 米内固定反击。详见当前九增益说明。 |
+| 三张核心卡 | `CombatTraits` | 危险弹匣为最后一发耗尽时立即获得一枚、C 主动投掷；子弹收藏家为挥刀弹反、下次开枪释放收藏；反击护盾为持续吸收后满盾自动/再次G手动在7米内反击。详见当前九增益说明。 |
 | 危险弹匣 | `CombatTraits`，`Weapon.fired`，`ReloadCharge`，`throw_magazine` 动作（C） | 对应增益解锁；成功射击耗尽弹匣的同一帧储存一枚，无需等待换弹，无备用弹仍发放，上限一枚。切枪保留、持有不计引信，C 投出时消耗库存并读取当前 Stats。投速 24 米/秒，投出后引信 1.5 秒；离敌人 0.5 米内、碰墙或地面提前引爆。每层在 1.5 米内造成 120 伤害，向 6 米边缘线性衰减至 60；墙体阻挡、按 Health 去重，无自伤、友伤或爆头倍率。空仓扣扳机、切枪、取消或完成换弹不额外发放；死亡或换关清除库存。 |
 | 能力槽 | `AbilityBar`，`AbilitySlot` | 图形 HUD 右下方的 G 护盾、V 近战、C 弹匣方槽。C 无增益时锁定，有增益但未持有弹匣时暗态 `0/1`，最后一发打空获得后立即亮态 `1/1`，投出回暗态；不在护盾槽重复画危险弹匣角标。 |
 | 受击反馈 | `Health.damaged`，`HUD`，`DamageIndicator` | 玩家中枪时的呈现：边缘红色暗角（中心不填色）、受击音效（0.06 秒内的命中合成一次）、指向攻击者的屏幕边缘弧线（存命中时的世界位置，按玩家朝向每帧重算）、只晃渲染相机的镜头后坐，以及 30% 生命以下的脉冲暗角与心跳（35% 以上退出）。格挡和弹反不是掉血，没有这套反馈。 |
@@ -62,15 +62,15 @@
 | 战区控制 | `ZoneDirector` | 管阶段、开放据点、增援、冲击波、增益台、弹出选择或结算、切场景。 |
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
 | 射击位 | `Enemy.State.SEEK`，`Enemy.firing_position`，`FiringPositionBoard` | 交火时站的、能看到玩家的位置。候选是现有掩体点加玩家周围固定方向的两圈采样点（8 / 20 米），只保留导航可达、从眼睛高度到玩家不被世界挡住的点；离自己近的优先，挨着掩体减分。多个敌人共用一个 `FiringPositionBoard`，3.5 米内别人已订的点不再选。走到后进入交火；看不见玩家 0.5 秒或离玩家近于 6 米就重找。找不到才退回朝玩家追。增援出生即寻位，不抽随机数。 |
-| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
-| 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波刷在离玩家至少 14 米、且玩家看不见的刷新点（相机前方 65° 内 + 从眼睛到 1.2 米高度无 WORLD 遮挡）；都不合格时退回离玩家最远的未用点，不抽随机数。同一波不重复用同一个点。zone_1 / zone_2 各有后方、侧翼和后排角落共 7 个点。 |
+| 敌人 | `Enemy` / `SlothEnemy` | 共用待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）契约。整合草稿的小怪为 SlothEnemy 三变体；Boss 暂沿用旧 Enemy 大号版本（`actors/enemy/boss.tscn`），Hazmat 模型，900 HP、爆头倍率 1.25。 |
+| 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波优先选离玩家至少14米且看不见的刷新点（前方65°+WORLD视线）；不合格时退回最远未用空位，不抽额外随机数。候选与fallback都用ENEMIES胶囊排除占位，全部被占就等待；同波不重用。zone_1/zone_2各有后方、侧翼/高台共9点。 |
 
 ## 设计目标（Cut-001b）
 
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
 | 小关 / 两段关 | `ZoneDirector.Phase` | 清守卫 → 占点（增援从后方持续来）→ 插旗冲击波 → 增益台（AC-01）。MVP 有两关。 |
-| 增援 | `ReinforcementConfig`，`reinforcement_spawn` | 据点开放时从后方刷出的 `Enemy`。默认每 10 秒 2 只，场上最多 5 只，插旗后停止。不回退进度，只造成生命压力。数在 `zone/reinforcement_config.tres`。 |
+| 增援 | `ReinforcementConfig`，`reinforcement_spawn` | 据点开放时从后方刷出的 `Enemy`。默认每10秒4只，场上最多8只，插旗后停止。不回退进度，只造成生命压力。数在 `zone/reinforcement_config.tres`。 |
 | 冲击波 | `ZoneDirector._play_shockwave` | 小关插旗时触发。不造成伤害。存活小怪进入逃跑，沿导航去后方刷怪点，到达或超时后消失，不算击杀。 |
 | 增益台 | `BuffPedestal` | 小关插旗后出现在旗旁的灰盒。走近按 F（`interact`）才打开通关三选一。开局那次仍是弹窗。 |
 | 逃跑 | `Enemy.State.FLEE`，`begin_retreat` | 冲击波之后的状态：不再攻击，跑向后方刷怪点。移除时不发 `Events.enemy_killed`。 |
@@ -78,7 +78,7 @@
 | 九条增益 | `BuffPool.ALL` | 每派 3 条，共 9 条，图标不同（AC-08）；当前效果为可调试玩默认，非最终平衡锁定。 |
 | 进关选择 | `ZoneDirector._offer_buff("enter")` | 只在一局第一关（`RunState.zone_index == 0`）开打前选 1 条。小关 2 和 Boss 进场不选。按是不是一局的第一关判断，不按 fixture 起点（AC-04）。 |
 | 关末再选 | `ZoneDirector._offer_buff("clear")`，`BuffPedestal` | 两个小关插旗后，到旗旁增益台按 F 才各选 1 条，本局叠加；Boss 结束后不选（AC-04）。 |
-| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和 4 名放在前沿 / 中段的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
+| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和7名放在前沿/中段及侧翼的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |
 
@@ -86,8 +86,21 @@
 
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
-| 红晶体敌人 | `red_crystal_enemy_*.glb` | 低模红衣敌人素材：11 件网格、24 骨、23 个剪辑、56 片碎屑。素材已入库，还没接进 `actors/enemy/`。 |
+| 红晶体敌人 | `red_crystal_enemy_*.glb` | 低模晶体素材：11 件网格、24 骨、23 个剪辑、56 片碎屑。Sloth 整合草稿已复用到 `actors/enemy/sloth/`，实例改藏青，原红材质保留。 |
 | 部位 | `PART_BONE`、`GEO_m_<部位>` | 身体分成的 11 块：`head`、`torso`、`hips`、`upper_arm_L/R`、`forearm_L/R`、`thigh_L/R`、`shin_L/R`。每个部位对应一根主骨。 |
 | 碎屑 | `SHARD_m_<部位>_<序号>`、`red_crystal_enemy_shards.glb` | 每个部位预切好的刚性碎片（合计 56 片），枢轴在自己质心，可直接做成 `RigidBody3D`。 |
 | 按部位碎裂 | `shatter_part(part)`、`shatter_parts([...])` | 把一个部位换成它的碎屑刚体，其余部位继续跟动画走。预览场 `tools/crystal_enemy/anim_shatter.tscn`。 |
 | 骨骼增量 | `_bone_delta(part)` | 碎屑按 T-pose 模型空间导出，贴到当前动画姿势要乘 `bone_global_pose · bone_global_rest⁻¹`。 |
+
+## Sloth 可玩整合草稿（2026-11-08）
+
+同日战斗强化：三关初始小怪5/9/9（前轮7/11/11各减2，Boss本体仍1）；Sloth绑定目标后主动搜敌，初始0.25–0.70秒错峰，跑速迟滞/锚定/退缩2.8/2.1/2.4m/s，锚定/退缩施法周期4.4/3.6秒。四连弹的预警、伤害与恢复窗口不改；增援每批4只/10秒、最多8只。反击盾当前容量规则见上方主动护盾/反击波条目和ADR0013。
+
+| 术语 | 代码里的名字 | 当前试玩含义 |
+| --- | --- | --- |
+| 迟滞者 / 披风敌人 | `SlothEnemy.Kind.LINGERER` | 90 HP，闭篷单弹 30% 闪避、成功冷却 2.5 秒。2 秒凝聚，最后 0.45 秒锁向，一次 4 发（间隔 0.18 秒、40 米/秒、9 伤/发），结束后 1 秒暴露；不追踪玩家。 |
+| 锚定者 | `SlothEnemy.Kind.ANCHOR` | 140 HP，0.95 秒预警后形成半径 3.2 米的 2.6 秒减速场；最多减速 25%，多来源取最强，墙体阻挡，不改冲刺。 |
+| 退缩者 | `SlothEnemy.Kind.RECLUSE` | 180 HP，0.95 秒预警后向外扩散低位冲击波；最大半径 7 米、14 伤，留有安全扇口，可用跳跃、掩体或冲刺规避。 |
+| 复层庭院 | `environments/sloth/courtyard.gd` | 紧凑修订的两小关共用 40×48 米可走核心，出生→据点 22/24 米；下沉庭与两侧高台保留，原尺度外围柱廊/浮岛为景观。旧 96×128 米宽场保留在历史备用包中。 |
+| 云海圣殿 | `environments/sloth/architecture.gd` | 紧凑修订为直径 50 米实际战斗台，92 米圣殿外环与巨环/钟摆/浮岛保留宏观观感；用旧 Boss 及核心规则验证流程。 |
+| 运行时提取 | `environments/sloth/`、`actors/enemy/sloth/` | 与 `.gdignore` 隔离的历史备用包分开，当前主入口直接加载这些运行文件；备用包本身不参与运行。 |

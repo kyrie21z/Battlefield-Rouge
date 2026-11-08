@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+  [ok] a closed cloak can evade a real lethal headshot
+  [ok] evading does not falsely confirm damage or overwrite the final hit
+  [ok] evasion has visible feedback and no death burst
+  [ok] the next bullet during cooldown lands and kills
+  [ok] the real lethal contact still drives shattering
+  [ok] opening the cloak disables its dodge
+  [ok] the recovery window also guarantees normal damage
+  [ok] melee contact cannot be dodged
+  [ok] area damage cannot be dodged
+  [ok] all four bypass hits actually reduced health
+  [ok] friendly fire is ignored without consuming the passive
+  [ok] existing immunity does not consume dodge cooldown
+  [ok] a real dodge starts cooldown
+  [ok] a shotgun-like burst loses only one pellet
+  [ok] cooldown freezes during pause
+  [ok] cooldown returns after simulation time
+  [ok] zero probability always allows the bullet
+  [ok] other enemy types do not inherit evasion (1)
+  [ok] other enemy types do not inherit evasion (2)
+  independent eligible contacts: 282/1000 evaded
+  [ok] the default probability produces both hits and dodges
+  [ok] the same gameplay seed repeats the dodge sequence
+CLOAK DEFENSE: 21 checks, 0 failed, finished=true

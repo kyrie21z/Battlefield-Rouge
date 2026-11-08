@@ -239,3 +239,23 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ## 2026-11-08 · Sloth场景独立备案包
 
 [场景备用预演](../prototypes/sloth_scene_reserve/README.md)基于main5292b92（已合并弹匣#88与敌人备用#92），由外层.gdignore隔离，内层viewer为独立Godot工程。新增前两关复层庭院与Boss云海圣殿的程序几何、原创地面/天空/云层材质和原生截图；来源、SHA-256及当前验证见[包内登记](../prototypes/sloth_scene_reserve/ASSETS.md)。没有新第三方素材、生成式图片或正式游戏素材替换。
+
+## 2026-11-08 · Sloth 可玩整合草稿
+
+本次按用户明确要求将上述两套备用中的原创内容提取为游戏运行文件，历史备用包不改。当前 `actors/enemy/sloth/sloth_visual.gd`、`sloth_shatter.gd` 和 `assets/materials/sloth_cloth.gdshader` 源自已合并敌人备用 #92；`environments/sloth/{architecture,courtyard}.gd` 及 `floor/stone/sanctum_sky/cloud_sea.gdshader` 源自已合并场景备用 #96，移除预演控制、接入真实碰撞/导航并修订。均为本项目原创程序几何与材质，由 Codex 协助修改，无新增第三方资产或生成式图片。
+
+运行时继续复用此前登记的红晶体动画/56 片碎屑 GLB，只覆盖实例藏青材质，不改原红色资源；旧 Boss 的 Hazmat 来源仍按上方历史登记。此前“敌人未接入”的段落记录当时事实，本次草稿已接入三种 Sloth 小怪，并未替换成完整巨像 Boss。
+
+[整合证明](proof/sloth-integration/README.md) 内 JPEG 是本轮 Godot 4.7.2 Windows Forward+ 原生 PNG 的缩放/JPEG 重编码，无重绘；四连发图使用观察相机，流程图保留真实游戏 HUD。来源文件与图像 SHA-256 见 [SHA256SUMS](proof/sloth-integration/SHA256SUMS.txt)，文本哈希使用仓库 LF 字节。
+
+### 同日紧凑战场修订
+
+`environments/sloth/{architecture,courtyard}.gd` 继续使用上述本项目原创程序几何，重排实际地板/碰撞/掩体与外围建筑，未新增第三方模型或材质。[紧凑战场证明](proof/sloth-compact/README.md) 的 JPEG 为本轮 Windows Forward+ 原生截图，仅缩放和JPEG重编码；当前几何源码/生成地图与新截图哈希见 [紧凑版SHA256SUMS](proof/sloth-compact/SHA256SUMS.txt)。前一节的宽场截图、源码哈希、性能和实战轨迹保留提交 `1a7b86c` 当时的历史含义，不表示当前文件字节或性能。
+
+### 同日持续反击盾与主动敌群
+
+沿用项目原创紫盾/反击波与服饰材质，无新增第三方模型、贴图、字体或音频。G槽蓄能弧和容量条为Godot程序绘制；新增少量掩体仍为现有几何材质。[当前4张JPEG](proof/counter-pressure/README.md)是本轮Windows Forward+原生PNG的缩放/JPEG重编码，无生成式重绘；前三张为真实选卡/G/敌弹定点验证，第四张为开场敌群观察。当前代码/地图与图片来源哈希见[SHA256SUMS](proof/counter-pressure/SHA256SUMS.txt)。紧凑版旧目录记录`47bb39f`时的低密度/旧盾结果，源码哈希与数值保留历史意义。
+
+### 同日波次微调取证
+
+[波次微调的2张JPEG](proof/wave-tuning/README.md)为本轮Godot4.7.2 Windows Forward+原生PNG缩放/JPEG重编码，分别为开场5名守卫和据点开放后4名增援小地图；无新美术资产或生成式重绘。来源与当前生成器/地图/增援代码哈希见[SHA256SUMS](proof/wave-tuning/SHA256SUMS.txt)。前轮`counter-pressure`目录的源码哈希和7/11/11波次对应`8a6fa90`历史提交，不能替代当前5/9/9、4人增援结果。

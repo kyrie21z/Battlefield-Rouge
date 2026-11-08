@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Battlefield Rouge"
-config/description="First-person zone-by-zone roguelite. Godot 4.7.2."
+config/name="Mind Freak - Sloth Integration Draft"
+config/description="Playable Sloth integration draft: layered courtyards, crystal enemies and capture loop. Godot 4.7.2."
 run/main_scene="res://ui/game_start.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"

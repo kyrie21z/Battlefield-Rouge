@@ -94,9 +94,14 @@ func _test_transform() -> void:
 func _test_enemies() -> void:
 	print("== enemy markers")
 	_check("the guards are living", _director.living_enemies().size() >= 2)
-	var before := _map.visible_enemy_count()
 	var victim: Enemy = _director.living_enemies()[0]
-	victim.global_position = _player.global_position + Vector3(100.0, 0.0, 0.0)
+	# Guard placement spans the larger courtyard. Establish visibility before
+	# checking the range transition instead of assuming the first guard is near.
+	victim.global_position = _player.global_position + Vector3(5.0, 0.0, 0.0)
+	await _frames(1)
+	var before := _map.visible_enemy_count()
+	_check("a nearby guard is drawn", before > 0)
+	victim.global_position = _player.global_position + Vector3(Minimap.RANGE_METERS + 10.0, 0.0, 0.0)
 	await _frames(1)
 	_check("an enemy beyond range is not drawn", _map.visible_enemy_count() == before - 1)
 	victim.global_position = _player.global_position + Vector3(5.0, 0.0, 0.0)

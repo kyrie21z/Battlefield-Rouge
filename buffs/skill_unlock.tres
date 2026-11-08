@@ -8,13 +8,13 @@ script = ExtResource("1_buff")
 id = &"skill_unlock"
 school_id = &"skill"
 title = "反击护盾"
-description = "获得 G 护盾，最大生命 +15。挡住攻击后，护盾结束向周围 7 米释放每层 25 点伤害的紫色反击波，受掩体阻挡。"
+description = "最大生命 +15。G 开启持续反击盾：吸收上限 100 点伤害，蓄满自动反击，也可再次按 G 提前释放。向周围 7 米反击实际吸收伤害×层数，受掩体阻挡；释放后冷却 8 秒。"
 icon = ExtResource("2_icon")
-stack_text = "最大生命 +15 · 反击脉冲 +25"
+stack_text = "最大生命 +15 · 吸收伤害反击倍率 +1"
 stat = &"max_health"
 add = 15.0
 mul = 1.00
 extra_adds = {
 &"skill_unlocked": 1.0,
-&"shield_pulse_damage": 25.0
+&"shield_reflect_multiplier": 1.0
 }

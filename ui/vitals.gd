@@ -1,7 +1,7 @@
 class_name Vitals
 extends Control
 ## Bottom-left health panel: segmented bar, the white chip-damage trail, the
-## shield duration strip, two dash-charge pips and the low-health warning
+## shield duration/capacity strip, two dash-charge pips and the low-health warning
 ## border. Reads the player only.
 
 const SEGMENTS := 12
@@ -21,6 +21,7 @@ var health_number := 0
 var warning := false
 var shield_visible := false
 var shield_fraction := 0.0
+var shield_counter_mode := false
 var dash_charges := 0
 var dash_max_charges := 0
 var dash_recharge_fraction := 0.0
@@ -54,10 +55,14 @@ func advance(delta: float) -> void:
 
 	var shield := player.shield
 	shield_visible = shield != null and shield.is_active()
+	shield_counter_mode = shield != null and shield.is_counter_mode()
 	shield_fraction = 0.0
 	if shield_visible:
-		var duration := maxf(player.stats.get_value(Stats.SHIELD_DURATION), 0.01)
-		shield_fraction = clampf(shield.active_remaining / duration, 0.0, 1.0)
+		if shield_counter_mode:
+			shield_fraction = 1.0 - shield.charge_fraction()
+		else:
+			var duration := maxf(player.stats.get_value(Stats.SHIELD_DURATION), 0.01)
+			shield_fraction = clampf(shield.active_remaining / duration, 0.0, 1.0)
 
 	dash_charges = player.dash_charges()
 	dash_max_charges = player.dash_max_charges()
@@ -80,11 +85,12 @@ func _draw() -> void:
 
 	if shield_visible:
 		var strip := Rect2(BAR_RECT.position.x, BAR_RECT.position.y - 16.0, BAR_RECT.size.x, 6.0)
+		var shield_color := PlayerShield.ACCENT if shield_counter_mode else HudStyle.ACCENT
 		draw_rect(strip, Color(0.0, 0.0, 0.0, 0.55))
 		draw_rect(Rect2(strip.position, Vector2(strip.size.x * shield_fraction, strip.size.y)),
-			HudStyle.ACCENT)
+			shield_color)
 		draw_line(strip.position, Vector2(strip.end.x, strip.position.y),
-			Color(HudStyle.ACCENT, 0.45), 2.0, true)
+			Color(shield_color, 0.45), 2.0, true)
 
 	_draw_dash_pips()
 	draw_rect(BAR_RECT, Color(0.0, 0.0, 0.0, 0.55))

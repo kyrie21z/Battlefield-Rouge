@@ -54,9 +54,25 @@ func _ready() -> void:
 	Events.player_died.connect(func(): _log("player_died"))
 	Events.run_won.connect(func(): _log("run_won"))
 	await _run()
+	await _cleanup()
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
+
+
+## Trace recording is finished before this teardown. Fixed-fps headless frames
+## can outpace the audio worker; release the last scene and let queued playback
+## stops drain rather than quitting with the worker still holding WAV references.
+func _cleanup() -> void:
+	_bot.reset()
+	get_tree().paused = false
+	var scene := get_tree().current_scene
+	if scene != null:
+		get_tree().current_scene = null
+		scene.free()
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 
 
 func _process(delta: float) -> void:

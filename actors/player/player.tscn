@@ -54,9 +54,11 @@ script = ExtResource("14_shadow_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+far = 18000.0
 fov = 75.0
 
 [node name="ViewCamera" type="Camera3D" parent="Head/Camera3D"]
+far = 18000.0
 current = true
 fov = 75.0
 

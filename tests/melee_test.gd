@@ -17,6 +17,8 @@ const WEAPONS := ["匕首", "斧", "太刀"]
 ## Enough health that a damage sponge never dies mid-run. A dead hitbox takes
 ## itself off the hit layer, so reviving one would silently stop working.
 const SPONGE_HEALTH := 100000.0
+## Keep the one-swing benchmark independent of the map's enemy variant health.
+const AXE_TARGET_HEALTH := 100.0
 ## How far from the requested screen point the measured tip may land, in
 ## normalised screen units (1.0 = half the screen).
 const AIM_TOLERANCE := 0.18
@@ -30,12 +32,19 @@ var _melee: MeleeWeapon
 ## Where the player starts. Every placement puts them back here, so a run of
 ## swings does not lunge them across the map and into a wall.
 var _player_start := Vector3.ZERO
-## [0] and [1] are sponges, [2] keeps its 100 HP so a one-hit kill is testable.
+## [0] and [1] are sponges; [2] is explicitly set to a full 100 HP kill target.
 var _guards: Array[Enemy] = []
 
 
 func _ready() -> void:
 	await _run()
+	# Scene teardown must finish before the audio worker releases its playbacks.
+	for child in get_children():
+		child.free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
@@ -59,6 +68,8 @@ func _run() -> void:
 	for i in mini(2, _guards.size()):
 		_guards[i].health.max_health = SPONGE_HEALTH
 		_guards[i].health.health = SPONGE_HEALTH
+	_guards[2].health.max_health = AXE_TARGET_HEALTH
+	_guards[2].health.health = AXE_TARGET_HEALTH
 	_player.global_rotation = Vector3.ZERO
 	await _settle()
 	_player_start = _player.global_position

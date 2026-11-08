@@ -29,6 +29,8 @@ var stored_capacity := 0
 var stored_visible := false
 var count_text := ""
 var current_icon: Texture2D
+var shield_counter_mode := false
+var shield_charge_fraction := 0.0
 
 var _pulse := 0.0
 
@@ -67,7 +69,10 @@ func _sync_shield() -> void:
 	if cooling:
 		cooldown_fraction = clampf(shield.cooldown_remaining / shield.cooldown_duration(), 0.0, 1.0)
 	current_icon = icon
-	count_text = ""
+	shield_counter_mode = not locked and shield.is_counter_mode()
+	shield_charge_fraction = shield.charge_fraction() if shield_counter_mode and active else 0.0
+	count_text = "%d/%d" % [floori(shield.absorbed_damage()), roundi(shield.capacity())] \
+		if shield_counter_mode and not cooling else ""
 	parry_flash = false
 	stored_visible = false
 	stored_capacity = 0
@@ -133,9 +138,16 @@ func _draw() -> void:
 	elif not slot_ready and not active:
 		tint = Color(0.68, 0.8, 0.85, 0.75)
 	var icon_rect := box.grow(-12.0)
-	if mode == Mode.MAGAZINE and not locked:
+	if not count_text.is_empty():
 		icon_rect.size.y -= 12.0
 	HudStyle.draw_icon(self, current_icon, icon_rect, tint)
+	if mode == Mode.SHIELD and shield_counter_mode and active:
+		var center := box.get_center() - Vector2(0.0, 5.0)
+		var radius := minf(box.size.x, box.size.y) * 0.34
+		draw_arc(center, radius, -PI * 0.5, PI * 1.5, 48, Color(PlayerShield.ACCENT, 0.25), 3.0, true)
+		if shield_charge_fraction > 0.0:
+			draw_arc(center, radius, -PI * 0.5, -PI * 0.5 + TAU * shield_charge_fraction,
+				48, PlayerShield.ACCENT.lightened(0.3), 3.5, true)
 
 	if cooling:
 		_draw_cooldown(box.get_center(), minf(box.size.x, box.size.y) * 0.36)
@@ -145,7 +157,7 @@ func _draw() -> void:
 		_draw_rounds(box)
 	if not count_text.is_empty():
 		HudStyle.draw_text_centered(self, ThemeDB.fallback_font, box.get_center().x,
-			box.end.y - 5.0, count_text, 16, HudStyle.TEXT if slot_ready else HudStyle.MUTED)
+			box.end.y - 5.0, count_text, 16, HudStyle.TEXT if slot_ready or active else HudStyle.MUTED)
 
 	var key_rect := Rect2(size.x * 0.5 - 15.0, size.y - 26.0, 30.0, 26.0)
 	draw_rect(key_rect, Color(0.0, 0.005, 0.01, 0.96))

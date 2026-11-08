@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+  [ok] shield starts locked
+  [ok] duration card preserves the ordinary timed shield
+  [ok] ordinary protection still expires into cooldown
+  [ok] counter card chooses finite absorption mode
+  [ok] unused counter shield remains visible after five minutes
+  [ok] friendly hits do not charge the shield
+  [ok] parried hits do not charge the shield
+  [ok] dash immunity cannot create stored shield damage
+  [ok] independent invulnerability is preserved and cannot charge
+  [ok] partial damage is absorbed without losing HP
+  [ok] charged rim persists after the impact flash and old timeout
+  [ok] paused input cannot release the shield
+  [ok] the same activate action manually releases a partial shield
+  [ok] manual wave returns only the thirty-five absorbed damage
+  [ok] release consumes the charge and starts eight-second cooldown
+  [ok] below threshold remains raised
+  [ok] reaching threshold automatically ends shield and returns one hundred
+  [ok] later feedback updates cannot fire the automatic pulse twice
+  [ok] a breaking hit absorbs capacity and applies only the overflow
+  [ok] absorption uses real body-part-scaled damage
+  [ok] stacking raises return multiplier and duration card adds capacity
+  [ok] two counter layers return actual absorption times two
+  [ok] empty manual closure never creates a free wave
+  [ok] cancellation clears shield and stored damage without countering
+  [ok] full-hit signal reentrancy cannot release twice
+  [ok] a nonlethal nested hit resolves before exactly one automatic return
+  [ok] lethal overflow cancels pending reflection rather than firing after death
+  [ok] 110 damage with five HP and a nested hit cannot preempt lethal overflow
+COUNTER SHIELD: 28 checks, 0 failed

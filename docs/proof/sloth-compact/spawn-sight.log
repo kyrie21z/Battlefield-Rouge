@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+  [ok] the zone has several spawn markers (7)
+  [ok] a wave spawns 2 enemies
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] the two enemies use different markers
+  [ok] the visibility fixture starts with a visible marker
+  [ok] turning around changes which markers are visible
+  [ok] every fallback marker is visible
+  [ok] every fallback marker is ineligible at less than 14 metres
+  [ok] the fallback takes the farthest marker (10.0 m)
+  [ok] the same seed and setup pick the same spawns
+ALL PASSED (0 failed)

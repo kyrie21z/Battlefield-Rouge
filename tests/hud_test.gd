@@ -5,8 +5,8 @@ extends Node
 ## Prints one line per check. Exits 1 if a check failed or if the run stopped
 ## before the last check, so it cannot pass by accident.
 
-# Existing 273, minus three badges, plus 15 C-state and two icon/layout checks.
-const EXPECTED_CHECKS := 287
+# Existing HUD coverage plus eight capacity-shield state/feedback checks.
+const EXPECTED_CHECKS := 295
 
 var _checks := 0
 var _failures := 0
@@ -204,6 +204,7 @@ func _run() -> void:
 		and not _shield_slot.cooling and not _shield_slot.active and not _shield_slot.locked)
 	_check("the finished cooldown clears both countdown values", is_zero_approx(_shield_slot.cooldown_fraction)
 		and is_zero_approx(_shield_slot.cooldown_seconds))
+	_test_counter_shield_ui(scene)
 
 	print("== melee slot")
 	for i in MeleePool.ALL.size():
@@ -270,6 +271,48 @@ func _run() -> void:
 	await get_tree().create_timer(0.15).timeout
 	# A helper that aborts early must not let the parent coroutine report success.
 	_finished = _checks == EXPECTED_CHECKS
+
+
+func _test_counter_shield_ui(scene: Node) -> void:
+	print("== persistent counter-shield HUD")
+	_player.stats.apply_buff(load("res://buffs/skill_unlock.tres") as Buff)
+	_check("counter card selects the capacity mode and activates", _player.shield.is_counter_mode()
+		and _player.shield.try_activate())
+	_player.shield._process(12.0)
+	_shield_slot.advance(0.0)
+	_vitals.advance(0.0)
+	_check("empty counter shield stays visible after twelve seconds", _shield_slot.active
+		and _vitals.shield_visible and is_equal_approx(_vitals.shield_fraction, 1.0)
+		and _shield_slot.count_text == "0/100" and _player.shield._overlay.visible)
+	var health_before := _player.health.health
+	_player.health.apply_damage(35.0, Hitbox.BodyPart.BODY, scene.get_node("Enemy1"))
+	_shield_slot.advance(0.0)
+	_vitals.advance(0.0)
+	_check("HUD reads actual absorbed damage while health is protected", _player.health.health == health_before
+		and _shield_slot.count_text == "35/100" and is_equal_approx(_shield_slot.shield_charge_fraction, 0.35))
+	_check("vitals show remaining shield capacity instead of an expired timer", _vitals.shield_counter_mode
+		and _vitals.shield_visible and is_equal_approx(_vitals.shield_fraction, 0.65))
+	_player.shield._process(12.0)
+	_vitals.advance(0.0)
+	_check("partially charged shield does not drain with time", _vitals.shield_visible
+		and is_equal_approx(_vitals.shield_fraction, 0.65) and _player.shield._overlay.visible)
+	var released := _player.shield.try_activate()
+	_shield_slot.advance(0.0)
+	_vitals.advance(0.0)
+	_check("second G releases the shield and changes HUD to cooldown", released
+		and _shield_slot.cooling and not _shield_slot.active and not _vitals.shield_visible
+		and _shield_slot.count_text.is_empty())
+	_player.shield.cancel()
+	_player.stats.apply_buff(load("res://buffs/skill_duration.tres") as Buff)
+	_player.shield.try_activate()
+	_shield_slot.advance(0.0)
+	_check("duration upgrade displays its counter-mode capacity benefit", _shield_slot.count_text == "0/125")
+	_player.shield.cancel()
+	_player.stats.clear_buffs()
+	_shield_slot.advance(0.0)
+	_vitals.advance(0.0)
+	_check("clearing counter mode removes capacity-specific HUD", not _shield_slot.shield_counter_mode
+		and _shield_slot.count_text.is_empty() and not _vitals.shield_visible)
 
 
 func _test_magazine_slot() -> void:
@@ -586,7 +629,7 @@ func _test_boss_hud() -> void:
 	capture.refresh()
 	pedestal_marker.refresh()
 	_check("the boss objective uses the short text and live count", director.phase == ZoneDirector.Phase.BOSS_STANDING
-		and top.phase == director.phase and objective.text == "击倒 Boss" and top.enemies_alive == 7)
+		and top.phase == director.phase and objective.text == "击倒 Boss" and top.enemies_alive == 10)
 	_check("the boss objective has no redundant subtitle", not detail.visible
 		and detail.text.is_empty())
 	_check("boss health starts visible at exactly 900 / 900", bar.visible and not bar.fallen
@@ -634,7 +677,7 @@ func _test_boss_hud() -> void:
 			small = node as Enemy
 			break
 	small.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("small-enemy death updates the counter but not boss health", top.enemies_alive == 6
+	_check("small-enemy death updates the counter but not boss health", top.enemies_alive == 9
 		and bar.displayed_health == 858.0 and bar.delayed_health == 858.0)
 
 	print("== fallen boss, open core and planted flag")
@@ -654,7 +697,7 @@ func _test_boss_hud() -> void:
 		and bar.health_text == "已倒下" and bar.fill_color == CapturePoint.COLOR_LOCKED)
 	_check("boss death opens the actual core and switches the short objective", not point.locked
 		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase
-		and objective.text == "锤击据点" and top.enemies_alive == 5
+		and objective.text == "锤击据点" and top.enemies_alive == 8
 		and detail.visible and detail.text == "按 E 砸核心")
 	_check("the unlocked boss core shows the blue progress ring", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and capture.progress_visible

@@ -357,14 +357,17 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 	if hit.is_empty():
 		return
 	var collider: Object = hit.collider
-	Impact.spawn(effects_parent, hit.position, hit.normal, collider is Hitbox, _detail_left > 0)
-	_detail_left -= 1
 	if collider is Hitbox:
 		var hitbox := collider as Hitbox
 		var distance := origin.distance_to(hit.position)
-		var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter)
+		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction, true)
+		if not hitbox.surface_evaded:
+			Impact.spawn(effects_parent, hit.position, hit.normal, true, _detail_left > 0)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
+	else:
+		Impact.spawn(effects_parent, hit.position, hit.normal, false, _detail_left > 0)
+	_detail_left -= 1
 
 
 func _falloff(distance: float) -> float:

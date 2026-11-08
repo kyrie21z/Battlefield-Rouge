@@ -1,0 +1,38 @@
+{
+  "actor": "Zone1/Enemy1",
+  "adapter": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "checks": 25,
+  "failures": 0,
+  "launches": [
+    {
+      "damage": 9.0,
+      "elapsed": 2.01666666666666,
+      "node_id": 206527532472,
+      "speed": 40.0
+    },
+    {
+      "damage": 9.0,
+      "elapsed": 2.18333333333333,
+      "node_id": 208121367978,
+      "speed": 40.0
+    },
+    {
+      "damage": 9.0,
+      "elapsed": 2.36666666666666,
+      "node_id": 213422968254,
+      "speed": 40.0
+    },
+    {
+      "damage": 9.0,
+      "elapsed": 2.55,
+      "node_id": 219898973470,
+      "speed": 40.0
+    }
+  ],
+  "map": "res://maps/zone_1.tscn",
+  "renderer": "forward_plus",
+  "screenshots": [
+    "04-four-projectiles.jpg"
+  ],
+  "staging": "Actual map guard and Player; other AI frozen; target moved after aim lock. Screenshot pauses freeze the real attack, without assigning its elapsed time or projectiles."
+}

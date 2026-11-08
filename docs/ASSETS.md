@@ -247,3 +247,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 运行时继续复用此前登记的红晶体动画/56 片碎屑 GLB，只覆盖实例藏青材质，不改原红色资源；旧 Boss 的 Hazmat 来源仍按上方历史登记。此前“敌人未接入”的段落记录当时事实，本次草稿已接入三种 Sloth 小怪，并未替换成完整巨像 Boss。
 
 [整合证明](proof/sloth-integration/README.md) 内 JPEG 是本轮 Godot 4.7.2 Windows Forward+ 原生 PNG 的缩放/JPEG 重编码，无重绘；四连发图使用观察相机，流程图保留真实游戏 HUD。来源文件与图像 SHA-256 见 [SHA256SUMS](proof/sloth-integration/SHA256SUMS.txt)，文本哈希使用仓库 LF 字节。
+
+### 同日紧凑战场修订
+
+`environments/sloth/{architecture,courtyard}.gd` 继续使用上述本项目原创程序几何，重排实际地板/碰撞/掩体与外围建筑，未新增第三方模型或材质。[紧凑战场证明](proof/sloth-compact/README.md) 的 JPEG 为本轮 Windows Forward+ 原生截图，仅缩放和JPEG重编码；当前几何源码/生成地图与新截图哈希见 [紧凑版SHA256SUMS](proof/sloth-compact/SHA256SUMS.txt)。前一节的宽场截图、源码哈希、性能和实战轨迹保留提交 `1a7b86c` 当时的历史含义，不表示当前文件字节或性能。

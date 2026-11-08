@@ -7,17 +7,24 @@ func _ready() -> void:
 	_materials()
 	_lighting()
 	_clouds()
+	_scenery_building = true
 	_room_horizon()
+	_scenery_building = false
 	room_geometry = _group("RoomGeometry")
 	_room_floor()
+	# The huge precinct is scenery beyond the visibly bounded combat court.
+	_scenery_building = true
 	_room_arcade()
-	_room_covers()
 	_room_quiet_court()
+	_scenery_building = false
+	_room_covers()
 	_register_navigation(self)
 
 func _room_group(title: String) -> Node3D:
 	var g := Node3D.new()
 	g.name = title
+	if _scenery_building:
+		g.add_to_group("sloth_scenery")
 	room_geometry.add_child(g)
 	return g
 
@@ -66,7 +73,7 @@ func _ramp(title: String, a: Vector3, b: Vector3, width: float, parent: Node3D, 
 
 func _parapet(at: Vector3, size: Vector3, parent: Node3D, top_floor := 0.0) -> void:
 	_box(at+Vector3.UP*(top_floor+0.6),Vector3(size.x,1.2,size.z),"chalk",parent,true)
-	var safety_height := 30.0 if absf(at.x)>47.0 or absf(at.z)>63.0 else 3.0
+	var safety_height := 30.0 if absf(at.x)>19.5 or absf(at.z)>23.5 else 3.0
 	var safety_size := Vector3(size.x,safety_height,size.z)
 	if size.x<size.z: safety_size.x *= 0.55
 	else: safety_size.z *= 0.55
@@ -74,61 +81,54 @@ func _parapet(at: Vector3, size: Vector3, parent: Node3D, top_floor := 0.0) -> v
 	barrier.visible = false
 
 func _room_floor() -> void:
+	# Only this 40 x 48 m court is playable. The surrounding precinct keeps its
+	# monumental proportions without turning every visible arcade into a detour.
+	set_meta("combat_bounds",Vector4(-20,-24,20,24))
 	var g := _room_group("WalkableShell")
-	_flat_surface("EntryCourt",Vector4(-48,32,48,64),0,g)
-	_flat_surface("ExitCourt",Vector4(-48,-64,48,-32),0,g)
+	_flat_surface("EntryCourt",Vector4(-20,8,20,24),0,g)
+	_flat_surface("ExitCourt",Vector4(-20,-24,20,-8),0,g)
 	for side in [-1.0,1.0]:
 		var left: bool = side<0
-		var outside := Vector4(-48,-32,-26,32) if left else Vector4(26,-32,48,32)
-		_flat_surface("MiddleLeftOuter" if left else "MiddleRightOuter",outside,0,g)
-		for interval in [Vector2(-32,-6),Vector2(6,32)]:
-			var inner := Vector4(-26,interval.x,-20,interval.y) if left else Vector4(20,interval.x,26,interval.y)
-			_flat_surface(("MiddleLeftInner" if left else "MiddleRightInner")+str(int(interval.x)),inner,0,g)
-	_flat_surface("SunkenCourt",Vector4(-20,-16,20,16),-2.5,g)
-	_ramp("CenterFrontRamp",Vector3(0,-2.5,16),Vector3(0,0,32),40,g)
-	_ramp("CenterBackRamp",Vector3(0,0,-32),Vector3(0,-2.5,-16),40,g)
-	_ramp("SunkenLeftRamp",Vector3(-26,0,0),Vector3(-14,-2.5,0),12,g,true)
-	_ramp("SunkenRightRamp",Vector3(14,-2.5,0),Vector3(26,0,0),12,g,true)
-	# Raised side galleries create walkable upper and lower levels. Their 30cm slabs
-	# leave 2.7m / 4.7m clearance below the left / right galleries.
-	_flat_surface("LeftGallery",Vector4(-46,-32,-32,32),3,g,false)
-	_flat_surface("RightGallery",Vector4(32,-24,46,24),5,g,false)
-	_ramp("LeftGalleryFrontRamp",Vector3(-39,3,32),Vector3(-39,0,50),14,g,true)
-	_ramp("LeftGalleryBackRamp",Vector3(-39,0,-50),Vector3(-39,3,-32),14,g,true)
-	_ramp("RightGalleryFrontRamp",Vector3(39,5,24),Vector3(39,0,54),14,g,true)
-	_ramp("RightGalleryBackRamp",Vector3(39,0,-54),Vector3(39,5,-24),14,g,true)
-	_ramp("CrossCourtBridge",Vector3(-32,3,-9),Vector3(32,5,-9),6,g,true)
-	# Gallery inner railings leave a 6m-wide gap exactly at the connecting bridge.
-	for item in [[-46.0,-32.0,-32.0,32.0,3.0],[32.0,46.0,-24.0,24.0,5.0]]:
-		var inner_x: float = item[1] if item[0]<0 else item[0]
-		var outer_x: float = item[0] if item[0]<0 else item[1]
-		_parapet(Vector3(outer_x,0,(item[2]+item[3])*0.5),Vector3(0.28,0,item[3]-item[2]),g,item[4])
-		for ends in [Vector2(item[2],-12),Vector2(-6,item[3])]:
-			_parapet(Vector3(inner_x,0,(ends.x+ends.y)*0.5),Vector3(0.28,0,ends.y-ends.x),g,item[4])
-	# Upper lip guards make the lowered court legible. Both side-ramp openings stay
-	# clear at z[-6,6]; front/back ramps are 40m wide and need no jump.
+		_flat_surface("MiddleLeftOuter" if left else "MiddleRightOuter",Vector4(-20,-8,-15,8) if left else Vector4(15,-8,20,8),0,g)
+		for interval in [Vector2(-8,-2.5),Vector2(2.5,8)]:
+			var inner := Vector4(-15,interval.x,-12,interval.y) if left else Vector4(12,interval.x,15,interval.y)
+			_flat_surface(("MiddleLeftInner" if left else "MiddleRightInner")+str(interval.x),inner,0,g)
+	_flat_surface("SunkenCourt",Vector4(-12,-4,12,4),-1.2,g)
+	_ramp("CenterFrontRamp",Vector3(0,-1.2,4),Vector3(0,0,8),24,g)
+	_ramp("CenterBackRamp",Vector3(0,0,-8),Vector3(0,-1.2,-4),24,g)
+	_ramp("SunkenLeftRamp",Vector3(-15,0,0),Vector3(-9,-1.2,0),5,g,true)
+	_ramp("SunkenRightRamp",Vector3(9,-1.2,0),Vector3(15,0,0),5,g,true)
+	_flat_surface("LeftGallery",Vector4(-19,-8,-14,8),3,g,false)
+	_flat_surface("RightGallery",Vector4(14,-8,19,8),4,g,false)
+	_ramp("LeftGalleryFrontRamp",Vector3(-16.5,3,8),Vector3(-16.5,0,20),5,g,true)
+	_ramp("LeftGalleryBackRamp",Vector3(-16.5,0,-20),Vector3(-16.5,3,-8),5,g,true)
+	_ramp("RightGalleryFrontRamp",Vector3(16.5,4,8),Vector3(16.5,0,20),5,g,true)
+	_ramp("RightGalleryBackRamp",Vector3(16.5,0,-20),Vector3(16.5,4,-8),5,g,true)
+	_ramp("CrossCourtBridge",Vector3(-14,3,-1),Vector3(14,4,-1),4,g,true)
 	for side in [-1.0,1.0]:
-		for ends in [Vector2(-32,-6),Vector2(6,32)]:
-			_parapet(Vector3(side*20.2,0,(ends.x+ends.y)*0.5),Vector3(0.3,0,ends.y-ends.x),g)
-		_parapet(Vector3(side*47.7,0,0),Vector3(0.6,0,128),g)
-		for z in [-56.0,-28.0,0.0,28.0,56.0]:
-			_box(Vector3(side*45.0,-7.2,z),Vector3(2.0,11.4,2.4),"dark",g)
-		var bridge := _flat_surface("EntryFloor" if side>0 else "ExitFloor",Vector4(-6,64,6,88) if side>0 else Vector4(-6,-88,6,-64),0,g)
-		bridge.set_meta("preview_endpoint",true)
-		for x in [-5.7,5.7]:
-			_parapet(Vector3(x,0,side*76),Vector3(0.6,0,24),g)
-		_parapet(Vector3(0,0,side*87.7),Vector3(12,0,0.6),g)
-		for edge_x in [-27.0,27.0]:
-			_parapet(Vector3(edge_x,0,side*63.7),Vector3(42,0,0.6),g)
+		var upper := 3.0 if side<0 else 4.0
+		_parapet(Vector3(side*19,0,0),Vector3(0.28,0,16),g,upper)
+		for interval in [Vector2(-8,-3),Vector2(1,8)]:
+			_parapet(Vector3(side*14,0,(interval.x+interval.y)*0.5),Vector3(0.28,0,interval.y-interval.x),g,upper)
+		for interval in [Vector2(-8,-2.5),Vector2(2.5,8)]:
+			_parapet(Vector3(side*12.15,0,(interval.x+interval.y)*0.5),Vector3(0.3,0,interval.y-interval.x),g)
+		# A visible low rim and an actual drop separate fighting space from the
+		# floating architecture. The taller invisible part is only dash safety.
+		_parapet(Vector3(side*19.7,0,0),Vector3(0.6,0,48),g)
+		_parapet(Vector3(0,0,side*23.7),Vector3(40,0,0.6),g)
+		for z in [-18.0,0.0,18.0]:
+			_box(Vector3(side*18,-6,z),Vector3(1.5,11,2),"dark",g)
 
 func _room_arcade() -> void:
 	var g := _room_group("Arcade")
+	for side in [-1.0,1.0]:
+		_box(Vector3(side*41,-4,0),Vector3(20,3,128),"base",g)
 	# A broken outer roof and two distinct gallery heights articulate the larger
 	# shell; there is no near giant ring competing with the Boss sanctum.
 	for side in [-1.0,1.0]:
 		for i in range(5):
 			var z := 56.0-i*28.0
-			var height := (17.0+i%2) if room_index == 0 else (18.0+i%2*2)
+			var height := (24.0+i%2) if room_index == 0 else (25.0+i%2*2)
 			var at := Vector3(side*45,0,z)
 			_box(at+Vector3(0,0.35,0),Vector3(4,0.7,4.6),"dark",g)
 			_box(at+Vector3(0,height*0.5,0),Vector3(1.8,height,2.8),"ivory",g,true)
@@ -186,25 +186,21 @@ func _cover(at: Vector3, size: Vector3, material: String, title: String) -> void
 
 func _room_covers() -> void:
 	_room_group("Covers")
-	# Twelve partial covers and eight full standing covers are split among the
-	# entry court, lowered court, exit court and galleries. Required paths x0 / x29
-	# remain clear; only room 2 adds an explicit detour inside the lowered court.
+	# Full-size cover is rearranged around the old 22/24 m objective run-in;
+	# it is not scaled with the scenery. The x=0 route stays unobstructed.
 	for side in [-1.0,1.0]:
-		for i in range(2):
-			var entry_z := 43.0+i*14.0
-			var exit_z := -43.0-i*15.0
-			_cover(Vector3(side*12,0.6,entry_z),Vector3(4,1.2,3.5),"chalk","EntryLow_%s_%d" % ["L" if side<0 else "R",i+1])
-			_cover(Vector3(side*13,0.6,exit_z),Vector3(4,1.2,3.5),"chalk","ExitLow_%s_%d" % ["L" if side<0 else "R",i+1])
-			var lower_z := 9.0-i*18.0
-			if room_index == 1: lower_z -= side*1.0
-			_cover(Vector3(side*11,-1.9,lower_z),Vector3(4,1.2,3.5),"chalk","SunkenLow_%s_%d" % ["L" if side<0 else "R",i+1])
-		_cover(Vector3(side*22,1.3,51),Vector3(3.8,2.6,5),"ivory","EntryFull_%s" % ("L" if side<0 else "R"))
-		_cover(Vector3(side*17,-1.2,-7),Vector3(3.0,2.6,4),"ivory","SunkenFull_%s" % ("L" if side<0 else "R"))
-		_cover(Vector3(side*22,1.3,-52),Vector3(3.8,2.6,5),"ivory","ExitFull_%s" % ("L" if side<0 else "R"))
-		var gallery_y := 3.0 if side<0 else 5.0
-		_cover(Vector3(side*42,gallery_y+1.3,19 if side<0 else 16),Vector3(3,2.6,5),"ivory","GalleryFull_%s" % ("L" if side<0 else "R"))
-	if room_index == 1:
-		_cover(Vector3(0,-1.2,6),Vector3(12,2.6,3),"ivory","CentralDetour")
+		_cover(Vector3(side*13.5,0.6,5.4),Vector3(2,1.2,1),"chalk","EntryLow_%s" % side)
+		_cover(Vector3(side*7,0.6,-11.8),Vector3(2,1.2,1),"chalk","ExitLow_%s" % side)
+		var lower_x: float = side*8.5 if room_index==1 else -8.5
+		if room_index==1 or side<0:
+			_cover(Vector3(lower_x,-0.6,0 if room_index==1 else -0.3),Vector3(2,1.2,1),"chalk","SunkenLow_%s" % side)
+		_cover(Vector3(side*17,1.3,-1.5),Vector3(2.5,2.6,3),"ivory","SideFull_%s" % side)
+		_cover(Vector3(side*8,0.6,-20),Vector3(3,1.2,1),"chalk","RearLow_%s" % side)
+		var upper := 3.0 if side<0 else 4.0
+		_cover(Vector3(side*18.2,upper+0.6,5),Vector3(1.2,1.2,1),"chalk","GalleryLow_%s" % side)
+	if room_index==1:
+		# Offset tall cover offers another angle without blocking the direct run.
+		_cover(Vector3(5,-0.1,-2),Vector3(2,2.2,1.5),"ivory","SideDetour")
 
 func _room_quiet_court() -> void:
 	var g := _room_group("QuietCourt")

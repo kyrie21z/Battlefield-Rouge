@@ -33,7 +33,7 @@
 
 普通项目入口先到 `ui/game_start.tscn`。`GameStart` 只加载 Pride 开场并监听单次完成信号，再读取 `RunState.zone_scene()` 进入原有战区；它不改种子、增益、战区序号或战斗规则。开场期间不实例化玩家、敌人、战区控制和战斗 HUD。fixture 与 `--skip-opening` 直接进战区；已有 `RunState` 延迟重定向与启动器均检查当前场景，先加载的一方完成交接，避免重复预热导航。死亡重开仍由原 `ZoneDirector` 直接载入战区，不返回开场。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
-一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。Sloth 整合草稿的小关入口在 z=55、据点在 z=-48（替代旧灰盒的 z≈-8）；据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援，插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md) 和 [ADR 0011](docs/adr/0011-sloth-playable-integration.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
+一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通锤 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援，插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。敌人排在 `ZoneDirector` 前面，所以战区控制 `_ready` 时敌人已经 ready。Boss 关的核心在 Boss 倒下前关闭，倒下后一锤击碎，见 [ADR 0004](docs/adr/0004-boss-wave-and-core.md) 文末修订。
 
@@ -47,6 +47,8 @@
 ### Sloth 整合草稿的场景与敌人
 
 三张生成地图仍使用原 `RunState.ZONE_SCENES` 路径。`Geometry` 在 `_ready` 构造纯环境，再由 `ZoneDirector` 同步烘焙 `navigation_geometry` 组内的 WORLD 静态碰撞；漂浮装饰和 BOUNDARY 防坠墙不参加。可走地面带 `sloth_walkable` 组及 `walkable_surface` 元数据，小地图递归读取嵌套实体掩体，过滤可走地面与退化裁剪多边形。导航网格 cell=0.5、height=0.25、agent height=2.0、radius=0.5、climb=0.25。Boss 低台座保留浅坡物理，用连续底板作导航代理，避免机器人在小台阶边界往复；核心实体仍为导航障碍。
+
+紧凑修订中，环境用 `combat_bounds`（小关x±20/z±24）或 `combat_radius`（Boss25米）声明实际战斗范围；`_scenery_building` 在构造外围时直接抑制碰撞创建，避免纯景观的柱顶、桥面进入烘焙。`sloth_scenery` 组用于验证景观没有 PhysicsBody。低栏与高差提示边界，高 BOUNDARY 仅拦玩家冲刺，不参与导航；增援点与掩体全部在核心内。地板、掩体和坡道按米重排，未通过整体缩放改变角色或武器比例。
 
 `SlothEnemy extends Enemy` 保留 `setup`、Health、State、`begin_hunt`、`begin_retreat`、`departed` 契约，`ZoneDirector.reinforcement_scene` 由地图选择迟滞者场景，默认仍为旧 Enemy，防止独立测试场景被隐式换种。增援位置在 `add_child` 前设置。`SlothAttack` 使用物理步长管理预警/四连发/结束；暂停冻结、死亡/撤退/换关取消。锚定减速通过 Player 的弱引用来源列表取最强值，最多减速 25%，不影响冲刺；攻击移除会清理来源。`Hitbox.apply_hit_at` 的同步上下文把真实命中点交给闪避和碎裂，已有 `apply_hit` 保持兼容。
 

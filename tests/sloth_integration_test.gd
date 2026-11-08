@@ -10,6 +10,7 @@ var elapsed := 0.0
 var finished := false
 var proof_dir := ""
 var scene_entries: Array[String] = []
+var approach_samples: Array[Dictionary] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -71,6 +72,7 @@ func _run() -> void:
 	finished = true
 	_release_actions()
 	get_tree().paused = false
+	_write_approach_report()
 	print("SLOTH_INTEGRATION_SUMMARY | ",checks," checks | ",failures.size()," failures")
 	get_tree().quit(0 if failures.is_empty() else 1)
 
@@ -103,6 +105,10 @@ func _zone(index: int) -> void:
 	for enemy in guards: enemy.set_physics_process(false)
 	player.health.dash_invulnerable = true
 	var entry_position := player.global_position
+	if index<2:
+		await _normal_approach(index,player,director.capture_point)
+		player.global_position = entry_position
+		player.velocity = Vector3.ZERO
 	player.set_physics_process(false)
 	await _settle()
 	await _navigation(index,director,player)
@@ -179,7 +185,8 @@ func _navigation(index: int,director: ZoneDirector,player: Player) -> void:
 	var from := NavigationServer3D.map_get_closest_point(map,player.global_position)
 	var goals: Array[Vector3] = [director.capture_point.global_position+Vector3(0,0,3.5)]
 	if index<2:
-		goals.append_array([Vector3(0,-2.5,0),Vector3(-39,3,-9),Vector3(39,5,-9),Vector3(29,0,0)])
+		goals.append_array([_surface_center("SunkenCourt"),_surface_center("LeftGallery"),
+			_surface_center("RightGallery"),Vector3(16.5,0,4)])
 	var actor: Enemy
 	for enemy in director.living_enemies():
 		if not enemy.is_boss:
@@ -193,7 +200,9 @@ func _navigation(index: int,director: ZoneDirector,player: Player) -> void:
 		var path := NavigationServer3D.map_get_path(map,from,to,true)
 		_check(goal.distance_to(to)<2.2 and not path.is_empty() and path[-1].distance_to(to)<0.2,"Zone %d nav reaches %s at the intended level" % [index+1,goal])
 		if agent!=null:
-			agent.target_position = goal
+			# NavigationAgent receives the projected walkable point. A raw y=0
+			# socket over a slope is not itself on the nav surface.
+			agent.target_position = to
 			await get_tree().physics_frame
 			agent.get_next_path_position()
 			_check(agent.is_target_reachable() and not agent.get_current_navigation_path().is_empty() and agent.get_final_position().distance_to(goal)<2.2,"Zone %d actual Sloth Agent reaches %s" % [index+1,goal])
@@ -202,10 +211,21 @@ func _navigation(index: int,director: ZoneDirector,player: Player) -> void:
 func _walk_routes(player: Player) -> void:
 	var old_mask := player.collision_mask
 	player.collision_mask = CollisionLayers.WORLD | CollisionLayers.BOUNDARY
+	var front := _surface("CenterFrontRamp")
+	var back := _surface("CenterBackRamp")
+	var left := _surface("LeftGalleryFrontRamp")
+	var right := _surface("RightGalleryBackRamp")
+	var bridge := _surface("CrossCourtBridge")
+	var gallery := _surface("LeftGallery")
+	var bounds: Vector4 = gallery.get_meta("surface_bounds")
+	# The full-size side cover occupies the gallery's middle; the outer lane
+	# remains a real capsule-width underpass beside it.
+	var lower_x := bounds.x+0.2
 	var routes := [
-		[Vector3(0,0.1,55),Vector3(0,0,32),Vector3(0,-2.5,0),Vector3(0,0,-32),Vector3(0,0,-43)],
-		[Vector3(-39,0.1,52),Vector3(-39,3,30),Vector3(-39,3,-9),Vector3(39,5,-9),Vector3(39,5,-24),Vector3(39,0,-56)],
-		[Vector3(-39,0.1,25),Vector3(-39,0,-24)],
+		[player.global_position,front.get_meta("surface_b"),front.get_meta("surface_a"),back.get_meta("surface_b")],
+		[left.get_meta("surface_b"),left.get_meta("surface_a"),bridge.get_meta("surface_a"),
+			bridge.get_meta("surface_b"),right.get_meta("surface_b"),right.get_meta("surface_a")],
+		[Vector3(lower_x,0.1,bounds.w-1.5),Vector3(lower_x,0,bounds.y+1.5)],
 	]
 	for route_index in routes.size():
 		var points: Array = routes[route_index]
@@ -221,18 +241,81 @@ func _walk_routes(player: Player) -> void:
 func _boss_route(player: Player) -> void:
 	var map := player.get_world_3d().navigation_map
 	var core_goal := _director().capture_point.global_position
-	var probe := Vector3(-0.01047,0.4602,10.25282)
-	print("BOSS_DAIS_PATH | ",NavigationServer3D.map_get_path(map,probe,core_goal,true))
+	print("BOSS_DAIS_PATH | ",NavigationServer3D.map_get_path(map,player.global_position,core_goal,true))
 	var old_mask := player.collision_mask
 	player.collision_mask = CollisionLayers.WORLD | CollisionLayers.BOUNDARY
-	player.global_position = Vector3(0,0.1,34)
 	player.velocity = Vector3.ZERO
 	await _settle()
 	var reached := true
-	for goal in [Vector3(0,0.46,9),Vector3(0,0.46,-9),Vector3(0,0,-22)]:
+	for goal in [Vector3(0,0.46,9),Vector3(0,0.46,-9),core_goal+Vector3(0,0,4.5)]:
 		reached = await _walk(player,goal) and reached
 	_check(reached,"Real player capsule crosses the Boss dais from entry toward the core")
 	player.collision_mask = old_mask
+
+func _surface(title: String) -> MeshInstance3D:
+	return get_tree().current_scene.get_node("Geometry/RoomGeometry/WalkableShell/"+title) as MeshInstance3D
+
+func _surface_center(title: String) -> Vector3:
+	var surface := _surface(title)
+	var bounds: Vector4 = surface.get_meta("surface_bounds")
+	return Vector3((bounds.x+bounds.z)*0.5,float(surface.get_meta("surface_top")),(bounds.y+bounds.w)*0.5)
+
+## Measure the user's actual complaint through Player's unchanged input and
+## movement code. Enemy decisions are frozen, but collisions, slopes and Area
+## detection stay real. No teleport, dash, custom velocity or faster jog is used.
+func _normal_approach(index: int,player: Player,point: CapturePoint) -> void:
+	_check(is_equal_approx(player.jog_speed,4.4),"Compact route retains the normal 4.4 m/s jog")
+	var straight := Vector2(player.global_position.x-point.global_position.x,
+		player.global_position.z-point.global_position.z).length()
+	_check(straight<=25.0,"Zone %d spawn-to-point distance returns to the former 22/24 m scale" % (index+1))
+	var entry := player.global_position
+	var nav_map := player.get_world_3d().navigation_map
+	var front_socket := point.global_position+Vector3(0,0,3)
+	var nav_path := NavigationServer3D.map_get_path(nav_map,
+		NavigationServer3D.map_get_closest_point(nav_map,entry),
+		NavigationServer3D.map_get_closest_point(nav_map,front_socket),true)
+	var nav_length := 0.0
+	for item in range(1,nav_path.size()):nav_length += nav_path[item-1].distance_to(nav_path[item])
+	_check(not nav_path.is_empty() and nav_length<26.0,
+		"Zone %d navigation reaches the same front socket without a long detour" % (index+1))
+	var start := Engine.get_physics_frames()
+	var travelled := 0.0
+	var previous := player.global_position
+	player.set_physics_process(true)
+	player.aim_at(point.global_position+Vector3.UP*1.5)
+	Input.action_press("move_forward")
+	for frame in 8*60:
+		await get_tree().physics_frame
+		travelled += previous.distance_to(player.global_position)
+		previous = player.global_position
+		if point.player_in_reach:break
+	Input.action_release("move_forward")
+	var seconds := float(Engine.get_physics_frames()-start)/60.0
+	print("COMPACT_APPROACH | zone=",index+1," | straight_m=",straight,
+		" | walk_m=",travelled," | normal_jog_seconds=",seconds," | old_straight_m=103")
+	approach_samples.append({"zone":index+1,"start":_coordinates(entry),
+		"capture":_coordinates(point.global_position),"nav_front_socket":_coordinates(front_socket),
+		"actual_reach_position":_coordinates(player.global_position),"jog_speed":player.jog_speed,
+		"move_speed_stat":player.stats.get_value(Stats.MOVE_SPEED),"direct_spawn_to_capture_m":straight,
+		"nav_to_front_socket_m":nav_length,"normal_input_walk_m":travelled,
+		"normal_input_physics_seconds":seconds,"actual_area_reached":point.player_in_reach,
+		"previous_direct_spawn_to_capture_m":103.0,
+		"previous_nav_to_front_socket_m":100.379 if index==0 else 101.358})
+	_check(point.player_in_reach and seconds<8.0 and travelled<30.0,
+		"Zone %d real normal-speed player reaches hammer range within eight seconds without a detour" % (index+1))
+	_check(straight<103.0*0.25,"Zone %d removes over 75 percent of the previous 103 m approach" % (index+1))
+	player.set_physics_process(false)
+
+func _coordinates(at: Vector3) -> Array:
+	return [at.x,at.y,at.z]
+
+func _write_approach_report() -> void:
+	var path := "res://artifacts/sloth-compact-approach.json" if proof_dir.is_empty() else proof_dir.path_join("approach-report.json")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+	var file := FileAccess.open(path,FileAccess.WRITE)
+	if file!=null:
+		file.store_string(JSON.stringify({"engine":Engine.get_version_info().string,"samples":approach_samples,
+			"method":"Actual move_forward input through Player physics, unchanged jog and Stats; no teleport/dash/custom velocity during measurement. AI decisions frozen to isolate traversal. Navigation before/after samples use the same point + (0,0,3) front socket; actual Area-reach walk timings use their own explicitly recorded endpoint."},"\t")+"\n")
 
 func _walk(player: Player,goal: Vector3) -> bool:
 	var distance := Vector2(goal.x-player.position.x,goal.z-player.position.z).length()
@@ -329,7 +412,7 @@ func _shot(title: String) -> void:
 	_check(get_viewport().get_texture().get_image().save_png(path)==OK,"Native proof saved: "+title)
 
 func _release_actions() -> void:
-	for action in ["hammer","interact","fire","aim","reload"]:
+	for action in ["hammer","interact","fire","aim","reload","move_forward"]:
 		Input.action_release(action)
 
 func _check(ok: bool,message: String) -> void:

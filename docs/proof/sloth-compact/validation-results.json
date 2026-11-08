@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-08",
+  "engine": "Godot 4.7.2 Windows Forward+",
+  "previous_draft_commit": "1a7b86ce4238ffec6a8bde06be6a9856559e6c1a",
+  "regression_groups": [
+    {
+      "test": "boss_test",
+      "passed": true,
+      "checks": 63,
+      "log_sha256": "ed794f753a23cd5cd70ec0b780dfeb123371b354974cddca57b7508705c39938"
+    },
+    {
+      "test": "firing_position_test",
+      "passed": true,
+      "checks": 18,
+      "log_sha256": "76ede546ead87a6d5d726e33731be53b948ff5f429715e572dad385eed3b6e3b"
+    },
+    {
+      "test": "spawn_sight_test",
+      "passed": true,
+      "checks": 13,
+      "log_sha256": "3204de86c7789608de98e8dc0eafd2f5e34bbdc301bf95ec9b5efd0f0fa33262"
+    },
+    {
+      "test": "hud_test",
+      "passed": true,
+      "checks": 287,
+      "log_sha256": "528ba061b9aaa00fee0ace2792ad257805181fd1232da8dcb55336a2d4a57d00"
+    },
+    {
+      "test": "buff_run_test",
+      "passed": true,
+      "checks": 269,
+      "log_sha256": "4bf4a28c0182682c2c91f45b33af20f333b852e62044e22ad39ea57e590f194c"
+    },
+    {
+      "test": "minimap_test",
+      "passed": true,
+      "checks": 22,
+      "log_sha256": "a04ff43fe82c694471f65fb08025a6cb2bcb371c6d5c0c73d56e935b38bfaae9"
+    },
+    {
+      "test": "capture_hammer_test",
+      "passed": true,
+      "checks": 52,
+      "log_sha256": "daf3a9abb3b3b2662bd1f20b52d0db6dbed4f49d5d6c45993276df5e379f96c0"
+    },
+    {
+      "test": "phase_banner_test",
+      "passed": true,
+      "checks": 24,
+      "log_sha256": "fa940a5256b70fb305761341866cf3490846e5ba6025c3cf7cac098e884e87d3"
+    }
+  ],
+  "integration": {
+    "headless": 130,
+    "native": 140,
+    "failures": 0
+  },
+  "layout": {
+    "checks": 55,
+    "failures": 0
+  },
+  "reinforcement": {
+    "checks": 63,
+    "failures": 0,
+    "visible_engage": 7,
+    "actors": 8,
+    "jitter": 0
+  },
+  "burst_native": {
+    "checks": 25,
+    "failures": 0
+  },
+  "fixture": {
+    "wins": 6,
+    "same_seed_repeats_match": true,
+    "hashes": {
+      "FX-001": "704caea589dc573b",
+      "FX-002": "12e617f6e148f229"
+    }
+  },
+  "diagnostics": [
+    "Host root certificate store startup diagnostic; no game script/navigation/polygon errors or ObjectDB leaks."
+  ],
+  "performance": "No new frame-time benchmark; old wide-map performance sample is historical."
+}

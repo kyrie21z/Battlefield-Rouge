@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+== reinforcements behind the building find a firing position
+  [ok] the first wave spawns
+  [ok] the first wave spawns out of the player's view
+  [ok] reinforcements pick a firing position on spawn
+  [ok] a reinforcement fires within 15 s
+  [ok] it does not fire from arm's length (closest 11.36 m)
+  [ok] the shot comes from a spot with a clear line of sight
+== several reinforcements keep their spots apart
+  [ok] four reinforcements reserved firing positions (4)
+  [ok] spots stay on the 8-20 m ring
+  [ok] spots are at least 3.5 m apart (closest 4.85 m)
+== hammering wakes idle guards in hearing range only
+  [ok] the zone starts with four guards
+  [ok] the close guard starts idle
+  [ok] the far guard starts idle
+  [ok] the close guard is inside hearing range (5.0 m)
+  [ok] the far guard is outside hearing range (41.4 m)
+  [ok] hammering wakes the close idle guard
+  [ok] hammering leaves the far idle guard alone
+== the same input picks the same spots
+  [ok] both runs spawn the first wave
+  [ok] both runs pick the same positions
+ALL PASSED (0 failed)

@@ -19,9 +19,9 @@ extends Node
 const MAPS := [
 	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 4, "bands": [1, 1, 2]},
 	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 6, "bands": [2, 2, 2]},
-	# The 92 m sanctum keeps four in front plus two beside the Boss. The
-	# locked core is 20.5 m behind him, so escorts occupy the middle third.
-	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 6, "bands": [2, 4, 0], "boss": true},
+	# The compact 50 m arena restores front/middle/escort progression while
+	# the original monumental 92 m shell remains scenery outside the battlefield.
+	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 6, "bands": [2, 2, 2], "boss": true},
 ]
 const SPAWN_CLEARANCE := 15.0
 const ENEMY_SPACING := 3.0
@@ -103,7 +103,7 @@ func _check_map(spec: Dictionary) -> void:
 
 	var seen: Array[String] = []
 	for enemy in enemies:
-		# The arena deliberately presents its Boss as a visible 40 m threat.
+		# The arena deliberately presents its Boss as a visible distant threat.
 		# His six guards still obey the same safe idle-spawn sight rule.
 		if enemy == boss:
 			continue
@@ -131,6 +131,20 @@ func _check_map(spec: Dictionary) -> void:
 			unreachable.append(enemy.name)
 	_check("%s connects every guard to the entry navigation surface (%s)" % [file, unreachable],
 		unreachable.is_empty())
+	var region := (scene.get_node("ZoneDirector") as ZoneDirector).navigation_region
+	var vertices := region.navigation_mesh.get_vertices()
+	var compact := not vertices.is_empty()
+	for vertex in vertices:
+		var world := region.to_global(vertex)
+		if boss!=null:
+			compact = compact and Vector2(world.x,world.z).length()<=26.0
+		else:
+			compact = compact and absf(world.x)<=21.0 and absf(world.z)<=25.0
+	_check("%s bakes only the compact combat floor, not monumental scenery" % file,compact)
+	for destination in [Vector3(0,0,60),Vector3(0,0,90),Vector3(-50,0,5),Vector3(50,0,5)]:
+		var closest := NavigationServer3D.map_get_closest_point(player.get_world_3d().navigation_map,destination)
+		_check("%s keeps distant architectural scenery outside navigation %s" % [file,destination],
+			closest.distance_to(destination)>10.0)
 
 	var stuck: Array[String] = []
 	for enemy in enemies:
@@ -162,9 +176,6 @@ func _check_map(spec: Dictionary) -> void:
 	var escorts: Array[Enemy] = []
 	if boss != null:
 		print("== %s: the boss formation" % file)
-		for destination in [Vector3(0,0,60),Vector3(0,0,90),Vector3(-50,0,5),Vector3(50,0,5)]:
-			_check("%s connects arena to the approach / outer courts %s" % [file, destination],
-				_navmesh_connects(player.get_world_3d().navigation_map, spawn, destination))
 		for enemy in small:
 			var gap := _flat(enemy.global_position, boss.global_position)
 			if gap >= ESCORT_MIN and gap <= ESCORT_MAX:

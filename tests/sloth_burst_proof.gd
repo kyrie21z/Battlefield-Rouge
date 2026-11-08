@@ -69,6 +69,9 @@ func _run() -> void:
 	_actor = _map.get_node("Enemy1") as SlothEnemy
 	_check("observed actor is the authored Lingerer", _actor.kind == SlothEnemy.Kind.LINGERER
 		and _actor.target == player and _actor.scene_file_path == "res://actors/enemy/sloth/sloth_enemy.tscn")
+	# Stage the same authored actor along the clear front edge of the compact
+	# court. The old position+34 m target would sit beyond its new boundary.
+	_actor.global_position = Vector3(-16.0,0.0,22.0)
 	player.global_position = _actor.global_position + Vector3(34.0, 0.1, 0.0)
 	_actor.look_at(Vector3(player.global_position.x, _actor.global_position.y, player.global_position.z))
 	_actor.state = Enemy.State.ENGAGE

@@ -1,0 +1,70 @@
+{
+	"engine": "4.7.2-stable (official)",
+	"method": "Actual move_forward input through Player physics, unchanged jog and Stats; no teleport/dash/custom velocity during measurement. AI decisions frozen to isolate traversal. Navigation before/after samples use the same point + (0,0,3) front socket; actual Area-reach walk timings use their own explicitly recorded endpoint.",
+	"samples": [
+		{
+			"actual_area_reached": true,
+			"actual_reach_position": [
+				0.0,
+				-1.0115567445755,
+				-4.57370662689209
+			],
+			"capture": [
+				0.0,
+				0.0,
+				-8.0
+			],
+			"direct_spawn_to_capture_m": 22.0,
+			"jog_speed": 4.4,
+			"move_speed_stat": 1.0,
+			"nav_front_socket": [
+				0.0,
+				0.0,
+				-5.0
+			],
+			"nav_to_front_socket_m": 19.4073889106512,
+			"normal_input_physics_seconds": 4.3,
+			"normal_input_walk_m": 18.812648685649,
+			"previous_direct_spawn_to_capture_m": 103.0,
+			"previous_nav_to_front_socket_m": 100.379,
+			"start": [
+				0.0,
+				0.0499999970197678,
+				14.0
+			],
+			"zone": 1
+		},
+		{
+			"actual_area_reached": true,
+			"actual_reach_position": [
+				0.0,
+				-1.01047039031982,
+				-4.57732772827148
+			],
+			"capture": [
+				0.0,
+				0.0,
+				-8.0
+			],
+			"direct_spawn_to_capture_m": 24.0,
+			"jog_speed": 4.4,
+			"move_speed_stat": 1.0,
+			"nav_front_socket": [
+				0.0,
+				0.0,
+				-5.0
+			],
+			"nav_to_front_socket_m": 21.29127150774,
+			"normal_input_physics_seconds": 4.71666666666667,
+			"normal_input_walk_m": 20.77991938591,
+			"previous_direct_spawn_to_capture_m": 103.0,
+			"previous_nav_to_front_socket_m": 101.358,
+			"start": [
+				0.0,
+				0.000937493867240846,
+				16.0
+			],
+			"zone": 2
+		}
+	]
+}

@@ -6,6 +6,7 @@ extends Node
 const CONFIG_PATH := "res://zone/reinforcement_config.tres"
 
 var _failures := 0
+var _checks := 0
 var _finished := false
 var _elapsed := 0.0
 var _first_wave_player := Vector3.ZERO
@@ -19,7 +20,7 @@ func _ready() -> void:
 	OS.delay_msec(100)
 	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
-	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
+	print("%s (%d checks, %d failed%s)" % ["ALL PASSED" if ok else "FAIL", _checks, _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
 
 
@@ -73,7 +74,11 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	var entry_court := scene.get_node("Geometry/RoomGeometry/WalkableShell/EntryCourt") as MeshInstance3D
 	var rear_bounds: Vector4 = exit_court.get_meta("surface_bounds")
 	var front_bounds: Vector4 = entry_court.get_meta("surface_bounds")
-	_check("%s building stands in the rear court" % path.get_file(), _inside(point.global_position,rear_bounds))
+	# The compact objective sits on the shared rear-court/ramp edge, as in the
+	# original short run-in. Its center may lie exactly on the closed boundary.
+	_check("%s building stands in the rear court" % path.get_file(),
+		point.global_position.x>=rear_bounds.x and point.global_position.x<=rear_bounds.z
+		and point.global_position.z>=rear_bounds.y and point.global_position.z<=rear_bounds.w)
 	_check("%s player enters from the front" % path.get_file(), player.global_position.z > point.global_position.z + 15.0)
 	var spawns := _spawns(scene)
 	_check("%s has spawn markers round the arena" % path.get_file(), spawns.size() >= 6)
@@ -95,6 +100,24 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 		and spawns.any(func(marker: Marker3D):return marker.global_position.x > point.global_position.x+10.0))
 	var guards := _enemies(scene)
 	_check("%s guard count" % path.get_file(), guards.size() == guard_count)
+	var capsule := guards[0].get_node("CollisionShape3D") as CollisionShape3D
+	var blocked_spawns: Array[String] = []
+	var off_nav: Array[String] = []
+	var nav_map := player.get_world_3d().navigation_map
+	for marker in spawns:
+		var query := PhysicsShapeQueryParameters3D.new()
+		query.shape = capsule.shape
+		query.transform = (marker.global_transform*capsule.transform).translated(Vector3.UP*0.02)
+		query.collision_mask = CollisionLayers.WORLD
+		query.collide_with_areas = false
+		if not player.get_world_3d().direct_space_state.intersect_shape(query,1).is_empty():
+			blocked_spawns.append(marker.name)
+		var closest := NavigationServer3D.map_get_closest_point(nav_map,marker.global_position)
+		if Vector2(closest.x-marker.global_position.x,closest.z-marker.global_position.z).length()>0.75 \
+				or absf(closest.y-marker.global_position.y)>1.1:
+			off_nav.append(marker.name)
+	_check("%s leaves each real reinforcement capsule clear of WORLD (%s)" % [path.get_file(),blocked_spawns],blocked_spawns.is_empty())
+	_check("%s keeps every reinforcement marker on its intended navigation floor (%s)" % [path.get_file(),off_nav],off_nav.is_empty())
 	# Since issue #42 the guards are spread over the whole approach instead of
 	# ringing the building: none inside the hammer reach, but at least one close
 	# enough to defend the point and one out in the battlefield.
@@ -400,6 +423,7 @@ func _wait(seconds: float) -> void:
 
 
 func _check(label: String, ok: bool) -> void:
+	_checks += 1
 	if not ok:
 		_failures += 1
 	print("  [%s] %s" % ["ok" if ok else "FAIL", label])

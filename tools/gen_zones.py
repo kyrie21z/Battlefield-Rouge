@@ -103,21 +103,20 @@ def zone(name, room_index, spawn, capture, enemies, spawns=(), boss=None):
     return "\n".join([f'[gd_scene load_steps={count} format=3]', ''] + ext + [''] + sub + nodes)
 
 
-SPAWNS = [(-20, 0, -48), (20, 0, -48), (0, 0, -60),
-          (-29, 0, -30), (29, 0, -30), (-39, 3, -27), (39, 5, -17)]
+# Restore the original short objective run-in while keeping full-size actors.
+SPAWNS = [(-11.5, 0, -20), (0, 0, -21), (11.5, 0, -20),
+          (-17, 0, -8), (17, 0, -8), (-16.5, 3, -6), (16.5, 4, -6)]
 LAYOUTS = {
-    "maps/zone_1.tscn": dict(name="Zone1", room_index=0, spawn=(0, 0.1, 55), capture=(0, 0, -48),
-        # Full-cover sentry, sunken-court anchor, then two rear defenders.
-        # Each stands 1.6 m outside its cover's solid bounds, on its real floor.
-        enemies=[((-18.5, 0, 51), 0, 0), ((13.9, -2.5, -7), 1, 0),
-                 ((-13, 0, -39.6), 0, 0), ((18.5, 0, -52), 0, 0)], spawns=SPAWNS),
-    "maps/zone_2.tscn": dict(name="Zone2", room_index=1, spawn=(0, 0.1, 55), capture=(0, 0, -48),
-        enemies=[((-18.5, 0, 51), 0, 0), ((18.5, 0, 51), 0, 0),
-                 ((-13.9, -2.5, -7), 0, 0), ((13.9, -2.5, -7), 1, 0),
-                 ((-13, 0, -39.6), 2, 0), ((18.5, 0, -52), 1, 0)], spawns=SPAWNS),
-    "maps/boss.tscn": dict(name="Boss", room_index=0, spawn=(0, 0.1, 34), capture=(0, 0, -26.5),
-        enemies=[((-16, 0, 20.4), 0, 0), ((16, 0, 20.4), 0, 0),
-                 ((-20, 0, 0), 1, 0), ((20, 0, 0), 1, 0),
+    "maps/zone_1.tscn": dict(name="Zone1", room_index=0, spawn=(0, 0.1, 14), capture=(0, 0, -8),
+        enemies=[((13.5, 0, 7.2), 0, 30), ((-8.5, -1.2, 1.5), 1, -45),
+                 ((-7, 0, -10), 0, -60), ((7, 0, -10), 0, 60)], spawns=SPAWNS),
+    "maps/zone_2.tscn": dict(name="Zone2", room_index=1, spawn=(0, 0.1, 16), capture=(0, 0, -8),
+        enemies=[((-13.5, 0, 9), 0, -30), ((13.5, 0, 9), 0, 30),
+                 ((-8.5, -1.2, 1.8), 0, -45), ((8.5, -1.2, 1.8), 1, 45),
+                 ((-14, 0, -1.5), 2, -60), ((14, 0, -1.5), 1, 60)], spawns=SPAWNS),
+    "maps/boss.tscn": dict(name="Boss", room_index=0, spawn=(0, 0.1, 18), capture=(0, 0, -17),
+        enemies=[((-12, 0, 7), 0, 0), ((12, 0, 7), 0, 0),
+                 ((-15, 0, 1), 1, 0), ((15, 0, 1), 1, 0),
                  ((-4, 0.46, -6), 0, 0), ((4, 0.46, -6), 0, 0)], boss=(0, 0.46, -6)),
 }
 

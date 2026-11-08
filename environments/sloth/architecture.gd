@@ -7,16 +7,22 @@ var environment: Environment
 var halo: Node3D
 var floaters: Array[Dictionary] = []
 var _cover_serial := 0
+## Scenic modules never create bodies, even if their reusable authoring calls
+## request a solid mesh. They cannot leave nav islands or queued-deletion walls.
+var _scenery_building := false
 
 func _ready() -> void:
 	_materials()
 	_lighting()
 	_clouds()
+	_scenery_building = true
 	_bridge()
-	_sanctuary()
+	_sanctuary_surround()
 	_great_halo()
 	_rest_garden()
 	_distant_architecture()
+	_scenery_building = false
+	_boss_arena()
 	_boss_combat_covers()
 	_boss_safety()
 	_register_navigation(self)
@@ -55,6 +61,8 @@ func _materials() -> void:
 func _group(title: String) -> Node3D:
 	var g := Node3D.new()
 	g.name = title
+	if _scenery_building:
+		g.add_to_group("sloth_scenery")
 	add_child(g)
 	return g
 
@@ -70,7 +78,7 @@ func _box(at: Vector3, size: Vector3, material: String, parent: Node3D, solid :=
 	var b := BoxMesh.new()
 	b.size = size
 	var mi := _mesh(b,at,material,parent)
-	if solid:
+	if solid and not _scenery_building:
 		var shape := BoxShape3D.new()
 		shape.size = size
 		_collider(mi,shape)
@@ -83,7 +91,7 @@ func _cylinder(at: Vector3, radius: float, height: float, material: String, pare
 	b.height = height
 	b.radial_segments = segments
 	var mi := _mesh(b,at,material,parent)
-	if solid:
+	if solid and not _scenery_building:
 		var shape := CylinderShape3D.new()
 		shape.radius = radius
 		shape.height = height
@@ -183,18 +191,14 @@ func _clouds() -> void:
 func _bridge() -> void:
 	var g := _group("ArrivalBridge")
 	_box(Vector3(0,-1.42,78),Vector3(14,2.40,72),"base",g)
-	# Distinct physical and visual surfaces keep the bridge/main-floor junction
-	# continuous for walking, with 3cm visual separation to avoid coplanar pixels.
+	# The former long arrival walk remains a monumental broken approach outside
+	# the short combat disk. It is scenery, with no player or navigation surface.
 	var paving := _box(Vector3(0,-0.08,78),Vector3(14,0.22,72),"bridge_floor",g,true)
 	paving.name = "ApproachFloor"
 	paving.add_to_group("WalkableFloors")
-	paving.get_child(0).position.y = -0.03
 	for s in [-1.0,1.0]:
 		_box(Vector3(s*7.0,0.48,78),Vector3(0.45,0.96,72),"chalk",g,true)
 		_box(Vector3(s*7.0,1.13,78),Vector3(0.55,0.12,72),"ivory",g)
-		# Invisible upper barrier prevents an accidental fall without enclosing the view.
-		var rail := _box(Vector3(s*7.0,1.25,78),Vector3(0.2,2.5,72),"ivory",g,true)
-		rail.visible = false
 		for i in range(6):
 			var z := 51.0+i*11.0
 			_box(Vector3(s*7.0,0.85,z),Vector3(0.82,1.7,0.85),"ivory",g)
@@ -208,20 +212,18 @@ func _bridge() -> void:
 	_box(Vector3(0,20.95,100.55),Vector3(24,0.09,0.12),"bronze",g)
 	_box(Vector3(0,0.1,113.5),Vector3(14,0.2,1),"dark",g,true)
 
-func _sanctuary() -> void:
-	var g := _group("Sanctuary")
-	# Continuous circular floor: the ornate surface never requires platforming.
-	_cylinder(Vector3(0,-2.08,0),46,3.84,"base",g)
-	var arena_floor := _cylinder(Vector3(0,-0.08,0),46,0.16,"floor",g,true)
-	arena_floor.name = "ArenaFloor"
-	arena_floor.add_to_group("WalkableFloors")
+func _sanctuary_surround() -> void:
+	var g := _group("SanctuarySurround")
+	# A lower broken precinct, separated by an open moat from the combat disk.
+	# No continuous same-height floor suggests a long route to the objective.
+	_cylinder(Vector3(0,-5.08,0),46,3.84,"base",g)
+	_ring(Vector3(0,-3.12,0),44.8,3.0,"chalk",g)
 	_cylinder(Vector3(0,-7.0,0),42,6,"dark",g,false,44)
 	_cylinder(Vector3(0,-12.0,0),33,5,"base",g,false,42)
 	for i in range(48):
 		var a := TAU*i/48.0
-		# These gaps join real walkable floors. Never create their rim bodies:
-		# a queued deletion would still be present in the director's immediate
-		# synchronous bake and leave a phantom wall after the first frame.
+		# Gaps articulate the monumental outer precinct. The entire module is
+		# scenic, so neither roofs nor former rim pieces enter navigation.
 		var opening := absf(a) < 0.15 or a > TAU-0.15 \
 			or (absf(sin(a))>0.9 and cos(a)*45.7>-6.0 and cos(a)*45.7<16.0)
 		if not opening:
@@ -230,25 +232,6 @@ func _sanctuary() -> void:
 		if i%2==0:
 			var rib := _box(Vector3(sin(a)*42,-7.5,cos(a)*42),Vector3(1.3,13,2.0),"chalk",g)
 			rib.rotation.y = a
-	# Low central dais reached by shallow, walkable steps.
-	for i in range(3):
-		_cylinder(Vector3(0,0.075+i*0.15,0),13.5-i*0.65,0.15,"ivory",g)
-	# Smooth collision follows the shallow steps, so walking never needs a jump.
-	var ramp := _cylinder(Vector3(0,0.23,0),14.3,0.46,"ivory",g,false,11.9)
-	ramp.name = "DaisWalkRamp"
-	ramp.add_to_group("WalkableFloors")
-	# This entire low dais is walkable relief, not an obstacle. Its continuous
-	# arena floor below is the navigation proxy; the core's solid body remains
-	# navigation geometry and still makes agents route around the objective.
-	# Rasterizing a second surface only 0.46 m above it creates a raised
-	# slope portal whose 3D closest point can sit behind a grounded actor.
-	# Keep the real shallow collision, while agents follow the seamless floor.
-	ramp.set_meta("navigation_floor_below",true)
-	ramp.create_trimesh_collision()
-	ramp.visible = false
-	_ring(Vector3(0,0.48,0),11.7,0.07,"bronze",g)
-	_cylinder(Vector3(0,0.5,0),3.8,0.12,"dark",g)
-	_ring(Vector3(0,0.58,0),3.55,0.065,"cold",g)
 	# The arcade reads as a ring through repetition and large negative spaces.
 	for i in range(24):
 		var a := TAU*i/24.0
@@ -268,15 +251,49 @@ func _sanctuary() -> void:
 			var b := _box(float_at,Vector3(5,2,5),"ivory",g)
 			b.rotation_degrees = Vector3(9,i*13,8)
 			floaters.append({"node":b,"origin":float_at,"phase":float(i)})
-	# Pair of broad side terraces, also continuous with the main floor.
+	# Broad outer terraces keep their original scale beyond the combat rim.
 	for side in [-1.0,1.0]:
 		var terrace := _box(Vector3(side*43,-1.05,5),Vector3(28,1.9,24),"base",g,true)
 		terrace.add_to_group("WalkableFloors")
-		terrace.get_child(0).position.y = 0.1
 		_box(Vector3(side*43,0.025,5),Vector3(27.8,0.05,23.7),"ivory",g)
 		_box(Vector3(side*56.7,0.55,5),Vector3(0.6,1.1,24),"chalk",g,true)
 		for z in [-6.7,16.7]:
 			_box(Vector3(side*47,0.55,z),Vector3(20,1.1,0.6),"chalk",g,true)
+
+func _boss_arena() -> void:
+	var g := _group("Sanctuary")
+	set_meta("combat_radius",25.0)
+	_cylinder(Vector3(0,-2.08,0),25,3.84,"base",g)
+	var arena_floor := _cylinder(Vector3(0,-0.08,0),25,0.16,"floor",g,true)
+	arena_floor.name = "ArenaFloor"
+	arena_floor.add_to_group("WalkableFloors")
+	# Low central dais reached by shallow, walkable steps.
+	for i in range(3):
+		_cylinder(Vector3(0,0.075+i*0.15,0),10.5-i*0.65,0.15,"ivory",g)
+	# Smooth collision follows the shallow steps, so walking never needs a jump.
+	var ramp := _cylinder(Vector3(0,0.23,0),11.3,0.46,"ivory",g,false,8.9)
+	ramp.name = "DaisWalkRamp"
+	ramp.add_to_group("WalkableFloors")
+	# This entire low dais is walkable relief, not an obstacle. Its continuous
+	# arena floor below is the navigation proxy; the core's solid body remains
+	# navigation geometry and still makes agents route around the objective.
+	# Rasterizing a second surface only 0.46 m above it creates a raised
+	# slope portal whose 3D closest point can sit behind a grounded actor.
+	# Keep the real shallow collision, while agents follow the seamless floor.
+	ramp.set_meta("navigation_floor_below",true)
+	ramp.create_trimesh_collision()
+	ramp.visible = false
+	_ring(Vector3(0,0.48,0),8.7,0.07,"bronze",g)
+	_cylinder(Vector3(0,0.5,0),3.8,0.12,"dark",g)
+	_ring(Vector3(0,0.58,0),3.55,0.065,"cold",g)
+
+	# The continuous short rim visibly ends the combat disk; the huge bridge,
+	# outer terraces and halo beyond it remain scenery at their original scale.
+	for i in range(48):
+		var a := TAU*i/48.0
+		var edge := _box(Vector3(sin(a)*24.7,0.34,cos(a)*24.7),Vector3(3.35,0.68,0.6),"chalk",g,true)
+		edge.rotation.y = a
+	_ring(Vector3(0,0.03,0),23.8,0.08,"bronze",g)
 
 func _great_halo() -> void:
 	var g := _group("GreatHalo")
@@ -414,14 +431,14 @@ func _cover_markers(at: Vector3, size: Vector3) -> void:
 func _boss_combat_covers() -> void:
 	var g := _group("CombatCovers")
 	for side in [-1.0,1.0]:
-		for z in [-23.0,23.0]:
-			var at := Vector3(side*16,0.6,z)
-			var dimensions := Vector3(4,1.2,2)
+		for z in [-14.0,9.6]:
+			var at := Vector3(side*12,0.6,z)
+			var dimensions := Vector3(4,1.2,1.2)
 			var cover := _box(at,dimensions,"chalk",g,true)
 			cover.add_to_group("CoverPieces")
 			_cover_markers(at,dimensions)
-		var at := Vector3(side*25,1.3,0)
-		var dimensions := Vector3(3,2.6,5)
+		var at := Vector3(side*18,1.3,1)
+		var dimensions := Vector3(3,2.6,4)
 		var cover := _box(at,dimensions,"ivory",g,true)
 		cover.add_to_group("CoverPieces")
 		_cover_markers(at,dimensions)
@@ -430,13 +447,6 @@ func _boss_safety() -> void:
 	var g := _group("PlayerRim")
 	for i in range(48):
 		var a := TAU*i/48.0
-		if a<0.15 or a>TAU-0.15 or (absf(sin(a))>0.9 and cos(a)*45.7>-6.0 and cos(a)*45.7<16.0): continue
-		var barrier := _box(Vector3(sin(a)*45.9,15,cos(a)*45.9),Vector3(6.05,30,0.14),"chalk",g,true)
+		var barrier := _box(Vector3(sin(a)*24.9,15,cos(a)*24.9),Vector3(3.45,30,0.14),"chalk",g,true)
 		barrier.rotation.y = a
 		barrier.visible = false
-	for side in [-1.0,1.0]:
-		var barrier := _box(Vector3(side*56.7,15,5),Vector3(0.14,30,24),"chalk",g,true)
-		barrier.visible = false
-		for z in [-6.7,16.7]:
-			barrier = _box(Vector3(side*47,15,z),Vector3(20,30,0.14),"chalk",g,true)
-			barrier.visible = false

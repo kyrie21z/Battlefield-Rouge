@@ -1,0 +1,45 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+== the step is fixed
+  [ok] each frame is exactly 1/60 s (run with --fixed-fps 60)
+  [ok] each frame is one physics tick
+== the session starts every zone
+  [ok] no zone runs before the session starts the first
+== the seed
+  [ok] a zone seed is the same each time
+  [ok] another seed gives another zone seed
+  [ok] another zone gives another zone seed
+  [ok] an ordinary run gets a new seed each time
+  [ok] there is at least one fixture
+  [ok] fixtures/fx-001.tres loads and carries a matching id
+== FX-001  seed 1001  zone 0  buffs 0  (新开一局：战区 1，没有增益)
+  [ok] FX-001 run 1 starts from the fixture
+   run 1: 胜利 after 1861 ticks (31.0 s), 103 trace lines, hash 704caea589dc573b
+  [ok] FX-001 run 2 starts from the fixture
+   run 2: 胜利 after 1861 ticks (31.0 s), 103 trace lines, hash 704caea589dc573b
+  [ok] FX-001 run 2 has the same hash as run 1
+  [ok] FX-001 run 2 ends the same way
+  [ok] FX-001 run ends in a win or a death, not a timeout
+== FX-001 again with another seed
+  [ok] FX-001 run 1 starts from the fixture
+   seed 1002: 胜利 after 1859 ticks, hash e5d0bb32a752feb7
+  [ok] FX-001 with another seed is a different run
+  [ok] fixtures/fx-002.tres loads and carries a matching id
+== FX-002  seed 2002  zone 2  buffs 2  (Boss 起点：直接进 Boss 关，带两条增益（急速射击、扩容弹匣）)
+  [ok] FX-002 run 1 starts from the fixture
+   run 1: 胜利 after 690 ticks (11.5 s), 34 trace lines, hash 12e617f6e148f229
+  [ok] FX-002 run 2 starts from the fixture
+   run 2: 胜利 after 690 ticks (11.5 s), 34 trace lines, hash 12e617f6e148f229
+  [ok] FX-002 run 2 has the same hash as run 1
+  [ok] FX-002 run 2 ends the same way
+  [ok] FX-002 run ends in a win or a death, not a timeout
+== FX-002 again with another seed
+  [ok] FX-002 run 1 starts from the fixture
+   seed 2003: 胜利 after 740 ticks, hash dcc6687a539ce1cf
+  [ok] FX-002 with another seed is a different run
+== hashes
+   FX-001  704caea589dc573b
+   FX-002  12e617f6e148f229
+ALL PASSED (0 failed)

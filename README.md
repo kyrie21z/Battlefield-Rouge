@@ -4,7 +4,7 @@
 
 游戏方向见 [Creative Vision](docs/CREATIVE_VISION.md)：抽象精神世界里的 FPS 肉鸽，头顶的皇冠 Pride 引导玩家逐层消灭心魔，最后与 Pride 和解；第一层是 Sloth（[关卡设计](docs/levels/SLOTH_LEVEL_DESIGN.md)）。下面描述的是当前原型。
 
-**Sloth 可玩整合草稿（2026-11-08）：** 本分支基于已合并场景备案的 main `fe0e1c9`，普通入口现会进入两关 96×128 米复层庭院，再进入直径 92 米的云海环形圣殿。新场景已接入守卫、增援、据点锤击、插旗冲击波、增益台、三次选卡、Boss 核心、胜负和重开。两小关分别有 4 / 6 名 Sloth 守卫；Boss 沿用原型大敌人及规则，配 6 名新小怪。迟滞者改为一次四连弹：蓄力 2 秒，最后 0.45 秒锁向，发射间隔 0.18 秒，每发 9 伤、40 米/秒；打完保留 1 秒披风张开的反击窗口。当前是试玩草稿，完整巨像、休憩区和战后变化仍未实现。参数、实机图及复现见 [整合证明](docs/proof/sloth-integration/README.md) 和 [ADR 0011](docs/adr/0011-sloth-playable-integration.md)。
+**Sloth 可玩整合草稿（2026-11-08，紧凑战场修订）：** 本分支基于已合并场景备案的 main `fe0e1c9`。两小关的实际战斗核心改为 40×48 米，出生点到据点恢复旧版的 **22 / 24 米**（上一版为 103 米）；外围柱廊、云海与浮岛保留宏大尺度。Boss 使用直径 50 米的实际战斗台，外侧圣殿、巨环、钟摆和悬浮建筑作为景观。已接入守卫、增援、据点锤击、插旗冲击波、增益台、三次选卡、Boss 核心、胜负和重开。两小关分别有 4 / 6 名 Sloth 守卫；Boss 沿用原型大敌人及规则，配 6 名新小怪。披风迟滞者仍是 2 秒蓄力、最后 0.45 秒锁向的四连弹，间隔 0.18 秒、9 伤/发、40 米/秒，结束后留 1 秒反击窗口。完整巨像、休憩区与战后变化后续制作。当前布局、实机图和验证见 [紧凑战场证明](docs/proof/sloth-compact/README.md)；[首次整合证明](docs/proof/sloth-integration/README.md) 保留宽场版本的历史数据。
 
 [Sloth 场景备用预演](prototypes/sloth_scene_reserve/README.md)与[敌人备用包](prototypes/sloth_enemy_reserve/README.md)仍保留此前隔离版本的历史；本分支运行时使用 `environments/sloth/` 与 `actors/enemy/sloth/`，不依赖备用工程。
 

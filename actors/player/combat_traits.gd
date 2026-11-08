@@ -27,7 +27,6 @@ var feedback := ""
 var feedback_remaining := 0.0
 var _reload_charge_stored := false
 var _held_magazine: Node3D
-var _shield_absorbed := false
 var _orbit_time := 0.0
 var _orbs: Array[MeshInstance3D] = []
 var _audio := AudioStreamPlayer.new()
@@ -37,9 +36,8 @@ func _ready() -> void:
 	weapon.fired.connect(_on_fired)
 	melee.swing_started.connect(_on_swing_started)
 	health.parried.connect(_on_parried)
-	health.blocked.connect(_on_blocked)
-	shield.activated.connect(func(): _shield_absorbed = false)
-	shield.expired.connect(_on_shield_expired)
+	shield.counter_released.connect(_on_shield_released)
+	shield.absorbed_hit.connect(_on_shield_absorbed)
 	add_child(_audio)
 	_audio.stream = ProceduralAudio.generate("hammer_perfect")
 	_audio.volume_db = -10.0
@@ -76,7 +74,6 @@ func clear() -> void:
 	_held_magazine.visible = false
 	parry_remaining = 0.0
 	health.parrying = false
-	_shield_absorbed = false
 	feedback = ""
 	feedback_remaining = 0.0
 	_audio.stop()
@@ -185,23 +182,19 @@ func _ejection_origin(direction: Vector3) -> Vector3:
 	return origin
 
 
-func _on_blocked(amount: float, _source: Node) -> void:
-	if shield.is_active() and amount > 0.0:
-		_shield_absorbed = true
-		if stats.get_value(Stats.SHIELD_PULSE_DAMAGE) > 0.0:
-			_notify("护盾已蓄能：结束时释放反击")
+func _on_shield_absorbed(_amount: float) -> void:
+	_notify("护盾蓄能 %.0f / %.0f：再次按 %s 反击" % [shield.absorbed_damage(), shield.capacity(), KeyHint.of("shield")])
 
 
-func _on_shield_expired() -> void:
-	var damage := stats.get_value(Stats.SHIELD_PULSE_DAMAGE)
-	if not _shield_absorbed or damage <= 0.0 or health.is_dead():
+func _on_shield_released(absorbed: float) -> void:
+	var damage := absorbed * stats.get_value(Stats.SHIELD_REFLECT_MULTIPLIER)
+	if damage <= 0.0 or health.is_dead():
 		return
-	_shield_absorbed = false
 	ReloadCharge.blast(shooter.get_parent(), shooter.global_position + Vector3.UP,
 		shooter, damage, SHIELD_PULSE_RADIUS, PlayerShield.ACCENT)
 	shield.show_counter_pulse()
 	shield_pulsed.emit()
-	_notify("护盾反击！周围敌人受到冲击")
+	_notify("护盾反击！释放 %.0f 点吸收伤害" % damage)
 
 
 func _notify(text: String) -> void:

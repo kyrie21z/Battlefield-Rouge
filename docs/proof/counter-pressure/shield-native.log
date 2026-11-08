@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS | proof directory is writable
+PASS | native Forward+ renderer
+PASS | proof uses the authored increased first wave
+PASS | real opening card UI is present
+PASS | the actual offered cards include the counter skill ID
+PASS | actual counter card unlocks persistent shielding
+PASS | default capacity is 100 absorbed damage
+SHIELD_PROOF_READY | paused=false | process=true | mouse=2 | HP=115.0 | immunity=false/false
+SHIELD_PROOF_KEY | mouse=2 | just_pressed=true | bindings=[InputEventKey: keycode=71 (G), mods=none, physical=true, location=unspecified, pressed=false, echo=false]
+PASS | physical G raises the actual visible shield
+PASS | uncharged shield remains visible past the old two-second expiry
+PASS | native screenshot saved: 01-persistent-idle
+PASS | native pixels retain a visible shield rim past the old lifetime
+PASS | actual hostile projectile stores 35 damage without HP loss
+PASS | partial charge keeps the shield and its sustained visual until release
+PASS | partial absorption never auto-releases on a timer
+PASS | native screenshot saved: 02-persistent-charged
+SHIELD_PROOF_KEY | mouse=2 | just_pressed=true | bindings=[InputEventKey: keycode=71 (G), mods=none, physical=true, location=unspecified, pressed=false, echo=false]
+PASS | physical G manually releases the partially charged shield once
+PASS | manual pulse deals exactly the absorbed 35 damage to a real nearby Sloth enemy
+PASS | manual release starts cooldown and the outgoing visual wave
+PASS | native screenshot saved: 03-manual-reflect
+SHIELD_PROOF_KEY | mouse=2 | just_pressed=true | bindings=[InputEventKey: keycode=71 (G), mods=none, physical=true, location=unspecified, pressed=false, echo=false]
+PASS | repeated G during cooldown cannot duplicate the pulse
+SHIELD_PROOF_KEY | mouse=2 | just_pressed=true | bindings=[InputEventKey: keycode=71 (G), mods=none, physical=true, location=unspecified, pressed=false, echo=false]
+PASS | after normal cooldown G raises a fresh empty shield
+PASS | 40 damage stays held below capacity
+PASS | the hit reaching 100 capacity automatically releases exactly one counter
+PASS | full shield blocks exactly 100 and its actual pulse defeats the nearby remaining target
+PASS | automatic release records 100 and keeps its native outgoing wave visible
+PASS | native screenshot saved: 04-auto-reflect
+COUNTER_PRESSURE_NATIVE | 26 checks | 0 failures

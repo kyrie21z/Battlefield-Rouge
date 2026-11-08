@@ -23,6 +23,8 @@ const SHIELD_COOLDOWN := &"shield_cooldown"
 const RELOAD_BLAST_DAMAGE := &"reload_blast_damage"
 const PARRY_CAPACITY := &"parry_capacity"
 const SHIELD_PULSE_DAMAGE := &"shield_pulse_damage"
+const SHIELD_CAPACITY := &"shield_capacity"
+const SHIELD_REFLECT_MULTIPLIER := &"shield_reflect_multiplier"
 
 @export var base := {
 	MAX_HEALTH: 100.0,
@@ -40,6 +42,8 @@ const SHIELD_PULSE_DAMAGE := &"shield_pulse_damage"
 	RELOAD_BLAST_DAMAGE: 0.0,
 	PARRY_CAPACITY: 0.0,
 	SHIELD_PULSE_DAMAGE: 0.0,
+	SHIELD_CAPACITY: 100.0,
+	SHIELD_REFLECT_MULTIPLIER: 0.0,
 }
 
 var _adds := {}

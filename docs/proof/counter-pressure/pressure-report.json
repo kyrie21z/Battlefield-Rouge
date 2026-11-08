@@ -1,0 +1,40 @@
+{
+	"samples": [
+		{
+			"active_count": 7,
+			"cast_actor_count": 6,
+			"first_observed_cast_seconds": 0.166666666666667,
+			"gunshot_events": 5,
+			"method": "Authored opening actors observe a stationary protected player; no force-alert, begin_hunt, cast_attack, velocity or target replacement.",
+			"moved_count": 3,
+			"moved_or_cast_count": 7,
+			"seconds": 3.5,
+			"sloth_count": 7,
+			"zone": 1
+		},
+		{
+			"active_count": 11,
+			"cast_actor_count": 6,
+			"first_observed_cast_seconds": 0.05,
+			"gunshot_events": 5,
+			"method": "Authored opening actors observe a stationary protected player; no force-alert, begin_hunt, cast_attack, velocity or target replacement.",
+			"moved_count": 8,
+			"moved_or_cast_count": 11,
+			"seconds": 3.5,
+			"sloth_count": 11,
+			"zone": 2
+		},
+		{
+			"active_count": 11,
+			"cast_actor_count": 7,
+			"first_observed_cast_seconds": 0.0333333333333333,
+			"gunshot_events": 15,
+			"method": "Authored opening actors observe a stationary protected player; no force-alert, begin_hunt, cast_attack, velocity or target replacement.",
+			"moved_count": 4,
+			"moved_or_cast_count": 11,
+			"seconds": 3.5,
+			"sloth_count": 11,
+			"zone": 3
+		}
+	]
+}

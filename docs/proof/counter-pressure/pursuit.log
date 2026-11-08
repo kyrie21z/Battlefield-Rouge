@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+  [ok] fixture uses the actual Anchor beside full WORLD cover
+  [ok] binding the combat target starts pursuit without a gunshot
+  [ok] full cover initially blocks the target
+  [ok] blocked sight does not create an attack
+  [ok] Anchor moves around cover instead of waiting indefinitely
+  [ok] Anchor acquires a real attack within six seconds
+  [ok] Anchor only begins the warning after gaining line of sight
+PURSUIT | moved_m=4.56177282333374 | first_cast_seconds=2.46666666666667
+  [ok] the early-cast fixture has a real unobstructed shot
+  [ok] a reserved neighbour prevents early stopping and casting
+  [ok] a clear free position attacks without finishing a long seek
+  [ok] early stopping reserves the actual fighting position
+  [ok] the authored cast retains its full two-second warning
+SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)

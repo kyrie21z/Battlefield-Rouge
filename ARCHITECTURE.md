@@ -39,7 +39,7 @@
 
 1. 保留战区随机种子、`SimClock` 与同步导航烘焙。把已有卡应用到玩家 Stats，收集敌人与掩体。只有 `zone_index == 0` 进入 `BUFF_SELECT` 并暂停；此时敌人还没有玩家目标。小关 2 和 Boss（以及从 Boss 起步的 fixture）解除暂停后直接开打，敌人立刻拿到目标。
 2. 确认 `enter` 卡后记录选择历史，发 `Events.buff_chosen`，立即应用新卡，再给敌人设置目标。小关进入 `CLEAR_GUARDS`。Boss 关（`is_boss_zone`）进入 `BOSS_STANDING`，核心保持关闭，目标是「打倒 Boss」。
-3. 小关守卫全灭开放据点，并开始从后方刷增援。增援不回退进度，也不把据点重新锁上。E 锤命中仍按原节拍配置计进度（+10%，完美 ×2.0）。100% 插旗时冲击波让存活小怪停止攻击并逃向后方刷怪点，到达或超时后移除，不算击杀。旗旁出现增益台，走近按 F 才提供 `clear` 卡；选完暂停并载入下一关。下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 不加这些。Boss 的 `enemy_killed` 才 `capture_point.open()`，目标改为「砸碎城市核心，按 E」；6 只小怪不参与开关。这一锤用 `boss_capture_config.tres` 的 `progress_per_swing = 1`，完美与否都到 100%。插旗 1.4 秒后直接胜利，不再发牌。
+3. 小关守卫全灭开放据点，并开始从后方刷增援。增援不回退进度，也不把据点重新锁上。E 锤命中仍按原节拍配置计进度（+10%，完美 ×2.0）。100% 插旗时冲击波让存活小怪停止攻击并逃向后方刷怪点，到达或超时后移除，不算击杀。旗旁出现增益台，走近按 F 才提供 `clear` 卡；选完暂停并载入下一关。下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 不加这些。Boss 的 `enemy_killed` 才 `capture_point.open()`，目标改为「砸碎城市核心，按 E」；11只小怪不参与开关。这一锤用 `boss_capture_config.tres` 的 `progress_per_swing = 1`，完美与否都到 100%。插旗 1.4 秒后直接胜利，不再发牌。
 4. 死亡清空本局增益、选择历史与卡袋，显示阵亡界面。普通重开回第一关；fixture 模式仍回到同一 fixture 的关卡、预设卡和种子。选择提交、占点回调和场景推进均有防重保护。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。
@@ -99,9 +99,11 @@
 
 ## 九增益与能力组件
 
+2026-11-08反击盾改为持续容量模式：Health提供可选`damage_absorber`返回未吸收伤害，并以嵌套结算深度保证仅最外层发`damage_resolved`；PlayerShield按100基础容量吸收，满盾或再次G通过`counter_released(absorbed)`交给CombatTraits反击。HP/溢出/死亡先完成，致命溢出取消反击；基础限时盾与其他保护分开。UI用`is_active()/charge_fraction()`，不把持续盾当倒计时。持久屏障通过Stats同时提供普通盾+0.5秒/反击盾容量+25。见[ADR0013](docs/adr/0013-persistent-counter-and-active-pressure.md)。
+
 `BuffPool.ALL` 为 `firearm`、`blade`、`skill` 每派三张。每次每派各一张，前三次覆盖九张，用完重洗；发牌只使用战区已播种的全局随机，重开清袋。`Buff` 含稳定 id、独特图标、说明和 Stats 修改，School 只含流派身份。
 
-Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield` 读取护盾解锁/持续/冷却（按键是 G，Q 留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。危险弹匣监听真实成功射击的 `Weapon.fired`，当扣弹后的 `ammo == 0`、增益已解锁且库存未满时，同帧储存一枚；不等待换弹完成，也不依赖备用弹。霰弹枪多颗弹丸共用一次射击事件，上限一枚，重复换弹、取消或完成换弹、切回空枪都不额外发放。`throw_magazine`（C）消耗库存，投出时读取当前 Stats 伤害；手持视觉和库存独立于枪槽，切枪保留，死亡清空。弹匣 6 米与护盾 7 米使用独立范围。当前取舍见 [ADR 0010](docs/adr/0010-empty-magazine-blast.md)；[ADR 0008](docs/adr/0008-held-magazine-and-shield-radius.md) 保留此前获取时机的历史。
+Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/速度/距离，`PlayerShield`读取护盾解锁/持续/冷却/容量，普通盾限时，反击卡为持续容量模式（G开盾/手动释放，Q留给切近战），`CombatTraits` 监听刀、盾、枪与 Health 的信号执行三张核心卡机制。`ReloadCharge` 只做带遮挡、按 Health 去重的爆炸及短暂特效，不访问 RunState。数值与边界见 [当前九增益](docs/Buff当前实现.md)。所有新能力随暂停冻结，死亡清理临时状态。危险弹匣监听真实成功射击的 `Weapon.fired`，当扣弹后的 `ammo == 0`、增益已解锁且库存未满时，同帧储存一枚；不等待换弹完成，也不依赖备用弹。霰弹枪多颗弹丸共用一次射击事件，上限一枚，重复换弹、取消或完成换弹、切回空枪都不额外发放。`throw_magazine`（C）消耗库存，投出时读取当前 Stats 伤害；手持视觉和库存独立于枪槽，切枪保留，死亡清空。弹匣 6 米与护盾 7 米使用独立范围。当前取舍见 [ADR 0010](docs/adr/0010-empty-magazine-blast.md)；[ADR 0008](docs/adr/0008-held-magazine-and-shield-radius.md) 保留此前获取时机的历史。
 
 ## 图形 HUD 与能力状态
 

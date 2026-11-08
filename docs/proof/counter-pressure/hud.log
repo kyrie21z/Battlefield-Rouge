@@ -1,0 +1,315 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+== vitals
+  [ok] full health reads 100
+  [ok] damage moves the number and the bar
+  [ok] the lost part is held white
+  [ok] the white trail still holds after 0.3 s
+  [ok] the white trail shrinks after the hold
+  [ok] the white trail settles on the real health
+  [ok] 30% does not turn the border warning red
+  [ok] 29% turns the border warning red
+  [ok] the white trail is still held before healing
+  [ok] healing updates health and clears the warning
+  [ok] healing immediately resets the white trail
+== ammo and the gun rack
+  [ok] ammo numbers follow the magazine
+  [ok] 25% or less turns the ammo red
+  [ok] 突击步枪 highlights its gun slot
+  [ok] 突击步枪 shows its gun name
+  [ok] 霰弹枪 highlights its gun slot
+  [ok] 霰弹枪 shows its gun name
+  [ok] 狙击枪 highlights its gun slot
+  [ok] 狙击枪 shows its gun name
+  [ok] the panel dropped the duplicate big icon box
+  [ok] ammo and gun slots share one tight row
+  [ok] the three gun slots sit side by side
+  [ok] reloading shows a progress bar instead of text
+  [ok] the reload bar advances
+  [ok] the reload bar goes away when the magazine is full
+  [ok] another reload is in progress before switching
+  [ok] switching guns cancels and hides the reload bar
+  [ok] switching back does not resume or finish the cancelled reload
+== buff icon bar
+  [ok] the buff bar hides when the run has no buffs
+  [ok] one buff kind appears as a single icon
+  [ok] two picks of one buff show a ×2 badge
+  [ok] a second school adds a second icon
+  [ok] borders use the school accents
+  [ok] the bar hides again after the run resets
+== shield slot
+  [ok] G starts locked without a skill buff
+  [ok] unlocked G is bright and ready
+  [ok] G activates
+  [ok] active G glows
+  [ok] the shield strip appears above health
+  [ok] the shield strip is half full halfway through
+  [ok] cooling G shows a radial countdown
+  [ok] the shield strip hides when inactive
+  [ok] the cooldown fraction halves as time advances
+  [ok] the cooldown seconds decrease to half
+  [ok] G is ready when cooldown finishes
+  [ok] the finished cooldown clears both countdown values
+== persistent counter-shield HUD
+  [ok] counter card selects the capacity mode and activates
+  [ok] empty counter shield stays visible after twelve seconds
+  [ok] HUD reads actual absorbed damage while health is protected
+  [ok] vitals show remaining shield capacity instead of an expired timer
+  [ok] partially charged shield does not drain with time
+  [ok] second G releases the shield and changes HUD to cooldown
+  [ok] duration upgrade displays its counter-mode capacity benefit
+  [ok] clearing counter mode removes capacity-specific HUD
+== melee slot
+  [ok] 匕首 is the selected blade
+  [ok] 匕首 shows its melee icon
+  [ok] 斧 is the selected blade
+  [ok] 斧 shows its melee icon
+  [ok] 太刀 is the selected blade
+  [ok] 太刀 shows its melee icon
+  [ok] locked parry has no stored-round dots
+  [ok] the parry window flashes the V border
+  [ok] stored rounds show as dots
+  [ok] the V border stops flashing when the window expires
+  [ok] stored rounds remain visible after the window expires
+  [ok] removing parry capacity hides the dots
+== C dangerous-magazine slot
+  [ok] C starts locked without the dangerous-magazine buff
+  [ok] C has its own magazine mode and key
+  [ok] unlocked empty C is dark and reads 0/1
+  [ok] unlocking C does not unlock G
+  [ok] the shield no longer carries a duplicate magazine badge
+  [ok] empty reload alone leaves C dark
+  [ok] last shot lights C before reload completes and reads 1/1
+  [ok] the stored magazine keeps C ready past its flight fuse
+  [ok] switching guns keeps the stored C slot lit
+  [ok] throwing C launches one real stored magazine
+  [ok] throwing C returns its unlocked slot to dark 0/1
+  [ok] C cannot throw again while its slot is empty
+  [ok] a later final shot can ready C again
+  [ok] clearing combat inventory returns C to dark 0/1
+  [ok] removing the buff locks C again
+== every weapon has an icon
+  [ok] 突击步枪 has an icon
+  [ok] 霰弹枪 has an icon
+  [ok] 狙击枪 has an icon
+  [ok] 匕首 has an icon
+  [ok] 斧 has an icon
+  [ok] 太刀 has an icon
+  [ok] the shield slot has an icon
+  [ok] C uses its own dangerous-magazine icon
+== layout
+  [ok] the vitals panel stays on screen
+  [ok] the weapon panel stays on screen
+  [ok] the ability row stays on screen
+  [ok] the vitals and weapon panels do not overlap
+  [ok] the weapon panel and ability row do not overlap
+  [ok] the ability row has independent G, V and C slots
+== small-zone objectives and world markers
+  [ok] HUD creates exactly three typed world markers
+  [ok] the short clear objective shows the live guard count
+  [ok] the clear objective has no redundant subtitle
+  [ok] the locked capture marker is visible and grey
+  [ok] clear guards uses a half-opacity weak hint
+  [ok] the locked capture has no progress ring
+  [ok] the pedestal marker waits for a real pedestal
+  [ok] a small zone hides the boss marker
+  [ok] a small zone hides boss health
+  [ok] small zone: the objective panel occupies its collapsed rectangle
+  [ok] small zone: the buff bar stacks right below the objective panel
+  [ok] small zone: the objective panel stays on screen
+  [ok] small zone: boss health stays on screen
+  [ok] small zone: Top never overlaps BossHealth
+  [ok] small zone: no legacy capture or boss bars remain
+== world-marker projection, safe edges and camera plane
+  [ok] world markers reserve the specified screen inset
+  [ok] distance rounds down from the target base, not its raised icon
+  [ok] distance refresh rounds up when the target moves
+  [ok] front center: visibility and projection flags
+  [ok] front center: finite position on the expected safe ray
+  [ok] front center: the arrow points toward the target
+  [ok] front center: the edge arrow appears only on clamped markers
+  [ok] front center: the entire border, arrow and distance box stay on screen
+  [ok] an off-screen target aims its edge arrow at the projected target
+  [ok] left at camera z=-10.0000: visibility and projection flags
+  [ok] left at camera z=-10.0000: finite position on the expected safe ray
+  [ok] left at camera z=-10.0000: the arrow points toward the target
+  [ok] left at camera z=-10.0000: the edge arrow appears only on clamped markers
+  [ok] left at camera z=-10.0000: the entire border, arrow and distance box stay on screen
+  [ok] left at camera z=20.0000: visibility and projection flags
+  [ok] left at camera z=20.0000: finite position on the expected safe ray
+  [ok] left at camera z=20.0000: the arrow points toward the target
+  [ok] left at camera z=20.0000: the edge arrow appears only on clamped markers
+  [ok] left at camera z=20.0000: the entire border, arrow and distance box stay on screen
+  [ok] left at camera z=0.0000: visibility and projection flags
+  [ok] left at camera z=0.0000: finite position on the expected safe ray
+  [ok] left at camera z=0.0000: the arrow points toward the target
+  [ok] left at camera z=0.0000: the edge arrow appears only on clamped markers
+  [ok] left at camera z=0.0000: the entire border, arrow and distance box stay on screen
+  [ok] left just inside safe boundary: visibility and projection flags
+  [ok] left just inside safe boundary: finite position on the expected safe ray
+  [ok] left just inside safe boundary: the arrow points toward the target
+  [ok] left just inside safe boundary: the edge arrow appears only on clamped markers
+  [ok] left just inside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] left just outside safe boundary: visibility and projection flags
+  [ok] left just outside safe boundary: finite position on the expected safe ray
+  [ok] left just outside safe boundary: the arrow points toward the target
+  [ok] left just outside safe boundary: the edge arrow appears only on clamped markers
+  [ok] left just outside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] right at camera z=-10.0000: visibility and projection flags
+  [ok] right at camera z=-10.0000: finite position on the expected safe ray
+  [ok] right at camera z=-10.0000: the arrow points toward the target
+  [ok] right at camera z=-10.0000: the edge arrow appears only on clamped markers
+  [ok] right at camera z=-10.0000: the entire border, arrow and distance box stay on screen
+  [ok] right at camera z=20.0000: visibility and projection flags
+  [ok] right at camera z=20.0000: finite position on the expected safe ray
+  [ok] right at camera z=20.0000: the arrow points toward the target
+  [ok] right at camera z=20.0000: the edge arrow appears only on clamped markers
+  [ok] right at camera z=20.0000: the entire border, arrow and distance box stay on screen
+  [ok] right at camera z=0.0000: visibility and projection flags
+  [ok] right at camera z=0.0000: finite position on the expected safe ray
+  [ok] right at camera z=0.0000: the arrow points toward the target
+  [ok] right at camera z=0.0000: the edge arrow appears only on clamped markers
+  [ok] right at camera z=0.0000: the entire border, arrow and distance box stay on screen
+  [ok] right just inside safe boundary: visibility and projection flags
+  [ok] right just inside safe boundary: finite position on the expected safe ray
+  [ok] right just inside safe boundary: the arrow points toward the target
+  [ok] right just inside safe boundary: the edge arrow appears only on clamped markers
+  [ok] right just inside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] right just outside safe boundary: visibility and projection flags
+  [ok] right just outside safe boundary: finite position on the expected safe ray
+  [ok] right just outside safe boundary: the arrow points toward the target
+  [ok] right just outside safe boundary: the edge arrow appears only on clamped markers
+  [ok] right just outside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] top at camera z=-10.0000: visibility and projection flags
+  [ok] top at camera z=-10.0000: finite position on the expected safe ray
+  [ok] top at camera z=-10.0000: the arrow points toward the target
+  [ok] top at camera z=-10.0000: the edge arrow appears only on clamped markers
+  [ok] top at camera z=-10.0000: the entire border, arrow and distance box stay on screen
+  [ok] top at camera z=20.0000: visibility and projection flags
+  [ok] top at camera z=20.0000: finite position on the expected safe ray
+  [ok] top at camera z=20.0000: the arrow points toward the target
+  [ok] top at camera z=20.0000: the edge arrow appears only on clamped markers
+  [ok] top at camera z=20.0000: the entire border, arrow and distance box stay on screen
+  [ok] top at camera z=0.0000: visibility and projection flags
+  [ok] top at camera z=0.0000: finite position on the expected safe ray
+  [ok] top at camera z=0.0000: the arrow points toward the target
+  [ok] top at camera z=0.0000: the edge arrow appears only on clamped markers
+  [ok] top at camera z=0.0000: the entire border, arrow and distance box stay on screen
+  [ok] top just inside safe boundary: visibility and projection flags
+  [ok] top just inside safe boundary: finite position on the expected safe ray
+  [ok] top just inside safe boundary: the arrow points toward the target
+  [ok] top just inside safe boundary: the edge arrow appears only on clamped markers
+  [ok] top just inside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] top just outside safe boundary: visibility and projection flags
+  [ok] top just outside safe boundary: finite position on the expected safe ray
+  [ok] top just outside safe boundary: the arrow points toward the target
+  [ok] top just outside safe boundary: the edge arrow appears only on clamped markers
+  [ok] top just outside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] bottom at camera z=-10.0000: visibility and projection flags
+  [ok] bottom at camera z=-10.0000: finite position on the expected safe ray
+  [ok] bottom at camera z=-10.0000: the arrow points toward the target
+  [ok] bottom at camera z=-10.0000: the edge arrow appears only on clamped markers
+  [ok] bottom at camera z=-10.0000: the entire border, arrow and distance box stay on screen
+  [ok] bottom at camera z=20.0000: visibility and projection flags
+  [ok] bottom at camera z=20.0000: finite position on the expected safe ray
+  [ok] bottom at camera z=20.0000: the arrow points toward the target
+  [ok] bottom at camera z=20.0000: the edge arrow appears only on clamped markers
+  [ok] bottom at camera z=20.0000: the entire border, arrow and distance box stay on screen
+  [ok] bottom at camera z=0.0000: visibility and projection flags
+  [ok] bottom at camera z=0.0000: finite position on the expected safe ray
+  [ok] bottom at camera z=0.0000: the arrow points toward the target
+  [ok] bottom at camera z=0.0000: the edge arrow appears only on clamped markers
+  [ok] bottom at camera z=0.0000: the entire border, arrow and distance box stay on screen
+  [ok] bottom just inside safe boundary: visibility and projection flags
+  [ok] bottom just inside safe boundary: finite position on the expected safe ray
+  [ok] bottom just inside safe boundary: the arrow points toward the target
+  [ok] bottom just inside safe boundary: the edge arrow appears only on clamped markers
+  [ok] bottom just inside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] bottom just outside safe boundary: visibility and projection flags
+  [ok] bottom just outside safe boundary: finite position on the expected safe ray
+  [ok] bottom just outside safe boundary: the arrow points toward the target
+  [ok] bottom just outside safe boundary: the edge arrow appears only on clamped markers
+  [ok] bottom just outside safe boundary: the entire border, arrow and distance box stay on screen
+  [ok] center fallback at camera z=20.0000: visibility and projection flags
+  [ok] center fallback at camera z=20.0000: finite position on the expected safe ray
+  [ok] center fallback at camera z=20.0000: the arrow points toward the target
+  [ok] center fallback at camera z=20.0000: the edge arrow appears only on clamped markers
+  [ok] center fallback at camera z=20.0000: the entire border, arrow and distance box stay on screen
+  [ok] center fallback at camera z=0.0000: visibility and projection flags
+  [ok] center fallback at camera z=0.0000: finite position on the expected safe ray
+  [ok] center fallback at camera z=0.0000: the arrow points toward the target
+  [ok] center fallback at camera z=0.0000: the edge arrow appears only on clamped markers
+  [ok] center fallback at camera z=0.0000: the entire border, arrow and distance box stay on screen
+  [ok] near camera plane z=-0.0005: visibility and projection flags
+  [ok] near camera plane z=-0.0005: finite position on the expected safe ray
+  [ok] near camera plane z=-0.0005: the arrow points toward the target
+  [ok] near camera plane z=-0.0005: the edge arrow appears only on clamped markers
+  [ok] near camera plane z=-0.0005: the entire border, arrow and distance box stay on screen
+  [ok] near camera plane z=0.0005: visibility and projection flags
+  [ok] near camera plane z=0.0005: finite position on the expected safe ray
+  [ok] near camera plane z=0.0005: the arrow points toward the target
+  [ok] near camera plane z=0.0005: the edge arrow appears only on clamped markers
+  [ok] near camera plane z=0.0005: the entire border, arrow and distance box stay on screen
+  [ok] diagonal clips along its ray: visibility and projection flags
+  [ok] diagonal clips along its ray: finite position on the expected safe ray
+  [ok] diagonal clips along its ray: the arrow points toward the target
+  [ok] diagonal clips along its ray: the edge arrow appears only on clamped markers
+  [ok] diagonal clips along its ray: the entire border, arrow and distance box stay on screen
+== real guard deaths open the capture point
+  [ok] one guard death decrements the visible count
+  [ok] remaining guards keep the point grey and weak
+  [ok] all guard deaths open the point through the director
+  [ok] the hammer objective keeps only a short E hint
+  [ok] the open capture marker is blue and fully opaque
+  [ok] hammering starts with an empty progress ring
+  [ok] the outer ring follows actual capture progress
+  [ok] capture really plants the flag and changes phase
+  [ok] the short planted-flag objective directs the player to F
+  [ok] the captured marker is green but hidden without a ring
+  [ok] refresh discovers the late-created pedestal without setup
+  [ok] the pedestal is spawned next to the captured point
+== F range, highlight and inclusive boundary
+  [ok] just outside F range leaves the marker unhighlighted
+  [ok] pedestal distance is camera-to-target in rounded metres
+  [ok] F just outside range cannot open a reward
+  [ok] just inside F range highlights the marker
+  [ok] vertical separation outside F range removes the highlight
+  [ok] just inside the inclusive F boundary stays in range
+  [ok] F just inside the boundary opens the real clear offer
+  [ok] opening the reward updates the short objective
+== boss health and shared white trail
+  [ok] the boss objective uses the short text and live count
+  [ok] the boss objective has no redundant subtitle
+  [ok] boss health starts visible at exactly 900 / 900
+  [ok] the living boss has a red world marker
+  [ok] boss distance is camera-to-boss in rounded metres
+  [ok] the boss core starts grey without a hammer ring
+  [ok] the boss zone starts without a pedestal marker
+  [ok] boss zone: the objective panel occupies its collapsed rectangle
+  [ok] boss zone: the buff bar stacks right below the objective panel
+  [ok] boss zone: the objective panel stays on screen
+  [ok] boss zone: boss health stays on screen
+  [ok] boss zone: Top never overlaps BossHealth
+  [ok] boss zone: no legacy capture or boss bars remain
+  [ok] damage immediately updates boss health to 858 / 900
+  [ok] damage immediately leaves the boss white trail at 900
+  [ok] boss and player trails both hold through 0.3 seconds
+  [ok] the full 0.4-second delay is held
+  [ok] both trails drain 12 HP in the next 0.1 seconds
+  [ok] trail animation never changes the real boss health or numbers
+  [ok] both trails settle without undershooting
+  [ok] small-enemy death updates the counter but not boss health
+== fallen boss, open core and planted flag
+  [ok] boss death immediately empties and greys the persistent bar
+  [ok] boss death hides its world marker
+  [ok] the killing hit starts a fresh held trail
+  [ok] the fallen trail still holds during the death delay
+  [ok] the fallen trail eventually drains to zero and stays grey
+  [ok] boss death opens the actual core and switches the short objective
+  [ok] the unlocked boss core shows the blue progress ring
+  [ok] capturing the boss core shows the short victory objective
+  [ok] the captured boss core hides its green marker and ring
+  [ok] capturing a boss core never produces a pedestal marker
+ALL PASSED (295 checks, 0 failed)

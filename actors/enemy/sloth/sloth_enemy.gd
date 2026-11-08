@@ -5,6 +5,8 @@ extends Enemy
 
 enum Kind { LINGERER, ANCHOR, RECLUSE }
 @export_enum("Lingerer", "Anchor", "Recluse") var kind: int = Kind.LINGERER
+## A short authored offset keeps the larger opening wave from casting in unison.
+@export_range(0.0, 2.0) var opening_delay := 0.25
 var visual: SlothVisual
 var active_attack: SlothAttack
 var cooldown_left := 1.3
@@ -28,7 +30,8 @@ func _ready() -> void:
 	visual = $Model as SlothVisual
 	visual.configure(kind)
 	visual.play_motion("CowerIdle" if kind == Kind.RECLUSE else "idle")
-	run_speed = 1.8 if kind == Kind.LINGERER else 1.2
+	run_speed = [2.8, 2.1, 2.4][kind]
+	cooldown_left = opening_delay
 	eye_height = 1.65
 	min_engage_distance = 4.0
 	engage_range = [24.0, 18.0, 6.0][kind]
@@ -46,9 +49,22 @@ func _ready() -> void:
 	set_core_exposed(false)
 
 
+func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint],
+		p_firing_board: FiringPositionBoard = null) -> void:
+	super.setup(p_target, p_cover_points, p_firing_board)
+	# The director binds targets only after the entry card is committed. Start
+	# searching at that combat boundary, rather than waiting to hear a gunshot.
+	if state not in [State.DEAD, State.FLEE] and is_instance_valid(target):
+		begin_hunt()
+
+
 func begin_hunt() -> void:
 	if is_instance_valid(target) and state != State.DEAD and state != State.FLEE:
-		_start_seek(target.global_position)
+		_last_known = target.global_position
+		if kind == Kind.LINGERER:
+			_start_seek(_last_known)
+		else:
+			_alert(_last_known)
 
 
 func begin_retreat(goal: Vector3, timeout: float) -> void:
@@ -102,16 +118,19 @@ func _physics_process(delta: float) -> void:
 	visual.set_mantle_open(0.0 if cloak_recover_left <= 0.0 else 1.0)
 	visual.set_shell_open(1.0 if _exposed_left > 0.0 else 0.0)
 	set_core_exposed(_exposed_left > 0.0 or cloak_recover_left > 0.0)
-	if state == State.SEEK and kind == Kind.LINGERER:
-		_process_seek(delta)
-		visual.play_motion("walk" if Vector2(velocity.x, velocity.z).length() > 0.2 else "idle")
-		move_and_slide()
-		return
-	if _sees_target and _distance_to_target() <= engage_range:
+	# A clear shot should not wait for a distant cover marker. Reserve the
+	# actual stopping place, retaining the shared 3.5 m separation contract.
+	if _sees_target and _distance_to_target() <= engage_range and _can_fight_here():
+		if state != State.ENGAGE:
+			firing_position = global_position
+			if _firing_board != null:
+				_firing_board.claim(self, firing_position)
 		state = State.ENGAGE
 		if cooldown_left <= 0.0 and cloak_recover_left <= 0.0:
 			cast_attack()
-	elif kind != Kind.ANCHOR:
+	elif state == State.SEEK and kind == Kind.LINGERER:
+		_process_seek(delta)
+	else:
 		# A deterministic path toward the last observed position also brings a
 		# cloaked reinforcement around cover instead of shooting through it.
 		state = State.CHASE
@@ -124,6 +143,12 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 
+func _can_fight_here() -> bool:
+	if kind == Kind.LINGERER and _distance_to_target() < min_engage_distance:
+		return false
+	return _firing_board == null or not _firing_board.is_taken(global_position, seek_spacing, self)
+
+
 func cast_attack() -> bool:
 	if state == State.DEAD or state == State.FLEE or not is_instance_valid(target) \
 			or is_instance_valid(active_attack) or cloak_recover_left > 0.0:
@@ -134,7 +159,7 @@ func cast_attack() -> bool:
 	active_attack.kind = kind
 	# Owned by the caster, while the telegraph uses locked world coordinates.
 	add_child(active_attack)
-	cooldown_left = [3.6, 6.2, 5.5][kind]
+	cooldown_left = [3.6, 4.4, 3.6][kind]
 	visual.play_motion("cast" if kind == Kind.LINGERER else "EnterCower")
 	return true
 

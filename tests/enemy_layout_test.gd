@@ -14,14 +14,14 @@ extends Node
 ##   * every enemy on the baked navigation mesh, reachable, with a clear capsule;
 ##   * no two enemies closer than 3 m, the Boss included;
 ##   * every guard beside cover, and on the boss map exactly two escorts 2-6 m
-##     from the Boss with the other four nearer the player.
+##     from the Boss with the remaining opening guards nearer the player.
 
 const MAPS := [
-	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 4, "bands": [1, 1, 2]},
-	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 6, "bands": [2, 2, 2]},
+	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 7, "bands": [2, 2, 3]},
+	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 11, "bands": [2, 2, 7]},
 	# The compact 50 m arena restores front/middle/escort progression while
 	# the original monumental 92 m shell remains scenery outside the battlefield.
-	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 6, "bands": [2, 2, 2], "boss": true},
+	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 11, "bands": [2, 7, 2], "boss": true},
 ]
 const SPAWN_CLEARANCE := 15.0
 const ENEMY_SPACING := 3.0
@@ -104,7 +104,7 @@ func _check_map(spec: Dictionary) -> void:
 	var seen: Array[String] = []
 	for enemy in enemies:
 		# The arena deliberately presents its Boss as a visible distant threat.
-		# His six guards still obey the same safe idle-spawn sight rule.
+		# His guards still obey the same safe authored-spawn sight rule.
 		if enemy == boss:
 			continue
 		if _sees_spawn(enemy, spawn):
@@ -192,7 +192,7 @@ func _check_map(spec: Dictionary) -> void:
 			spread.size() == spec.guards - 2
 			and spread.all(func(e: Enemy) -> bool: return _flat(e.global_position, spawn) < boss_spawn_gap))
 		var behind := spread.filter(func(e: Enemy) -> bool: return e.global_position.z <= point.global_position.z)
-		_check("%s keeps the four spread guards in front of the core" % file, behind.is_empty())
+		_check("%s keeps the spread guards in front of the core" % file, behind.is_empty())
 		_check("%s stands the boss in front of the core" % file,
 			boss.global_position.z > point.global_position.z)
 

@@ -178,13 +178,16 @@ func _combat_checks() -> void:
 	player.stats.apply_buff(BuffPool.ALL[6])
 	player.stats.apply_buff(BuffPool.ALL[7])
 	player.stats.apply_buff(BuffPool.ALL[8])
-	_check("shield duration and cooldown upgraded", is_equal_approx(player.stats.get_value(Stats.SHIELD_DURATION), 2.5) and player.shield.cooldown_duration() < 8.0)
+	_check("shield duration, counter capacity and cooldown upgraded", is_equal_approx(player.stats.get_value(Stats.SHIELD_DURATION), 2.5)
+		and player.shield.capacity() == 125.0 and player.shield.cooldown_duration() < 8.0)
 	_check("unlocked shield activates", player.shield.try_activate() and player.shield.is_active())
 	original_health = player.health.health
 	player.health.apply_damage(50.0, Hitbox.BodyPart.BODY)
 	_check("active shield blocks incoming damage", player.health.health == original_health)
+	player.shield._process(3.0)
+	_check("counter shield does not expire while partially charged", player.shield.is_active())
+	_check("the same G action manually releases a partially charged shield", player.shield.try_activate() and not player.shield.is_active())
 	_check("cooldown prevents shield spam", not player.shield.try_activate())
-	player.shield._process(player.shield.active_remaining + 0.01)
 	player.health.apply_damage(10.0, Hitbox.BodyPart.BODY)
 	_check("damage resumes after shield expires", is_equal_approx(player.health.health, original_health - 10.0))
 	# The headless display cannot capture a mouse. A windowed proof also checks
@@ -253,7 +256,10 @@ func _play_existing_run(indices: Array, label: String) -> void:
 		expected.free()
 		if boss_zone:
 			_check("this is the boss zone", director.is_boss_zone and director.boss != null)
-			_check("the core stays shut while the Boss lives", director.phase == ZoneDirector.Phase.BOSS_STANDING and director.capture_point.locked and not director.boss.health.is_dead() and director.enemies_total == 7)
+			_check("the core stays shut while the Boss lives", director.phase == ZoneDirector.Phase.BOSS_STANDING
+				and director.capture_point.locked and not director.boss.health.is_dead()
+				and director.enemies_total == get_tree().get_nodes_in_group("enemy").size()
+				and director.enemies_total > 1)
 			for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 				enemy.set_physics_process(false)
 			director.capture_point.player_in_reach = true

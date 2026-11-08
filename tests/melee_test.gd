@@ -38,6 +38,13 @@ var _guards: Array[Enemy] = []
 
 func _ready() -> void:
 	await _run()
+	# Scene teardown must finish before the audio worker releases its playbacks.
+	for child in get_children():
+		child.free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)

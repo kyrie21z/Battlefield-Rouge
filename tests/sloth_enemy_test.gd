@@ -26,6 +26,9 @@ func _ready() -> void:
 		_stop_audio(_arena)
 		_arena.queue_free()
 	await _frames(4)
+	# Fast headless steps can finish before the audio worker releases stopped WAVs.
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _finished and _failures == 0
 	print("SLOTH ENEMIES: %s (%d checks, %d failed%s)" % [
 		"ALL PASSED" if ok else "FAIL", _checks, _failures,

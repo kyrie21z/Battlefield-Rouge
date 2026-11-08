@@ -159,11 +159,18 @@ func _hammer_noise() -> void:
 	var player := scene.get_node("Player") as Player
 	_place_player_behind(point, player)
 	var guards := _enemies(scene)
-	_check("the zone starts with four guards", guards.size() == 4)
+	_check("the zone starts with seven guards", guards.size() == 7)
 	for index in range(2, guards.size()):
 		guards[index].health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	var near := guards[0]
 	var far := guards[1]
+	# This fixture isolates hearing; normal encounter setup now starts a hunt.
+	for enemy in [near, far]:
+		enemy.set_physics_process(false)
+		if enemy is SlothEnemy:
+			(enemy as SlothEnemy)._cancel_attack()
+		enemy.state = Enemy.State.IDLE
+		enemy._release_firing_position()
 	_take_position(near, point.global_position + Vector3(0.0, 0.0, -5.0), 0.0)
 	_take_position(far, Vector3(25.0, 0.0, 25.0), -PI * 0.5)
 	await _settle_navigation()

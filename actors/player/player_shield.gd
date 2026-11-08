@@ -4,6 +4,8 @@ extends Node
 
 signal activated
 signal expired
+signal counter_released(absorbed: float)
+signal absorbed_hit(amount: float)
 
 const ACCENT := Color("B36CFF")
 
@@ -128,6 +130,12 @@ class ShieldFeedback extends Control:
 
 var cooldown_remaining := 0.0
 var active_remaining := 0.0
+var last_released_damage := 0.0
+var last_release_automatic := false
+var _counter_active := false
+var _absorbed := 0.0
+var _pending_auto_release := 0.0
+var _owns_invulnerability := false
 var _overlay := ShieldFeedback.new()
 
 
@@ -143,6 +151,9 @@ func _ready() -> void:
 	_overlay.name = "ShieldRim"
 	_overlay.visible = false
 	health.blocked.connect(_on_blocked)
+	health.damage_absorber = _absorb_damage
+	health.damage_resolved.connect(_on_damage_resolved)
+	stats.changed.connect(_on_stats_changed)
 
 
 func is_unlocked() -> bool:
@@ -150,7 +161,23 @@ func is_unlocked() -> bool:
 
 
 func is_active() -> bool:
-	return active_remaining > 0.0
+	return _counter_active or active_remaining > 0.0
+
+
+func is_counter_mode() -> bool:
+	return stats.get_value(Stats.SHIELD_REFLECT_MULTIPLIER) > 0.0
+
+
+func capacity() -> float:
+	return maxf(1.0, stats.get_value(Stats.SHIELD_CAPACITY))
+
+
+func absorbed_damage() -> float:
+	return _absorbed
+
+
+func charge_fraction() -> float:
+	return clampf(_absorbed / capacity(), 0.0, 1.0)
 
 
 func cooldown_duration() -> float:
@@ -160,20 +187,106 @@ func cooldown_duration() -> float:
 ## Death clears the shield without expiring it into a counterattack.
 func cancel() -> void:
 	active_remaining = 0.0
+	_counter_active = false
+	_absorbed = 0.0
+	_pending_auto_release = 0.0
+	last_released_damage = 0.0
 	cooldown_remaining = 0.0
-	health.invulnerable = false
+	_set_timed_protection(false)
 	_overlay.clear()
 
 
 func try_activate() -> bool:
-	if not is_unlocked() or cooldown_remaining > 0.0 or health.is_dead():
+	if get_tree().paused or health.is_dead():
 		return false
-	active_remaining = maxf(0.1, stats.get_value(Stats.SHIELD_DURATION))
-	cooldown_remaining = active_remaining + cooldown_duration()
-	health.invulnerable = true
+	if _counter_active:
+		return try_release()
+	if not is_unlocked() or is_active() or cooldown_remaining > 0.0:
+		return false
+	_absorbed = 0.0
+	_pending_auto_release = 0.0
+	last_released_damage = 0.0
+	_counter_active = is_counter_mode()
+	if _counter_active:
+		active_remaining = 0.0
+		cooldown_remaining = 0.0
+	else:
+		active_remaining = maxf(0.1, stats.get_value(Stats.SHIELD_DURATION))
+		cooldown_remaining = active_remaining + cooldown_duration()
+		_set_timed_protection(true)
 	_overlay.activate()
 	activated.emit()
 	return true
+
+
+## The same action raises the shield and releases an already raised counter.
+func try_release() -> bool:
+	if get_tree().paused or not _counter_active or health.is_dead():
+		return false
+	_end_counter(false)
+	_emit_counter(last_released_damage)
+	return true
+
+
+## Health calls this only after team/parry/independent immunity filtering and
+## body multipliers. It resolves HP overflow before allowing the auto pulse.
+func _absorb_damage(amount: float) -> float:
+	if not _counter_active or health.is_dead() or amount <= 0.0:
+		return amount
+	var accepted := minf(amount, maxf(0.0, capacity() - _absorbed))
+	_absorbed += accepted
+	if _absorbed >= capacity():
+		_end_counter(true)
+		_pending_auto_release = last_released_damage
+	if accepted > 0.0:
+		if _counter_active:
+			_overlay.absorb(true)
+		absorbed_hit.emit(accepted)
+	return amount - accepted
+
+
+func _end_counter(automatic: bool) -> void:
+	last_released_damage = _absorbed
+	last_release_automatic = automatic
+	_counter_active = false
+	_absorbed = 0.0
+	cooldown_remaining = cooldown_duration()
+	_overlay.advance(0.0, false)
+
+
+func _on_damage_resolved() -> void:
+	if _pending_auto_release <= 0.0:
+		return
+	var absorbed := _pending_auto_release
+	_pending_auto_release = 0.0
+	if not health.is_dead():
+		_emit_counter(absorbed)
+
+
+func _emit_counter(absorbed: float) -> void:
+	# State is already consumed before callbacks can try to release it again.
+	if absorbed > 0.0:
+		counter_released.emit(absorbed)
+	expired.emit()
+
+
+func _set_timed_protection(active: bool) -> void:
+	if active:
+		health.invulnerable = true
+		_owns_invulnerability = true
+	elif _owns_invulnerability:
+		health.invulnerable = false
+		_owns_invulnerability = false
+
+
+func _on_stats_changed() -> void:
+	if not is_unlocked() or (_counter_active and not is_counter_mode()):
+		cancel()
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(health) and health.damage_absorber == Callable(self, "_absorb_damage"):
+		health.damage_absorber = Callable()
 
 
 ## Only the successful damaging counter calls this; an unused shield fades out.
@@ -183,17 +296,17 @@ func show_counter_pulse() -> void:
 
 
 func _on_blocked(amount: float, _source: Node) -> void:
-	if is_active() and amount > 0.0:
-		_overlay.absorb(stats.get_value(Stats.SHIELD_PULSE_DAMAGE) > 0.0)
+	if active_remaining > 0.0 and amount > 0.0 and not health.dash_invulnerable:
+		_overlay.absorb(false)
 
 
 func _process(delta: float) -> void:
-	var was_active := is_active()
+	var was_timed := active_remaining > 0.0
 	cooldown_remaining = maxf(0.0, cooldown_remaining - delta)
 	active_remaining = maxf(0.0, active_remaining - delta)
-	health.invulnerable = is_active()
+	_set_timed_protection(active_remaining > 0.0)
 	_overlay.advance(delta, is_active())
-	if was_active and not is_active():
+	if was_timed and not is_active():
 		expired.emit()
 	if Input.is_action_just_pressed("shield") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		try_activate()

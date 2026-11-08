@@ -251,3 +251,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ### 同日紧凑战场修订
 
 `environments/sloth/{architecture,courtyard}.gd` 继续使用上述本项目原创程序几何，重排实际地板/碰撞/掩体与外围建筑，未新增第三方模型或材质。[紧凑战场证明](proof/sloth-compact/README.md) 的 JPEG 为本轮 Windows Forward+ 原生截图，仅缩放和JPEG重编码；当前几何源码/生成地图与新截图哈希见 [紧凑版SHA256SUMS](proof/sloth-compact/SHA256SUMS.txt)。前一节的宽场截图、源码哈希、性能和实战轨迹保留提交 `1a7b86c` 当时的历史含义，不表示当前文件字节或性能。
+
+### 同日持续反击盾与主动敌群
+
+沿用项目原创紫盾/反击波与服饰材质，无新增第三方模型、贴图、字体或音频。G槽蓄能弧和容量条为Godot程序绘制；新增少量掩体仍为现有几何材质。[当前4张JPEG](proof/counter-pressure/README.md)是本轮Windows Forward+原生PNG的缩放/JPEG重编码，无生成式重绘；前三张为真实选卡/G/敌弹定点验证，第四张为开场敌群观察。当前代码/地图与图片来源哈希见[SHA256SUMS](proof/counter-pressure/SHA256SUMS.txt)。紧凑版旧目录记录`47bb39f`时的低密度/旧盾结果，源码哈希与数值保留历史意义。

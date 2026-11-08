@@ -69,26 +69,57 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 0, 0.1, 18)
 [node name="Enemy1" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -12, 0, 7)
 kind = 0
+opening_delay = 0.25
 
 [node name="Enemy2" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 12, 0, 7)
 kind = 0
+opening_delay = 0.40
 
 [node name="Enemy3" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -15, 0, 1)
 kind = 1
+opening_delay = 0.55
 
 [node name="Enemy4" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 15, 0, 1)
 kind = 1
+opening_delay = 0.70
 
 [node name="Enemy5" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -4, 0.46, -6)
 kind = 0
+opening_delay = 0.25
 
 [node name="Enemy6" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 4, 0.46, -6)
 kind = 0
+opening_delay = 0.40
+
+[node name="Enemy7" parent="." instance=ExtResource("3_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -8, 0.46, 2)
+kind = 0
+opening_delay = 0.55
+
+[node name="Enemy8" parent="." instance=ExtResource("3_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 8, 0.46, 2)
+kind = 0
+opening_delay = 0.70
+
+[node name="Enemy9" parent="." instance=ExtResource("3_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -19, 0, 4)
+kind = 1
+opening_delay = 0.25
+
+[node name="Enemy10" parent="." instance=ExtResource("3_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 19, 0, 4)
+kind = 0
+opening_delay = 0.40
+
+[node name="Enemy11" parent="." instance=ExtResource("3_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 0, 0.46, 1)
+kind = 2
+opening_delay = 0.55
 
 [node name="Boss" parent="." instance=ExtResource("7_boss")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, -0, 0, -1, 0, 0.46, -6)

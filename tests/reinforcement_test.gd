@@ -40,8 +40,8 @@ func _run() -> void:
 	_check("at most 5 reinforcements stay out", config.max_alive == 5)
 
 	print("== layout")
-	await _check_layout("res://maps/zone_1.tscn", 0, 4)
-	await _check_layout("res://maps/zone_2.tscn", 1, 6)
+	await _check_layout("res://maps/zone_1.tscn", 0, 7)
+	await _check_layout("res://maps/zone_2.tscn", 1, 11)
 
 	print("== same seed, same spawns")
 	var first := await _first_wave(424242)

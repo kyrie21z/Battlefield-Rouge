@@ -78,7 +78,8 @@ def zone(name, room_index, spawn, capture, enemies, spawns=(), boss=None):
     ])
     for i, (position, kind, yaw) in enumerate(enemies):
         nodes.extend([f'[node name="Enemy{i+1}" parent="." instance=ExtResource("3_enemy")]',
-            f'transform = {transform(position, yaw)}', f'kind = {kind}', ''])
+            f'transform = {transform(position, yaw)}', f'kind = {kind}',
+            f'opening_delay = {0.25 + (i % 4) * 0.15:.2f}', ''])
     if is_boss:
         nodes.extend(['[node name="Boss" parent="." instance=ExtResource("7_boss")]',
             f'transform = {transform(boss, 180)}', ''])
@@ -109,15 +110,23 @@ SPAWNS = [(-11.5, 0, -20), (0, 0, -21), (11.5, 0, -20),
 LAYOUTS = {
     "maps/zone_1.tscn": dict(name="Zone1", room_index=0, spawn=(0, 0.1, 14), capture=(0, 0, -8),
         enemies=[((13.5, 0, 7.2), 0, 30), ((-8.5, -1.2, 1.5), 1, -45),
-                 ((-7, 0, -10), 0, -60), ((7, 0, -10), 0, 60)], spawns=SPAWNS),
+                 ((-7, 0, -10), 0, -60), ((7, 0, -10), 0, 60),
+                 ((-13.5, 0, 7.2), 0, -30), ((8.5, -1.2, 1.5), 0, 45),
+                 ((-14, 0, -1.5), 2, -60)], spawns=SPAWNS),
     "maps/zone_2.tscn": dict(name="Zone2", room_index=1, spawn=(0, 0.1, 16), capture=(0, 0, -8),
         enemies=[((-13.5, 0, 9), 0, -30), ((13.5, 0, 9), 0, 30),
                  ((-8.5, -1.2, 1.8), 0, -45), ((8.5, -1.2, 1.8), 1, 45),
-                 ((-14, 0, -1.5), 2, -60), ((14, 0, -1.5), 1, 60)], spawns=SPAWNS),
+                 ((-14, 0, -1.5), 2, -60), ((14, 0, -1.5), 1, 60),
+                 ((-7, 0, -10), 0, -60), ((7, 0, -10), 0, 60),
+                 ((-16.5, 3, -5), 0, 0), ((16.5, 4, -5), 0, 0),
+                 ((0, 0, -13.8), 0, 0)], spawns=SPAWNS),
     "maps/boss.tscn": dict(name="Boss", room_index=0, spawn=(0, 0.1, 18), capture=(0, 0, -17),
         enemies=[((-12, 0, 7), 0, 0), ((12, 0, 7), 0, 0),
                  ((-15, 0, 1), 1, 0), ((15, 0, 1), 1, 0),
-                 ((-4, 0.46, -6), 0, 0), ((4, 0.46, -6), 0, 0)], boss=(0, 0.46, -6)),
+                 ((-4, 0.46, -6), 0, 0), ((4, 0.46, -6), 0, 0),
+                 ((-8, 0.46, 2), 0, 0), ((8, 0.46, 2), 0, 0),
+                 ((-19, 0, 4), 1, 0), ((19, 0, 4), 0, 0),
+                 ((0, 0.46, 1), 2, 0)], boss=(0, 0.46, -6)),
 }
 
 if __name__ == "__main__":

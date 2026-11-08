@@ -453,15 +453,19 @@ func _test_tracers() -> void:
 	print("== tracers")
 	_test_tracer_geometry()
 	var start := Tracer.spawn(self, Vector3(0, 2, 0), Vector3(0, 2, -40))
+	# Sample a known simulation instant: this entire 40 m effect lasts 0.14 s,
+	# so a busy first frame can outrun a wall-clock timer before it is observed.
+	start.set_process(false)
 	_check("a tracer flies along muzzle -> hit (%.0f m)" % start._distance, absf(start._distance - 40.0) < 0.01
 		and start._direction.is_equal_approx(Vector3(0, 0, -1)))
 	_check("a sliver of a path draws nothing", Tracer.spawn(self, Vector3.ZERO, Vector3(0, 0, -0.2)) == null)
 	var far := Tracer.spawn(self, Vector3.ZERO, Vector3(0, 0, -5000))
 	_check("a sky shot is capped (%.0f m)" % far._distance, far._distance <= Tracer.MAX_PATH)
-	await _seconds(0.1)
+	start._process(0.025)
 	var thin := start.mesh as BoxMesh
 	_check("it is a thin stretched box (thickness %.3f, length %.1f)" % [thin.size.x, start.scale.z],
 		thin.size.x < 0.03 and start.scale.z > 1.0)
+	start.set_process(true)
 	await _seconds(1.6)
 	_check("tracers free themselves", _tracers().is_empty())
 

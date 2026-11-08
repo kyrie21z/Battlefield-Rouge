@@ -11,6 +11,7 @@ var finished := false
 var proof_dir := ""
 var scene_entries: Array[String] = []
 var approach_samples: Array[Dictionary] = []
+var pressure_samples: Array[Dictionary] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -73,6 +74,7 @@ func _run() -> void:
 	_release_actions()
 	get_tree().paused = false
 	_write_approach_report()
+	_write_pressure_report()
 	print("SLOTH_INTEGRATION_SUMMARY | ",checks," checks | ",failures.size()," failures")
 	get_tree().quit(0 if failures.is_empty() else 1)
 
@@ -100,9 +102,18 @@ func _zone(index: int) -> void:
 	_check(guards.all(func(enemy: Enemy)->bool:return enemy.target==player),"Zone %d guards target the real player" % (index+1))
 	var new_minions := guards.filter(func(enemy: Enemy)->bool:return enemy.get_script().resource_path.contains("/sloth/"))
 	_check(not new_minions.is_empty(),"Zone %d instantiates the new Sloth enemies" % (index+1))
+	_check(new_minions.size()==[7,11,11][index],"Zone %d opening wave has the requested approximately 1.8x Sloth population" % (index+1))
+	# The active-observation phase deliberately lets real AI attack. Persistent
+	# external immunity isolates this walkthrough; dash immunity is rewritten by
+	# Player physics and therefore cannot protect a several-second observation.
+	player.health.invulnerable = true
+	player.health.dash_invulnerable = true
+	await _opening_pressure(index, new_minions)
 	# Freeze enemy decisions during geometry walking, without changing their life
 	# or membership. The independent attack tests exercise the active patterns.
-	for enemy in guards: enemy.set_physics_process(false)
+	for enemy in guards:
+		enemy.set_physics_process(false)
+		if enemy is SlothEnemy:enemy._cancel_attack()
 	player.health.dash_invulnerable = true
 	var entry_position := player.global_position
 	if index<2:
@@ -175,6 +186,53 @@ func _zone(index: int) -> void:
 			_check((ending.get_node("Center/Box/Title") as Label).text=="胜利","Final result is victory")
 		_check(director.selection_count==0 and director.buff_pedestal==null,"Boss grants no extra card or small-zone pedestal")
 		await _shot("08-victory")
+
+## Observe the authored actors without alerting, moving, or forcing their casts.
+## The walkthrough player is protected; separate fixture battles keep real HP.
+func _opening_pressure(index: int, minions: Array) -> void:
+	var starts := {}
+	var casting := {}
+	var attacks := [0]
+	var first_cast := -1.0
+	var on_shot := func(_origin: Vector3) -> void: attacks[0] += 1
+	Events.gunshot.connect(on_shot)
+	for enemy in minions:starts[enemy.get_instance_id()] = enemy.global_position
+	for frame in 210:
+		await get_tree().physics_frame
+		for enemy in minions:
+			if is_instance_valid(enemy.active_attack):
+				casting[enemy.get_instance_id()] = true
+				if first_cast<0.0:first_cast=float(frame+1)/60.0
+	Events.gunshot.disconnect(on_shot)
+	var active := 0
+	var moving_or_casting := 0
+	var moved := 0
+	for enemy in minions:
+		if not enemy.state in [Enemy.State.IDLE,Enemy.State.DEAD,Enemy.State.FLEE]:active += 1
+		var travelled: float = enemy.global_position.distance_to(starts[enemy.get_instance_id()])
+		if travelled>0.25:moved += 1
+		if travelled>0.25 or casting.has(enemy.get_instance_id()):moving_or_casting += 1
+	_check(active*4>=minions.size()*3,"Zone %d starts at least 75 percent of the opening wave in active pursuit/combat" % (index+1))
+	_check(moving_or_casting*4>=minions.size()*3,"Zone %d opening actors actually move or begin a readable attack within 3.5 seconds" % (index+1))
+	_check(first_cast>=0.0 and casting.size()>0,"Zone %d produces a real opening warning/cast without a player shot or manual AI alert" % (index+1))
+	pressure_samples.append({"zone":index+1,"seconds":3.5,"sloth_count":minions.size(),
+		"active_count":active,"moved_count":moved,"moved_or_cast_count":moving_or_casting,
+		"cast_actor_count":casting.size(),"first_observed_cast_seconds":first_cast,"gunshot_events":attacks[0],
+		"method":"Authored opening actors observe a stationary protected player; no force-alert, begin_hunt, cast_attack, velocity or target replacement."})
+	print("OPENING_PRESSURE | zone=",index+1," | count=",minions.size()," | active=",active,
+		" | moved_or_cast=",moving_or_casting," | casts=",casting.size()," | first_cast=",first_cast," | shots=",attacks[0])
+	await _shot("09-zone-%d-opening-pressure" % (index+1))
+	# Restore authored positions for the separate collision/route walkthrough;
+	# the sampled pressure above retains the actual movement and cast evidence.
+	for enemy in minions:
+		enemy.global_position = starts[enemy.get_instance_id()]
+		enemy.velocity = Vector3.ZERO
+
+func _write_pressure_report() -> void:
+	var path := "res://artifacts/combat-pressure-report.json" if proof_dir.is_empty() else proof_dir.path_join("pressure-report.json")
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+	var file := FileAccess.open(path,FileAccess.WRITE)
+	if file!=null:file.store_string(JSON.stringify({"samples":pressure_samples},"\t")+"\n")
 
 func _navigation(index: int,director: ZoneDirector,player: Player) -> void:
 	var region := director.navigation_region

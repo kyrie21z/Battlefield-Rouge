@@ -191,16 +191,18 @@ func _room_covers() -> void:
 	for side in [-1.0,1.0]:
 		_cover(Vector3(side*13.5,0.6,5.4),Vector3(2,1.2,1),"chalk","EntryLow_%s" % side)
 		_cover(Vector3(side*7,0.6,-11.8),Vector3(2,1.2,1),"chalk","ExitLow_%s" % side)
-		var lower_x: float = side*8.5 if room_index==1 else -8.5
-		if room_index==1 or side<0:
-			_cover(Vector3(lower_x,-0.6,0 if room_index==1 else -0.3),Vector3(2,1.2,1),"chalk","SunkenLow_%s" % side)
+		var lower_x: float = side*8.5
+		_cover(Vector3(lower_x,-0.6,0 if room_index==1 else -0.3),Vector3(2,1.2,1),"chalk","SunkenLow_%s" % side)
 		_cover(Vector3(side*17,1.3,-1.5),Vector3(2.5,2.6,3),"ivory","SideFull_%s" % side)
 		_cover(Vector3(side*8,0.6,-20),Vector3(3,1.2,1),"chalk","RearLow_%s" % side)
 		var upper := 3.0 if side<0 else 4.0
 		_cover(Vector3(side*18.2,upper+0.6,5),Vector3(1.2,1.2,1),"chalk","GalleryLow_%s" % side)
+		if room_index==1:
+			_cover(Vector3(side*18.2,upper+0.6,-5),Vector3(1.2,1.2,1),"chalk","GalleryRear_%s" % side)
 	if room_index==1:
 		# Offset tall cover offers another angle without blocking the direct run.
 		_cover(Vector3(5,-0.1,-2),Vector3(2,2.2,1.5),"ivory","SideDetour")
+		_cover(Vector3(0,0.6,-16),Vector3(3,1.2,1),"chalk","RearCenter")
 
 func _room_quiet_court() -> void:
 	var g := _room_group("QuietCourt")

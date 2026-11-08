@@ -1,0 +1,320 @@
+{
+  "date": "2026-11-08",
+  "engine": "Godot 4.7.2 Windows",
+  "previous_commit": "47bb39f082cb02ea8f0c870d09c2795a7af1b257",
+  "test_groups": [
+    {
+      "test": "active_magazine_test",
+      "passed": true,
+      "log_sha256": "0ed6435e50d2cc2c0f7f7143a1be9b3367fe15b0c829484381c9008e7cc29d58",
+      "summary": [
+        "ACTIVE MAGAZINE: 62 checks, 0 failed"
+      ]
+    },
+    {
+      "test": "boss_test",
+      "passed": true,
+      "log_sha256": "26bc1de9e9fb470d8f265515a3eb30566609ca8fd13a3c873409a9da4af19336",
+      "summary": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "buff_run_test",
+      "passed": true,
+      "log_sha256": "6050138f4feed55a3f12f81cba2916518c70154dfe02f85e90438dfef40f5b63",
+      "summary": [
+        "buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "capture_hammer_test",
+      "passed": true,
+      "log_sha256": "5182d94a383bc7d77b85ab2636af268042f766f34bb68bcb3d43462a9f9821af",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "cloak_defense_test",
+      "passed": true,
+      "log_sha256": "cb17a428504a909d7c593435b4e0f04bf9306a54c2bea9448f62257032344d42",
+      "summary": [
+        "CLOAK DEFENSE: 21 checks, 0 failed, finished=true"
+      ]
+    },
+    {
+      "test": "combat_traits_test",
+      "passed": true,
+      "log_sha256": "06d22b11e7d36d3f7d9b986dd8469b40b91b0ed4a2195515ca7ac20da53d634d",
+      "summary": [
+        "COMBAT TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "counter_shield_test",
+      "passed": true,
+      "log_sha256": "7dbb72734acdd8789f4cc0ae0ce7707e19687c1822cd8f687fb023bbfb92286e",
+      "summary": [
+        "COUNTER SHIELD: 28 checks, 0 failed"
+      ]
+    },
+    {
+      "test": "dash_test",
+      "passed": true,
+      "log_sha256": "aa35be4888d27cd0385a51e6243c261053c40a179a387864c96173e91923c824",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "enemy_bullet_test",
+      "passed": true,
+      "log_sha256": "ce865a25d03d969b4b77a4988daa366505d2cf52cfb2e87d7c50f72d28e77a5e",
+      "summary": [
+        "ENEMY BULLETS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "enemy_layout_test",
+      "passed": true,
+      "log_sha256": "4930a7c3c3046e6f41afa6e68ec6da763dbdae8579578e00af11638d1c5819ab",
+      "summary": [
+        "ALL PASSED (55 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "firing_position_test",
+      "passed": true,
+      "log_sha256": "c858263a017574c4ec5ee29c9c87437257d7f189f8b24b3268eb0b65ec2fce3f",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "fixture_test",
+      "passed": true,
+      "log_sha256": "5351c20858a41231d26abc4aeab116e52cd0d9d21bf9899823a14345a9a2818c",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "gun_feel_test",
+      "passed": true,
+      "log_sha256": "89ad876b7a8ded915aa41826748f5de52d25e19cc42e9d727137857f32b5e0cd",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "hammer_feel_test",
+      "passed": true,
+      "log_sha256": "8d406dd91cfeea986fbcf489c56bc964edd60cbc3052f2bf84a41851ae09dcfe",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "hit_feel_test",
+      "passed": true,
+      "log_sha256": "02c1bcba66b2a0f55aa530961a1d233aa3bd51f134451efc2d982977b7f49e98",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "hud_test",
+      "passed": true,
+      "log_sha256": "91409859145a17284d9d32b8b4c24363efc090873970c5875aa0191a66c5fb7e",
+      "summary": [
+        "ALL PASSED (295 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "hurt_feedback_test",
+      "passed": true,
+      "log_sha256": "1a8b8acadfc9a36c8e138fd587607aa98192021ce8ac928a7653d9a4f58d4d95",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "keybinding_test",
+      "passed": true,
+      "log_sha256": "33af9e37742f86e20af16cf2a6f7ad276ffbfcf6211d9dff2a1ce9ab7649dad8",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "melee_test",
+      "passed": true,
+      "log_sha256": "29c96d50a96f601b78598fa4fb2797cb2832905c3786b865c0c72e64f7289fe7",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "minimap_test",
+      "passed": true,
+      "log_sha256": "210a9b3929b01eeb62d58bdb6ea19e1baa2ce7bc945c1768d1a55b5427754ea7",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "music_test",
+      "passed": true,
+      "log_sha256": "2b02c36e64f812b964585413cefbe258a60b9be93dccdd806ffe25586fc4b969",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "opening_boot_test",
+      "passed": true,
+      "log_sha256": "ce59c8cf15a81dd67bd4a5f40222f9eb217903fece585eaa921fb10b36c99eb6",
+      "summary": []
+    },
+    {
+      "test": "opening_transition_test",
+      "passed": true,
+      "log_sha256": "3f189787e2bbae234f7eecd7713277243ebc4b1009029621c05f963c1640a6f2",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "phase_banner_test",
+      "passed": true,
+      "log_sha256": "fa940a5256b70fb305761341866cf3490846e5ba6025c3cf7cac098e884e87d3",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "protagonist_body_test",
+      "passed": true,
+      "log_sha256": "7e2721d6aea13df4c6a30b5c7be8e523129e1180447eb0f3a3e591eea4da0628",
+      "summary": [
+        "PROTAGONIST BODY: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "reflected_round_test",
+      "passed": true,
+      "log_sha256": "5907ac8c6fd89c36fa5b13de98d60a1b13385aa230c3f90121ac037bf839d1c6",
+      "summary": [
+        "REFLECTED ROUND: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "reinforcement_test",
+      "passed": true,
+      "log_sha256": "c6e6387d3dd85769b75c1dd5a1c318e83d48851ea289dc2653207a0a130a6419",
+      "summary": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "reload_blast_test",
+      "passed": true,
+      "log_sha256": "1ba01f5682c4f7415a196ffe32a7abe272ccfb393ece6f1edbbb8cf48861246f",
+      "summary": [
+        "RELOAD BLAST: 43 checks, 0 failed"
+      ]
+    },
+    {
+      "test": "school_icons_test",
+      "passed": true,
+      "log_sha256": "a4f714299719c893db8e5bad5c06a057cb38591dc51502d44fc3917ab69deaed",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "settings_test",
+      "passed": true,
+      "log_sha256": "11e88bfbd189cd169ab21b27c8d6da241e56bb08584c7f6e01dc8fe209c60662",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "shield_visual_test",
+      "passed": true,
+      "log_sha256": "cea951a4c3dd35097a22ce3354d0c018db962f574908a9c2264e2c077454288a",
+      "summary": [
+        "SHIELD FEEDBACK: 25 checks, 0 failed"
+      ]
+    },
+    {
+      "test": "sloth_cache_test",
+      "passed": true,
+      "log_sha256": "e22e9764f0feda206c8a2e274bc0ebd67f761c18ec0bba0f39e2e9e20fc79095",
+      "summary": []
+    },
+    {
+      "test": "sloth_enemy_test",
+      "passed": true,
+      "log_sha256": "eae4206d7460fefa9c6c8dcaeb9e73a5776db1b79648c726d30dea6116e3df00",
+      "summary": [
+        "SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "sloth_integration_test",
+      "passed": true,
+      "log_sha256": "def18977f95614e031213bf2f55e017689b05564f45e59218a30d95f1d4c5551",
+      "summary": [
+        "SLOTH_INTEGRATION_SUMMARY | 142 checks | 0 failures"
+      ]
+    },
+    {
+      "test": "sloth_pursuit_test",
+      "passed": true,
+      "log_sha256": "9d0b6c5e387a4f65a51b310d4a1cffc73cb157216c7e11eb443d0d450239587f",
+      "summary": [
+        "SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "sloth_revision_test",
+      "passed": true,
+      "log_sha256": "2abe2698925105bd47694fa4e7f85bbe0ae9d4dd68acd9985d4ce14d417c2150",
+      "summary": [
+        "NAVY REVISION: 27 checks, 0 failed"
+      ]
+    },
+    {
+      "test": "spawn_sight_test",
+      "passed": true,
+      "log_sha256": "3204de86c7789608de98e8dc0eafd2f5e34bbdc301bf95ec9b5efd0f0fa33262",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "weapons_test",
+      "passed": true,
+      "log_sha256": "5c34352a8a9981a748cb08257de4de246b62aef7affc8d62a7604858bbdc0aec",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    }
+  ],
+  "counter_checks": 28,
+  "hud_checks": 295,
+  "headless_flow_checks": 142,
+  "native_flow_checks": 155,
+  "native_shield_checks": 26,
+  "opening_sloth_counts": [
+    7,
+    11,
+    11
+  ],
+  "note": "Current 38 test scene groups verified; latest successful logs replace repaired fixture/timing assumptions. Original timed shield behavior remains covered.",
+  "diagnostic": "Host root certificate store startup error; no game script/navigation/polygon errors or shutdown leaks in final logs.",
+  "performance": "No new frame-time benchmark or cross-platform claim."
+}

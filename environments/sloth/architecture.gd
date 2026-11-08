@@ -443,6 +443,13 @@ func _boss_combat_covers() -> void:
 		cover.add_to_group("CoverPieces")
 		_cover_markers(at,dimensions)
 
+	# Extra opening guards use compact cover pockets without blocking x=0.
+	for at in [Vector3(-8,1.06,4.2),Vector3(8,1.06,4.2),Vector3(3,1.06,1)]:
+		var dimensions := Vector3(2.4,1.2,1.2)
+		var cover := _box(at,dimensions,"chalk",g,true)
+		cover.add_to_group("CoverPieces")
+		_cover_markers(at,dimensions)
+
 func _boss_safety() -> void:
 	var g := _group("PlayerRim")
 	for i in range(48):

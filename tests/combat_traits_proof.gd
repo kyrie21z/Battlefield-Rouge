@@ -84,7 +84,10 @@ func _run() -> void:
 	await get_tree().create_timer(0.15).timeout
 	_check("shield absorbed the incoming projectile", player.combat_traits.feedback.contains("蓄能"))
 	await _shot("action_05_shield_charged")
-	await get_tree().create_timer(player.shield.active_remaining + 0.08).timeout
+	Input.action_press("shield")
+	await get_tree().process_frame
+	Input.action_release("shield")
+	await get_tree().create_timer(0.08).timeout
 	_check("shield counterattack fired", player.combat_traits.feedback.contains("护盾反击"))
 	await _shot("action_06_shield_counter")
 	print("VISUAL TRAITS: stored_after_release=%d, feedback=%s" % [player.combat_traits.stored_rounds, player.combat_traits.feedback])

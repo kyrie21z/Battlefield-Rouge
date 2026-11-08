@@ -86,10 +86,10 @@ func _run() -> void:
 		and player.shield._overlay.impact_remaining > 0.0)
 	await _shot("shield-00-impact-charged")
 	if player.shield.is_active():
-		await player.shield.expired
+		await _key(KEY_G)
 	await get_tree().create_timer(0.12).timeout
-	_check("7m shield reaches a real enemy beyond the old 3.5m range once for 25 body damage", pulses[0] == 1
-		and is_equal_approx(target_before - source.health.health, 25.0))
+	_check("7m shield returns the actual ten absorbed damage once beyond the old 3.5m range", pulses[0] == 1
+		and is_equal_approx(target_before - source.health.health, 10.0))
 	_check("first-person pulse survives after protection ends", not player.shield.is_active()
 		and player.shield._overlay.visible and player.shield._overlay.counter_remaining > 0.0)
 	var counter := await _shot("shield-01-purple-pulse")

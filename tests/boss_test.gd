@@ -32,7 +32,7 @@ func _run() -> void:
 	_check("there are three zones", RunState.ZONE_SCENES.size() == 3)
 	_check("the boss zone is the last one", RunState.ZONE_SCENES.back() == BOSS_SCENE)
 
-	print("== the wave: one big enemy with two escorts, eleven small ones in all")
+	print("== the wave: one big enemy with two escorts, nine small ones in all")
 	var scene := await _load_boss()
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
 	var point := scene.get_node("CapturePoint") as CapturePoint
@@ -40,8 +40,8 @@ func _run() -> void:
 	var boss := scene.get_node("Boss") as Enemy
 	var enemies := get_tree().get_nodes_in_group("enemy")
 	var small: Array = enemies.filter(func(e: Node): return e != boss)
-	_check("twelve enemies in all", enemies.size() == 12)
-	_check("eleven of them are small", small.size() == 11)
+	_check("ten enemies in all", enemies.size() == 10)
+	_check("nine of them are small", small.size() == 9)
 	var sample := small[0] as Enemy
 	_check("the boss has far more health (%d vs %d)" % [boss.health.max_health, sample.health.max_health],
 		boss.health.max_health >= sample.health.max_health * 4.0)
@@ -68,8 +68,8 @@ func _run() -> void:
 		else:
 			others.append(enemy)
 	_check("two small enemies escort the boss at 2-6 m", escorts.size() == 2)
-	_check("the other nine hold the front and middle, nearer the player",
-		others.size() == 9 and others.all(func(e: Enemy) -> bool:
+	_check("the other seven hold the front and middle, nearer the player",
+		others.size() == 7 and others.all(func(e: Enemy) -> bool:
 			return e.global_position.distance_to(player.global_position) < boss.global_position.distance_to(player.global_position)))
 	_check("the enemies are in front of the core, not past it", boss.global_position.z > point.global_position.z)
 	for enemy: Enemy in enemies:
@@ -100,7 +100,7 @@ func _run() -> void:
 	_check("the objective says to fell the boss", director.objective == "打倒 Boss" and objective.text == "击倒 Boss" and objective.visible)
 	_check("one hammer would finish the core", is_equal_approx(point.config.progress_per_swing, 1.0))
 	_check("small zones still use the 10% rhythm", shared.resource_path == CONFIG_PATH and is_zero_approx(shared.progress_per_swing) and is_equal_approx(shared.normal_progress(), 0.10))
-	_check("twelve enemies are alive and the core stays shut", director.enemies_total == 12 and not boss.health.is_dead())
+	_check("ten enemies are alive and the core stays shut", director.enemies_total == 10 and not boss.health.is_dead())
 	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
 	for i in 6:
 		await get_tree().physics_frame
@@ -110,10 +110,10 @@ func _run() -> void:
 	_check("hammering a locked core adds nothing", point.progress == 0.0 and point.locked)
 	_check("the hint is still on screen", objective.text == "击倒 Boss")
 
-	print("== the six small enemies do not open the core")
+	print("== the nine small enemies do not open the core")
 	for i in small.size():
 		(small[i] as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("six small enemies dead, core still shut", director.phase == ZoneDirector.Phase.BOSS_STANDING and point.locked and point.progress == 0.0)
+	_check("nine small enemies dead, core still shut", director.phase == ZoneDirector.Phase.BOSS_STANDING and point.locked and point.progress == 0.0)
 	_check("killing them never counted as clearing the zone", _zone_cleared == 0)
 
 	print("== the boss's death opens the core, and one hammer shatters it")

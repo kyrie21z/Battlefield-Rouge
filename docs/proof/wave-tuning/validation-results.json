@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-08",
+  "engine": "Godot 4.7.2 Windows",
+  "previous_commit": "8a6fa905dc0e153f80061abfdd3342111f7921a6",
+  "related_test_groups": [
+    {
+      "test": "boss_test",
+      "passed": true,
+      "log_sha256": "88cb5866e0459be43bfd8be8b1b0c1770a1726ec20b98f3f39f21827416e5374",
+      "summary": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "buff_run_test",
+      "passed": true,
+      "log_sha256": "6050138f4feed55a3f12f81cba2916518c70154dfe02f85e90438dfef40f5b63",
+      "summary": [
+        "buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "enemy_layout_test",
+      "passed": true,
+      "log_sha256": "27e72789a26012efd752605e25dea756975cf8bc1786a464a0a224b75ab7fc9e",
+      "summary": [
+        "ALL PASSED (55 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "firing_position_test",
+      "passed": true,
+      "log_sha256": "54a74ced847ce41680cf6c782d8ae884d78b77e52a422aa6a4cdc87dae48132e",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "fixture_test",
+      "passed": true,
+      "log_sha256": "dd7291533f28e1b99686c0284bfa309fd4022950a50eaec9e9c5871f5efeb971",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "hud_test",
+      "passed": true,
+      "log_sha256": "91409859145a17284d9d32b8b4c24363efc090873970c5875aa0191a66c5fb7e",
+      "summary": [
+        "ALL PASSED (295 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "minimap_test",
+      "passed": true,
+      "log_sha256": "210a9b3929b01eeb62d58bdb6ea19e1baa2ce7bc945c1768d1a55b5427754ea7",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "phase_banner_test",
+      "passed": true,
+      "log_sha256": "fa940a5256b70fb305761341866cf3490846e5ba6025c3cf7cac098e884e87d3",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "test": "reinforcement_test",
+      "passed": true,
+      "log_sha256": "a95b6d6b732b119a302a8ea782625f68c00d767ea7c78bf4395b7174c8408cac",
+      "summary": [
+        "ALL PASSED (77 checks, 0 failed)"
+      ]
+    },
+    {
+      "test": "sloth_integration_test",
+      "passed": true,
+      "log_sha256": "3ddcb1a5ea3b94f9e9dccccdf34967bcd7e06ee5a855ecee1bc094202de546d0",
+      "summary": [
+        "SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures"
+      ]
+    },
+    {
+      "test": "spawn_sight_test",
+      "passed": true,
+      "log_sha256": "79f75d5fdf392d554aba0e0f03bb405ced0f8d0fe32fa321bf12444f4d35be6e",
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ]
+    }
+  ],
+  "initial_minions": [
+    5,
+    9,
+    9
+  ],
+  "reinforcement": {
+    "per_wave": 4,
+    "max_alive": 8,
+    "interval_seconds": 10,
+    "markers_per_small_zone": 9
+  },
+  "headless_flow_checks": 146,
+  "native_flow_checks": 161,
+  "reinforcement_checks": 77,
+  "diagnostic": "Host root certificate store startup diagnostic; final logs contain no game script/navigation errors or shutdown leaks.",
+  "scope": "This is a targeted wave-count/spawn-safety verification; the previous full 38-group counter/AI result is historical, not rerun here."
+}

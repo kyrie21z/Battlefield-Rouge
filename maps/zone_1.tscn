@@ -86,19 +86,9 @@ kind = 0
 opening_delay = 0.70
 
 [node name="Enemy5" parent="." instance=ExtResource("3_enemy")]
-transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -13.5, 0, 7.2)
-kind = 0
-opening_delay = 0.25
-
-[node name="Enemy6" parent="." instance=ExtResource("3_enemy")]
-transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 8.5, -1.2, 1.5)
-kind = 0
-opening_delay = 0.40
-
-[node name="Enemy7" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, -14, 0, -1.5)
 kind = 2
-opening_delay = 0.55
+opening_delay = 0.25
 
 [node name="ReinforcementSpawns" type="Node3D" parent="."]
 
@@ -122,6 +112,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -16.5, 3, -6)
 
 [node name="Spawn7" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 16.5, 4, -6)
+
+[node name="Spawn8" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -6, 0, -22)
+
+[node name="Spawn9" type="Marker3D" parent="ReinforcementSpawns" groups=["reinforcement_spawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 6, 0, -22)
 
 [node name="ZoneDirector" type="Node" parent="." node_paths=PackedStringArray("navigation_region", "capture_point")]
 script = ExtResource("4_director")

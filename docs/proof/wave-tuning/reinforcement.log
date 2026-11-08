@@ -1,0 +1,99 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+== config
+  [ok] cadence resource is zone/reinforcement_config.tres
+  [ok] a wave is every 10 s
+  [ok] a wave is four enemies, twice the original two
+  [ok] two full four-enemy waves can stay out
+== layout
+  [ok] zone_1.tscn building stands in the rear court
+  [ok] zone_1.tscn player enters from the front
+  [ok] zone_1.tscn has spawn markers round the arena
+  [ok] zone_1.tscn spawns are spread inside the arena, clear of the building
+  [ok] zone_1.tscn still has a rear marker and both flanks
+  [ok] zone_1.tscn guard count
+  [ok] zone_1.tscn leaves each real reinforcement capsule clear of WORLD ([])
+  [ok] zone_1.tscn keeps every reinforcement marker on its intended navigation floor ([])
+  [ok] zone_1.tscn guards stay out of the hammer reach (nearest 7.3 m)
+  [ok] zone_1.tscn guards defend the point and the approach (7.3-20.3 m)
+  [ok] zone_1.tscn uses the cadence resource
+  [ok] zone_1.tscn has not spawned yet
+  [ok] zone_2.tscn building stands in the rear court
+  [ok] zone_2.tscn player enters from the front
+  [ok] zone_2.tscn has spawn markers round the arena
+  [ok] zone_2.tscn spawns are spread inside the arena, clear of the building
+  [ok] zone_2.tscn still has a rear marker and both flanks
+  [ok] zone_2.tscn guard count
+  [ok] zone_2.tscn leaves each real reinforcement capsule clear of WORLD ([])
+  [ok] zone_2.tscn keeps every reinforcement marker on its intended navigation floor ([])
+  [ok] zone_2.tscn guards stay out of the hammer reach (nearest 5.8 m)
+  [ok] zone_2.tscn guards defend the point and the approach (5.8-21.7 m)
+  [ok] zone_2.tscn uses the cadence resource
+  [ok] zone_2.tscn has not spawned yet
+== same seed, same spawns
+  [ok] still locked with one guard up
+  [ok] still locked with one guard up
+  [ok] four enemies spawn when the point opens
+  [ok] the spawn sequence matches
+  [ok] all four spawns stay at least 14 m from the player
+  [ok] all four spawns use different markers
+== two full production waves, cap and refill
+  [ok] production opening wave contains four live actors
+  [ok] the first production wave uses four different markers
+  [ok] production cadence does not add a wave before ten seconds
+  [ok] the next production wave adds four, reaching eight
+  [ok] the second production wave also uses four different markers
+  [ok] live ten-second waves do not spawn inside an existing movement capsule ([])
+  [ok] a full eight-actor field rejects another production wave
+  [ok] two real kills free exactly two reinforcement slots
+  [ok] a partially full field refills only its two free slots
+  [ok] refilling does not lock or reduce the held point
+  [ok] all occupied markers leave no safe candidate or fallback
+  [ok] an occupied pool cannot create overlapping reinforcements
+  [ok] cleared markers allow a complete four-actor refill
+  [ok] all production and refill births remain physically separate ([])
+WAVE_CAPACITY | first=4 second=4 full=8 partial_refill=2 occupied_pool=0 cleared_refill=4
+== reinforcements reach the building without corner jitter
+  [ok] every reinforcement marker has a route toward the held building
+APPROACH_BUDGET | route=37.1m speed=2.8m/s allowance=21.9s
+APPROACH_SAMPLE | Reinforcement1 | start=(6.0, 0.000885, -21.81333) | now=(8.248431, 0.000885, -13.60896) | player_gap=11.4969596862793 | state=2 | seek=(8.248431, 0.000885, -13.60896)
+APPROACH_SAMPLE | Reinforcement2 | start=(17.0, 0.0, -8.0) | now=(17.0, 0.0, -8.0) | player_gap=17.1685752868652 | state=2 | seek=(17.0, 0.0, -8.0)
+APPROACH_SAMPLE | Reinforcement3 | start=(11.46988, 0.000885, -19.81578) | now=(10.92024, 0.000885, -16.45378) | player_gap=15.3966245651245 | state=2 | seek=(10.92024, 0.000885, -16.45378)
+APPROACH_SAMPLE | Reinforcement4 | start=(-5.940971, 0.000885, -21.82291) | now=(-8.10573, 0.000885, -13.68645) | player_gap=11.4496049880981 | state=2 | seek=(-8.10573, 0.000885, -13.68645)
+APPROACH_SAMPLE | Reinforcement5 | start=(-16.5, 3.0, -6.0) | now=(-15.92796, 2.175885, -11.339) | player_gap=17.0695819854736 | state=2 | seek=(-15.92796, 2.175885, -11.339)
+APPROACH_SAMPLE | Reinforcement6 | start=(0.0, 0.0, -21.0) | now=(-4.729718, 0.000885, -10.23293) | player_gap=6.62074899673462 | state=2 | seek=(-4.729718, 0.000885, -10.23293)
+APPROACH_SAMPLE | Reinforcement7 | start=(16.5, 4.0, -6.0) | now=(15.73342, 2.301665, -13.15472) | player_gap=17.6043128967285 | state=2 | seek=(15.73342, 2.301665, -13.15472)
+APPROACH_SAMPLE | Reinforcement8 | start=(-17.0, 0.0, -8.0) | now=(-17.0, 0.0, -8.0) | player_gap=17.1685752868652 | state=2 | seek=(-17.0, 0.0, -8.0)
+  [ok] no reinforcement jitters in a corner
+  [ok] most reinforcements reach a visible firing position in the route budget (8/8)
+== rhythm, shockwave, pedestal
+  [ok] opening the building spawns a four-enemy wave
+  [ok] killing a reinforcement does not move progress
+  [ok] the building stays open
+  [ok] later waves stop at the eight-enemy cap
+  [ok] nine bodies were spawned to hold eight after one kill
+  [ok] flag is planted
+  [ok] shockwave mesh is in the scene
+  [ok] shockwave audio plays
+  [ok] nothing was killed by the shockwave
+  [ok] every living minion is retreating
+  [ok] the shockwave dealt no damage
+  [ok] the reward is not up yet
+  [ok] the objective names the pedestal
+  [ok] reinforcements despawn without a kill
+  [ok] spawning stopped when the flag went up
+  [ok] pedestal exists
+  [ok] interact out of range does nothing
+  [ok] interact at the pedestal opens the choice and pauses
+  [ok] the chosen card loads the next zone
+== boss zone
+  [ok] boss has no reinforcement markers
+  [ok] boss has no reinforcement config
+  [ok] boss does not spawn
+  [ok] the core stays shut while the boss lives
+  [ok] boss flag has no pedestal
+  [ok] boss flag has no shockwave
+  [ok] boss still wins with no buff offer
+ALL PASSED (77 checks, 0 failed)

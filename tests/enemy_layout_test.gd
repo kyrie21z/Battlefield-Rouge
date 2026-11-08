@@ -17,11 +17,11 @@ extends Node
 ##     from the Boss with the remaining opening guards nearer the player.
 
 const MAPS := [
-	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 7, "bands": [2, 2, 3]},
-	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 11, "bands": [2, 2, 7]},
+	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 5, "bands": [1, 1, 3]},
+	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 9, "bands": [2, 2, 5]},
 	# The compact 50 m arena restores front/middle/escort progression while
 	# the original monumental 92 m shell remains scenery outside the battlefield.
-	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 11, "bands": [2, 7, 2], "boss": true},
+	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 9, "bands": [2, 5, 2], "boss": true},
 ]
 const SPAWN_CLEARANCE := 15.0
 const ENEMY_SPACING := 3.0

@@ -629,7 +629,7 @@ func _test_boss_hud() -> void:
 	capture.refresh()
 	pedestal_marker.refresh()
 	_check("the boss objective uses the short text and live count", director.phase == ZoneDirector.Phase.BOSS_STANDING
-		and top.phase == director.phase and objective.text == "击倒 Boss" and top.enemies_alive == 12)
+		and top.phase == director.phase and objective.text == "击倒 Boss" and top.enemies_alive == 10)
 	_check("the boss objective has no redundant subtitle", not detail.visible
 		and detail.text.is_empty())
 	_check("boss health starts visible at exactly 900 / 900", bar.visible and not bar.fallen
@@ -677,7 +677,7 @@ func _test_boss_hud() -> void:
 			small = node as Enemy
 			break
 	small.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("small-enemy death updates the counter but not boss health", top.enemies_alive == 11
+	_check("small-enemy death updates the counter but not boss health", top.enemies_alive == 9
 		and bar.displayed_health == 858.0 and bar.delayed_health == 858.0)
 
 	print("== fallen boss, open core and planted flag")
@@ -697,7 +697,7 @@ func _test_boss_hud() -> void:
 		and bar.health_text == "已倒下" and bar.fill_color == CapturePoint.COLOR_LOCKED)
 	_check("boss death opens the actual core and switches the short objective", not point.locked
 		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase
-		and objective.text == "锤击据点" and top.enemies_alive == 10
+		and objective.text == "锤击据点" and top.enemies_alive == 8
 		and detail.visible and detail.text == "按 E 砸核心")
 	_check("the unlocked boss core shows the blue progress ring", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and capture.progress_visible

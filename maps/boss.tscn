@@ -107,19 +107,9 @@ kind = 0
 opening_delay = 0.70
 
 [node name="Enemy9" parent="." instance=ExtResource("3_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -19, 0, 4)
-kind = 1
-opening_delay = 0.25
-
-[node name="Enemy10" parent="." instance=ExtResource("3_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 19, 0, 4)
-kind = 0
-opening_delay = 0.40
-
-[node name="Enemy11" parent="." instance=ExtResource("3_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 0, 0.46, 1)
 kind = 2
-opening_delay = 0.55
+opening_delay = 0.25
 
 [node name="Boss" parent="." instance=ExtResource("7_boss")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, -0, 0, -1, 0, 0.46, -6)

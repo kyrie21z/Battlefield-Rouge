@@ -63,14 +63,14 @@
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
 | 射击位 | `Enemy.State.SEEK`，`Enemy.firing_position`，`FiringPositionBoard` | 交火时站的、能看到玩家的位置。候选是现有掩体点加玩家周围固定方向的两圈采样点（8 / 20 米），只保留导航可达、从眼睛高度到玩家不被世界挡住的点；离自己近的优先，挨着掩体减分。多个敌人共用一个 `FiringPositionBoard`，3.5 米内别人已订的点不再选。走到后进入交火；看不见玩家 0.5 秒或离玩家近于 6 米就重找。找不到才退回朝玩家追。增援出生即寻位，不抽随机数。 |
 | 敌人 | `Enemy` / `SlothEnemy` | 共用待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）契约。整合草稿的小怪为 SlothEnemy 三变体；Boss 暂沿用旧 Enemy 大号版本（`actors/enemy/boss.tscn`），Hazmat 模型，900 HP、爆头倍率 1.25。 |
-| 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波刷在离玩家至少 14 米、且玩家看不见的刷新点（相机前方 65° 内 + 从眼睛到 1.2 米高度无 WORLD 遮挡）；都不合格时退回离玩家最远的未用点，不抽随机数。同一波不重复用同一个点。zone_1 / zone_2 各有后方、侧翼和后排角落共 7 个点。 |
+| 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波优先选离玩家至少14米且看不见的刷新点（前方65°+WORLD视线）；不合格时退回最远未用空位，不抽额外随机数。候选与fallback都用ENEMIES胶囊排除占位，全部被占就等待；同波不重用。zone_1/zone_2各有后方、侧翼/高台共9点。 |
 
 ## 设计目标（Cut-001b）
 
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
 | 小关 / 两段关 | `ZoneDirector.Phase` | 清守卫 → 占点（增援从后方持续来）→ 插旗冲击波 → 增益台（AC-01）。MVP 有两关。 |
-| 增援 | `ReinforcementConfig`，`reinforcement_spawn` | 据点开放时从后方刷出的 `Enemy`。默认每 10 秒 2 只，场上最多 5 只，插旗后停止。不回退进度，只造成生命压力。数在 `zone/reinforcement_config.tres`。 |
+| 增援 | `ReinforcementConfig`，`reinforcement_spawn` | 据点开放时从后方刷出的 `Enemy`。默认每10秒4只，场上最多8只，插旗后停止。不回退进度，只造成生命压力。数在 `zone/reinforcement_config.tres`。 |
 | 冲击波 | `ZoneDirector._play_shockwave` | 小关插旗时触发。不造成伤害。存活小怪进入逃跑，沿导航去后方刷怪点，到达或超时后消失，不算击杀。 |
 | 增益台 | `BuffPedestal` | 小关插旗后出现在旗旁的灰盒。走近按 F（`interact`）才打开通关三选一。开局那次仍是弹窗。 |
 | 逃跑 | `Enemy.State.FLEE`，`begin_retreat` | 冲击波之后的状态：不再攻击，跑向后方刷怪点。移除时不发 `Events.enemy_killed`。 |
@@ -78,7 +78,7 @@
 | 九条增益 | `BuffPool.ALL` | 每派 3 条，共 9 条，图标不同（AC-08）；当前效果为可调试玩默认，非最终平衡锁定。 |
 | 进关选择 | `ZoneDirector._offer_buff("enter")` | 只在一局第一关（`RunState.zone_index == 0`）开打前选 1 条。小关 2 和 Boss 进场不选。按是不是一局的第一关判断，不按 fixture 起点（AC-04）。 |
 | 关末再选 | `ZoneDirector._offer_buff("clear")`，`BuffPedestal` | 两个小关插旗后，到旗旁增益台按 F 才各选 1 条，本局叠加；Boss 结束后不选（AC-04）。 |
-| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和 9 名放在前沿 / 中段及侧翼的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
+| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和7名放在前沿/中段及侧翼的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |
 
@@ -94,7 +94,7 @@
 
 ## Sloth 可玩整合草稿（2026-11-08）
 
-同日战斗强化：三关初始小怪7/11/11（Boss本体仍1）；Sloth绑定目标后主动搜敌，初始0.25–0.70秒错峰，跑速迟滞/锚定/退缩2.8/2.1/2.4m/s，锚定/退缩施法周期4.4/3.6秒。四连弹的预警、伤害与恢复窗口不改；增援仍2只/10秒、最多5只。反击盾当前容量规则见上方主动护盾/反击波条目和ADR0013。
+同日战斗强化：三关初始小怪5/9/9（前轮7/11/11各减2，Boss本体仍1）；Sloth绑定目标后主动搜敌，初始0.25–0.70秒错峰，跑速迟滞/锚定/退缩2.8/2.1/2.4m/s，锚定/退缩施法周期4.4/3.6秒。四连弹的预警、伤害与恢复窗口不改；增援每批4只/10秒、最多8只。反击盾当前容量规则见上方主动护盾/反击波条目和ADR0013。
 
 | 术语 | 代码里的名字 | 当前试玩含义 |
 | --- | --- | --- |

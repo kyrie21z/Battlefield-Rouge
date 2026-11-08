@@ -56,7 +56,7 @@ func _behind_the_building() -> void:
 	_kill_guards(scene)
 	await get_tree().physics_frame
 	var first := _reinforcements(scene)
-	_check("the first wave spawns", first.size() == 2)
+	_check("the first reinforcement wave spawns four enemies", first.size() == 4)
 	# Spawns now include flank and rear-corner markers, so the building no longer
 	# blocks every one of them. The rule is the player's view: a spawn is hidden
 	# when it is outside the view cone or a WORLD ray from the eye is blocked.
@@ -159,7 +159,7 @@ func _hammer_noise() -> void:
 	var player := scene.get_node("Player") as Player
 	_place_player_behind(point, player)
 	var guards := _enemies(scene)
-	_check("the zone starts with seven guards", guards.size() == 7)
+	_check("the zone starts with five guards", guards.size() == 5)
 	for index in range(2, guards.size()):
 		guards[index].health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	var near := guards[0]
@@ -192,7 +192,7 @@ func _hammer_noise() -> void:
 func _deterministic_picks() -> void:
 	var first := await _pick_positions(40043)
 	var second := await _pick_positions(40043)
-	_check("both runs spawn the first wave", first.size() == 2 and second.size() == 2)
+	_check("both runs spawn four reinforcements", first.size() == 4 and second.size() == 4)
 	_check("both runs pick the same positions", first.size() >= 2 and str(first) == str(second))
 
 

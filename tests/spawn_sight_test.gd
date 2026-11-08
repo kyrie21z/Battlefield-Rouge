@@ -36,13 +36,16 @@ func _run() -> void:
 	director._spawn_wave()
 	director._reinforcing = false
 	var picks := director.reinforcement_spawn_log.slice(log_start)
-	_check("a wave spawns %d enemies" % picks.size(), picks.size() == 2)
+	_check("a wave spawns four enemies (%d)" % picks.size(), picks.size() == 4)
 	for position in picks:
 		var at: Vector3 = position
 		_check("spawn is at least %.0f m from the player" % ZoneDirector.MIN_SPAWN_DISTANCE,
 			_flat(at, player.global_position) >= ZoneDirector.MIN_SPAWN_DISTANCE)
 		_check("spawn is not visible from the player", not _marker_visible(player, at))
-	_check("the two enemies use different markers", picks.size() == 2 and picks[0] != picks[1])
+	var distinct := {}
+	for position in picks:
+		distinct[position] = true
+	_check("all four enemies use different markers", picks.size() == 4 and distinct.size() == 4)
 
 	# Above the compact court there is a clear view of at least the rear lane.
 	# The real hammer socket may legitimately be occluded in both directions.
@@ -58,7 +61,7 @@ func _run() -> void:
 	await _frames(2)
 
 	# Establish the fallback's prerequisites explicitly, independently of cover
-	# layout: all seven real markers are staged in clear air within 14 metres.
+	# layout: every real marker is staged in clear air within 14 metres.
 	player.global_position = Vector3(0.0, 20.0, 0.0)
 	player.aim_at(Vector3(0.0, 20.0, -8.0))
 	for i in markers.size():

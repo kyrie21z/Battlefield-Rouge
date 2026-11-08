@@ -102,7 +102,7 @@ func _zone(index: int) -> void:
 	_check(guards.all(func(enemy: Enemy)->bool:return enemy.target==player),"Zone %d guards target the real player" % (index+1))
 	var new_minions := guards.filter(func(enemy: Enemy)->bool:return enemy.get_script().resource_path.contains("/sloth/"))
 	_check(not new_minions.is_empty(),"Zone %d instantiates the new Sloth enemies" % (index+1))
-	_check(new_minions.size()==[7,11,11][index],"Zone %d opening wave has the requested approximately 1.8x Sloth population" % (index+1))
+	_check(new_minions.size()==[5,9,9][index],"Zone %d opening wave has two fewer Sloth enemies than the previous draft" % (index+1))
 	# The active-observation phase deliberately lets real AI attack. Persistent
 	# external immunity isolates this walkthrough; dash immunity is rewritten by
 	# Player physics and therefore cannot protect a several-second observation.
@@ -146,11 +146,12 @@ func _zone(index: int) -> void:
 		for enemy in guards:
 			enemy.health.apply_damage(99999,Hitbox.BodyPart.BODY,player)
 		_check(director.phase==ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked,"Real guard deaths unlock zone %d objective" % (index+1))
-		_check(director.reinforcement_count()>0,"Zone %d starts actual reinforcement actors" % (index+1))
+		_check(director.reinforcement_count()==4,"Zone %d opens with four actual reinforcement actors" % (index+1))
 		for enemy in director.living_enemies():
 			enemy.set_physics_process(false)
 			_check(enemy.get_script().resource_path.contains("/sloth/"),"Reinforcement uses the new Sloth actor")
 		await _enter_hammer_range(player,director.capture_point,false)
+		await _shot("10-zone-%d-reinforcements" % (index+1))
 	for attempt in 12:
 		if director.capture_point.is_captured(): break
 		await _hammer(player)

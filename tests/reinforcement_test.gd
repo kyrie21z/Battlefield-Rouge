@@ -36,22 +36,25 @@ func _run() -> void:
 	var config := load(CONFIG_PATH) as ReinforcementConfig
 	_check("cadence resource is zone/reinforcement_config.tres", config != null and config.resource_path == CONFIG_PATH)
 	_check("a wave is every 10 s", is_equal_approx(config.interval_seconds, 10.0))
-	_check("a wave is 2 enemies", config.per_wave == 2)
-	_check("at most 5 reinforcements stay out", config.max_alive == 5)
+	_check("a wave is four enemies, twice the original two", config.per_wave == 4)
+	_check("two full four-enemy waves can stay out", config.max_alive == 8)
 
 	print("== layout")
-	await _check_layout("res://maps/zone_1.tscn", 0, 7)
-	await _check_layout("res://maps/zone_2.tscn", 1, 11)
+	await _check_layout("res://maps/zone_1.tscn", 0, 5)
+	await _check_layout("res://maps/zone_2.tscn", 1, 9)
 
 	print("== same seed, same spawns")
 	var first := await _first_wave(424242)
 	var second := await _first_wave(424242)
-	_check("two enemies spawn on capture", first.size() == 2 and second.size() == 2)
+	_check("four enemies spawn when the point opens", first.size() == 4 and second.size() == 4)
 	_check("the spawn sequence matches", _flats(first) == _flats(second))
 	# Spawns are now picked out of sight round the whole arena, not only behind.
-	_check("both spawns stay at least 14 m from the player", first.all(
+	_check("all four spawns stay at least 14 m from the player", first.all(
 		func(v: Vector3): return _flat_distance(v,_first_wave_player) >= ZoneDirector.MIN_SPAWN_DISTANCE))
-	_check("the two spawns use different markers", _flats(first)[0] != _flats(first)[1])
+	_check("all four spawns use different markers", _unique_positions(first) == 4)
+
+	print("== two full production waves, cap and refill")
+	await _production_wave_capacity()
 
 	print("== reinforcements reach the building without corner jitter")
 	await _approach_without_jitter()
@@ -153,6 +156,99 @@ func _first_wave(run_seed: int) -> Array[Vector3]:
 	return log
 
 
+func _production_wave_capacity() -> void:
+	var scene := await _open_zone("res://maps/zone_1.tscn",0,82424)
+	_choose_entry(scene)
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	var player := scene.get_node("Player") as Player
+	var point := scene.get_node("CapturePoint") as CapturePoint
+	player.health.invulnerable = true
+	player.global_position = point.global_position + Vector3(0.0,0.1,3.5)
+	await _wait(0.6)
+	player.set_physics_process(false)
+	# Observe actual 10-second waves with live AI, not a frozen-spawn fixture.
+	# This also catches a later wave appearing inside an actor still at a marker.
+	var overlaps: Array[String] = []
+	var on_spawn := func(_at: Vector3) -> void:
+		var actor: Enemy = director._reinforcements.back()
+		var capsule := actor.get_node("CollisionShape3D") as CollisionShape3D
+		var query := PhysicsShapeQueryParameters3D.new()
+		query.shape = capsule.shape
+		query.transform = capsule.global_transform
+		query.collision_mask = CollisionLayers.ENEMIES
+		query.collide_with_areas = false
+		query.exclude = [actor.get_rid()]
+		if not actor.get_world_3d().direct_space_state.intersect_shape(query,1).is_empty():
+			overlaps.append(str(actor.name))
+	director.reinforcement_spawned.connect(on_spawn)
+	for enemy in _enemies(scene):
+		enemy.health.apply_damage(99999.0,Hitbox.BodyPart.BODY)
+	_check("production opening wave contains four live actors",director.reinforcement_count()==4
+		and director.reinforcement_spawn_log.size()==4)
+	_check("the first production wave uses four different markers",_unique_positions(director.reinforcement_spawn_log)==4)
+	await _wait(9.8)
+	_check("production cadence does not add a wave before ten seconds",director.reinforcement_spawn_log.size()==4)
+	await _wait(0.3)
+	_check("the next production wave adds four, reaching eight",director.reinforcement_count()==8
+		and director.reinforcement_spawn_log.size()==8)
+	_check("the second production wave also uses four different markers",
+		_unique_positions(director.reinforcement_spawn_log.slice(4,8))==4)
+	_check("live ten-second waves do not spawn inside an existing movement capsule (%s)" % [overlaps],overlaps.is_empty())
+	await _wait(10.05)
+	_check("a full eight-actor field rejects another production wave",director.reinforcement_count()==8
+		and director.reinforcement_spawn_log.size()==8)
+	var before_progress := point.progress
+	var live := _enemies(scene).filter(func(enemy: Enemy): return enemy.state!=Enemy.State.DEAD)
+	for index in 2:
+		(live[index] as Enemy).health.apply_damage(99999.0,Hitbox.BodyPart.BODY)
+	_check("two real kills free exactly two reinforcement slots",director.reinforcement_count()==6
+		and is_equal_approx(point.progress,before_progress))
+	await _wait(10.05)
+	_check("a partially full field refills only its two free slots",director.reinforcement_count()==8
+		and director.reinforcement_spawn_log.size()==10)
+	_check("refilling does not lock or reduce the held point",not point.locked
+		and is_equal_approx(point.progress,before_progress))
+	# An exhausted safe-spawn pool must skip spawning rather than overlap a
+	# living body. The movement layer is blocked only for this safety fixture.
+	var remaining := _enemies(scene).filter(func(enemy: Enemy): return enemy.state!=Enemy.State.DEAD)
+	for index in 4:
+		(remaining[index] as Enemy).health.apply_damage(99999.0,Hitbox.BodyPart.BODY)
+	var blockers: Array[StaticBody3D] = []
+	for marker in _spawns(scene):
+		var body := StaticBody3D.new()
+		body.collision_layer = CollisionLayers.ENEMIES
+		body.collision_mask = 0
+		var capsule := CollisionShape3D.new()
+		var shape := CapsuleShape3D.new()
+		shape.height = 1.8
+		shape.radius = 0.4
+		capsule.shape = shape
+		capsule.position.y = 0.9
+		body.add_child(capsule)
+		scene.add_child(body)
+		body.global_position = marker.global_position
+		blockers.append(body)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var before_blocked := director.reinforcement_spawn_log.size()
+	director._wave_used_markers.clear()
+	_check("all occupied markers leave no safe candidate or fallback",director._pick_spawn_marker()==null)
+	director._spawn_wave()
+	_check("an occupied pool cannot create overlapping reinforcements",director.reinforcement_count()==4
+		and director.reinforcement_spawn_log.size()==before_blocked)
+	for body in blockers:
+		body.free()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	director._spawn_wave()
+	_check("cleared markers allow a complete four-actor refill",director.reinforcement_count()==8
+		and director.reinforcement_spawn_log.size()==before_blocked+4)
+	_check("all production and refill births remain physically separate (%s)" % [overlaps],overlaps.is_empty())
+	print("WAVE_CAPACITY | first=4 second=4 full=8 partial_refill=2 occupied_pool=0 cleared_refill=4")
+	director.reinforcement_spawned.disconnect(on_spawn)
+	await _close(scene)
+
+
 func _approach_without_jitter() -> void:
 	var scene := await _open_zone("res://maps/zone_1.tscn", 0, 1001)
 	_choose_entry(scene)
@@ -167,7 +263,7 @@ func _approach_without_jitter() -> void:
 		enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	var tuned := director.reinforcement_config.duplicate() as ReinforcementConfig
 	tuned.interval_seconds = 0.35
-	tuned.per_wave = 2
+	tuned.per_wave = 4
 	tuned.max_alive = 8
 	director.reinforcement_config = tuned
 	# Give the actual navigation routes enough walking time. A slow ranged
@@ -243,13 +339,13 @@ func _rhythm_and_pedestal() -> void:
 	player.health.invulnerable = true
 	var tuned := director.reinforcement_config.duplicate() as ReinforcementConfig
 	tuned.interval_seconds = 0.25
-	tuned.per_wave = 2
-	tuned.max_alive = 4
+	tuned.per_wave = 4
+	tuned.max_alive = 8
 	tuned.flee_timeout_seconds = 0.35
 	director.reinforcement_config = tuned
 	for enemy in _enemies(scene):
 		enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-	_check("opening the building spawns one wave", director.reinforcement_count() == 2 and director.phase == ZoneDirector.Phase.HAMMER_POINT)
+	_check("opening the building spawns a four-enemy wave", director.reinforcement_count() == 4 and director.phase == ZoneDirector.Phase.HAMMER_POINT)
 	point.player_in_reach = true
 	point.resolve_swing(2.0)
 	var held := point.progress
@@ -259,8 +355,8 @@ func _rhythm_and_pedestal() -> void:
 	_check("killing a reinforcement does not move progress", is_equal_approx(point.progress, held) and point.progress > 0.0)
 	_check("the building stays open", director.phase == ZoneDirector.Phase.HAMMER_POINT and not point.locked)
 	await _wait(0.9)
-	_check("later waves stop at the cap", director.reinforcement_count() == 4)
-	_check("five bodies were spawned to hold four", director.reinforcement_spawn_log.size() == 5)
+	_check("later waves stop at the eight-enemy cap", director.reinforcement_count() == 8)
+	_check("nine bodies were spawned to hold eight after one kill", director.reinforcement_spawn_log.size() == 9)
 	var spawned := director.reinforcement_spawn_log.size()
 	var kills := [0]
 	var on_kill := func(_enemy: Node) -> void: kills[0] += 1
@@ -407,6 +503,13 @@ func _flats(log: Array[Vector3]) -> Array:
 	for point in log:
 		flats.append([snappedf(point.x, 0.01), snappedf(point.z, 0.01)])
 	return flats
+
+
+func _unique_positions(log: Array) -> int:
+	var seen := {}
+	for at in log:
+		seen[at] = true
+	return seen.size()
 
 func _inside(position: Vector3,bounds: Vector4) -> bool:
 	return position.x>bounds.x and position.x<bounds.z and position.z>bounds.y and position.z<bounds.w

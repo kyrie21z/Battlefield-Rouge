@@ -1,0 +1,116 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS | Boss reserve remains the project default entry
+PASS | Independent rooms preview scene loads
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+ROOMS_READY | independent reserve | room=1 | no combat or game-state dependencies
+PASS | Two-room preview creates the real walkthrough capsule
+PASS | Rooms share the cloud sea and restrained floating horizon
+PASS | Full giant ring remains reserved for the Boss scene
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+PASS | Room 1: room selection state matches the loaded template
+PASS | Room 1: sunken courtyard and both connecting floors are present
+PASS | Room 1: combat terrain spans the enlarged 96 by 128 metre footprint
+PASS | Room 1: flat combat spaces include lowered, ground and two elevated levels
+PASS | Room 1: ramps and an inclined cross-court bridge connect the vertical levels
+PASS | Room 1: twelve partial and eight full covers are distinct from the optional central barrier
+PASS | Room 1: every authored cover piece blocks a low world ray
+PASS | Room 1: full cover and central barrier reliably stop standing-eye-height rays
+PASS | Room 1: low cover is honestly partial at standing-eye height
+PASS | Room 1: authored encounter slots remain planning markers without enemy behaviour
+PASS | Room 1: Chinese title matches the selected room
+PASS | Room 1: view 1 immediately synchronizes the camera eye
+PASS | Room 1: view 1 aims correctly and uses the appropriate movement mode
+PASS | Room 1: view 2 immediately synchronizes the camera eye
+PASS | Room 1: view 2 aims correctly and uses the appropriate movement mode
+PASS | Room 1: view 3 immediately synchronizes the camera eye
+PASS | Room 1: view 3 aims correctly and uses the appropriate movement mode
+PASS | Room 1: view 4 immediately synchronizes the camera eye
+PASS | Room 1: view 4 aims correctly and uses the appropriate movement mode
+PASS | Room 1: all sampled flat floors and ramps match their physical top surfaces
+PASS | Room 1: entry and exit bridge joints are physically continuous and level
+PASS | Room 1: no sampled exposed floor or slope has competing coplanar top faces
+PASS | Room 1: central line is open in room one and blocked only by room two's detour wall
+ROUTE_PASS | room 1 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.0, 0.000454, -79.88326)
+PASS | Room 1: real capsule descends through the court and climbs back to the exit without jumping
+ROUTE_PASS | room 1 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (-0.001766, -0.000049, -79.78166)
+PASS | Room 1: real capsule traverses the left alternative route without jumping or falling
+ROUTE_PASS | room 1 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.001766, -0.000049, -79.78166)
+PASS | Room 1: real capsule traverses the right alternative route without jumping or falling
+ROUTE_PASS | room 1 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.001766, 0.000634, -79.78175)
+PASS | Room 1: real capsule climbs the left gallery, crosses the high bridge and descends the right gallery
+ROUTE_PASS | room 1 | (-39.0, 0.05, 26.0) -> (-39.0, 0.0, -20.0) | (-39.0, 0.000406, -19.86663)
+PASS | Room 1: real capsule passes beneath the left gallery with head clearance
+ROUTE_PASS | room 1 | (0.0, -2.45, 0.0) -> (-29.0, 0.0, 0.0) | (-28.81048, 0.001054, 0.0)
+PASS | Room 1: real capsule uses the left side ramp from the lowered court to ground level
+ROUTE_PASS | room 1 | (39.0, 0.05, 26.0) -> (39.0, 0.0, -20.0) | (39.0, 0.000406, -19.86663)
+PASS | Room 1: real capsule passes beneath the right gallery with head clearance
+ROUTE_PASS | room 1 | (0.0, -2.45, 0.0) -> (29.0, 0.0, 0.0) | (28.81046, 0.001052, 0.0)
+PASS | Room 1: real capsule uses the right side ramp from the lowered court to ground level
+PASS | Room 1: reset returns to a safe walking entrance and snaps the camera
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+PASS | Room 2: room selection state matches the loaded template
+PASS | Room 2: sunken courtyard and both connecting floors are present
+PASS | Room 2: combat terrain spans the enlarged 96 by 128 metre footprint
+PASS | Room 2: flat combat spaces include lowered, ground and two elevated levels
+PASS | Room 2: ramps and an inclined cross-court bridge connect the vertical levels
+PASS | Room 2: twelve partial and eight full covers are distinct from the optional central barrier
+PASS | Room 2: every authored cover piece blocks a low world ray
+PASS | Room 2: full cover and central barrier reliably stop standing-eye-height rays
+PASS | Room 2: low cover is honestly partial at standing-eye height
+PASS | Room 2: authored encounter slots remain planning markers without enemy behaviour
+PASS | Room 2: Chinese title matches the selected room
+PASS | Room 2: view 1 immediately synchronizes the camera eye
+PASS | Room 2: view 1 aims correctly and uses the appropriate movement mode
+PASS | Room 2: view 2 immediately synchronizes the camera eye
+PASS | Room 2: view 2 aims correctly and uses the appropriate movement mode
+PASS | Room 2: view 3 immediately synchronizes the camera eye
+PASS | Room 2: view 3 aims correctly and uses the appropriate movement mode
+PASS | Room 2: view 4 immediately synchronizes the camera eye
+PASS | Room 2: view 4 aims correctly and uses the appropriate movement mode
+PASS | Room 2: all sampled flat floors and ramps match their physical top surfaces
+PASS | Room 2: entry and exit bridge joints are physically continuous and level
+PASS | Room 2: no sampled exposed floor or slope has competing coplanar top faces
+PASS | Room 2: central line is open in room one and blocked only by room two's detour wall
+ROUTE_PASS | room 2 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (-0.000004, 0.000308, -79.75364)
+PASS | Room 2: real capsule bypasses the central wall on its left side and reaches the exit
+ROUTE_PASS | room 2 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.000004, 0.000309, -79.75365)
+PASS | Room 2: real capsule bypasses the central wall on its right side and reaches the exit
+ROUTE_PASS | room 2 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (-0.001766, -0.000049, -79.78166)
+PASS | Room 2: real capsule traverses the left alternative route without jumping or falling
+ROUTE_PASS | room 2 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.001766, -0.000049, -79.78166)
+PASS | Room 2: real capsule traverses the right alternative route without jumping or falling
+ROUTE_PASS | room 2 | (0.0, 0.05, 80.0) -> (0.0, 0.0, -80.0) | (0.001767, 0.000524, -79.78168)
+PASS | Room 2: real capsule climbs the left gallery, crosses the high bridge and descends the right gallery
+ROUTE_PASS | room 2 | (-39.0, 0.05, 26.0) -> (-39.0, 0.0, -20.0) | (-39.0, 0.000406, -19.86663)
+PASS | Room 2: real capsule passes beneath the left gallery with head clearance
+ROUTE_PASS | room 2 | (0.0, -2.45, 0.0) -> (-29.0, 0.0, 0.0) | (-28.81048, 0.001054, 0.0)
+PASS | Room 2: real capsule uses the left side ramp from the lowered court to ground level
+ROUTE_PASS | room 2 | (39.0, 0.05, 26.0) -> (39.0, 0.0, -20.0) | (39.0, 0.000406, -19.86663)
+PASS | Room 2: real capsule passes beneath the right gallery with head clearance
+ROUTE_PASS | room 2 | (0.0, -2.45, 0.0) -> (29.0, 0.0, 0.0) | (28.81046, 0.001052, 0.0)
+PASS | Room 2: real capsule uses the right side ramp from the lowered court to ground level
+PASS | Room 2: reset returns to a safe walking entrance and snaps the camera
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+PASS | F1 input loads the first room
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+PASS | F2 input loads the second room
+PASS | HUD exposes two real room-selection buttons
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+PASS | First HUD button loads the first room and its Chinese title
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+PASS | Second HUD button loads the second room and its Chinese title
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+PASS | Repeated template switch 1 keeps only current cover and planning slots
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+PASS | Repeated template switch 2 keeps only current cover and planning slots
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+PASS | Repeated template switch 3 keeps only current cover and planning slots
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+PASS | Repeated template switch 4 keeps only current cover and planning slots
+PASS | Only one room geometry subtree remains after repeated switches
+PASS | Chinese HUD retains room shortcuts and movement controls
+PASS | Room preview resource dependencies remain inside the reserve project
+ROOMS_TEST_SUMMARY | 82 checks | 0 failures

@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+ROOMS_PERFORMANCE_BEGIN | renderer=forward_plus | target=(1440, 810) | vsync=0 | max_fps=0 | warmup_frames=120 | sample_frames=180
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+ROOMS_READY | independent reserve | room=1 | no combat or game-state dependencies
+ROOM_BUILT | 1 | 停滞前庭 | covers=20 | planning_slots=7
+ROOMS_VIEW_METADATA | room=1 | view=1 | viewport=(1440, 810) | window=(1440, 810) | texture_size=(1296.0, 729.0) | actual_image_size=(1440, 810) | objects=288 | draw_calls=288 | primitives=7662
+ROOMS_PERFORMANCE | room=1 | view=1 | GPU_ms=median:0.997,p95:1.318,n:180 | CPU_render_ms=median:0.365,p95:0.396,n:180 | wall_frame_ms=median:1.011,p95:1.346,n:180
+ROOMS_VIEW_METADATA | room=1 | view=4 | viewport=(1440, 810) | window=(1440, 810) | texture_size=(1296.0, 729.0) | actual_image_size=(1440, 810) | objects=295 | draw_calls=295 | primitives=7710
+ROOMS_PERFORMANCE | room=1 | view=4 | GPU_ms=median:0.951,p95:1.230,n:180 | CPU_render_ms=median:0.314,p95:0.430,n:180 | wall_frame_ms=median:0.987,p95:1.287,n:180
+ROOM_BUILT | 2 | 锚定回廊 | covers=21 | planning_slots=8
+ROOMS_VIEW_METADATA | room=2 | view=1 | viewport=(1440, 810) | window=(1440, 810) | texture_size=(1296.0, 729.0) | actual_image_size=(1440, 810) | objects=293 | draw_calls=293 | primitives=7754
+ROOMS_PERFORMANCE | room=2 | view=1 | GPU_ms=median:0.806,p95:0.827,n:180 | CPU_render_ms=median:0.365,p95:0.383,n:180 | wall_frame_ms=median:0.838,p95:0.879,n:180
+ROOMS_VIEW_METADATA | room=2 | view=4 | viewport=(1440, 810) | window=(1440, 810) | texture_size=(1296.0, 729.0) | actual_image_size=(1440, 810) | objects=300 | draw_calls=300 | primitives=7802
+ROOMS_PERFORMANCE | room=2 | view=4 | GPU_ms=median:0.974,p95:1.232,n:180 | CPU_render_ms=median:0.326,p95:0.340,n:180 | wall_frame_ms=median:1.009,p95:1.298,n:180
+ROOMS_PERFORMANCE_COMPLETE | 4 static room views | failures=0 | local measurements only; no combat or cross-machine FPS guarantee

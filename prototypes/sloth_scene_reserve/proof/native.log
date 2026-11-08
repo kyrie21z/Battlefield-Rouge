@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SANCTUM_READY | independent backup | static geometry | 10 root groups
+PROOF_IMAGE | <workspace>/tmp/scene-nov8-boss/01-bridge.png
+PROOF_IMAGE | <workspace>/tmp/scene-nov8-boss/02-sanctuary.png
+PROOF_IMAGE | <workspace>/tmp/scene-nov8-boss/03-quiet-court.png
+PROOF_IMAGE | <workspace>/tmp/scene-nov8-boss/04-cloud-panorama.png
+PROOF_COMPLETE | 4 native rendered views

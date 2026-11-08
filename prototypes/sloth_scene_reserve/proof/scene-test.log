@@ -1,0 +1,66 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS | Independent main scene loads
+SANCTUM_READY | independent backup | static geometry | 10 root groups
+PASS | Scene creates the walkthrough capsule
+PASS | Landmark present: CloudSea
+PASS | Landmark present: ArrivalBridge
+PASS | Landmark present: Sanctuary
+PASS | Landmark present: GreatHalo
+PASS | Landmark present: QuietCourt
+PASS | Landmark present: FloatingPrecincts
+PASS | Active camera includes the distant floating architecture
+PASS | Atmospheric depth is enabled by default
+PASS | Stillness is the default environment state
+PASS | Viewpoint 1 snaps camera immediately to the destination eye position
+PASS | Viewpoint 1 aims at its intended landmark
+PASS | Viewpoint 1 updates the Chinese location label
+PASS | Viewpoint 1 selects safe walking or aerial mode
+PASS | Viewpoint 2 snaps camera immediately to the destination eye position
+PASS | Viewpoint 2 aims at its intended landmark
+PASS | Viewpoint 2 updates the Chinese location label
+PASS | Viewpoint 2 selects safe walking or aerial mode
+PASS | Viewpoint 3 snaps camera immediately to the destination eye position
+PASS | Viewpoint 3 aims at its intended landmark
+PASS | Viewpoint 3 updates the Chinese location label
+PASS | Viewpoint 3 selects safe walking or aerial mode
+PASS | Viewpoint 4 snaps camera immediately to the destination eye position
+PASS | Viewpoint 4 aims at its intended landmark
+PASS | Viewpoint 4 updates the Chinese location label
+PASS | Viewpoint 4 selects safe walking or aerial mode
+PASS | HUD displays title and walkthrough controls
+PASS | Keyboard 1 selects the walking entrance view
+PASS | Keyboard 4 selects the aerial panorama
+PASS | Keyboard F switches the aerial viewer back to walking
+PASS | Keyboard R restores the entrance view
+PASS | Bridge-to-sanctuary route has continuous physical ground
+PASS | Left court route has continuous physical ground
+PASS | Bridge barrier blocks the capsule above the visible parapet
+PASS | Outer sanctuary has a physical perimeter
+PASS | Bridge and sanctuary joint contain no exposed coplanar floor faces
+PASS | Main sanctuary ground contains no exposed coplanar floor faces
+PASS | Side courts and their exposed borders contain no coplanar floor faces
+PASS | Bridge floor and its joint remain within 6 cm of the supporting collision
+PASS | Sanctuary and dais stay within 6 cm of the supporting collision
+PASS | Side court floors remain within 6 cm of the supporting collision
+PASS | Bridge-to-sanctuary collision stays on one level across the visual joint
+TRAVERSE | (0.0, 0.05, 103.0) -> (0.0, 0.0, 30.0) | reached (0.0, 0.000838, 30.20016)
+PASS | Capsule walks from entry bridge onto sanctuary without falling or obstruction
+TRAVERSE | (0.0, 0.05, 30.0) -> (0.0, 0.0, 103.0) | reached (0.0, 0.000406, 102.7998)
+PASS | Capsule walks back from sanctuary onto the bridge without a collision step
+TRAVERSE | (0.0, 0.05, 20.0) -> (0.0, 0.0, 0.0) | reached (-0.000001, 0.460481, 0.2226)
+PASS | Capsule walks onto the central dais without a required jump
+TRAVERSE | (-25.0, 0.05, 5.0) -> (-49.0, 0.0, 5.0) | reached (-48.86689, -0.000415, 5.0)
+PASS | Capsule walks through the sanctuary perimeter into the quiet court
+PASS | Reset returns flying viewer to the safe bridge entrance
+PASS | Reset synchronizes the camera eye immediately without the old viewpoint
+PASS | Atmosphere switch changes the fog state
+PASS | Optional motion preview animates the great halo
+PASS | Disabling motion freezes the environment again
+PASS | Clean-view command hides the HUD
+PASS | HUD can be restored
+PASS | Screenshot mode removes the HUD
+PASS | Scene source references stay inside this standalone project
+SCENE_TEST_SUMMARY | 56 checks | 0 failures

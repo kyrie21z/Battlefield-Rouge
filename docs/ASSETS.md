@@ -234,3 +234,8 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 新增05-cloak-evade.jpg、06-charge-lock.jpg、07-fast-release.jpg为Godot原生截图，分别展示闪避反馈、凝聚锁向和快速释放；05使用强制触发演示。只作JPEG重编码，没有新增第三方素材。最新SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。
 
 2026-11-05新增备用`08-windows-opengl.jpg`为Windows OpenGL实际渲染截图，仅JPEG重编码；SHA-256见[备用包登记](../prototypes/sloth_enemy_reserve/ASSETS.md)。没有新增第三方资源。
+
+
+## 2026-11-08 · Sloth场景独立备案包
+
+[场景备用预演](../prototypes/sloth_scene_reserve/README.md)基于main5292b92（已合并弹匣#88与敌人备用#92），由外层.gdignore隔离，内层viewer为独立Godot工程。新增前两关复层庭院与Boss云海圣殿的程序几何、原创地面/天空/云层材质和原生截图；来源、SHA-256及当前验证见[包内登记](../prototypes/sloth_scene_reserve/ASSETS.md)。没有新第三方素材、生成式图片或正式游戏素材替换。

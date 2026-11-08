@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+SANCTUM_READY | independent backup | static geometry | 10 root groups
+SMOOTH_METRICS | frames=240 | physics_body_changes=13 | camera_changes=225 | max_body_step=0.80000305175781 | max_camera_step=0.04912567138672
+VIEWER_SMOOTH_TEST_PASS | interpolation, input, flight, disabled input, presets and teleports

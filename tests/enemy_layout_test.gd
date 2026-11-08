@@ -9,9 +9,9 @@ extends Node
 ## keeps a regenerated map from quietly putting the whole wave at the back again:
 ##   * the guard count and the front / middle / point split;
 ##   * every enemy at least 15 m from the player's spawn;
-##   * no idle enemy can see the spawn: outside its 120 degree view cone, or the
+##   * no idle small guard can see the spawn: outside its 120 degree view cone, or the
 ##     WORLD ray from its eye is blocked;
-##   * every enemy on the baked navigation mesh and not inside geometry;
+##   * every enemy on the baked navigation mesh, reachable, with a clear capsule;
 ##   * no two enemies closer than 3 m, the Boss included;
 ##   * every guard beside cover, and on the boss map exactly two escorts 2-6 m
 ##     from the Boss with the other four nearer the player.
@@ -19,7 +19,9 @@ extends Node
 const MAPS := [
 	{"path": "res://maps/zone_1.tscn", "zone": 0, "guards": 4, "bands": [1, 1, 2]},
 	{"path": "res://maps/zone_2.tscn", "zone": 1, "guards": 6, "bands": [2, 2, 2]},
-	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 6, "bands": [2, 2, 2], "boss": true},
+	# The 92 m sanctum keeps four in front plus two beside the Boss. The
+	# locked core is 20.5 m behind him, so escorts occupy the middle third.
+	{"path": "res://maps/boss.tscn", "zone": 2, "guards": 6, "bands": [2, 4, 0], "boss": true},
 ]
 const SPAWN_CLEARANCE := 15.0
 const ENEMY_SPACING := 3.0
@@ -86,7 +88,7 @@ func _check_map(spec: Dictionary) -> void:
 		_check("%s has %d guards in the %s third (%d)" % [file, spec.bands[i], BAND_NAMES[i], counts[i]],
 			counts[i] == spec.bands[i])
 
-	print("== %s: the spawn stays out of every sight line" % file)
+	print("== %s: small guards leave the spawn clear" % file)
 	var too_close: Array[String] = []
 	var nearest_spawn := INF
 	for enemy in enemies:
@@ -101,11 +103,15 @@ func _check_map(spec: Dictionary) -> void:
 
 	var seen: Array[String] = []
 	for enemy in enemies:
+		# The arena deliberately presents its Boss as a visible 40 m threat.
+		# His six guards still obey the same safe idle-spawn sight rule.
+		if enemy == boss:
+			continue
 		if _sees_spawn(enemy, spawn):
 			seen.append(enemy.name)
 	for label in seen:
 		print("     sees the spawn: " + label)
-	_check("%s puts the spawn outside every idle guard's sight" % file, seen.is_empty())
+	_check("%s puts the spawn outside every idle small guard's sight" % file, seen.is_empty())
 
 	print("== %s: the enemies stand and fight on the map" % file)
 	var off_mesh: Array[String] = []
@@ -119,6 +125,12 @@ func _check_map(spec: Dictionary) -> void:
 		print("     off the navmesh: " + label)
 	_check("%s puts every enemy on the baked navmesh (worst %.2f m)" % [file, worst_mesh],
 		off_mesh.is_empty())
+	var unreachable: Array[String] = []
+	for enemy in enemies:
+		if not _navmesh_reachable(enemy, spawn):
+			unreachable.append(enemy.name)
+	_check("%s connects every guard to the entry navigation surface (%s)" % [file, unreachable],
+		unreachable.is_empty())
 
 	var stuck: Array[String] = []
 	for enemy in enemies:
@@ -127,6 +139,12 @@ func _check_map(spec: Dictionary) -> void:
 	for label in stuck:
 		print("     inside geometry: " + label)
 	_check("%s starts no enemy inside geometry" % file, stuck.is_empty())
+	var capsules: Array[String] = []
+	for enemy in enemies:
+		if _capsule_inside_world(enemy):
+			capsules.append(enemy.name)
+	_check("%s leaves every actual movement capsule clear of WORLD (%s)" % [file, capsules],
+		capsules.is_empty())
 
 	var closest_pair := INF
 	var tight: Array[String] = []
@@ -144,6 +162,9 @@ func _check_map(spec: Dictionary) -> void:
 	var escorts: Array[Enemy] = []
 	if boss != null:
 		print("== %s: the boss formation" % file)
+		for destination in [Vector3(0,0,60),Vector3(0,0,90),Vector3(-50,0,5),Vector3(50,0,5)]:
+			_check("%s connects arena to the approach / outer courts %s" % [file, destination],
+				_navmesh_connects(player.get_world_3d().navigation_map, spawn, destination))
 		for enemy in small:
 			var gap := _flat(enemy.global_position, boss.global_position)
 			if gap >= ESCORT_MIN and gap <= ESCORT_MAX:
@@ -253,6 +274,30 @@ func _navmesh_gap(enemy: Enemy) -> float:
 	return Vector2(closest.x - enemy.global_position.x, closest.z - enemy.global_position.z).length()
 
 
+func _navmesh_reachable(enemy: Enemy, spawn: Vector3) -> bool:
+	var map := enemy.get_world_3d().navigation_map
+	return _navmesh_connects(map, spawn, enemy.global_position)
+
+
+func _navmesh_connects(map: RID, from: Vector3, to: Vector3) -> bool:
+	var start := NavigationServer3D.map_get_closest_point(map, from)
+	var goal := NavigationServer3D.map_get_closest_point(map, to)
+	var path := NavigationServer3D.map_get_path(map, start, goal, true)
+	return goal.distance_to(to) < 2.2 and path.size() > 1 and path[-1].distance_to(goal) < 0.2
+
+
+func _capsule_inside_world(enemy: Enemy) -> bool:
+	var capsule := enemy.get_node("CollisionShape3D") as CollisionShape3D
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = capsule.shape
+	# Ignore intended floor contact; any obstacle at the real capsule's sides
+	# or head is still included, including cover taller than the middle sphere.
+	query.transform = capsule.global_transform.translated(Vector3.UP * 0.02)
+	query.collision_mask = CollisionLayers.WORLD
+	query.collide_with_areas = false
+	return not enemy.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+
+
 ## A 0.45 m sphere around the body's middle; the enemy's own capsule is on the
 ## ENEMIES layer, so only level geometry can answer this query.
 func _inside_world(enemy: Enemy) -> bool:
@@ -271,6 +316,9 @@ func _nearest_cover(scene: Node, enemy: Enemy) -> float:
 	var best := INF
 	for node in get_tree().get_nodes_in_group("cover_point"):
 		if scene.is_ancestor_of(node):
+			# A gallery's marker cannot protect a guard on the lower floor.
+			if absf((node as Node3D).global_position.y - enemy.global_position.y) > 0.7:
+				continue
 			best = minf(best, _flat((node as Node3D).global_position, enemy.global_position))
 	return best
 

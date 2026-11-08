@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+  [ok] Forward+ renderer
+  [ok] proof output directory
+  [ok] actual entry card exists
+  [ok] observed actor is the authored Lingerer
+  [ok] real SlothAttack begins
+  [ok] four suspended orbs form before any projectile
+  [ok] native frame saved: 01-formation
+  [ok] aim locks during the last 0.45 seconds
+  [ok] native frame saved: 02-aim-locked
+ACTUAL_PROJECTILE | {"damage":9.0,"elapsed":2.01666666666666,"node_id":176815083189,"speed":40.0}
+  [ok] first actual projectile waits for the full two seconds
+  [ok] native frame saved: 03-first-release
+ACTUAL_PROJECTILE | {"damage":9.0,"elapsed":2.18333333333333,"node_id":178425695932,"speed":40.0}
+ACTUAL_PROJECTILE | {"damage":9.0,"elapsed":2.36666666666666,"node_id":181210713768,"speed":40.0}
+ACTUAL_PROJECTILE | {"damage":9.0,"elapsed":2.55,"node_id":184163503644,"speed":40.0}
+  [ok] four actual Projectile nodes coexist after the fourth release
+  [ok] all four keep their aim after the target moves
+  [ok] native frame saved: 04-four-released
+  [ok] exactly four emissions, not decorative orbs
+  [ok] projectile 1 releases at 2.00 seconds
+  [ok] projectile 1 uses 40 m/s and 9 damage
+  [ok] projectile 2 releases at 2.18 seconds
+  [ok] projectile 2 uses 40 m/s and 9 damage
+  [ok] projectile 3 releases at 2.36 seconds
+  [ok] projectile 3 uses 40 m/s and 9 damage
+  [ok] projectile 4 releases at 2.54 seconds
+  [ok] projectile 4 uses 40 m/s and 9 damage
+  [ok] the real burst ends in an exposed recovery
+  [ok] native frame saved: 05-recovery
+SLOTH_BURST_NATIVE_COMPLETE checks=25 failures=0 output=D:/CS Games/Rouge/Battlefield-Rouge-sloth-playable/artifacts/sloth-burst-proof

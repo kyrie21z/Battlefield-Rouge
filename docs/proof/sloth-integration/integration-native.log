@@ -1,0 +1,137 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS | Run retains two small zones and one Boss
+PASS | Normal entry starts the Pride opening
+PASS | Combat player is absent behind the opening
+PASS | Native proof saved: 01-pride-opening
+PASS | Five real advance keys reach the departure choice
+PASS | Departure loads the actual first zone
+PASS | First zone pauses for its opening card
+PASS | Physical card key commits exactly one buff
+PASS | Opening card starts guard combat
+PASS | Zone 1 index comes from actual progression
+PASS | Zone 1 uses its generated playable map
+PASS | Zone 1 has geometry and the real HUD
+PASS | Zone 1 HUD reads the actual scene actors
+PASS | Zone 1 minimap caches the new nested geometry
+PASS | Zone 1 exposes its new physical cover markers
+PASS | Zone 1 retains guns, melee and shield
+PASS | Zone 1 objective starts locked
+PASS | Zone 1 guards are tracked by the director
+PASS | Zone 1 guards target the real player
+PASS | Zone 1 instantiates the new Sloth enemies
+PASS | Zone 1 owns a navigation region
+PASS | Zone 1 navigation has synchronized
+PASS | Zone 1 Sloth actor owns a real navigation agent
+PASS | Zone 1 nav reaches (0.0, 0.0, -44.5) at the intended level
+PASS | Zone 1 actual Sloth Agent reaches (0.0, 0.0, -44.5)
+PASS | Zone 1 nav reaches (0.0, -2.5, 0.0) at the intended level
+PASS | Zone 1 actual Sloth Agent reaches (0.0, -2.5, 0.0)
+PASS | Zone 1 nav reaches (-39.0, 3.0, -9.0) at the intended level
+PASS | Zone 1 actual Sloth Agent reaches (-39.0, 3.0, -9.0)
+PASS | Zone 1 nav reaches (39.0, 5.0, -9.0) at the intended level
+PASS | Zone 1 actual Sloth Agent reaches (39.0, 5.0, -9.0)
+PASS | Zone 1 nav reaches (29.0, 0.0, 0.0) at the intended level
+PASS | Zone 1 actual Sloth Agent reaches (29.0, 0.0, 0.0)
+PASS | Real player capsule traverses integration route 1
+PASS | Real player capsule traverses integration route 2
+PASS | Real player capsule traverses integration route 3
+PASS | Native proof saved: 02-zone-1-combat
+PASS | Real guard deaths unlock zone 1 objective
+PASS | Zone 1 starts actual reinforcement actors
+PASS | Reinforcement uses the new Sloth actor
+PASS | Reinforcement uses the new Sloth actor
+PASS | Objective Area detects the real Player body in hammer range
+PASS | Zone 1 is captured using hammer input and Area reach
+PASS | Flag creates a pedestal but does not auto-open cards
+PASS | Capture shockwave sends surviving new enemies into retreat
+PASS | Retreat clears active new-enemy attacks
+PASS | Native proof saved: 03-zone-1-flag
+PASS | Player actually stands within the new map's pedestal range
+PASS | Physical F input opens exactly one clear reward
+PASS | Native proof saved: 03-zone-1-reward
+PASS | Physical card key commits exactly one buff
+PASS | Clear card advances to the next real scene
+PASS | Zone 2 index comes from actual progression
+PASS | Zone 2 uses its generated playable map
+PASS | Zone 2 has geometry and the real HUD
+PASS | Zone 2 HUD reads the actual scene actors
+PASS | Zone 2 minimap caches the new nested geometry
+PASS | Zone 2 exposes its new physical cover markers
+PASS | Zone 2 retains guns, melee and shield
+PASS | Zone 2 objective starts locked
+PASS | Later zone starts directly without an extra entry card
+PASS | Zone 2 guards are tracked by the director
+PASS | Zone 2 guards target the real player
+PASS | Zone 2 instantiates the new Sloth enemies
+PASS | Zone 2 owns a navigation region
+PASS | Zone 2 navigation has synchronized
+PASS | Zone 2 Sloth actor owns a real navigation agent
+PASS | Zone 2 nav reaches (0.0, 0.0, -44.5) at the intended level
+PASS | Zone 2 actual Sloth Agent reaches (0.0, 0.0, -44.5)
+PASS | Zone 2 nav reaches (0.0, -2.5, 0.0) at the intended level
+PASS | Zone 2 actual Sloth Agent reaches (0.0, -2.5, 0.0)
+PASS | Zone 2 nav reaches (-39.0, 3.0, -9.0) at the intended level
+PASS | Zone 2 actual Sloth Agent reaches (-39.0, 3.0, -9.0)
+PASS | Zone 2 nav reaches (39.0, 5.0, -9.0) at the intended level
+PASS | Zone 2 actual Sloth Agent reaches (39.0, 5.0, -9.0)
+PASS | Zone 2 nav reaches (29.0, 0.0, 0.0) at the intended level
+PASS | Zone 2 actual Sloth Agent reaches (29.0, 0.0, 0.0)
+PASS | Native proof saved: 04-zone-2-combat
+PASS | Real guard deaths unlock zone 2 objective
+PASS | Zone 2 starts actual reinforcement actors
+PASS | Reinforcement uses the new Sloth actor
+PASS | Reinforcement uses the new Sloth actor
+PASS | Objective Area detects the real Player body in hammer range
+PASS | Zone 2 is captured using hammer input and Area reach
+PASS | Flag creates a pedestal but does not auto-open cards
+PASS | Capture shockwave sends surviving new enemies into retreat
+PASS | Retreat clears active new-enemy attacks
+PASS | Native proof saved: 05-zone-2-flag
+PASS | Player actually stands within the new map's pedestal range
+PASS | Physical F input opens exactly one clear reward
+PASS | Native proof saved: 05-zone-2-reward
+PASS | Physical card key commits exactly one buff
+PASS | Clear card advances to the next real scene
+PASS | Zone 3 index comes from actual progression
+PASS | Zone 3 uses its generated playable map
+PASS | Zone 3 has geometry and the real HUD
+PASS | Zone 3 HUD reads the actual scene actors
+PASS | Zone 3 minimap caches the new nested geometry
+PASS | Zone 3 exposes its new physical cover markers
+PASS | Zone 3 retains guns, melee and shield
+PASS | Zone 3 objective starts locked
+PASS | Later zone starts directly without an extra entry card
+PASS | Zone 3 guards are tracked by the director
+PASS | Zone 3 guards target the real player
+PASS | Zone 3 instantiates the new Sloth enemies
+PASS | Zone 3 owns a navigation region
+PASS | Zone 3 navigation has synchronized
+PASS | Zone 3 Sloth actor owns a real navigation agent
+PASS | Zone 3 nav reaches (0.0, 0.0, -23.0) at the intended level
+PASS | Zone 3 actual Sloth Agent reaches (0.0, 0.0, -23.0)
+BOSS_DAIS_PATH | [(-0.010464, 0.35, 10.25282), (-0.7603, 0.35, 1.61137), (-2.739685, 0.35, -21.2), (-2.825447, 0.35, -22.18839), (-2.90681, 0.35, -23.12604), (-3.0, 0.35, -24.2), (-3.0, 0.35, -28.7), (-3.0, 0.35, -28.7), (0.0, 0.35, -29.2), (0.437838, 0.35, -29.12703)]
+PASS | Real player capsule crosses the Boss dais from entry toward the core
+PASS | Native proof saved: 06-zone-3-combat
+PASS | Boss uses the existing Boss contract
+PASS | Objective Area detects the real Player body in hammer range
+PASS | Real hammer input cannot bypass the living Boss
+PASS | Real Boss health death unlocks its core
+PASS | Living Sloth minions do not block Boss core unlocking
+PASS | Zone 3 is captured using hammer input and Area reach
+PASS | Native proof saved: 07-boss-core-captured
+PASS | Captured Boss core reaches the victory screen
+PASS | Final result is victory
+PASS | Boss grants no extra card or small-zone pedestal
+PASS | Native proof saved: 08-victory
+PASS | Three real card selections remain ordered across all scene changes
+PASS | Actual entered scenes match the run's level order
+PASS | Victory restart resets the run and opens one entry choice
+PASS | Restart goes directly to zone one, not the opening
+PASS | Physical card key commits exactly one buff
+PASS | Real player death opens defeat and clears the build
+PASS | Defeat restart creates one fresh entry choice
+SLOTH_INTEGRATION_SUMMARY | 130 checks | 0 failures

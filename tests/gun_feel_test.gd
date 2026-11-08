@@ -338,6 +338,7 @@ func _test_enemy_reaction(scene: Node) -> void:
 	guard.health.health = 100000.0
 	var reaction := guard.get_node("HitReaction") as HitReaction
 	var meshes := guard.find_children("*", "MeshInstance3D", true, false)
+	var own_materials := meshes.map(func(m: MeshInstance3D) -> Material: return m.material_override)
 	var head_box: Hitbox
 	for node in guard.find_children("*", "Hitbox", true, false):
 		head_box = node as Hitbox
@@ -353,7 +354,7 @@ func _test_enemy_reaction(scene: Node) -> void:
 	var overlaid := meshes.filter(func(m: MeshInstance3D) -> bool: return m.material_overlay != null)
 	_check("the model's meshes get a flash overlay (%d of %d)" % [overlaid.size(), meshes.size()], overlaid.size() == meshes.size())
 	_check("the flash does not touch the meshes' own materials",
-		meshes.all(func(m: MeshInstance3D) -> bool: return m.material_override == null))
+		meshes.all(func(m: MeshInstance3D) -> bool: return m.material_override == own_materials[meshes.find(m)]))
 	var moved := false
 	var hitbox_moved := false
 	for i in 6:

@@ -1,0 +1,95 @@
+{
+	"limitations": "One local 20-second automated real-combat sample after five-second warmup; normal guard counts evolve. No cross-hardware or worst-case guarantee. No simultaneous shatter burst stress.",
+	"metadata": {
+		"cpu": "Intel(R) Core(TM) i7-14650HX",
+		"cpu_render_metric": "viewport_get_measured_render_time_cpu + RenderingServer.get_frame_setup_time_cpu; not total gameplay CPU",
+		"engine": "4.7.2-stable (official)",
+		"gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+		"gpu_metric": "RenderingServer.viewport_get_measured_render_time_gpu",
+		"max_fps": 0,
+		"physics_metric": "Performance.TIME_PHYSICS_PROCESS * 1000",
+		"process_metric": "Performance.TIME_PROCESS * 1000",
+		"renderer": "forward_plus",
+		"sample_seconds": 20.0,
+		"scenario": "six authored zone2 guards alive; stationary real player in lowered courtyard looking toward anchor; real AI alerted with begin_hunt; player health pool 100000; no forced casts",
+		"viewport": "(1440, 810)",
+		"vsync": 0,
+		"wall_metric": "Time.get_ticks_usec intervals at RenderingServer.frame_post_draw",
+		"warmup_seconds": 5.0,
+		"window": "(1440, 810)",
+		"zone": "zone_2"
+	},
+	"result": {
+		"actual_image": "(1440, 810)",
+		"cpu_render_ms": {
+			"max": 2.55499994850159,
+			"median": 0.760999974250793,
+			"min": 0.590000007152557,
+			"n": 6179,
+			"p95": 1.0160000038147
+		},
+		"draw_calls": {
+			"max": 160.0,
+			"median": 158.0,
+			"min": 151.0,
+			"n": 6179,
+			"p95": 158.0
+		},
+		"end": {
+			"alive": 6,
+			"health": 99784.0,
+			"phase": 0,
+			"position": "(0.0, -2.499063, 0.0)"
+		},
+		"gpu_ms": {
+			"max": 1.91700005531311,
+			"median": 0.921999990940094,
+			"min": 0.721000015735626,
+			"n": 6179,
+			"p95": 1.46599996089935
+		},
+		"living_actors": {
+			"max": 6.0,
+			"median": 6.0,
+			"min": 6.0,
+			"n": 6179,
+			"p95": 6.0
+		},
+		"paused": false,
+		"physics_ms": {
+			"max": 12.186,
+			"median": 4.015,
+			"min": 0.767,
+			"n": 6179,
+			"p95": 12.186
+		},
+		"player_alive": true,
+		"process_monitor_ms": {
+			"max": 9.325,
+			"median": 5.205,
+			"min": 4.172,
+			"n": 6179,
+			"p95": 9.325
+		},
+		"start": {
+			"alive": 6,
+			"health": 99964.0,
+			"phase": 0,
+			"position": "(0.0, -2.499063, 0.0)"
+		},
+		"wall_ms": {
+			"max": 15.554,
+			"median": 3.035,
+			"min": 2.374,
+			"n": 6179,
+			"p95": 4.507
+		},
+		"warmup_wall_ms_excluded_from_main_sample": {
+			"max": 427.704,
+			"median": 2.989,
+			"min": 2.397,
+			"n": 1408,
+			"p95": 4.704
+		}
+	}
+}

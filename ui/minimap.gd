@@ -115,12 +115,16 @@ func _read_geometry() -> void:
 	var geometry := root.get_node_or_null("Geometry") if root != null else null
 	if geometry == null:
 		return
-	for node in geometry.get_children():
-		var body := node as StaticBody3D
-		if body == null:
-			continue
-		if String(body.name) == "Floor":
-			continue
+	_read_geometry_branch(geometry)
+
+
+func _read_geometry_branch(node: Node) -> void:
+	# Integrated architecture nests StaticBody nodes under its mesh modules.
+	# Only physical obstacles belong on the minimap, never floors or safety walls.
+	var body := node as StaticBody3D
+	if body != null and (body.collision_layer & CollisionLayers.WORLD) != 0 \
+			and String(body.name) != "Floor" and not body.is_in_group("sloth_walkable") \
+			and not bool(body.get_meta("walkable_surface", false)):
 		for child in body.get_children():
 			var shape_node := child as CollisionShape3D
 			if shape_node == null or not (shape_node.shape is BoxShape3D):
@@ -136,6 +140,8 @@ func _read_geometry() -> void:
 				quad.append(Vector2(world.x, world.z))
 			_geometry.append(quad)
 			break
+	for child in node.get_children():
+		_read_geometry_branch(child)
 
 
 func _map_scale() -> float:
@@ -171,8 +177,28 @@ func _draw_geometry(centre: Vector2, radius: float) -> void:
 		for point in quad:
 			mapped.append(to_map(Vector3(point.x, 0.0, point.y)))
 		for piece in Geometry2D.intersect_polygons(mapped, clip):
-			if piece.size() >= 3:
-				draw_colored_polygon(piece, GEOMETRY_COLOR)
+			var polygon := _drawable_polygon(piece)
+			if polygon.size() >= 3:
+				draw_colored_polygon(polygon, GEOMETRY_COLOR)
+
+
+## Grazing the circular rim can produce a zero-area sliver or repeated points.
+## Filter those screen-space fragments before CanvasItem tries to triangulate.
+func _drawable_polygon(points: PackedVector2Array) -> PackedVector2Array:
+	var clean := PackedVector2Array()
+	for point in points:
+		if clean.is_empty() or point.distance_squared_to(clean[-1]) > 0.0025:
+			clean.append(point)
+	if clean.size() > 1 and clean[0].distance_squared_to(clean[-1]) <= 0.0025:
+		clean.remove_at(clean.size() - 1)
+	if clean.size() < 3:
+		return PackedVector2Array()
+	var twice_area := 0.0
+	for index in clean.size():
+		twice_area += clean[index].cross(clean[(index + 1) % clean.size()])
+	if absf(twice_area) < 0.5 or Geometry2D.triangulate_polygon(clean).is_empty():
+		return PackedVector2Array()
+	return clean
 
 
 ## Cached convex polygon for the circular clip; rebuilt only when the size moves.

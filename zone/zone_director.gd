@@ -49,6 +49,9 @@ const SPAWN_MARKER_HEIGHT := 1.2
 @export var is_boss_zone := false
 ## Small zones only. Null on the boss zone, which never spawns reinforcements.
 @export var reinforcement_config: ReinforcementConfig
+## Maps choose the actor family; the legacy default keeps standalone fixtures
+## and authored test scenes independent from the Sloth integration draft.
+@export var reinforcement_scene: PackedScene = ENEMY_SCENE
 
 var objective := ""
 var phase := Phase.CLEAR_GUARDS
@@ -267,11 +270,13 @@ func _spawn_one() -> void:
 	var point := _pick_spawn_marker()
 	if point == null:
 		return
-	var enemy := ENEMY_SCENE.instantiate() as Enemy
+	var actor_scene := reinforcement_scene if reinforcement_scene != null else ENEMY_SCENE
+	var enemy := actor_scene.instantiate() as Enemy
 	_reinforcement_serial += 1
 	enemy.name = "Reinforcement%d" % _reinforcement_serial
+	# Place before _ready, including the new actors' cached home/visual state.
+	enemy.position = (get_parent() as Node3D).to_local(point.global_position)
 	get_parent().add_child(enemy)
-	enemy.global_position = point.global_position
 	enemy.rotation.y = PI
 	_reinforcements.append(enemy)
 	reinforcement_spawn_log.append(enemy.global_position)

@@ -239,3 +239,11 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ## 2026-11-08 · Sloth场景独立备案包
 
 [场景备用预演](../prototypes/sloth_scene_reserve/README.md)基于main5292b92（已合并弹匣#88与敌人备用#92），由外层.gdignore隔离，内层viewer为独立Godot工程。新增前两关复层庭院与Boss云海圣殿的程序几何、原创地面/天空/云层材质和原生截图；来源、SHA-256及当前验证见[包内登记](../prototypes/sloth_scene_reserve/ASSETS.md)。没有新第三方素材、生成式图片或正式游戏素材替换。
+
+## 2026-11-08 · Sloth 可玩整合草稿
+
+本次按用户明确要求将上述两套备用中的原创内容提取为游戏运行文件，历史备用包不改。当前 `actors/enemy/sloth/sloth_visual.gd`、`sloth_shatter.gd` 和 `assets/materials/sloth_cloth.gdshader` 源自已合并敌人备用 #92；`environments/sloth/{architecture,courtyard}.gd` 及 `floor/stone/sanctum_sky/cloud_sea.gdshader` 源自已合并场景备用 #96，移除预演控制、接入真实碰撞/导航并修订。均为本项目原创程序几何与材质，由 Codex 协助修改，无新增第三方资产或生成式图片。
+
+运行时继续复用此前登记的红晶体动画/56 片碎屑 GLB，只覆盖实例藏青材质，不改原红色资源；旧 Boss 的 Hazmat 来源仍按上方历史登记。此前“敌人未接入”的段落记录当时事实，本次草稿已接入三种 Sloth 小怪，并未替换成完整巨像 Boss。
+
+[整合证明](proof/sloth-integration/README.md) 内 JPEG 是本轮 Godot 4.7.2 Windows Forward+ 原生 PNG 的缩放/JPEG 重编码，无重绘；四连发图使用观察相机，流程图保留真实游戏 HUD。来源文件与图像 SHA-256 见 [SHA256SUMS](proof/sloth-integration/SHA256SUMS.txt)，文本哈希使用仓库 LF 字节。

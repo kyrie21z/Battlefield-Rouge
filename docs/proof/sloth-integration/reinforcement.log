@@ -1,0 +1,554 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+Loading resource: res://default_bus_layout.tres remapped: res://default_bus_layout.tres
+Completed load for: 'res://default_bus_layout.tres' remapped 'res://default_bus_layout.tres' at thread -1
+CORE API HASH: 2004498165
+EDITOR API HASH: 1696660745
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://autoload/input_map_setup.gd remapped: res://autoload/input_map_setup.gd
+Completed load for: 'res://autoload/input_map_setup.gd' remapped 'res://autoload/input_map_setup.gd' at thread -1
+Loading resource: res://autoload/events.gd remapped: res://autoload/events.gd
+Completed load for: 'res://autoload/events.gd' remapped 'res://autoload/events.gd' at thread -1
+Loading resource: res://autoload/run_state.gd remapped: res://autoload/run_state.gd
+Loading resource: res://buffs/firearm_damage.tres remapped: res://buffs/firearm_damage.tres
+Loading resource: res://assets/ui/buffs/firearm_damage.svg remapped: res://assets/ui/buffs/firearm_damage.svg
+Loading resource: res://.godot/imported/firearm_damage.svg-cfea2b7f535c6b091b146598cc146d03.ctex remapped: res://.godot/imported/firearm_damage.svg-cfea2b7f535c6b091b146598cc146d03.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_damage.svg' remapped 'res://assets/ui/buffs/firearm_damage.svg' at thread -1
+Completed load for: 'res://buffs/firearm_damage.tres' remapped 'res://buffs/firearm_damage.tres' at thread -1
+Loading resource: res://buffs/firearm_rate.tres remapped: res://buffs/firearm_rate.tres
+Loading resource: res://assets/ui/buffs/firearm_rate.svg remapped: res://assets/ui/buffs/firearm_rate.svg
+Loading resource: res://.godot/imported/firearm_rate.svg-a060a2e88ce5a34b722b92a7218042bf.ctex remapped: res://.godot/imported/firearm_rate.svg-a060a2e88ce5a34b722b92a7218042bf.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_rate.svg' remapped 'res://assets/ui/buffs/firearm_rate.svg' at thread -1
+Completed load for: 'res://buffs/firearm_rate.tres' remapped 'res://buffs/firearm_rate.tres' at thread -1
+Loading resource: res://buffs/firearm_magazine.tres remapped: res://buffs/firearm_magazine.tres
+Loading resource: res://assets/ui/buffs/firearm_magazine.svg remapped: res://assets/ui/buffs/firearm_magazine.svg
+Loading resource: res://.godot/imported/firearm_magazine.svg-8843b699783ea987e7d6b36f81edc7fa.ctex remapped: res://.godot/imported/firearm_magazine.svg-8843b699783ea987e7d6b36f81edc7fa.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_magazine.svg' remapped 'res://assets/ui/buffs/firearm_magazine.svg' at thread -1
+Completed load for: 'res://buffs/firearm_magazine.tres' remapped 'res://buffs/firearm_magazine.tres' at thread -1
+Loading resource: res://buffs/blade_damage.tres remapped: res://buffs/blade_damage.tres
+Loading resource: res://assets/ui/buffs/blade_damage.svg remapped: res://assets/ui/buffs/blade_damage.svg
+Loading resource: res://.godot/imported/blade_damage.svg-0cc79109bfcd45839d50a3b9974c176f.ctex remapped: res://.godot/imported/blade_damage.svg-0cc79109bfcd45839d50a3b9974c176f.ctex
+Completed load for: 'res://assets/ui/buffs/blade_damage.svg' remapped 'res://assets/ui/buffs/blade_damage.svg' at thread -1
+Completed load for: 'res://buffs/blade_damage.tres' remapped 'res://buffs/blade_damage.tres' at thread -1
+Loading resource: res://buffs/blade_speed.tres remapped: res://buffs/blade_speed.tres
+Loading resource: res://assets/ui/buffs/blade_speed.svg remapped: res://assets/ui/buffs/blade_speed.svg
+Loading resource: res://.godot/imported/blade_speed.svg-18b8eba14e1184f617ee14d12dab89ca.ctex remapped: res://.godot/imported/blade_speed.svg-18b8eba14e1184f617ee14d12dab89ca.ctex
+Completed load for: 'res://assets/ui/buffs/blade_speed.svg' remapped 'res://assets/ui/buffs/blade_speed.svg' at thread -1
+Completed load for: 'res://buffs/blade_speed.tres' remapped 'res://buffs/blade_speed.tres' at thread -1
+Loading resource: res://buffs/blade_range.tres remapped: res://buffs/blade_range.tres
+Loading resource: res://assets/ui/buffs/blade_range.svg remapped: res://assets/ui/buffs/blade_range.svg
+Loading resource: res://.godot/imported/blade_range.svg-5b600bfc7fff48f67922f63402c84204.ctex remapped: res://.godot/imported/blade_range.svg-5b600bfc7fff48f67922f63402c84204.ctex
+Completed load for: 'res://assets/ui/buffs/blade_range.svg' remapped 'res://assets/ui/buffs/blade_range.svg' at thread -1
+Completed load for: 'res://buffs/blade_range.tres' remapped 'res://buffs/blade_range.tres' at thread -1
+Loading resource: res://buffs/skill_unlock.tres remapped: res://buffs/skill_unlock.tres
+Loading resource: res://assets/ui/buffs/skill_unlock.svg remapped: res://assets/ui/buffs/skill_unlock.svg
+Loading resource: res://.godot/imported/skill_unlock.svg-f5f959ec7bf85827619bf79a24b2f55a.ctex remapped: res://.godot/imported/skill_unlock.svg-f5f959ec7bf85827619bf79a24b2f55a.ctex
+Completed load for: 'res://assets/ui/buffs/skill_unlock.svg' remapped 'res://assets/ui/buffs/skill_unlock.svg' at thread -1
+Completed load for: 'res://buffs/skill_unlock.tres' remapped 'res://buffs/skill_unlock.tres' at thread -1
+Loading resource: res://buffs/skill_duration.tres remapped: res://buffs/skill_duration.tres
+Loading resource: res://assets/ui/buffs/skill_duration.svg remapped: res://assets/ui/buffs/skill_duration.svg
+Loading resource: res://.godot/imported/skill_duration.svg-86e624d90355066243544f746777941c.ctex remapped: res://.godot/imported/skill_duration.svg-86e624d90355066243544f746777941c.ctex
+Completed load for: 'res://assets/ui/buffs/skill_duration.svg' remapped 'res://assets/ui/buffs/skill_duration.svg' at thread -1
+Completed load for: 'res://buffs/skill_duration.tres' remapped 'res://buffs/skill_duration.tres' at thread -1
+Loading resource: res://buffs/skill_cooldown.tres remapped: res://buffs/skill_cooldown.tres
+Loading resource: res://assets/ui/buffs/skill_cooldown.svg remapped: res://assets/ui/buffs/skill_cooldown.svg
+Loading resource: res://.godot/imported/skill_cooldown.svg-efed7978cc954a8c71507f5fa6c593ec.ctex remapped: res://.godot/imported/skill_cooldown.svg-efed7978cc954a8c71507f5fa6c593ec.ctex
+Completed load for: 'res://assets/ui/buffs/skill_cooldown.svg' remapped 'res://assets/ui/buffs/skill_cooldown.svg' at thread -1
+Completed load for: 'res://buffs/skill_cooldown.tres' remapped 'res://buffs/skill_cooldown.tres' at thread -1
+Completed load for: 'res://autoload/run_state.gd' remapped 'res://autoload/run_state.gd' at thread -1
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+Loaded builtin CA certificates
+Loading resource: res://tests/reinforcement_test.tscn remapped: res://tests/reinforcement_test.tscn
+Loading resource: res://tests/reinforcement_test.gd remapped: res://tests/reinforcement_test.gd
+Loading resource: res://ui/buff_select.tscn remapped: res://ui/buff_select.tscn
+Loading resource: res://ui/buff_select.gd remapped: res://ui/buff_select.gd
+Loading resource: res://assets/ui/schools/berserker.svg remapped: res://assets/ui/schools/berserker.svg
+Loading resource: res://.godot/imported/berserker.svg-3dcdc3da5bd9783814508102a7fa7b5f.ctex remapped: res://.godot/imported/berserker.svg-3dcdc3da5bd9783814508102a7fa7b5f.ctex
+Completed load for: 'res://assets/ui/schools/berserker.svg' remapped 'res://assets/ui/schools/berserker.svg' at thread -1
+Loading resource: res://assets/ui/schools/arms_dealer.svg remapped: res://assets/ui/schools/arms_dealer.svg
+Loading resource: res://.godot/imported/arms_dealer.svg-85b80880f6865e7c76636b8ab9a5e06f.ctex remapped: res://.godot/imported/arms_dealer.svg-85b80880f6865e7c76636b8ab9a5e06f.ctex
+Completed load for: 'res://assets/ui/schools/arms_dealer.svg' remapped 'res://assets/ui/schools/arms_dealer.svg' at thread -1
+Completed load for: 'res://ui/buff_select.gd' remapped 'res://ui/buff_select.gd' at thread -1
+Completed load for: 'res://ui/buff_select.tscn' remapped 'res://ui/buff_select.tscn' at thread -1
+Loading resource: res://ui/run_end.tscn remapped: res://ui/run_end.tscn
+Loading resource: res://ui/run_end.gd remapped: res://ui/run_end.gd
+Completed load for: 'res://ui/run_end.gd' remapped 'res://ui/run_end.gd' at thread -1
+Completed load for: 'res://ui/run_end.tscn' remapped 'res://ui/run_end.tscn' at thread -1
+Loading resource: res://actors/enemy/enemy.tscn remapped: res://actors/enemy/enemy.tscn
+Loading resource: res://actors/enemy/enemy.gd remapped: res://actors/enemy/enemy.gd
+Loading resource: res://assets/vfx/spark.png remapped: res://assets/vfx/spark.png
+Loading resource: res://.godot/imported/spark.png-7efaed8e92f5c1c86ae4224f8d95ef7d.ctex remapped: res://.godot/imported/spark.png-7efaed8e92f5c1c86ae4224f8d95ef7d.ctex
+Completed load for: 'res://assets/vfx/spark.png' remapped 'res://assets/vfx/spark.png' at thread -1
+Loading resource: res://assets/vfx/puff.png remapped: res://assets/vfx/puff.png
+Loading resource: res://.godot/imported/puff.png-cb5f384287ad099af84cb6a967d7c6e0.ctex remapped: res://.godot/imported/puff.png-cb5f384287ad099af84cb6a967d7c6e0.ctex
+Completed load for: 'res://assets/vfx/puff.png' remapped 'res://assets/vfx/puff.png' at thread -1
+Completed load for: 'res://actors/enemy/enemy.gd' remapped 'res://actors/enemy/enemy.gd' at thread -1
+Loading resource: res://assets/models/characters/enemy.gltf remapped: res://assets/models/characters/enemy.gltf
+Loading resource: res://.godot/imported/enemy.gltf-50702aeb1688f6739bbe142bf26f31da.scn remapped: res://.godot/imported/enemy.gltf-50702aeb1688f6739bbe142bf26f31da.scn
+Completed load for: 'res://assets/models/characters/enemy.gltf' remapped 'res://assets/models/characters/enemy.gltf' at thread -1
+Loading resource: res://components/hit_reaction.gd remapped: res://components/hit_reaction.gd
+Completed load for: 'res://components/hit_reaction.gd' remapped 'res://components/hit_reaction.gd' at thread -1
+Completed load for: 'res://actors/enemy/enemy.tscn' remapped 'res://actors/enemy/enemy.tscn' at thread -1
+Loading resource: res://zone/capture_config.tres remapped: res://zone/capture_config.tres
+Loading resource: res://zone/capture_config.gd remapped: res://zone/capture_config.gd
+Completed load for: 'res://zone/capture_config.gd' remapped 'res://zone/capture_config.gd' at thread -1
+Completed load for: 'res://zone/capture_config.tres' remapped 'res://zone/capture_config.tres' at thread -1
+Loading resource: res://weapons/melee/knife.tres remapped: res://weapons/melee/knife.tres
+Loading resource: res://weapons/melee/melee_data.gd remapped: res://weapons/melee/melee_data.gd
+Completed load for: 'res://weapons/melee/melee_data.gd' remapped 'res://weapons/melee/melee_data.gd' at thread -1
+Loading resource: res://weapons/viewmodels/knife_view.tscn remapped: res://weapons/viewmodels/knife_view.tscn
+Loading resource: res://assets/models/weapons/knife.glb remapped: res://assets/models/weapons/knife.glb
+Loading resource: res://.godot/imported/knife.glb-2333c360a0ad45f60e8799c30f9a464e.scn remapped: res://.godot/imported/knife.glb-2333c360a0ad45f60e8799c30f9a464e.scn
+Completed load for: 'res://assets/models/weapons/knife.glb' remapped 'res://assets/models/weapons/knife.glb' at thread -1
+Completed load for: 'res://weapons/viewmodels/knife_view.tscn' remapped 'res://weapons/viewmodels/knife_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/knife.png remapped: res://assets/ui/weapons/knife.png
+Loading resource: res://.godot/imported/knife.png-26ffd072d15215ca300946b751566132.ctex remapped: res://.godot/imported/knife.png-26ffd072d15215ca300946b751566132.ctex
+Completed load for: 'res://assets/ui/weapons/knife.png' remapped 'res://assets/ui/weapons/knife.png' at thread -1
+Completed load for: 'res://weapons/melee/knife.tres' remapped 'res://weapons/melee/knife.tres' at thread -1
+Loading resource: res://weapons/melee/axe.tres remapped: res://weapons/melee/axe.tres
+Loading resource: res://weapons/viewmodels/axe_view.tscn remapped: res://weapons/viewmodels/axe_view.tscn
+Loading resource: res://assets/models/weapons/axe.glb remapped: res://assets/models/weapons/axe.glb
+Loading resource: res://.godot/imported/axe.glb-a3549a402f7a7288dce6c27009fa3f68.scn remapped: res://.godot/imported/axe.glb-a3549a402f7a7288dce6c27009fa3f68.scn
+Loading resource: res://assets/models/weapons/axe_Atlas_Pirate.png remapped: res://assets/models/weapons/axe_Atlas_Pirate.png
+Loading resource: res://.godot/imported/axe_Atlas_Pirate.png-120691ca2c14f9a548b14eff7527cc1c.s3tc.ctex remapped: res://.godot/imported/axe_Atlas_Pirate.png-120691ca2c14f9a548b14eff7527cc1c.s3tc.ctex
+Completed load for: 'res://assets/models/weapons/axe_Atlas_Pirate.png' remapped 'res://assets/models/weapons/axe_Atlas_Pirate.png' at thread -1
+Completed load for: 'res://assets/models/weapons/axe.glb' remapped 'res://assets/models/weapons/axe.glb' at thread -1
+Completed load for: 'res://weapons/viewmodels/axe_view.tscn' remapped 'res://weapons/viewmodels/axe_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/axe.png remapped: res://assets/ui/weapons/axe.png
+Loading resource: res://.godot/imported/axe.png-04f0a4508e27d07bb125408a6c83d7ba.ctex remapped: res://.godot/imported/axe.png-04f0a4508e27d07bb125408a6c83d7ba.ctex
+Completed load for: 'res://assets/ui/weapons/axe.png' remapped 'res://assets/ui/weapons/axe.png' at thread -1
+Completed load for: 'res://weapons/melee/axe.tres' remapped 'res://weapons/melee/axe.tres' at thread -1
+Loading resource: res://weapons/melee/tachi.tres remapped: res://weapons/melee/tachi.tres
+Loading resource: res://weapons/viewmodels/tachi_view.tscn remapped: res://weapons/viewmodels/tachi_view.tscn
+Loading resource: res://assets/models/weapons/tachi.glb remapped: res://assets/models/weapons/tachi.glb
+Loading resource: res://.godot/imported/tachi.glb-03aa129287a20ead7c5049b45c391c29.scn remapped: res://.godot/imported/tachi.glb-03aa129287a20ead7c5049b45c391c29.scn
+Loading resource: res://assets/models/weapons/tachi_Atlas_Pirate.png remapped: res://assets/models/weapons/tachi_Atlas_Pirate.png
+Loading resource: res://.godot/imported/tachi_Atlas_Pirate.png-27bb3c710b43af26b74a72843b143cba.s3tc.ctex remapped: res://.godot/imported/tachi_Atlas_Pirate.png-27bb3c710b43af26b74a72843b143cba.s3tc.ctex
+Completed load for: 'res://assets/models/weapons/tachi_Atlas_Pirate.png' remapped 'res://assets/models/weapons/tachi_Atlas_Pirate.png' at thread -1
+Completed load for: 'res://assets/models/weapons/tachi.glb' remapped 'res://assets/models/weapons/tachi.glb' at thread -1
+Completed load for: 'res://weapons/viewmodels/tachi_view.tscn' remapped 'res://weapons/viewmodels/tachi_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/tachi.png remapped: res://assets/ui/weapons/tachi.png
+Loading resource: res://.godot/imported/tachi.png-0e8ffceb605362c15c61521712b8cf3d.ctex remapped: res://.godot/imported/tachi.png-0e8ffceb605362c15c61521712b8cf3d.ctex
+Completed load for: 'res://assets/ui/weapons/tachi.png' remapped 'res://assets/ui/weapons/tachi.png' at thread -1
+Completed load for: 'res://weapons/melee/tachi.tres' remapped 'res://weapons/melee/tachi.tres' at thread -1
+Completed load for: 'res://tests/reinforcement_test.gd' remapped 'res://tests/reinforcement_test.gd' at thread -1
+Completed load for: 'res://tests/reinforcement_test.tscn' remapped 'res://tests/reinforcement_test.tscn' at thread -1
+== config
+Loading resource: res://zone/reinforcement_config.tres remapped: res://zone/reinforcement_config.tres
+Completed load for: 'res://zone/reinforcement_config.tres' remapped 'res://zone/reinforcement_config.tres' at thread -1
+  [ok] cadence resource is zone/reinforcement_config.tres
+  [ok] a wave is every 10 s
+  [ok] a wave is 2 enemies
+  [ok] at most 5 reinforcements stay out
+== layout
+Loading resource: res://maps/zone_1.tscn remapped: res://maps/zone_1.tscn
+Loading resource: res://environments/sloth/courtyard.gd remapped: res://environments/sloth/courtyard.gd
+Loading resource: res://environments/sloth/stone.gdshader remapped: res://environments/sloth/stone.gdshader
+Completed load for: 'res://environments/sloth/stone.gdshader' remapped 'res://environments/sloth/stone.gdshader' at thread -1
+Loading resource: res://environments/sloth/floor.gdshader remapped: res://environments/sloth/floor.gdshader
+Completed load for: 'res://environments/sloth/floor.gdshader' remapped 'res://environments/sloth/floor.gdshader' at thread -1
+Loading resource: res://environments/sloth/sanctum_sky.gdshader remapped: res://environments/sloth/sanctum_sky.gdshader
+Completed load for: 'res://environments/sloth/sanctum_sky.gdshader' remapped 'res://environments/sloth/sanctum_sky.gdshader' at thread -1
+Loading resource: res://environments/sloth/cloud_sea.gdshader remapped: res://environments/sloth/cloud_sea.gdshader
+Completed load for: 'res://environments/sloth/cloud_sea.gdshader' remapped 'res://environments/sloth/cloud_sea.gdshader' at thread -1
+Completed load for: 'res://environments/sloth/courtyard.gd' remapped 'res://environments/sloth/courtyard.gd' at thread -1
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/models/weapons/ak.gltf remapped: res://assets/models/weapons/ak.gltf
+Loading resource: res://.godot/imported/ak.gltf-ee64f2eeb90afcd0e3dfe1b29f0f1e43.scn remapped: res://.godot/imported/ak.gltf-ee64f2eeb90afcd0e3dfe1b29f0f1e43.scn
+Completed load for: 'res://assets/models/weapons/ak.gltf' remapped 'res://assets/models/weapons/ak.gltf' at thread -1
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Loading resource: res://assets/models/weapons/shotgun.glb remapped: res://assets/models/weapons/shotgun.glb
+Loading resource: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn remapped: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn
+Completed load for: 'res://assets/models/weapons/shotgun.glb' remapped 'res://assets/models/weapons/shotgun.glb' at thread -1
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Loading resource: res://assets/models/weapons/sniper.glb remapped: res://assets/models/weapons/sniper.glb
+Loading resource: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn remapped: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn
+Completed load for: 'res://assets/models/weapons/sniper.glb' remapped 'res://assets/models/weapons/sniper.glb' at thread -1
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/shadow_body.gd remapped: res://actors/player/shadow_body.gd
+Loading resource: res://assets/materials/protagonist_crystal_material.tres remapped: res://assets/materials/protagonist_crystal_material.tres
+Loading resource: res://assets/materials/red_crystal_crystal.gdshader remapped: res://assets/materials/red_crystal_crystal.gdshader
+Completed load for: 'res://assets/materials/red_crystal_crystal.gdshader' remapped 'res://assets/materials/red_crystal_crystal.gdshader' at thread -1
+Completed load for: 'res://assets/materials/protagonist_crystal_material.tres' remapped 'res://assets/materials/protagonist_crystal_material.tres' at thread -1
+Completed load for: 'res://actors/player/shadow_body.gd' remapped 'res://actors/player/shadow_body.gd' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Loading resource: res://assets/models/characters/red_crystal_enemy_animated.glb remapped: res://assets/models/characters/red_crystal_enemy_animated.glb
+Loading resource: res://.godot/imported/red_crystal_enemy_animated.glb-c84db30df09478b6f4c3eb69bb0a21b0.scn remapped: res://.godot/imported/red_crystal_enemy_animated.glb-c84db30df09478b6f4c3eb69bb0a21b0.scn
+Completed load for: 'res://assets/models/characters/red_crystal_enemy_animated.glb' remapped 'res://assets/models/characters/red_crystal_enemy_animated.glb' at thread -1
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Loading resource: res://actors/enemy/sloth/sloth_enemy.gd remapped: res://actors/enemy/sloth/sloth_enemy.gd
+Loading resource: res://assets/materials/red_crystal_material_shader.tres remapped: res://assets/materials/red_crystal_material_shader.tres
+Completed load for: 'res://assets/materials/red_crystal_material_shader.tres' remapped 'res://assets/materials/red_crystal_material_shader.tres' at thread -1
+Loading resource: res://assets/materials/sloth_cloth.gdshader remapped: res://assets/materials/sloth_cloth.gdshader
+Completed load for: 'res://assets/materials/sloth_cloth.gdshader' remapped 'res://assets/materials/sloth_cloth.gdshader' at thread -1
+Loading resource: res://assets/models/characters/red_crystal_enemy_shards.glb remapped: res://assets/models/characters/red_crystal_enemy_shards.glb
+Loading resource: res://.godot/imported/red_crystal_enemy_shards.glb-a17e73d073413a3528be601febf97975.scn remapped: res://.godot/imported/red_crystal_enemy_shards.glb-a17e73d073413a3528be601febf97975.scn
+Completed load for: 'res://assets/models/characters/red_crystal_enemy_shards.glb' remapped 'res://assets/models/characters/red_crystal_enemy_shards.glb' at thread -1
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.gd' remapped 'res://actors/enemy/sloth/sloth_enemy.gd' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_health.gd remapped: res://actors/enemy/sloth/sloth_health.gd
+Completed load for: 'res://actors/enemy/sloth/sloth_health.gd' remapped 'res://actors/enemy/sloth/sloth_health.gd' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_hit_reaction.gd remapped: res://actors/enemy/sloth/sloth_hit_reaction.gd
+Completed load for: 'res://actors/enemy/sloth/sloth_hit_reaction.gd' remapped 'res://actors/enemy/sloth/sloth_hit_reaction.gd' at thread -1
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://ui/hud.gd remapped: res://ui/hud.gd
+Loading resource: res://assets/audio/hit_body.ogg remapped: res://assets/audio/hit_body.ogg
+Loading resource: res://.godot/imported/hit_body.ogg-a1e4a0487157686407eb6b89c4f5b5dd.oggvorbisstr remapped: res://.godot/imported/hit_body.ogg-a1e4a0487157686407eb6b89c4f5b5dd.oggvorbisstr
+Completed load for: 'res://assets/audio/hit_body.ogg' remapped 'res://assets/audio/hit_body.ogg' at thread -1
+Loading resource: res://assets/audio/hit_head.ogg remapped: res://assets/audio/hit_head.ogg
+Loading resource: res://.godot/imported/hit_head.ogg-fc7ed71f5cf4ee688052ed3c997d99a7.oggvorbisstr remapped: res://.godot/imported/hit_head.ogg-fc7ed71f5cf4ee688052ed3c997d99a7.oggvorbisstr
+Completed load for: 'res://assets/audio/hit_head.ogg' remapped 'res://assets/audio/hit_head.ogg' at thread -1
+Completed load for: 'res://ui/hud.gd' remapped 'res://ui/hud.gd' at thread -1
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_1.tscn' remapped 'res://maps/zone_1.tscn' at thread -1
+  [ok] zone_1.tscn building stands in the rear court
+  [ok] zone_1.tscn player enters from the front
+  [ok] zone_1.tscn has spawn markers round the arena
+  [ok] zone_1.tscn spawns are spread inside the arena, clear of the building
+  [ok] zone_1.tscn still has a rear marker and both flanks
+  [ok] zone_1.tscn guard count
+  [ok] zone_1.tscn guards stay out of the hammer reach (nearest 15.5 m)
+  [ok] zone_1.tscn guards defend the point and the approach (15.5-100.7 m)
+  [ok] zone_1.tscn uses the cadence resource
+  [ok] zone_1.tscn has not spawned yet
+Loading resource: res://maps/zone_2.tscn remapped: res://maps/zone_2.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_2.tscn' remapped 'res://maps/zone_2.tscn' at thread -1
+  [ok] zone_2.tscn building stands in the rear court
+  [ok] zone_2.tscn player enters from the front
+  [ok] zone_2.tscn has spawn markers round the arena
+  [ok] zone_2.tscn spawns are spread inside the arena, clear of the building
+  [ok] zone_2.tscn still has a rear marker and both flanks
+  [ok] zone_2.tscn guard count
+  [ok] zone_2.tscn guards stay out of the hammer reach (nearest 15.5 m)
+  [ok] zone_2.tscn guards defend the point and the approach (15.5-100.7 m)
+  [ok] zone_2.tscn uses the cadence resource
+  [ok] zone_2.tscn has not spawned yet
+== same seed, same spawns
+Loading resource: res://maps/zone_1.tscn remapped: res://maps/zone_1.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_1.tscn' remapped 'res://maps/zone_1.tscn' at thread -1
+  [ok] still locked with one guard up
+Loading resource: res://maps/zone_1.tscn remapped: res://maps/zone_1.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_1.tscn' remapped 'res://maps/zone_1.tscn' at thread -1
+  [ok] still locked with one guard up
+  [ok] two enemies spawn on capture
+  [ok] the spawn sequence matches
+  [ok] both spawns stay at least 14 m from the player
+  [ok] the two spawns use different markers
+== reinforcements reach the building without corner jitter
+Loading resource: res://maps/zone_1.tscn remapped: res://maps/zone_1.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_1.tscn' remapped 'res://maps/zone_1.tscn' at thread -1
+  [ok] every reinforcement marker has a route toward the held building
+APPROACH_BUDGET | route=73.2m speed=1.8m/s allowance=50.1s
+APPROACH_SAMPLE | Reinforcement1 | start=(-19.92336, 0.000885, -47.90767) | now=(-16.22561, 0.000885, -43.45256) | player_gap=16.3671035766602 | state=2 | seek=(-15.85, 0.45, -43.0)
+APPROACH_SAMPLE | Reinforcement2 | start=(19.92336, 0.000885, -47.90767) | now=(16.22561, 0.000885, -43.45256) | player_gap=16.3671035766602 | state=2 | seek=(15.85, 0.45, -43.0)
+APPROACH_SAMPLE | Reinforcement3 | start=(0.0, 0.0, -60.0) | now=(-12.41866, 0.000885, -55.45117) | player_gap=15.8514585494995 | state=2 | seek=(-13.0, 0.45, -55.4)
+APPROACH_SAMPLE | Reinforcement4 | start=(39.0, 5.0, -17.0) | now=(20.47841, 0.000023, -45.9477) | player_gap=20.4813632965088 | state=2 | seek=(20.0, 0.45, -45.6)
+APPROACH_SAMPLE | Reinforcement5 | start=(0.0, 0.0, -60.0) | now=(12.4247, 0.000885, -55.46065) | player_gap=15.8620824813843 | state=2 | seek=(13.0, 0.45, -55.4)
+APPROACH_SAMPLE | Reinforcement6 | start=(39.0, 5.0, -17.0) | now=(15.21403, 0.000023, -46.18394) | player_gap=15.2252311706543 | state=2 | seek=(inf, inf, inf)
+APPROACH_SAMPLE | Reinforcement7 | start=(-20.0, 0.0, -48.0) | now=(-13.55807, 0.000885, -45.79133) | player_gap=13.5594167709351 | state=2 | seek=(-13.0, 0.45, -45.6)
+APPROACH_SAMPLE | Reinforcement8 | start=(29.0, 0.0, -30.0) | now=(19.54259, 0.000885, -40.85839) | player_gap=20.1095943450928 | state=2 | seek=(inf, inf, inf)
+  [ok] no reinforcement jitters in a corner
+  [ok] most reinforcements reach a visible firing position in the route budget (8/8)
+== rhythm, shockwave, pedestal
+Loading resource: res://maps/zone_1.tscn remapped: res://maps/zone_1.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_1.tscn' remapped 'res://maps/zone_1.tscn' at thread -1
+  [ok] opening the building spawns one wave
+  [ok] killing a reinforcement does not move progress
+  [ok] the building stays open
+  [ok] later waves stop at the cap
+  [ok] five bodies were spawned to hold four
+  [ok] flag is planted
+  [ok] shockwave mesh is in the scene
+  [ok] shockwave audio plays
+  [ok] nothing was killed by the shockwave
+  [ok] every living minion is retreating
+  [ok] the shockwave dealt no damage
+  [ok] the reward is not up yet
+  [ok] the objective names the pedestal
+  [ok] reinforcements despawn without a kill
+  [ok] spawning stopped when the flag went up
+  [ok] pedestal exists
+  [ok] interact out of range does nothing
+  [ok] interact at the pedestal opens the choice and pauses
+Loading resource: res://maps/zone_2.tscn remapped: res://maps/zone_2.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Completed load for: 'res://maps/zone_2.tscn' remapped 'res://maps/zone_2.tscn' at thread -1
+  [ok] the chosen card loads the next zone
+== boss zone
+Loading resource: res://maps/boss.tscn remapped: res://maps/boss.tscn
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://weapons/rifle.tres remapped: res://weapons/rifle.tres
+Loading resource: res://weapons/viewmodels/rifle_view.tscn remapped: res://weapons/viewmodels/rifle_view.tscn
+Loading resource: res://assets/vfx/muzzle.png remapped: res://assets/vfx/muzzle.png
+Loading resource: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex remapped: res://.godot/imported/muzzle.png-8bc69b09e8d8a036f5c4b75df410b475.ctex
+Completed load for: 'res://assets/vfx/muzzle.png' remapped 'res://assets/vfx/muzzle.png' at thread -1
+Completed load for: 'res://weapons/viewmodels/rifle_view.tscn' remapped 'res://weapons/viewmodels/rifle_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/ak.png remapped: res://assets/ui/weapons/ak.png
+Loading resource: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex remapped: res://.godot/imported/ak.png-a92c6a951234b59f5242d26dd31ebef7.ctex
+Completed load for: 'res://assets/ui/weapons/ak.png' remapped 'res://assets/ui/weapons/ak.png' at thread -1
+Completed load for: 'res://weapons/rifle.tres' remapped 'res://weapons/rifle.tres' at thread -1
+Loading resource: res://weapons/shotgun.tres remapped: res://weapons/shotgun.tres
+Loading resource: res://weapons/viewmodels/shotgun_view.tscn remapped: res://weapons/viewmodels/shotgun_view.tscn
+Completed load for: 'res://weapons/viewmodels/shotgun_view.tscn' remapped 'res://weapons/viewmodels/shotgun_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/shotgun.png remapped: res://assets/ui/weapons/shotgun.png
+Loading resource: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex remapped: res://.godot/imported/shotgun.png-eed23fd1d947ddef5897028108501732.ctex
+Completed load for: 'res://assets/ui/weapons/shotgun.png' remapped 'res://assets/ui/weapons/shotgun.png' at thread -1
+Completed load for: 'res://weapons/shotgun.tres' remapped 'res://weapons/shotgun.tres' at thread -1
+Loading resource: res://weapons/sniper.tres remapped: res://weapons/sniper.tres
+Loading resource: res://weapons/viewmodels/sniper_view.tscn remapped: res://weapons/viewmodels/sniper_view.tscn
+Completed load for: 'res://weapons/viewmodels/sniper_view.tscn' remapped 'res://weapons/viewmodels/sniper_view.tscn' at thread -1
+Loading resource: res://assets/ui/weapons/sniper.png remapped: res://assets/ui/weapons/sniper.png
+Loading resource: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex remapped: res://.godot/imported/sniper.png-2c037b7dda068363c4f9cc6d6512b7ee.ctex
+Completed load for: 'res://assets/ui/weapons/sniper.png' remapped 'res://assets/ui/weapons/sniper.png' at thread -1
+Completed load for: 'res://weapons/sniper.tres' remapped 'res://weapons/sniper.tres' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://actors/enemy/sloth/sloth_enemy.tscn remapped: res://actors/enemy/sloth/sloth_enemy.tscn
+Completed load for: 'res://actors/enemy/sloth/sloth_enemy.tscn' remapped 'res://actors/enemy/sloth/sloth_enemy.tscn' at thread -1
+Loading resource: res://ui/hud.tscn remapped: res://ui/hud.tscn
+Loading resource: res://assets/ui/abilities/shield.svg remapped: res://assets/ui/abilities/shield.svg
+Loading resource: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex remapped: res://.godot/imported/shield.svg-cb79dc87de121382221877fd009d840e.ctex
+Completed load for: 'res://assets/ui/abilities/shield.svg' remapped 'res://assets/ui/abilities/shield.svg' at thread -1
+Loading resource: res://ui/damage_vignette.gdshader remapped: res://ui/damage_vignette.gdshader
+Completed load for: 'res://ui/damage_vignette.gdshader' remapped 'res://ui/damage_vignette.gdshader' at thread -1
+Completed load for: 'res://ui/hud.tscn' remapped 'res://ui/hud.tscn' at thread -1
+Loading resource: res://actors/enemy/boss.tscn remapped: res://actors/enemy/boss.tscn
+Loading resource: res://assets/models/characters/hazmat.gltf remapped: res://assets/models/characters/hazmat.gltf
+Loading resource: res://.godot/imported/hazmat.gltf-a9e9f265816b0cb3dadf6291928f61f3.scn remapped: res://.godot/imported/hazmat.gltf-a9e9f265816b0cb3dadf6291928f61f3.scn
+Completed load for: 'res://assets/models/characters/hazmat.gltf' remapped 'res://assets/models/characters/hazmat.gltf' at thread -1
+Completed load for: 'res://actors/enemy/boss.tscn' remapped 'res://actors/enemy/boss.tscn' at thread -1
+Loading resource: res://zone/boss_capture_config.tres remapped: res://zone/boss_capture_config.tres
+Completed load for: 'res://zone/boss_capture_config.tres' remapped 'res://zone/boss_capture_config.tres' at thread -1
+Completed load for: 'res://maps/boss.tscn' remapped 'res://maps/boss.tscn' at thread -1
+  [ok] boss has no reinforcement markers
+  [ok] boss has no reinforcement config
+  [ok] boss does not spawn
+  [ok] the core stays shut while the boss lives
+  [ok] boss flag has no pedestal
+  [ok] boss flag has no shockwave
+  [ok] boss still wins with no buff offer
+ALL PASSED (0 failed)

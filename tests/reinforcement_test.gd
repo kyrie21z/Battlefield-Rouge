@@ -8,11 +8,16 @@ const CONFIG_PATH := "res://zone/reinforcement_config.tres"
 var _failures := 0
 var _finished := false
 var _elapsed := 0.0
+var _first_wave_player := Vector3.ZERO
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	await _run()
+	# Fixed-fps headless frames can outpace the audio worker. Every test scene
+	# is already freed; allow its queued playback stops to drain before exit.
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
@@ -44,7 +49,7 @@ func _run() -> void:
 	_check("the spawn sequence matches", _flats(first) == _flats(second))
 	# Spawns are now picked out of sight round the whole arena, not only behind.
 	_check("both spawns stay at least 14 m from the player", first.all(
-		func(v: Vector3): return Vector2(v.x, v.z).distance_to(Vector2(0.0, 14.0)) >= ZoneDirector.MIN_SPAWN_DISTANCE))
+		func(v: Vector3): return _flat_distance(v,_first_wave_player) >= ZoneDirector.MIN_SPAWN_DISTANCE))
 	_check("the two spawns use different markers", _flats(first)[0] != _flats(first)[1])
 
 	print("== reinforcements reach the building without corner jitter")
@@ -64,7 +69,11 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	var player := scene.get_node("Player") as Player
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
-	_check("%s building is back near z=-8 (%.2f)" % [path.get_file(), point.global_position.z], absf(point.global_position.z + 8.0) < 1.0)
+	var exit_court := scene.get_node("Geometry/RoomGeometry/WalkableShell/ExitCourt") as MeshInstance3D
+	var entry_court := scene.get_node("Geometry/RoomGeometry/WalkableShell/EntryCourt") as MeshInstance3D
+	var rear_bounds: Vector4 = exit_court.get_meta("surface_bounds")
+	var front_bounds: Vector4 = entry_court.get_meta("surface_bounds")
+	_check("%s building stands in the rear court" % path.get_file(), _inside(point.global_position,rear_bounds))
 	_check("%s player enters from the front" % path.get_file(), player.global_position.z > point.global_position.z + 15.0)
 	var spawns := _spawns(scene)
 	_check("%s has spawn markers round the arena" % path.get_file(), spawns.size() >= 6)
@@ -74,14 +83,16 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 		# Flank and rear-corner markers are intentional: waves must have
 		# somewhere out of the player's sight. Only keep them inside the walls
 		# and clear of the building; the old "all behind, <=18 m" rule is gone.
-		if absf(marker.global_position.x) > 29.0 or absf(marker.global_position.z) > 29.0:
+		if not _inside(marker.global_position,Vector4(rear_bounds.x,rear_bounds.y,front_bounds.z,front_bounds.w)):
 			spread = false
 		if marker.global_position.distance_to(point.global_position) < 10.0:
 			spread = false
 		if marker.global_position.z < point.global_position.z - 8.0:
 			behind += 1
 	_check("%s spawns are spread inside the arena, clear of the building" % path.get_file(), spread)
-	_check("%s still has rear markers" % path.get_file(), behind >= 2)
+	_check("%s still has a rear marker and both flanks" % path.get_file(), behind >= 1
+		and spawns.any(func(marker: Marker3D):return marker.global_position.x < point.global_position.x-10.0)
+		and spawns.any(func(marker: Marker3D):return marker.global_position.x > point.global_position.x+10.0))
 	var guards := _enemies(scene)
 	_check("%s guard count" % path.get_file(), guards.size() == guard_count)
 	# Since issue #42 the guards are spread over the whole approach instead of
@@ -108,6 +119,7 @@ func _first_wave(run_seed: int) -> Array[Vector3]:
 	var scene := await _open_zone("res://maps/zone_1.tscn", 0, run_seed)
 	_choose_entry(scene)
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	_first_wave_player = (scene.get_node("Player") as Player).global_position
 	var guards := _enemies(scene)
 	for index in guards.size() - 1:
 		guards[index].health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
@@ -135,9 +147,28 @@ func _approach_without_jitter() -> void:
 	tuned.per_wave = 2
 	tuned.max_alive = 8
 	director.reinforcement_config = tuned
+	# Give the actual navigation routes enough walking time. A slow ranged
+	# caster from the high gallery cannot cross this courtyard in five seconds.
+	await _wait(0.05)
+	var longest_route := 0.0
+	var routes_valid := true
+	for marker in _spawns(scene):
+		var path := NavigationServer3D.map_get_path(player.get_world_3d().navigation_map,
+			marker.global_position,player.global_position,true)
+		routes_valid = routes_valid and not path.is_empty()
+		var length := 0.0
+		for index in range(1,path.size()):length += path[index-1].distance_to(path[index])
+		longest_route = maxf(longest_route,length)
+	_check("every reinforcement marker has a route toward the held building",routes_valid)
+	var reference: Enemy = director.living_enemies()[0]
+	var walking_time := longest_route/reference.run_speed
+	var wave_time := tuned.interval_seconds*ceilf(float(tuned.max_alive)/tuned.per_wave)
+	var allowance := walking_time+reference.seek_timeout+wave_time
+	print("APPROACH_BUDGET | route=%.1fm speed=%.1fm/s allowance=%.1fs" % [longest_route,reference.run_speed,allowance])
 	var history := {}
+	var starts := {}
 	var jitter := 0
-	for _frame in 60 * 5:
+	for _frame in ceili(60.0*allowance):
 		await get_tree().physics_frame
 		for enemy in _enemies(scene):
 			if not enemy.name.begins_with("Reinforcement") or enemy.state == Enemy.State.DEAD:
@@ -145,6 +176,7 @@ func _approach_without_jitter() -> void:
 			var id := enemy.get_instance_id()
 			if not history.has(id):
 				history[id] = []
+				starts[id] = enemy.global_position
 			var samples: Array = history[id]
 			samples.append({"p": enemy.global_position, "v": Vector3(enemy.velocity.x, 0.0, enemy.velocity.z)})
 			if samples.size() > 45:
@@ -168,10 +200,14 @@ func _approach_without_jitter() -> void:
 		if not enemy.name.begins_with("Reinforcement") or enemy.state == Enemy.State.DEAD:
 			continue
 		alive += 1
-		if enemy.global_position.distance_to(point.global_position) <= 16.0:
+		print("APPROACH_SAMPLE | ",enemy.name," | start=",starts.get(enemy.get_instance_id(),Vector3.INF)," | now=",enemy.global_position," | player_gap=",enemy.global_position.distance_to(player.global_position)," | state=",enemy.state," | seek=",enemy.firing_position)
+		# Reaching a valid ranged fighting position is the pursuit contract.
+		# Merely being near the point, but blocked from the player, does not pass.
+		if enemy.global_position.distance_to(player.global_position) <= enemy.engage_range+0.75 \
+				and bool(enemy.get("_sees_target")) and enemy.state == Enemy.State.ENGAGE:
 			close += 1
 	_check("no reinforcement jitters in a corner", jitter == 0)
-	_check("most reinforcements close on the building (%d/%d)" % [close, alive], alive >= 2 and close * 4 >= alive * 3)
+	_check("most reinforcements reach a visible firing position in the route budget (%d/%d)" % [close, alive], alive >= 2 and close * 4 >= alive * 3)
 	await _close(scene)
 
 
@@ -348,6 +384,12 @@ func _flats(log: Array[Vector3]) -> Array:
 	for point in log:
 		flats.append([snappedf(point.x, 0.01), snappedf(point.z, 0.01)])
 	return flats
+
+func _inside(position: Vector3,bounds: Vector4) -> bool:
+	return position.x>bounds.x and position.x<bounds.z and position.z>bounds.y and position.z<bounds.w
+
+func _flat_distance(a: Vector3,b: Vector3) -> float:
+	return Vector2(a.x,a.z).distance_to(Vector2(b.x,b.z))
 
 
 func _wait(seconds: float) -> void:

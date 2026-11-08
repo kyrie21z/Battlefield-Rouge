@@ -12,6 +12,12 @@ const LAYER := CollisionLayers.HITBOXES
 @export var health_path: NodePath
 
 var health: Health
+## Exact contact is scoped to one synchronous damage application.
+var resolving_surface_hit := false
+var surface_point := Vector3.ZERO
+var surface_direction := Vector3.ZERO
+var surface_can_evade := false
+var surface_evaded := false
 
 
 func _ready() -> void:
@@ -24,6 +30,17 @@ func apply_hit(amount: float, source: Node = null) -> float:
 	if health == null:
 		return 0.0
 	return health.apply_damage(amount, body_part, source)
+
+
+func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3, can_evade := false) -> float:
+	resolving_surface_hit = true
+	surface_can_evade = can_evade
+	surface_evaded = false
+	surface_point = point
+	surface_direction = direction
+	var dealt := apply_hit(amount, source)
+	resolving_surface_hit = false
+	return dealt
 
 
 func _resolve_health() -> Health:

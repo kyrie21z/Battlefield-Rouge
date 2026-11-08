@@ -471,7 +471,7 @@ func _step_toward(data: MeleeData, target: Hitbox) -> void:
 func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vector3) -> bool:
 	var health := hitbox.health
 	_struck.append(health)
-	var dealt := hitbox.apply_hit(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter)
+	var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter, hitbox.global_position, forward)
 	if dealt <= 0.0:
 		return false
 

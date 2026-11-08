@@ -32,6 +32,32 @@ const HURT_SHAKE_DURATION := 0.2
 ## Read by Health to ignore friendly fire.
 var team := 0
 
+## Independent sources take the strongest field, never multiply. Weak handles
+## also restore walking speed if a caster disappears during a scene change.
+var _stasis_sources: Dictionary = {}
+
+
+func set_stasis_source(source: Node, multiplier: float) -> void:
+	if is_instance_valid(source):
+		_stasis_sources[source.get_instance_id()] = [weakref(source), clampf(multiplier, 0.75, 1.0)]
+
+
+func clear_stasis_source(source: Node) -> void:
+	if is_instance_valid(source):
+		_stasis_sources.erase(source.get_instance_id())
+
+
+func stasis_multiplier() -> float:
+	var result := 1.0
+	for id in _stasis_sources.keys():
+		var entry: Array = _stasis_sources[id]
+		var source: Node = entry[0].get_ref()
+		if not is_instance_valid(source) or source.is_queued_for_deletion():
+			_stasis_sources.erase(id)
+		else:
+			result = minf(result, entry[1])
+	return result
+
 var _pitch := 0.0
 var _visual_kick := Vector2.ZERO
 ## Leftover forward push from a melee swing, drained over `_lunge_left`.
@@ -171,7 +197,7 @@ func _physics_process(delta: float) -> void:
 		and not dashing
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
-	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED)
+	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED) * stasis_multiplier()
 	if aiming:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel

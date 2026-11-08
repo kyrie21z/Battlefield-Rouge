@@ -4,7 +4,9 @@
 
 游戏方向见 [Creative Vision](docs/CREATIVE_VISION.md)：抽象精神世界里的 FPS 肉鸽，头顶的皇冠 Pride 引导玩家逐层消灭心魔，最后与 Pride 和解；第一层是 Sloth（[关卡设计](docs/levels/SLOTH_LEVEL_DESIGN.md)）。下面描述的是当前原型。
 
-[Sloth 场景备用预演](prototypes/sloth_scene_reserve/README.md)单独保存前两关复层庭院与 Boss 云海圣殿，可打开其内层 Godot 工程漫游；该备案不替换正式地图或启动入口。
+**Sloth 可玩整合草稿（2026-11-08）：** 本分支基于已合并场景备案的 main `fe0e1c9`，普通入口现会进入两关 96×128 米复层庭院，再进入直径 92 米的云海环形圣殿。新场景已接入守卫、增援、据点锤击、插旗冲击波、增益台、三次选卡、Boss 核心、胜负和重开。两小关分别有 4 / 6 名 Sloth 守卫；Boss 沿用原型大敌人及规则，配 6 名新小怪。迟滞者改为一次四连弹：蓄力 2 秒，最后 0.45 秒锁向，发射间隔 0.18 秒，每发 9 伤、40 米/秒；打完保留 1 秒披风张开的反击窗口。当前是试玩草稿，完整巨像、休憩区和战后变化仍未实现。参数、实机图及复现见 [整合证明](docs/proof/sloth-integration/README.md) 和 [ADR 0011](docs/adr/0011-sloth-playable-integration.md)。
+
+[Sloth 场景备用预演](prototypes/sloth_scene_reserve/README.md)与[敌人备用包](prototypes/sloth_enemy_reserve/README.md)仍保留此前隔离版本的历史；本分支运行时使用 `environments/sloth/` 与 `actors/enemy/sloth/`，不依赖备用工程。
 
 第一人称科幻射击肉鸽。枪感与本局构筑靠拢《Deadzone Rogue 2》。小关先把守卫清掉，再用锤砸据点；完美打击会加快这一下。增益一局 3 次：开局前 1 次，两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。死亡后从头开始。
 

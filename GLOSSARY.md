@@ -62,7 +62,7 @@
 | 战区控制 | `ZoneDirector` | 管阶段、开放据点、增援、冲击波、增益台、弹出选择或结算、切场景。 |
 | 掩体点 | `CoverPoint` | 掩体旁的地面标记。敌人会去看不到玩家的点蹲一会儿。 |
 | 射击位 | `Enemy.State.SEEK`，`Enemy.firing_position`，`FiringPositionBoard` | 交火时站的、能看到玩家的位置。候选是现有掩体点加玩家周围固定方向的两圈采样点（8 / 20 米），只保留导航可达、从眼睛高度到玩家不被世界挡住的点；离自己近的优先，挨着掩体减分。多个敌人共用一个 `FiringPositionBoard`，3.5 米内别人已订的点不再选。走到后进入交火；看不见玩家 0.5 秒或离玩家近于 6 米就重找。找不到才退回朝玩家追。增援出生即寻位，不抽随机数。 |
-| 敌人 | `Enemy` | 状态机：待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）。Boss 是它的大号版本（`actors/enemy/boss.tscn`），换用 Hazmat 模型（`Enemy.model_scene`），爆头倍率降到 1.25。 |
+| 敌人 | `Enemy` / `SlothEnemy` | 共用待机、追击、交火、掩体、死亡、逃跑、找射击位（SEEK）契约。整合草稿的小怪为 SlothEnemy 三变体；Boss 暂沿用旧 Enemy 大号版本（`actors/enemy/boss.tscn`），Hazmat 模型，900 HP、爆头倍率 1.25。 |
 | 增援刷新 | `ZoneDirector._pick_spawn_marker()`，`MIN_SPAWN_DISTANCE` / `SPAWN_VIEW_HALF_ANGLE_DEG` | 每波刷在离玩家至少 14 米、且玩家看不见的刷新点（相机前方 65° 内 + 从眼睛到 1.2 米高度无 WORLD 遮挡）；都不合格时退回离玩家最远的未用点，不抽随机数。同一波不重复用同一个点。zone_1 / zone_2 各有后方、侧翼和后排角落共 7 个点。 |
 
 ## 设计目标（Cut-001b）
@@ -86,8 +86,19 @@
 
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
-| 红晶体敌人 | `red_crystal_enemy_*.glb` | 低模红衣敌人素材：11 件网格、24 骨、23 个剪辑、56 片碎屑。素材已入库，还没接进 `actors/enemy/`。 |
+| 红晶体敌人 | `red_crystal_enemy_*.glb` | 低模晶体素材：11 件网格、24 骨、23 个剪辑、56 片碎屑。Sloth 整合草稿已复用到 `actors/enemy/sloth/`，实例改藏青，原红材质保留。 |
 | 部位 | `PART_BONE`、`GEO_m_<部位>` | 身体分成的 11 块：`head`、`torso`、`hips`、`upper_arm_L/R`、`forearm_L/R`、`thigh_L/R`、`shin_L/R`。每个部位对应一根主骨。 |
 | 碎屑 | `SHARD_m_<部位>_<序号>`、`red_crystal_enemy_shards.glb` | 每个部位预切好的刚性碎片（合计 56 片），枢轴在自己质心，可直接做成 `RigidBody3D`。 |
 | 按部位碎裂 | `shatter_part(part)`、`shatter_parts([...])` | 把一个部位换成它的碎屑刚体，其余部位继续跟动画走。预览场 `tools/crystal_enemy/anim_shatter.tscn`。 |
 | 骨骼增量 | `_bone_delta(part)` | 碎屑按 T-pose 模型空间导出，贴到当前动画姿势要乘 `bone_global_pose · bone_global_rest⁻¹`。 |
+
+## Sloth 可玩整合草稿（2026-11-08）
+
+| 术语 | 代码里的名字 | 当前试玩含义 |
+| --- | --- | --- |
+| 迟滞者 / 披风敌人 | `SlothEnemy.Kind.LINGERER` | 90 HP，闭篷单弹 30% 闪避、成功冷却 2.5 秒。2 秒凝聚，最后 0.45 秒锁向，一次 4 发（间隔 0.18 秒、40 米/秒、9 伤/发），结束后 1 秒暴露；不追踪玩家。 |
+| 锚定者 | `SlothEnemy.Kind.ANCHOR` | 140 HP，0.95 秒预警后形成半径 3.2 米的 2.6 秒减速场；最多减速 25%，多来源取最强，墙体阻挡，不改冲刺。 |
+| 退缩者 | `SlothEnemy.Kind.RECLUSE` | 180 HP，0.95 秒预警后向外扩散低位冲击波；最大半径 7 米、14 伤，留有安全扇口，可用跳跃、掩体或冲刺规避。 |
+| 复层庭院 | `environments/sloth/courtyard.gd` | 两小关共用 96×128 米主体，-2.5 米下沉庭、3/5 米高台、6 米横桥与坡道；守卫/部分掩体分布不同。 |
+| 云海圣殿 | `environments/sloth/architecture.gd` | 直径 92 米 Boss 场地，巨环、钟摆、悬浮建筑与云层；当前用旧 Boss 及核心规则验证流程。 |
+| 运行时提取 | `environments/sloth/`、`actors/enemy/sloth/` | 与 `.gdignore` 隔离的历史备用包分开，当前主入口直接加载这些运行文件；备用包本身不参与运行。 |

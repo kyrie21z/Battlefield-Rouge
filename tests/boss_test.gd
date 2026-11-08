@@ -51,7 +51,8 @@ func _run() -> void:
 	_check("the boss shoots from higher up", boss.eye_height > sample.eye_height)
 	_check("the boss wears the Hazmat model", boss.find_child("Character_Hazmat", true, false) != null
 		and boss.find_child("Character_Enemy", true, false) == null)
-	_check("the small enemies keep the Enemy model", sample.find_child("Character_Enemy", true, false) != null)
+	_check("the small enemies use the Sloth crystal variants", sample is SlothEnemy
+		and sample.find_child("GEO_m_head", true, false) != null)
 	var boss_head := boss.find_child("HeadHitbox", true, false) as Hitbox
 	_check("the boss head hitbox moved onto the new skeleton",
 		boss_head != null and boss_head.get_parent().get_parent() == boss.get_node("Model/CharacterArmature/Skeleton3D"))

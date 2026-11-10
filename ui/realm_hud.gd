@@ -6,6 +6,7 @@ var settings: GameSettings
 var vitals: Vitals
 var crosshair: Crosshair
 var damage_indicator: DamageIndicator
+var inspector: BuildInspector
 var pause_menu: PauseMenu
 var _objective: Label
 var _ammo: Label
@@ -76,6 +77,7 @@ func _ready() -> void:
 	_root.add_child(damage_indicator)
 	damage_indicator.setup(stage.player)
 	stage.player.health.damaged.connect(_damaged)
+	BoonHitstop.attach(self, stage.player)
 	_boss_name = _label("",19)
 	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_name.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -105,6 +107,9 @@ func _ready() -> void:
 	pause_menu = PauseMenu.new()
 	_root.add_child(pause_menu)
 	pause_menu.setup(settings,stage.player,null)
+	inspector = preload("res://ui/codex/build_inspector.tscn").instantiate() as BuildInspector
+	inspector.player = stage.player
+	_root.add_child(inspector)
 	stage.player.boons.changed.connect(_refresh_boons)
 	_refresh_boons()
 
@@ -165,4 +170,4 @@ func _refresh_boons() -> void:
 	var names: PackedStringArray = []
 	for card in stage.player.boons.all_equipped():
 		names.append(card.name)
-	_boons.text = "\n".join(names)
+	_boons.text = "%s 心智矩阵\n%s" % [KeyHint.of("inspect_build"),"\n".join(names)]

@@ -59,6 +59,7 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	CrystalBurst.prepare(self)
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)
 	_offer_rng.seed = run_seed + 16338 + realm*100 + room_index + depth*1000
@@ -93,6 +94,15 @@ func _ready() -> void:
 	hud.stage = self
 	add_child(hud)
 	get_tree().paused = false
+	_install_audio()
+
+func _install_audio() -> void:
+	var path := "res://audio/realms/%s_audio_director.gd" % REALMS[realm]
+	if ResourceLoader.exists(path):
+		var audio := load(path).new() as RealmAudioDirector
+		audio.name = "RealmAudio"
+		audio.setup(self)
+		add_child(audio)
 
 func _apply_run() -> void:
 	player.boons.restore(saved_boons)
@@ -103,6 +113,9 @@ func _apply_run() -> void:
 	if geometry.has_method("set_deprivation"):
 		geometry.call("set_deprivation",deprivations.has(realm))
 	player.realm_effects.warnings_enabled = not deprivations.has(1)
+	var audio := get_node_or_null("RealmAudio") as RealmAudioDirector
+	if audio != null:
+		audio.set_deprived(deprivations.has(realm))
 	for actor in enemies:
 		_apply_actor_deprivation(actor)
 

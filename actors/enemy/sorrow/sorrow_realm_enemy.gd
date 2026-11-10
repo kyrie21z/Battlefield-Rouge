@@ -19,6 +19,7 @@ func _enter_tree() -> void:
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
 
 func _ready() -> void:
+	enable_crystal_feedback(3)
 	visual = $Model as SorrowVisual
 	if not is_boss:
 		_align_hitboxes()

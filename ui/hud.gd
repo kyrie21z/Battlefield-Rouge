@@ -66,6 +66,7 @@ const LOW_HP_RATE_SLOW := 1.0
 const LOW_HP_RATE_FAST := 1.6
 const HEARTBEAT_DB := -7.0
 
+var inspector: BuildInspector
 var _player: Player
 var _director: ZoneDirector
 ## Loaded from user://settings.cfg in a normal run; defaults in tests/fixtures.
@@ -160,6 +161,7 @@ func _ready() -> void:
 	_heartbeat.volume_db = HEARTBEAT_DB
 	add_child(_heartbeat)
 	_damage_indicator.setup(_player)
+	BoonHitstop.attach(self, _player)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
 	Events.blade_parried.connect(_on_blade_parried)
 	_player.melee.hit_landed.connect(_on_hit_landed)
@@ -181,6 +183,9 @@ func _ready() -> void:
 	_strike_bar.setup(_director.capture_point, _player.stats)
 	_minimap.setup(_director, _player)
 	_pause_menu.setup(settings, _player, _director)
+	inspector = preload("res://ui/codex/build_inspector.tscn").instantiate() as BuildInspector
+	inspector.player = _player
+	$PauseLayer.add_child(inspector)
 	if MusicDirector.enabled():
 		music = MusicDirector.new()
 		music.name = "Music"

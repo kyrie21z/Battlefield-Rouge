@@ -12,6 +12,7 @@ const REBINDABLE := [
 	["reload", "晶体重组"], ["melee", "近战"],
 	["psyche_resonance", "沉睡共鸣"],
 	["reconcile", "拾起皇冠"],
+	["inspect_build", "心智矩阵"],
 	["shield", "护盾"], ["throw_magazine", "投掷危险弹匣"], ["interact", "交互（增益台）"],
 ]
 const RESERVED_KEYS := [KEY_ESCAPE, KEY_F3]

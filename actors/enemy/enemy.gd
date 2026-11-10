@@ -13,6 +13,9 @@ const AIM_HEIGHT := 1.3
 
 ## The zone director reports it as the zone's boss, and the HUD shows its health bar.
 @export var is_boss := false
+## Presentation identity; -1 keeps historical graybox/fixture enemies unchanged.
+@export_range(-1, 3) var sin_type := -1
+var crystal_bursts := 0
 
 @export_category("Perception")
 @export var sight_range := 45.0
@@ -677,3 +680,17 @@ static func _random_in_cone(direction: Vector3, half_angle: float) -> Vector3:
 	side = side.normalized()
 	var tilted := direction.rotated(side, randf() * half_angle)
 	return tilted.rotated(direction, randf() * TAU).normalized()
+
+
+func enable_crystal_feedback(value: int) -> void:
+	sin_type = value
+	if not health.after_damage.is_connected(_crystal_damage):
+		health.after_damage.connect(_crystal_damage)
+
+func _crystal_damage(context: Dictionary) -> void:
+	if float(context.get("dealt",0.0)) <= 0.0:
+		return
+	var killed: bool = context.get("killed",false)
+	var point: Vector3 = global_position + Vector3.UP * eye_height * 0.6 if killed else context.get("position",global_position+Vector3.UP)
+	if CrystalBurst.spawn(get_parent(),point,sin_type,&"death" if killed else &"hit",context.get("direction",Vector3.UP)) != null:
+		crystal_bursts += 1

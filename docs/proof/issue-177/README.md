@@ -4,7 +4,7 @@
 
 持续演员声音使用固定8声部，短音沿用共享基类16声部。暂停冻结时间与实际播放，玩家死亡停止声源，换房释放节点。源码合成仅使用固定种子的局部RNG，不消耗玩法随机序列，不读取战役单例。
 
-`FearSoundBank.boon_cues` 把真实 `fear_flaw_broken` 的命中位置映射为晶碎音；父框架统一接线，所以在Sloth等其它领域装备恐惧赐福仍可发声。`FearCriticalFeedback` 保留伤害字与普通非破绽暴击声音，仅在实际破绽事件已发出时关闭旧声，避免叠播。
+`FearSoundBank.boon_cues` 把真实 `fear_flaw_broken` 的命中位置映射为晶碎音；父框架统一接线，所以在Sloth等其它领域装备恐惧赐福仍可发声。`FearCriticalFeedback` 保留伤害字与普通非破绽暴击声音，仅在实际破绽事件已被音频控制器接管时关闭旧声，避免叠播。
 
 ## 验证入口
 
@@ -23,8 +23,14 @@ Godot 4.7.2 / Jolt：
 - `ARCHITECTURE.md`：`audio/realms` 是Stage注入的表现层，单向读演员状态，持续8声部+短音16声部，不改玩法。
 - `GLOSSARY.md`：锁定蜂鸣=`FearAudioDirector`，实际蓄力进度升调；闪现相位声=`FearSoundBank`，真实瞬移计数触发。
 - `ASSETS.md`：本issue全部声音为仓库原创数学合成，无外部采样/模型/授权素材；源码 `audio/realms/fear_sound_bank.gd`。本目录WAV为可复算预听证据，SHA-256见 `pcm-analysis.json`。不从旧工程复制素材。
-- 依赖父 #176 的 `RealmAudioDirector.get_sound` 扩展接口及父 #177 动态bank事件路由；本提交不包含借用的共享基类或Stage文件。
+- 依赖已合入 #176 的 `RealmAudioDirector.get_sound` 扩展接口；本 issue 集成提交包含动态 bank 事件路由，复用 #179 已合入的每领域安装入口。
 
 ## 集中集成与旧入口兼容
 
 共享 RealmAudioDirector 在所有房间路由 FearSoundBank 的真实破绽事件；只有消费该事件的控制器写入同步 `fear_flaw_audio_managed` 标记，FearEffect 才关闭旧晶碎音。无控制器的独立/旧入口保留一个旧音源，普通非破绽暴击仍沿用原反馈。新增真实背面晶面命中回归，连同原生产路径共 **24 checks, 0 failures**，Godot 4.7.2 headless 无脚本错误或退出警告，见 `integration.log`。
+
+## 最新主线回归
+
+固定提交 `dce076a` 在主线 `b56c603` 上完整运行 97 个场景，97/97 通过，无脚本错误；起止 HEAD 相同、受控文件无修改。FX-001 / FX-002 分别为 `18f02a294f3e538a` / `ad3703cd93d3073e`，各两次运行一致。唯一退出警告来自 `sorrow_audio_test`：10 个 ObjectDB 对象，不将此全套称为无警告。原始证据保留于 `/tmp/epic675-validation/pr177-suite`。
+
+随后合入 `f6c6e3` 的皇冠眩光/金缮与已确认的 spite 测试瞄准修复，保留主线所有视觉实现和 #179 几何释放停声修复。组合复验单独记录，不将尚未完成的运行列为通过证据。

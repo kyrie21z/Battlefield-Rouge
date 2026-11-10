@@ -57,6 +57,8 @@ func _run() -> void:
 	check("original skinned model and weapons use hologram material during print",print_visual.skeleton.get_bone_count()==24 and print_visual._print_meshes.size()>11 and print_visual._print_meshes.all(func(mesh):return mesh.material_override==print_visual.print_material))
 	check("laser ring and body share the same world scan plane",is_equal_approx(encounter.print_ring.position.y,lerpf(2.5,-0.2,print_visual.print_progress)))
 	check("sparks follow the active scan plane",encounter.print_projection.sparks.emitting and is_equal_approx(encounter.print_projection.sparks.position.y,encounter.print_ring.position.y))
+	check("print glare radiates from the actual projected crown",encounter.glare_layer.visible and encounter.crown_glare.get_shader_parameter("source_uv").is_equal_approx(get_viewport().get_camera_3d().unproject_position(encounter.crown.global_position)/get_viewport().get_visible_rect().size))
+	var glare_time:float=encounter.crown_glare.get_shader_parameter("visual_time")
 	var print_time: float = print_visual.print_material.get_shader_parameter("visual_time")
 	var projection_time := encounter.print_projection.elapsed
 	var progress := encounter.boss.visual.print_progress
@@ -64,6 +66,7 @@ func _run() -> void:
 	for i in 4:
 		await get_tree().process_frame
 	check("pause freezes printed fraction and choreography",is_equal_approx(encounter.boss.visual.print_progress,progress))
+	check("pause freezes boss glare clock",is_equal_approx(encounter.crown_glare.get_shader_parameter("visual_time"),glare_time))
 	check("pause freezes both shader clocks and the projection",is_equal_approx(print_visual.print_material.get_shader_parameter("visual_time"),print_time) and is_equal_approx(encounter.print_projection.elapsed,projection_time))
 	get_tree().paused = false
 	(player.get_node("CrownVoiceSystem") as CrownVoiceSystem).reduced_motion = true
@@ -109,6 +112,7 @@ func _run() -> void:
 	await frames(18)
 	check("supernova has rendered white flash and expanding sphere",encounter.flash.color.a>0.6 and encounter.nova.scale.x>2)
 	await frames(120)
+	check("ending retires the crown glare postprocess",not encounter.glare_layer.visible)
 	check("death emits one ending event with surviving physical crown",endings==1 and is_instance_valid(returned_crown) and encounter.phase==DoppelgangerSpawn.Phase.COMPLETE)
 	check("completion cleans boss and returns live player control",not is_instance_valid(encounter.boss) and player.process_mode!=Node.PROCESS_MODE_DISABLED)
 	check("completion removes pause input and all battle overlays before ending",not encounter.hud.combat_root.visible and not is_instance_valid(encounter.hud.pause_menu) and not encounter.label.visible)

@@ -1,0 +1,77 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] coplanar square keeps 4 boundary edges
+  [ok] both sides of triangulation diagonal are hidden
+  [ok] render mesh does not modify original indices
+  [ok] seam cache reuses render attributes
+  [ok] non-coplanar physical fold stays a joint
+  [ok] GEO_m_forearm_L preserves every triangle attribute
+  [ok] GEO_m_forearm_R preserves every triangle attribute
+  [ok] GEO_m_head preserves every triangle attribute
+  [ok] GEO_m_hips preserves every triangle attribute
+  [ok] GEO_m_shin_L preserves every triangle attribute
+  [ok] GEO_m_shin_R preserves every triangle attribute
+  [ok] GEO_m_thigh_L preserves every triangle attribute
+  [ok] GEO_m_thigh_R preserves every triangle attribute
+  [ok] GEO_m_torso preserves every triangle attribute
+  [ok] GEO_m_upper_arm_L preserves every triangle attribute
+  [ok] GEO_m_upper_arm_R preserves every triangle attribute
+  [ok] SHARD_m_forearm_L_0 preserves every triangle attribute
+  [ok] SHARD_m_forearm_L_1 preserves every triangle attribute
+  [ok] SHARD_m_forearm_L_2 preserves every triangle attribute
+  [ok] SHARD_m_forearm_L_3 preserves every triangle attribute
+  [ok] SHARD_m_forearm_L_4 preserves every triangle attribute
+  [ok] SHARD_m_forearm_R_0 preserves every triangle attribute
+  [ok] SHARD_m_forearm_R_1 preserves every triangle attribute
+  [ok] SHARD_m_forearm_R_2 preserves every triangle attribute
+  [ok] SHARD_m_forearm_R_3 preserves every triangle attribute
+  [ok] SHARD_m_forearm_R_4 preserves every triangle attribute
+  [ok] SHARD_m_head_0 preserves every triangle attribute
+  [ok] SHARD_m_head_1 preserves every triangle attribute
+  [ok] SHARD_m_head_2 preserves every triangle attribute
+  [ok] SHARD_m_head_3 preserves every triangle attribute
+  [ok] SHARD_m_head_4 preserves every triangle attribute
+  [ok] SHARD_m_head_5 preserves every triangle attribute
+  [ok] SHARD_m_head_6 preserves every triangle attribute
+  [ok] SHARD_m_head_7 preserves every triangle attribute
+  [ok] SHARD_m_head_8 preserves every triangle attribute
+  [ok] SHARD_m_head_9 preserves every triangle attribute
+  [ok] SHARD_m_hips_0 preserves every triangle attribute
+  [ok] SHARD_m_hips_1 preserves every triangle attribute
+  [ok] SHARD_m_hips_2 preserves every triangle attribute
+  [ok] SHARD_m_shin_L_0 preserves every triangle attribute
+  [ok] SHARD_m_shin_L_1 preserves every triangle attribute
+  [ok] SHARD_m_shin_L_2 preserves every triangle attribute
+  [ok] SHARD_m_shin_L_3 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_0 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_1 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_2 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_3 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_4 preserves every triangle attribute
+  [ok] SHARD_m_shin_R_5 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_0 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_1 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_2 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_3 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_4 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_5 preserves every triangle attribute
+  [ok] SHARD_m_thigh_L_6 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_0 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_1 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_2 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_3 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_4 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_5 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_6 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_7 preserves every triangle attribute
+  [ok] SHARD_m_thigh_R_8 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_L_0 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_L_1 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_L_2 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_R_0 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_R_1 preserves every triangle attribute
+  [ok] SHARD_m_upper_arm_R_2 preserves every triangle attribute
+  [ok] SHARD_m_torso_0 preserves every triangle attribute
+  [ok] original assets discard coplanar and near-coplanar triangulation edges
+FACET EDGES: 10321 real joint sides; 2945 coplanar/near-coplanar sides excluded
+CRYSTAL SEAMS: ALL PASSED (0 failed)

@@ -6,7 +6,9 @@ func check(label: String, passed: bool) -> void:
 	if not passed: failures += 1
 	print("%s %s" % ["PASS" if passed else "FAIL", label])
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	var player := preload("res://actors/player/player.tscn").instantiate() as Player
+	player.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(player)
 	player.set_physics_process(false)
 	var crown := player.get_node("CrownVoiceSystem") as CrownVoiceSystem
@@ -34,6 +36,17 @@ func _ready() -> void:
 		Events.sin_defeated.emit(level)
 		check("fracture %d updates actual emissive material" % level, is_equal_approx(crown.strength, values[level]) and is_equal_approx(float(crown.material.get_shader_parameter("emission_strength")), values[level]))
 	check("level four exceeds fifteen without replacing the gameplay camera", crown.strength > 15 and player.view_camera.current and crown.edge_meshes.size() == 2)
+	check("level four binds the production starburst postprocess",crown.glare.shader==preload("res://ui/shaders/blinding_glare.gdshader") and is_equal_approx(crown.glare.get_shader_parameter("intensity"),1.0) and int(crown.glare.get_shader_parameter("fracture_level"))==4)
+	await get_tree().process_frame
+	var glare_time:float=crown.glare.get_shader_parameter("visual_time")
+	get_tree().paused=true
+	await get_tree().create_timer(0.15,true).timeout
+	check("paused crown freezes postprocess clock",is_equal_approx(glare_time,crown.glare.get_shader_parameter("visual_time")))
+	get_tree().paused=false
+	crown.reduced_motion=true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check("reduced motion reaches the glare shader",crown.glare.get_shader_parameter("reduced_motion"))
 	crown.set_cinematic_hidden(true)
 	check("opening can suppress every Crown presentation including camera children", not crown.layer.visible and crown.edge_meshes.all(func(m: MeshInstance3D) -> bool: return not m.visible))
 	crown.set_cinematic_hidden(false)

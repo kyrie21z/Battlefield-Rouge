@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production room owns injected ambience
+PASS pre-boss pendulum is 60 bpm
+PASS clock and heartbeat layers both played
+LATENCY AUDIO count=1 effect_exists=true has_card=true
+PASS real latency detonation triggers delay bass
+PASS real boss death switches to 148 bpm
+PASS overclock replaces warm pad
+PASS real boss death cannot start either legacy Sloth audio layer
+PASS old ambience fades out without a dangling loop
+PASS zero Music silences rhythm and legacy layers cannot bypass it
+PASS paused tree freezes the audio timeline
+PASS paused presentation rejects new cue
+PASS polyphony bounded at sixteen voices
+PASS reused rhythm voices reset gameplay burst routing to Master
+PASS loop is cached stereo PCM with finite seamless window
+PASS real player death stops all room audio
+PASS late state refresh cannot restart dead-room ambience
+PASS room exit frees the whole voice pool
+PASS standalone Sloth environment retains original clock and industrial fallback
+SLOTH AUDIO: 18 checks, 0 failures

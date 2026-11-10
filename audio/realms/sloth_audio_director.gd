@@ -6,6 +6,7 @@ var bpm := CALM_BPM
 var beat_left := 0.0
 
 func _ready() -> void:
+	if stage.geometry is SlothRealm: stage.geometry.set_audio_managed(true)
 	for kind in [&"warm_pad",&"gears"]: RealmSoundBank.get_sound(kind,true)
 	for kind in [&"second_tick",&"pendulum",&"heartbeat",&"delayed_burst"]: RealmSoundBank.get_sound(kind)
 	super._ready()

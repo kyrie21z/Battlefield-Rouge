@@ -31,11 +31,17 @@ func _ready() -> void:
 	await get_tree().process_frame
 	check("real boss death switches to 148 bpm",stage.boss_defeated and director.deprived and director.bpm==148)
 	check("overclock replaces warm pad",director.ambient.stream == RealmSoundBank.get_sound(&"gears",true))
+	stage.geometry._physics_process(1.0)
+	check("real boss death cannot start either legacy Sloth audio layer",stage.geometry.audio_managed and not stage.geometry.get_node("RunawayClock").playing and not stage.geometry.get_node("IndustrialHum").playing)
 	director._process(0.35)
 	check("old ambience fades out without a dangling loop",not director.ambient_tail.playing and is_equal_approx(director.ambient.volume_db,-18.0))
 	stage.hud.settings.music_volume = 0.0
 	stage.hud.settings.changed.emit()
-	check("room music respects zero-volume setting",AudioServer.is_bus_mute(AudioServer.get_bus_index(&"Music")))
+	director._process(1.0)
+	stage.geometry.set_deprivation(true)
+	stage.geometry._physics_process(1.0)
+	var ticks := director.voices.filter(func(v): return v.stream == RealmSoundBank.get_sound(&"second_tick"))
+	check("zero Music silences rhythm and legacy layers cannot bypass it",AudioServer.is_bus_mute(AudioServer.get_bus_index(&"Music")) and not ticks.is_empty() and ticks.all(func(v): return v.bus == &"Music") and not stage.geometry.get_node("RunawayClock").playing and not stage.geometry.get_node("IndustrialHum").playing)
 	stage.hud.settings.music_volume = 0.7
 	stage.hud.settings.changed.emit()
 	director.set_process(true)
@@ -50,6 +56,7 @@ func _ready() -> void:
 	director.set_process(false)
 	for i in 100: director.play_cue(&"delayed_burst",Vector3.ZERO)
 	check("polyphony bounded at sixteen voices",director.voices.size()==16)
+	check("reused rhythm voices reset gameplay burst routing to Master",director.voices.filter(func(v):return v.stream == RealmSoundBank.get_sound(&"delayed_burst")).all(func(v):return v.bus == &"Master"))
 	var stream := RealmSoundBank.get_sound(&"warm_pad",true)
 	check("loop is cached stereo PCM with finite seamless window",stream==RealmSoundBank.get_sound(&"warm_pad",true) and stream.stereo and stream.data.size()==352800 and stream.data.decode_s16(0)==0)
 	stage.player.health.apply_damage(999999,Hitbox.BodyPart.BODY)
@@ -60,6 +67,13 @@ func _ready() -> void:
 	await get_tree().process_frame
 	for i in 3: await get_tree().process_frame
 	check("room exit frees the whole voice pool",not is_instance_valid(director))
+	var standalone := SlothRealm.new()
+	add_child(standalone)
+	standalone.set_deprivation(true)
+	standalone._physics_process(0.5)
+	check("standalone Sloth environment retains original clock and industrial fallback",not standalone.audio_managed and standalone.get_node("RunawayClock").playing and standalone.get_node("IndustrialHum").playing)
+	standalone.queue_free()
+	await get_tree().process_frame
 	# Let the audio mix thread retire stopped playback objects before engine exit.
 	await get_tree().create_timer(0.15).timeout
 	print("SLOTH AUDIO: %d checks, %d failures" % [checks,failures])

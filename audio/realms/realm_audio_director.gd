@@ -77,6 +77,7 @@ func play_cue(kind: StringName, point: Vector3, pitch := 1.0, volume := -12.0) -
 			voice = candidate
 			break
 	voice.stop()
+	voice.bus = ambient.bus if kind in [&"pendulum",&"heartbeat",&"second_tick"] else &"Master"
 	voice.stream = get_sound(kind)
 	voice.global_position = point
 	voice.pitch_scale = pitch

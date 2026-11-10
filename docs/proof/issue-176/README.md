@@ -32,3 +32,9 @@ PCM 为 22050 Hz、16-bit、立体声；环境音循环 4 秒，音效 0.8 秒�
 最终暂停检查显式启用音频 `_process` 后暂停，验证真实 SceneTree 暂停；退出前给混音线程
 0.15 秒退役已停止的播放实例。`sloth_audio_lifecycle.log` 15 项通过且无退出警告。
 此前诊断日志保留，不据此宣称平台上的所有退出警告均已根治。
+
+## 旧环境接管与音量回归
+
+SlothRealm 的公开 `set_audio_managed(true)` 立即停止旧 RunawayClock / IndustrialHum；之后 Boss 剥夺回调和物理每拍都不会重新启动。独立 SlothRealm 默认保留旧音源。新钟摆、心跳、秒针通过 Music，瞬态池复用为延爆时显式恢复 Master，避免节拍绕过音乐音量或技能声被错误静音。
+
+真实 Boss 死亡、旧两声源停止、Music=0 下秒针路由、池复用、独立环境 fallback 及已有生命周期验证共 **18 checks, 0 failures**，Godot 4.7.2 headless，无脚本错误或退出警告，见 `sloth_audio_managed.log`。

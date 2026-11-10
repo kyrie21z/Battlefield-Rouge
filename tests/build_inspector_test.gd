@@ -53,7 +53,8 @@ func _ready() -> void:
 	var event := InputEventKey.new()
 	event.physical_keycode = KEY_ESCAPE
 	event.pressed = true
-	inspector._input(event)
+	Input.parse_input_event(event)
+	await get_tree().process_frame
 	await get_tree().create_timer(0.2,true).timeout
 	check("Escape releases inspector without opening pause menu",not inspector.opened and not menu.is_open() and not get_tree().paused)
 	menu.queue_free()

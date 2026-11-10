@@ -2,7 +2,7 @@ extends Node
 ## Headless check of the HUD minimap:
 ##   godot --headless --path . res://tests/minimap_test.tscn
 ## Presentation only: geometry, the world-to-map transform, marker visibility,
-## rim clamping, reinforcement pulses and the scope hiding rule.
+## rim clamping, reinforcement pulses and the ADS visibility rule.
 
 var _failures := 0
 var _finished := false
@@ -34,7 +34,7 @@ func _run() -> void:
 	_player.global_rotation = Vector3.ZERO
 	await _frames(3)
 
-	await _test_scope_hide()
+	await _test_ads_visible()
 	_test_geometry()
 	await _test_transform()
 	await _test_enemies()
@@ -44,18 +44,17 @@ func _run() -> void:
 	_finished = true
 
 
-func _test_scope_hide() -> void:
-	print("== the scope takes the minimap away")
-	_player.weapon.select(2)
+func _test_ads_visible() -> void:
+	print("== pistol ADS keeps navigation visible")
 	Input.action_press("aim")
 	await _seconds(0.7)
-	_check("sniping is scoped", _player.weapon.is_scoped())
+	_check("pistol is aiming", _player.weapon.aiming)
 	await _frames(2)
-	_check("the minimap hides behind the scope", not _map.visible)
+	_check("ADS keeps the minimap visible", _map.visible)
 	Input.action_release("aim")
 	await _seconds(0.7)
 	await _frames(2)
-	_check("and comes back when the scope goes down", _map.visible)
+	_check("map remains visible after ADS", _map.visible)
 
 
 func _test_geometry() -> void:

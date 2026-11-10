@@ -1,132 +1,99 @@
+class_name ProtagonistBody
 extends Node3D
-## The player's body, drawn only into shadows: the camera sits inside its head,
-## so it is never seen directly, but the ground shows a running figure. The
-## model is the grey-white crystal humanoid from protagonist_body.tscn. Purely
-## visual; it holds no hitbox and draws no random numbers.
-##
-## The figure carries the gun the player has out: a `BoneAttachment3D` on the
-## right hand holds that gun's own model, and an `AnimationTree` splits the body
-## into legs (idle / run, 0.15 s blend) and a held two-handed aim pose on top
-## (Spine and up). Firing the weapon fires a short recoil one-shot over the aim
-## pose. With no weapon in the parent (tests that instance the body alone) it
-## keeps aiming with the rifle.
+## One authored crystal body is both the first-person body and the world shadow.
+## The stable eye reference comes from its head bone; animation moves the legs,
+## while a two-bone arm solve holds the actual gameplay pistol at every pitch.
 
-## Horizontal speed above which the legs run instead of standing.
 const RUN_SPEED := 0.5
 const IDLE_ANIM := "idle"
 const RUN_ANIM := "run"
-## The held aim pose: a single keyed frame (0.033 s) of both hands forward.
 const AIM_ANIM := "Aiming_1"
-## Recoil over the aim pose. It opens and closes on the same pose, so the hold
-## comes back cleanly. `Shoot` is not used: its arms are out to the sides and
-## would snap out of the aim pose.
 const SHOT_ANIM := "Shooting_1_1"
 const BLEND_TIME := 0.15
 const SHOT_FADE_IN := 0.04
 const SHOT_FADE_OUT := 0.12
-## Bone the gun hangs from.
-const GUN_BONE := "RightHand"
-## How far past the wrist the grip sits, along the hand bone's own axis.
-const PALM_OFFSET := 0.05
-const MATERIAL: Material = preload("res://assets/materials/protagonist_crystal_material.tres")
-
-## Bones the aim pose owns. Hips and the leg chain stay on idle / run.
+const MATERIAL := preload("res://assets/materials/protagonist_crystal_material.tres")
+const POSE_MODIFIER := preload("res://actors/player/body_pose_modifier.gd")
 const UPPER_BONES: Array[StringName] = [
 	&"Spine", &"Chest", &"Neck", &"Head",
-	&"LeftShoulder", &"LeftArm", &"LeftForeArm", &"LeftHand",
 	&"RightShoulder", &"RightArm", &"RightForeArm", &"RightHand",
+	&"LeftShoulder", &"LeftArm", &"LeftForeArm", &"LeftHand",
 ]
 
-## The gun model shown for each `WeaponData`, keyed by its resource path (the
-## order in `Weapon.data_set` is not fixed). `grip` is the pistol grip of the
-## model in its own space (the point the right hand wraps); `yaw`/`pitch`/`roll`
-## are degrees, `scale` shrinks the mesh to a real gun. After the rotation the
-## barrel points at -Z, the player's forward, and `grip` is put exactly on the
-## right hand. The ak is authored muzzle along -X (its viewmodel yaw is +90), so
-## it needs -90 here; the shotgun and sniper are exported grip-at-origin, muzzle -Z.
-const GUNS := {
-	"res://weapons/rifle.tres": {
-		"scene": preload("res://assets/models/weapons/ak.gltf"),
-		"grip": Vector3(0.032, -0.078, 0.0), "yaw": -90.0, "pitch": 0.0,
-		"roll": 0.0, "scale": 0.55,
-	},
-	"res://weapons/shotgun.tres": {
-		"scene": preload("res://assets/models/weapons/shotgun.glb"),
-		"grip": Vector3.ZERO, "yaw": 0.0, "pitch": 0.0,
-		"roll": 0.0, "scale": 0.95,
-	},
-	"res://weapons/sniper.tres": {
-		"scene": preload("res://assets/models/weapons/sniper.glb"),
-		"grip": Vector3.ZERO, "yaw": 0.0, "pitch": 0.0,
-		"roll": 0.0, "scale": 0.9,
-	},
-}
-## Gun shown when the parent has no Weapon (body instanced alone).
-const DEFAULT_GUN := "res://weapons/rifle.tres"
-
+@export_range(0, 4) var fracture_level := 0
+@export var enable_debug_keys := false
 var _anim: AnimationPlayer
 var _skeleton: Skeleton3D
 var _tree: AnimationTree
-var _attachment: BoneAttachment3D
-var _gun: Node3D
-## Right-hand bone in the aim pose, skeleton space. The gun's local transform is
-## derived from it once, so the gun follows the hand through the recoil.
-var _hand_xf := Transform3D.IDENTITY
-## Where the gun's grip goes: just past the wrist, inside the fist.
-var _grip_target := Vector3.ZERO
 var _run_blend := 0.0
+var _breath_time := 0.0
 var _weapon: Weapon
-## Which entry of `GUNS` is on screen, so a repeated `selected` swaps nothing.
-var _gun_shown := ""
-
+var _melee: MeleeWeapon
+var _head: Node3D
+var _hand_basis := {}
+var _eye_reference := Vector3.ZERO
+var fracture: Node
 
 func _ready() -> void:
 	_anim = find_child("AnimationPlayer", true, false) as AnimationPlayer
 	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
-	_dress_meshes(self)
+	_dress_meshes()
+	var clips := _anim.get_animation_library("").duplicate(true) as AnimationLibrary
+	_anim.remove_animation_library("")
+	_anim.add_animation_library("", clips)
 	for clip in [IDLE_ANIM, RUN_ANIM]:
-		_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
-	_sample_aim_hand()
+		# Imported animations are shared resources. Loop flags belong to this instance.
+		var local := _anim.get_animation(clip).duplicate() as Animation
+		local.loop_mode = Animation.LOOP_LINEAR
+		_anim.get_animation_library("").add_animation(clip, local)
+	_sample_pose()
 	_build_tree()
-	_build_gun()
-	_bind_weapon()
-
+	var player := get_parent()
+	_weapon = player.get_node_or_null("Head/Camera3D/Weapon") as Weapon
+	_head = player.get_node_or_null("Head") as Node3D
+	_melee = player.get_node_or_null("Head/Camera3D/Melee") as MeleeWeapon
+	if _head != null:
+		_head.position = player.to_local(_skeleton.to_global(_eye_reference))
+	if _weapon != null:
+		_weapon.fired.connect(_on_weapon_fired)
+	var modifier := SkeletonModifier3D.new()
+	modifier.set_script(POSE_MODIFIER)
+	modifier.name = "BodyPose"
+	modifier.body = self
+	_skeleton.add_child(modifier)
+	Events.sin_defeated.connect(set_fracture_level)
+	fracture = preload("res://actors/player/body_fracture.gd").new()
+	fracture.name = "BodyFracture"
+	add_child(fracture)
+	fracture.setup(_anim.get_parent(), _skeleton)
+	set_fracture_level(fracture_level)
 
 func _process(delta: float) -> void:
-	var body := get_parent() as CharacterBody3D
-	var speed := Vector2(body.velocity.x, body.velocity.z).length() if body != null else 0.0
+	_breath_time += delta
+	var player := get_parent() as CharacterBody3D
+	var speed := Vector2(player.velocity.x, player.velocity.z).length() if player != null else 0.0
 	_run_blend = move_toward(_run_blend, 1.0 if speed > RUN_SPEED else 0.0, delta / BLEND_TIME)
 	_tree.set("parameters/legs/blend_amount", _run_blend)
-	# A blade in the player's hands takes the gun off screen; hide it here too.
-	if _gun != null and _weapon != null:
-		_gun.visible = _weapon.trigger_enabled
 
+func _dress_meshes() -> void:
+	var opaque := StandardMaterial3D.new()
+	opaque.albedo_color = Color(0.8, 0.81, 0.83)
+	for node in find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if mesh.name == "GEO_m_head" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		mesh.material_override = opaque
+		mesh.material_overlay = MATERIAL.duplicate()
 
-## Every mesh of the body casts shadows only; the opaque grey base takes the
-## shadow pass (the crystal shader writes ALPHA, and blended materials do not
-## cast) while the crystal material is drawn over it.
-func _dress_meshes(root: Node) -> void:
-	var shadow_caster := StandardMaterial3D.new()
-	shadow_caster.albedo_color = Color(0.80, 0.81, 0.83)
-	for mesh in root.find_children("*", "MeshInstance3D", true, false):
-		var mi := mesh as MeshInstance3D
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-		mi.material_override = shadow_caster
-		mi.material_overlay = MATERIAL
-
-
-## Reads the hand once in the aim pose, so `_gun_transform()` can turn the gun
-## to face the player's forward no matter how the bone is oriented at rest. The
-## grip target is a little past the wrist along the bone's own Y (wrist to
-## fingers), inside the fist rather than at the wrist joint.
-func _sample_aim_hand() -> void:
+func _sample_pose() -> void:
 	_anim.play(AIM_ANIM)
 	_anim.seek(0.0, true)
 	_anim.pause()
 	_skeleton.force_update_all_bone_transforms()
-	_hand_xf = _skeleton.get_bone_global_pose(_skeleton.find_bone(GUN_BONE))
-	_grip_target = _hand_xf.origin + _hand_xf.basis.y.normalized() * PALM_OFFSET
-
+	for side in ["Right", "Left"]:
+		_hand_basis[side] = _skeleton.get_bone_global_pose(_skeleton.find_bone(side + "Hand")).basis
+	# Head origin is near the skull centre. Eyes lie above and toward -Z.
+	_eye_reference = _skeleton.get_bone_global_rest(_skeleton.find_bone("Head")).origin + Vector3(0.0, 0.045, -0.160)
+	_eye_reference.x = 0.0
 
 func _build_tree() -> void:
 	var model := _anim.get_parent()
@@ -139,10 +106,7 @@ func _build_tree() -> void:
 	run.animation = RUN_ANIM
 	var shot := AnimationNodeAnimation.new()
 	shot.animation = SHOT_ANIM
-
-	# Legs: idle and run, blended by speed.
 	var legs := AnimationNodeBlend2.new()
-	# Upper body: the aim pose with the recoil played over it.
 	var fire := AnimationNodeOneShot.new()
 	fire.fadein_time = SHOT_FADE_IN
 	fire.fadeout_time = SHOT_FADE_OUT
@@ -150,15 +114,14 @@ func _build_tree() -> void:
 	upper.filter_enabled = true
 	for bone in UPPER_BONES:
 		upper.set_filter_path(NodePath(skeleton_path + ":" + bone), true)
-
 	var root := AnimationNodeBlendTree.new()
-	root.add_node("idle", idle, Vector2(-400.0, 0.0))
-	root.add_node("run", run, Vector2(-400.0, 120.0))
-	root.add_node("legs", legs, Vector2(-200.0, 60.0))
-	root.add_node("aim", aim, Vector2(-400.0, 260.0))
-	root.add_node("shot", shot, Vector2(-400.0, 380.0))
-	root.add_node("fire", fire, Vector2(-200.0, 300.0))
-	root.add_node("upper", upper, Vector2(0.0, 160.0))
+	root.add_node("idle", idle)
+	root.add_node("run", run)
+	root.add_node("legs", legs)
+	root.add_node("aim", aim)
+	root.add_node("shot", shot)
+	root.add_node("fire", fire)
+	root.add_node("upper", upper)
 	root.connect_node("legs", 0, "idle")
 	root.connect_node("legs", 1, "run")
 	root.connect_node("fire", 0, "aim")
@@ -166,7 +129,6 @@ func _build_tree() -> void:
 	root.connect_node("upper", 0, "legs")
 	root.connect_node("upper", 1, "fire")
 	root.connect_node("output", 0, "upper")
-
 	_tree = AnimationTree.new()
 	_tree.name = "AnimationTree"
 	model.add_child(_tree)
@@ -175,67 +137,103 @@ func _build_tree() -> void:
 	_tree.set("parameters/legs/blend_amount", 0.0)
 	_tree.set("parameters/upper/blend_amount", 1.0)
 	_tree.active = true
-	# The tree drives the skeleton now; the AnimationPlayer must stay quiet.
 	_anim.active = false
 
-
-func _build_gun() -> void:
-	_attachment = BoneAttachment3D.new()
-	_attachment.name = "GunAttachment"
-	_skeleton.add_child(_attachment)
-	_attachment.bone_name = GUN_BONE
-
-
-func _bind_weapon() -> void:
-	var body := get_parent()
-	_weapon = body.get_node_or_null("Head/Camera3D/Weapon") as Weapon if body != null else null
-	if _weapon == null:
-		_show_gun(DEFAULT_GUN)
+func pose_arms() -> void:
+	if not is_inside_tree():
 		return
-	_weapon.selected.connect(_on_weapon_selected)
-	_weapon.fired.connect(_on_weapon_fired)
-	_show_gun(_gun_key(_weapon.data))
-
-
-func _gun_key(data: WeaponData) -> String:
-	if data != null and GUNS.has(data.resource_path):
-		return data.resource_path
-	return DEFAULT_GUN
-
-
-## Puts `key`'s model in the right hand. The gun only ever moves with the hand;
-## it never touches the player or the camera.
-func _show_gun(key: String) -> void:
-	if key == _gun_shown and _gun != null:
+	for node in [_skeleton, _weapon, _head]:
+		if not is_instance_valid(node) or not node.is_inside_tree():
+			return
+	if not is_instance_valid(_weapon.camera) or not _weapon.camera.is_inside_tree():
 		return
-	var entry: Dictionary = GUNS.get(key, GUNS[DEFAULT_GUN])
-	var scene: PackedScene = entry["scene"]
-	if _gun != null:
-		_attachment.remove_child(_gun)
-		_gun.queue_free()
-	_gun_shown = key
-	_gun = scene.instantiate()
-	_gun.transform = _gun_transform(entry)
-	_attachment.add_child(_gun)
-	_gun.name = "Gun"
-	_dress_meshes(_gun)
+	# Keep the authored upright torso and stable skull position. Running owns
+	# leg rotations, not the logical eye/ray origin or a hunched third-person aim.
+	for bone_name in ["Hips", "Spine", "Chest", "Neck", "Head"]:
+		var bone := _skeleton.find_bone(bone_name)
+		_skeleton.set_bone_pose_position(bone, _skeleton.get_bone_rest(bone).origin)
+		_skeleton.set_bone_pose_rotation(bone, _skeleton.get_bone_rest(bone).basis.get_rotation_quaternion())
+	var lean := clampf(-_head.rotation.x / deg_to_rad(80.0), 0.0, 1.0)
+	for bone_name in ["Spine", "Chest"]:
+		var bone := _skeleton.find_bone(bone_name)
+		var angle := -0.16 if bone_name == "Spine" else -0.38
+		var rest := _skeleton.get_bone_rest(bone).basis
+		_skeleton.set_bone_pose_rotation(bone, (rest * Basis(Vector3.RIGHT, angle * lean)).get_rotation_quaternion())
+	var head_point := _skeleton.get_bone_global_pose(_skeleton.find_bone("Head")).origin + Vector3(0.0, 0.045, -0.160)
+	head_point.x = 0.0
+	_head.position = get_parent().to_local(_skeleton.to_global(head_point))
+	# Raise the real pistol toward the shoulder when aiming overhead; rays stay
+	# at the shared camera eye, while the original arm remains within reach.
+	var upward := clampf(_head.rotation.x / (PI * 0.5), 0.0, 1.0)
+	_weapon.position.z = 0.035 + 0.20 * upward
+	# The clavicles rise naturally when aiming overhead, without stretching the
+	# original humerus or forearm or moving the stable head reference.
+	for side in ["Right", "Left"]:
+		var clavicle := _skeleton.find_bone(side + "Shoulder")
+		_skeleton.set_bone_pose_rotation(clavicle, _skeleton.get_bone_rest(clavicle).basis.get_rotation_quaternion())
+		if upward > 0.0:
+			var arm := _skeleton.find_bone(side + "Arm")
+			var origin := _skeleton.get_bone_global_pose(clavicle).origin
+			var arm_direction := _skeleton.get_bone_global_pose(arm).origin - origin
+			_rotate_bone(clavicle, arm_direction, arm_direction + Vector3(0.0, upward * 0.18, 0.0))
+	var grip := _weapon.grip_transform()
+	var inverse := _skeleton.global_transform.affine_inverse()
+	var aim_basis := _skeleton.global_basis.orthonormalized().inverse() * grip.basis.orthonormalized()
+	# The right fist wraps the actual grip. The left stays free for body awareness.
+	_solve_arm("Right", inverse * (grip * Vector3(0.014, -0.018, 0.055)),
+		aim_basis * (_hand_basis["Right"] as Basis), Vector3(0.35, -0.6, 0.15))
+	var camera := _weapon.camera
+	var free_hand := camera.global_transform * Vector3(-0.24, -0.18 + sin(_breath_time * 1.6) * 0.002, -0.30 + upward * 0.08)
+	var left_basis := _skeleton.global_basis.orthonormalized().inverse() * camera.global_basis
+	if _melee != null and _melee.is_swinging():
+		var blade_grip := _melee.grip_transform()
+		free_hand = blade_grip * Vector3(0.0, -0.015, 0.045)
+		left_basis = _skeleton.global_basis.orthonormalized().inverse() * blade_grip.basis.orthonormalized()
+	_solve_arm("Left", inverse * free_hand,
+		left_basis * (_hand_basis["Left"] as Basis), Vector3(-0.45, -0.5, 0.05))
 
+func _solve_arm(side: String, target: Vector3, hand_basis: Basis, pole: Vector3) -> void:
+	var upper := _skeleton.find_bone(side + "Arm")
+	var forearm := _skeleton.find_bone(side + "ForeArm")
+	var hand := _skeleton.find_bone(side + "Hand")
+	var shoulder := _skeleton.get_bone_global_pose(upper).origin
+	var elbow := _skeleton.get_bone_global_pose(forearm).origin
+	var wrist := _skeleton.get_bone_global_pose(hand).origin
+	var a := shoulder.distance_to(elbow)
+	var b := elbow.distance_to(wrist)
+	var direction := (target - shoulder).normalized()
+	var distance := clampf(shoulder.distance_to(target), absf(a - b) + 0.001, a + b - 0.001)
+	var along := (a * a - b * b + distance * distance) / (2.0 * distance)
+	var height := sqrt(maxf(a * a - along * along, 0.0))
+	var bend := (pole - direction * pole.dot(direction)).normalized()
+	var desired_elbow := shoulder + direction * along + bend * height
+	_rotate_bone(upper, elbow - shoulder, desired_elbow - shoulder)
+	elbow = _skeleton.get_bone_global_pose(forearm).origin
+	wrist = _skeleton.get_bone_global_pose(hand).origin
+	_rotate_bone(forearm, wrist - elbow, shoulder + direction * distance - elbow)
+	_set_global_basis(hand, hand_basis)
 
-## Where the gun model sits in the hand: turned so the barrel runs along -Z,
-## then placed so the model's pistol grip lands on the right hand.
-func _gun_transform(entry: Dictionary) -> Transform3D:
-	var turn := Basis.from_euler(Vector3(
-		deg_to_rad(entry["pitch"]), deg_to_rad(entry["yaw"]), deg_to_rad(entry["roll"])))
-	var scale := float(entry["scale"])
-	var turned := turn.scaled(Vector3.ONE * scale)
-	var grip: Vector3 = entry["grip"]
-	var desired := Transform3D(turned, _grip_target - turned * grip)
-	return _hand_xf.affine_inverse() * desired
+func _rotate_bone(index: int, from: Vector3, to: Vector3) -> void:
+	var rotation := Basis(Quaternion(from.normalized(), to.normalized()))
+	_set_global_basis(index, rotation * _skeleton.get_bone_global_pose(index).basis)
 
+func _set_global_basis(index: int, basis: Basis) -> void:
+	var parent := _skeleton.get_bone_parent(index)
+	var parent_basis := _skeleton.get_bone_global_pose(parent).basis if parent >= 0 else Basis.IDENTITY
+	_skeleton.set_bone_pose_rotation(index, (parent_basis.inverse() * basis).orthonormalized().get_rotation_quaternion())
 
-func _on_weapon_selected(_index: int, data: WeaponData) -> void:
-	_show_gun(_gun_key(data))
+func set_fracture_level(level: int) -> void:
+	fracture_level = clampi(level, 0, 4)
+	if fracture != null:
+		fracture.set_fracture_level(fracture_level)
 
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not enable_debug_keys or not event is InputEventKey or not event.pressed or event.echo:
+		return
+	var key: int = event.physical_keycode if event.physical_keycode != KEY_NONE else event.keycode
+	if key >= KEY_0 and key <= KEY_4:
+		set_fracture_level(key - KEY_0)
+		get_viewport().set_input_as_handled()
 
 func _on_weapon_fired() -> void:
 	_tree.set("parameters/fire/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)

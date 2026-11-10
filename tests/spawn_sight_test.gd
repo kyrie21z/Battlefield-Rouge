@@ -48,7 +48,7 @@ func _run() -> void:
 	_check("all four enemies use different markers", picks.size() == 4 and distinct.size() == 4)
 
 	# Above the compact court there is a clear view of at least the rear lane.
-	# The real hammer socket may legitimately be occluded in both directions.
+	# The real clock socket may legitimately be occluded in both directions.
 	player.global_position = Vector3(0.0, 8.0, 0.0)
 	await _frames(2)
 	var before := _visibility(player, markers)

@@ -65,10 +65,10 @@ func _run() -> void:
 	weapon.try_reload()
 	weapon.try_reload()
 	_check("starting and repeating R on empty cannot grant a charge", not traits.has_reload_charge())
-	weapon.select_next()
 	weapon._finish_reload()
 	_check("cancelled or completed empty reload cannot grant a charge", not traits.has_reload_charge())
-	weapon.select(0)
+	weapon._cooldown = 0.0
+	weapon._reload_left = 0.0
 	weapon.ammo = 2
 	weapon.reserve = 100
 	weapon._cooldown = 0.0
@@ -98,14 +98,13 @@ func _run() -> void:
 	weapon._cooldown = 0.0
 	weapon.try_fire()
 	_check("a later final shot stores a fresh charge", traits.has_reload_charge() and stored.size() == 2)
-	weapon.select(2)
-	_check("switching guns and cancelling reload preserve inventory", traits.has_reload_charge())
+	_check("automatic crystal reassembly preserves inventory", traits.has_reload_charge())
 	weapon.aiming = true
 	traits._process(0.0)
-	_check("scope hides held model without spending inventory", not held.visible and traits.has_reload_charge())
+	_check("ADS preserves held charge inventory", held.visible and traits.has_reload_charge())
 	weapon.aiming = false
 	traits._process(0.0)
-	_check("leaving scope restores held model", held.visible)
+	_check("leaving ADS restores held model", held.visible)
 	await get_tree().create_timer(ReloadCharge.FUSE_TIME + 0.2).timeout
 	_check("holding past fuse time neither throws nor explodes", traits.has_reload_charge() and thrown.size() == 1)
 	weapon.ammo = 1
@@ -118,27 +117,19 @@ func _run() -> void:
 	_check("public throw path cannot spend inventory while paused", not traits.try_throw_reload_charge() and traits.has_reload_charge())
 	get_tree().paused = false
 	traits.clear()
-	# Each gun must store once on its real final shot even with no reserve.
-	# Shotgun pellets share one fired signal and cannot produce extra inventory.
-	for slot in weapon.data_set.size():
-		weapon.select(slot)
-		weapon.ammo = 1
-		weapon.reserve = 0
-		var stores_before := stored.size()
-		_check("gun %d final shot fires without reserve" % slot, weapon.try_fire())
-		_check("gun %d immediately stores exactly one charge" % slot,
-			traits.has_reload_charge() and stored.size() == stores_before + 1 and not weapon.is_reloading())
-		weapon._cooldown = 0.0
-		_check("gun %d dry fire cannot grant another charge" % slot,
-			not weapon.try_fire() and stored.size() == stores_before + 1)
-		traits.clear()
-		weapon.try_reload()
-		_check("gun %d empty reload without reserve grants nothing" % slot,
-			not weapon.is_reloading() and not traits.has_reload_charge())
-		weapon.select(slot)
-		player.stats.changed.emit()
-		_check("gun %d empty selection and Stats refresh grant nothing" % slot, not traits.has_reload_charge())
-	weapon.select(0)
+	weapon._cooldown = 0.0
+	weapon._reload_left = 0.0
+	weapon.ammo = 1
+	weapon.reserve = -1
+	var stores_before := stored.size()
+	_check("last crystal stores one charge and begins reassembly", weapon.try_fire()
+		and traits.has_reload_charge() and stored.size() == stores_before + 1 and weapon.is_reloading())
+	_check("reassembly cannot fire or duplicate inventory", not weapon.try_fire()
+		and stored.size() == stores_before + 1)
+	traits.clear()
+	_finish_reload(weapon)
+	weapon._cooldown = 0.0
+	weapon._reload_left = 0.0
 	weapon.ammo = 1
 	weapon.reserve = 100
 	weapon.try_fire()
@@ -157,7 +148,8 @@ func _run() -> void:
 	weapon.try_fire()
 	_check("paused final-shot calls cannot grant inventory", not traits.has_reload_charge())
 	get_tree().paused = false
-	weapon.select(0)
+	weapon._cooldown = 0.0
+	weapon._reload_left = 0.0
 	weapon.ammo = 1
 	weapon.try_fire()
 	_check("fresh last shot restores an inventory for input checks", traits.has_reload_charge())
@@ -170,7 +162,8 @@ func _run() -> void:
 		_check("physical C throws exactly one stored magazine", not traits.has_reload_charge() and thrown.size() == 3)
 		if thrown.size() == 3:
 			thrown.back().queue_free()
-		weapon.select(0)
+		weapon._cooldown = 0.0
+		weapon._reload_left = 0.0
 		weapon.ammo = 1
 		weapon.try_fire()
 	player.health.health = 0.0

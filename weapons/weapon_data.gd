@@ -1,8 +1,6 @@
 class_name WeaponData
 extends Resource
-## One .tres per gun. `Weapon` holds a `data_set` of these and shows one at a time;
-## the mouse wheel cycles them. Trimmed from origin/sheji/weapons/weapon_definition.gd:
-## no shop, no GameState, no penetration.
+## Tunable obsidian pistol data. The weapon has one magazine and one view.
 
 enum FireMode { AUTO, SEMI }
 
@@ -12,20 +10,19 @@ enum FireMode { AUTO, SEMI }
 @export var view_scene: PackedScene
 ## HUD silhouette, rendered from the viewmodel by tools/render_icons.tscn.
 @export var icon: Texture2D
-## ProceduralAudio sound kind, e.g. "gunshot_ak47".
-@export var gunshot_sound := "gunshot_medium"
+## ProceduralAudio sound kind, e.g. "gun_pistol".
+@export var gunshot_sound := "gun_pistol"
 
 @export_category("Fire")
-@export var fire_mode := FireMode.AUTO
-@export var fire_interval := 0.1
+@export var fire_mode := FireMode.SEMI
+@export var fire_interval := 0.18
 ## Damage one pellet does. The whole shot is `damage x pellets`.
-@export var damage := 34.0
-## Rays fired per trigger pull, each one aimed inside the spread cone. 1 is a
-## rifle; 9 with small per-pellet damage is a shotgun. Buffs scale the total.
+@export var damage := 35.0
+## Rays per shot; the pistol uses one.
 @export var pellets := 1
-@export var max_range := 300.0
-@export var falloff_start := 50.0
-@export var falloff_end := 220.0
+@export var max_range := 180.0
+@export var falloff_start := 30.0
+@export var falloff_end := 90.0
 @export var min_damage_scale := 0.5
 
 @export_category("Spread (degrees)")
@@ -39,12 +36,11 @@ enum FireMode { AUTO, SEMI }
 
 @export_category("Recoil")
 ## Vertical kick per shot, in degrees.
-@export var camera_kick := 0.35
-## Horizontal kick per shot in units of camera_kick, cycled shot by shot so
-## each weapon has a learnable spray pattern.
-@export var recoil_pattern: Array[float] = []
+@export var camera_kick := 1.2
+@export var camera_yaw := 0.3
+@export var camera_return_time := 0.12
 ## Fraction of the kick that stays until the player pulls the mouse down.
-@export_range(0.0, 1.0) var recoil_manual := 0.7
+@export_range(0.0, 1.0) var recoil_manual := 0.0
 
 @export_category("Feel")
 ## Presentation only. None of these move a bullet or change a gameplay number.
@@ -63,25 +59,19 @@ enum FireMode { AUTO, SEMI }
 @export var shake_degrees := 0.1
 @export var shake_fov_punch := 0.01
 @export var shake_duration := 0.12
-## Both kick and shake are scaled by this while aiming down iron sights. A scope
-## drops the rotation shake altogether and keeps half of the FOV punch.
+## Both kick and shake are scaled by this while aiming.
 @export_range(0.0, 1.0) var aim_feel_scale := 0.5
-## Tracers drawn per shot, at most (a shotgun draws a few of its nine pellets).
+## Maximum visual tracers per shot.
 @export var max_tracers := 1
 
 @export_category("Ammo")
-@export var magazine_size := 30
-@export var reserve_ammo := 120
-@export var reload_time_tactical := 2.2
-@export var reload_time_empty := 2.8
+@export var magazine_size := 8
+@export var reserve_ammo := -1
+@export var reload_time_tactical := 0.85
+@export var reload_time_empty := 0.85
 
 @export_category("Handling")
-@export var ads_fov := 55.0
+@export var ads_fov := 58.0
 @export var ads_move_scale := 0.55
-@export var ads_position := Vector3(0.0, -0.16, -0.28)
-@export var hip_position := Vector3(0.22, -0.22, -0.45)
-## Magnifications the scope offers, e.g. [2, 4, 8]. Empty means iron sights: the
-## gun just uses `ads_fov`. With a scope, aiming shows the scope overlay, hides the
-## model and sets the field of view to `base_fov / level`; the mouse wheel picks a
-## level instead of changing guns.
-@export var scope_zoom_levels: Array[float] = []
+@export var ads_position := Vector3(0.08, -0.12, -0.33)
+@export var hip_position := Vector3(0.23, -0.19, -0.37)

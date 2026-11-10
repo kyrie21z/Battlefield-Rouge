@@ -22,7 +22,7 @@ const KILL_TEXT_FADE_TIME := 0.22
 const KILL_COMBO_WINDOW := 2.5
 const KILL_TEXT_GOLD := Color(1.0, 0.82, 0.25)
 
-## Hammer feedback: a kick per strike (bigger for perfect), per quarter break
+## Clock-strike feedback: a kick per strike (bigger for perfect), per quarter break
 ## and at capture, plus the floating progress text above the crosshair.
 const STRIKE_SHAKE := 0.45
 const STRIKE_PUNCH := 0.012
@@ -99,15 +99,13 @@ var low_hp := false
 var _kill_text_left := 0.0
 var _kill_combo := 0
 var _kill_combo_left := 0.0
-## Hammer strike text and its rise. For tests.
+## Clock strike text and its rise. For tests.
 var _strike_text_left := 0.0
 var last_strike_shake := 0.0
 ## The reinforcement warning is one per zone.
 var _reinforcement_banner_shown := false
 
 @onready var _crosshair: Crosshair = $Crosshair
-@onready var _scope: Control = $Scope
-@onready var _reticle: ScopeReticle = $Scope/Reticle
 @onready var _hitmarker: Label = $Hitmarker
 @onready var _kill_text: Label = $KillText
 @onready var _strike_text: Label = $StrikeText
@@ -163,7 +161,7 @@ func _ready() -> void:
 	add_child(_heartbeat)
 	_damage_indicator.setup(_player)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
-	_player.weapon.zoom_changed.connect(_on_zoom_changed)
+	Events.blade_parried.connect(_on_blade_parried)
 	_player.melee.hit_landed.connect(_on_hit_landed)
 	_player.health.damaged.connect(_on_player_damaged)
 	_vitals.setup(_player)
@@ -227,25 +225,13 @@ func _process(delta: float) -> void:
 	var spread := deg_to_rad(_player.weapon.spread_degrees())
 	var spread_gap := 2.0 + half_height * tan(spread) / tan(deg_to_rad(camera.fov) * 0.5)
 	_crosshair.gap = spread_gap if settings.dynamic_gap else _crosshair.min_gap
-	# Hip: dot and lines. Iron sights: just the dot (the sights are on the target
-	# anyway). Scoped: the scope reticle takes over, so nothing.
-	_crosshair.visible = not _player.weapon.is_scoped()
+	_crosshair.visible = true
 	_crosshair.show_lines = not _player.is_aiming()
+	_crosshair.focused = _player.is_aiming()
 	_crosshair.queue_redraw()
-
-	# Sniper scope: the gun hides itself behind the glass, the overlay takes over
-	# and has to be redrawn whenever the magnification changes.
-	var scoped := _player.weapon.is_scoped()
-	if _scope.visible != scoped:
-		_scope.visible = scoped
-	if scoped:
-		_reticle.zoom = _player.weapon.zoom_level()
-		_reticle.queue_redraw()
-	# The scope owns the screen; the buff and end screens are layer-10 overlays
-	# above the HUD, so this only has to handle the scope and death.
-	_minimap.visible = not scoped and not _player.health.is_dead() \
+	_minimap.visible = not _player.health.is_dead() \
 		and _director.phase != ZoneDirector.Phase.BUFF_SELECT
-	_banner.set_hidden(scoped or _player.health.is_dead() \
+	_banner.set_hidden(_player.health.is_dead() \
 		or _director.phase == ZoneDirector.Phase.BUFF_SELECT)
 
 
@@ -272,9 +258,9 @@ func _apply_settings() -> void:
 		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(settings.music_volume, 0.001)))
 
 
-func _on_zoom_changed(level: float) -> void:
-	_reticle.zoom = level
-	_reticle.queue_redraw()
+func _on_blade_parried(_position: Vector3) -> void:
+	if RunState.fixture == null:
+		HitStop.request(get_tree(), 0.05)
 
 
 func _on_hit_landed(headshot: bool, killed: bool) -> void:
@@ -340,7 +326,7 @@ func _update_kill_text(delta: float) -> void:
 	_kill_text.modulate.a = clampf(_kill_text_left / KILL_TEXT_FADE_TIME, 0.0, 1.0)
 
 
-## One hammer strike landed: kick the view and float the progress it was worth.
+## One blade strike landed: kick the view and float the progress it was worth.
 func _on_capture_struck(perfect: bool, _offset_ms: float, worth: float) -> void:
 	last_strike_shake = PERFECT_SHAKE if perfect else STRIKE_SHAKE
 	_player.add_view_shake(last_strike_shake, PERFECT_PUNCH if perfect else STRIKE_PUNCH,
@@ -368,11 +354,11 @@ func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
 	match phase:
 		ZoneDirector.Phase.CLEAR_GUARDS:
 			_banner.play("战斗开始", "消灭所有守卫，据点才会开放", PhaseBanner.TITLE_WHITE)
-		ZoneDirector.Phase.HAMMER_POINT:
+		ZoneDirector.Phase.CLOCK_POINT:
 			if _director.is_boss_zone:
-				_banner.play("砸碎城市核心", "按 %s 挥锤" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
+				_banner.play("砸碎城市核心", "按 %s 挥刃" % KeyHint.of("melee"), PhaseBanner.TITLE_GOLD)
 			else:
-				_banner.play("据点开放", "前往据点，按 %s 挥锤 · 金色区间是完美打击" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
+				_banner.play("据点开放", "前往据点，按 %s 挥刃 · 金色区间是完美打击" % KeyHint.of("melee"), PhaseBanner.TITLE_GOLD)
 		ZoneDirector.Phase.FLAG_PLANTED:
 			# The boss zone wins straight from the core; only small zones have a
 			# pedestal to point at.

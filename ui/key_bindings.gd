@@ -2,14 +2,14 @@ class_name KeyBindings
 extends RefCounted
 ## Player key bindings: which actions can be rebound, how a binding is stored
 ## in settings.cfg, and how a stored set is applied to the InputMap. Only the
-## first event of each action is replaced. Esc (pause), F3 (debug) and the
-## mouse wheel (weapon switch / zoom) stay fixed.
+## first event of each action is replaced. Esc (pause), F3 (debug) and wheel
+## buttons remain reserved; historical weapon actions are discarded on load.
 
 ## [action, label] in menu order.
 const REBINDABLE := [
 	["move_forward", "前进"], ["move_back", "后退"], ["move_left", "左移"], ["move_right", "右移"],
-	["jump", "跳跃"], ["dash", "冲刺"], ["fire", "开火"], ["aim", "瞄准 / 开镜"],
-	["reload", "换弹"], ["hammer", "挥锤"], ["melee", "近战"], ["switch_melee", "切换近战"],
+	["jump", "跳跃"], ["dash", "冲刺"], ["fire", "开火"], ["aim", "聚焦瞄准"],
+	["reload", "晶体重组"], ["melee", "近战"],
 	["shield", "护盾"], ["throw_magazine", "投掷危险弹匣"], ["interact", "交互（增益台）"],
 ]
 const RESERVED_KEYS := [KEY_ESCAPE, KEY_F3]

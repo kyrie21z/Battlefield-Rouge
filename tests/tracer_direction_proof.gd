@@ -1,14 +1,14 @@
 extends Node
-## Real three-gun shots and a scoped sniper, with frozen tracer snapshots.
+## Real pistol shots from different headings, hip and ADS, with frozen tracer snapshots.
 ## --baseline re-applies only the old transform formula to the same real mesh;
 ## the shot, seed, camera, geometry and tracer travel are identical in both runs.
 
 const MAX_JPEG_BYTES := 150000
 const CASES := [
-	[0, 60.0, 12.0, false, "rifle"],
-	[1, -65.0, -15.0, false, "shotgun"],
-	[2, 105.0, 25.0, false, "sniper"],
-	[2, -75.0, -10.0, true, "scoped-sniper"],
+	[0, 60.0, 12.0, false, "pistol"],
+	[1, -65.0, -15.0, false, "pistol-left"],
+	[2, 105.0, 25.0, false, "pistol-up"],
+	[3, -75.0, -10.0, true, "pistol-ads"],
 ]
 
 var _out := "res://docs/proof/tracer-direction"
@@ -78,9 +78,10 @@ func _run() -> void:
 
 func _fire_case(values: Array) -> void:
 	var weapon := _player.weapon
-	weapon.select(int(values[0]))
+
 	weapon.aiming = bool(values[3])
-	weapon._apply_view_visibility()
+	weapon._view_base = weapon.data.ads_position if weapon.aiming else weapon.data.hip_position
+	weapon._apply_view_pose(0.0)
 	weapon._cooldown = 0.0
 	weapon._spread = 0.0
 	_player._visual_kick = Vector2.ZERO
@@ -92,7 +93,7 @@ func _fire_case(values: Array) -> void:
 	var expected_count := mini(maxi(weapon.data.pellets, 1), weapon.data.max_tracers)
 	_check("%s spawns the configured number of tracers" % values[4], _spawned.size() == expected_count)
 	if bool(values[3]):
-		_check("sniper is genuinely scoped with the gun model hidden", weapon.is_scoped() and not weapon._view.visible
+		_check("ADS retains the pistol in view", weapon.aiming and weapon._view.visible
 			and is_equal_approx(_player.view_camera.fov, weapon.fov_for(_player.base_fov)))
 	for tracer in _spawned:
 		tracer.set_process(false)

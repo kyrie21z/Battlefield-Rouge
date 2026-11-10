@@ -21,6 +21,7 @@ enum Style { CROSS, CROSS_DOT, DOT, RING }
 ## The spread projected onto the screen in pixels, set by the HUD every frame.
 var gap := 2.0
 var show_lines := true
+var focused := false
 ## How many times each part has been drawn (tests read these).
 var dot_draws := 0
 var line_draws := 0
@@ -39,6 +40,12 @@ func drawn_gap() -> float:
 
 func _draw() -> void:
 	var c := size * 0.5
+	if focused:
+		var diamond := PackedVector2Array([c + Vector2(0, -4), c + Vector2(4, 0),
+			c + Vector2(0, 4), c + Vector2(-4, 0), c + Vector2(0, -4)])
+		draw_polyline(diamond, OUTLINE_COLOR, thickness + 2.0, true)
+		draw_polyline(diamond, color, thickness, true)
+		return
 	match style:
 		Style.CROSS:
 			# Iron sights hide the lines; keep the dot so the aim point never vanishes.

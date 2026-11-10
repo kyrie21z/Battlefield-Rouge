@@ -1,6 +1,6 @@
 extends Node
-## Runs real scene changes, UI input, Health deaths, Area entry and hammer input.
-## Only this test accelerates hammer cooldown and protects its walkthrough actor.
+## Runs real scene changes, UI input, Health deaths, Area entry and blade input.
+## Only this test accelerates blade cooldown and protects its walkthrough actor.
 ## It never assigns a director phase or a later RunState.zone_index.
 
 const BOOT := "res://ui/game_start.tscn"
@@ -91,7 +91,7 @@ func _zone(index: int) -> void:
 	_check(hud.get("_player")==player and hud.get("_director")==director,"Zone %d HUD reads the actual scene actors" % (index+1))
 	_check(minimap.get("_player")==player and minimap.get("_director")==director and minimap.geometry_count()>0,"Zone %d minimap caches the new nested geometry" % (index+1))
 	_check(not (director.get("_cover_points") as Array).is_empty(),"Zone %d exposes its new physical cover markers" % (index+1))
-	_check(player.weapon.data_set.size()==3 and player.melee!=null and player.shield!=null,"Zone %d retains guns, melee and shield" % (index+1))
+	_check(player.weapon.data != null and player.melee!=null and player.shield!=null,"Zone %d retains guns, melee and shield" % (index+1))
 	_check(director.capture_point.locked,"Zone %d objective starts locked" % (index+1))
 	if index>0:
 		_check(director.selection_context.is_empty() and not get_tree().paused,"Later zone starts directly without an extra entry card")
@@ -135,27 +135,27 @@ func _zone(index: int) -> void:
 	await _shot("%02d-zone-%d-combat" % [index*2+2,index+1])
 	if director.is_boss_zone:
 		_check(director.phase==ZoneDirector.Phase.BOSS_STANDING and director.boss!=null,"Boss uses the existing Boss contract")
-		await _enter_hammer_range(player,director.capture_point,true)
+		await _enter_clock_reach(player,director.capture_point,true)
 		var before := director.capture_point.progress
-		await _hammer(player)
-		_check(director.capture_point.locked and director.capture_point.progress==before,"Real hammer input cannot bypass the living Boss")
+		await _blade_strike(player)
+		_check(director.capture_point.locked and director.capture_point.progress==before,"Real blade input cannot bypass the living Boss")
 		director.boss.health.apply_damage(99999,Hitbox.BodyPart.BODY,player)
-		_check(director.phase==ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked,"Real Boss health death unlocks its core")
+		_check(director.phase==ZoneDirector.Phase.CLOCK_POINT and not director.capture_point.locked,"Real Boss health death unlocks its core")
 		_check(director.living_enemies().any(func(enemy: Enemy)->bool:return not enemy.is_boss),"Living Sloth minions do not block Boss core unlocking")
 	else:
 		for enemy in guards:
 			enemy.health.apply_damage(99999,Hitbox.BodyPart.BODY,player)
-		_check(director.phase==ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked,"Real guard deaths unlock zone %d objective" % (index+1))
+		_check(director.phase==ZoneDirector.Phase.CLOCK_POINT and not director.capture_point.locked,"Real guard deaths unlock zone %d objective" % (index+1))
 		_check(director.reinforcement_count()==4,"Zone %d opens with four actual reinforcement actors" % (index+1))
 		for enemy in director.living_enemies():
 			enemy.set_physics_process(false)
 			_check(enemy.get_script().resource_path.contains("/sloth/"),"Reinforcement uses the new Sloth actor")
-		await _enter_hammer_range(player,director.capture_point,false)
+		await _enter_clock_reach(player,director.capture_point,false)
 		await _shot("10-zone-%d-reinforcements" % (index+1))
 	for attempt in 12:
 		if director.capture_point.is_captured(): break
-		await _hammer(player)
-	_check(director.capture_point.is_captured() and director.phase==ZoneDirector.Phase.FLAG_PLANTED,"Zone %d is captured using hammer input and Area reach" % (index+1))
+		await _blade_strike(player)
+	_check(director.capture_point.is_captured() and director.phase==ZoneDirector.Phase.FLAG_PLANTED,"Zone %d is captured using blade input and Area reach" % (index+1))
 	# Step back from the collapsing objective for legible native evidence.
 	player.global_position = director.capture_point.global_position+Vector3(0,0.1,8.5 if director.is_boss_zone else 7.0)
 	player.velocity = Vector3.ZERO
@@ -361,7 +361,7 @@ func _normal_approach(index: int,player: Player,point: CapturePoint) -> void:
 		"previous_direct_spawn_to_capture_m":103.0,
 		"previous_nav_to_front_socket_m":100.379 if index==0 else 101.358})
 	_check(point.player_in_reach and seconds<8.0 and travelled<30.0,
-		"Zone %d real normal-speed player reaches hammer range within eight seconds without a detour" % (index+1))
+		"Zone %d real normal-speed player reaches clock reach within eight seconds without a detour" % (index+1))
 	_check(straight<103.0*0.25,"Zone %d removes over 75 percent of the previous 103 m approach" % (index+1))
 	player.set_physics_process(false)
 
@@ -392,17 +392,20 @@ func _walk(player: Player,goal: Vector3) -> bool:
 	print("TRAVERSE_INCOMPLETE | ",player.position," -> ",goal)
 	return false
 
-func _enter_hammer_range(player: Player,point: CapturePoint,boss: bool) -> void:
+func _enter_clock_reach(player: Player,point: CapturePoint,boss: bool) -> void:
 	player.global_position = point.global_position+Vector3(0,0.1,3.3 if boss else 2.6)
 	player.velocity = Vector3.ZERO
 	player.aim_at(point.global_position+Vector3.UP)
 	await _settle()
-	_check(point.player_in_reach,"Objective Area detects the real Player body in hammer range")
+	_check(point.player_in_reach,"Objective Area detects the real Player body in clock reach")
 
-func _hammer(player: Player) -> void:
-	player.hammer.set_process(true)
-	player.hammer.set("_cooldown",0.0)
-	await _key(KEY_E)
+func _blade_strike(player: Player) -> void:
+	player.melee.set_process(true)
+	player.melee.cancel()
+	player.melee.set("_cooldown",0.0)
+	await _key(KEY_V)
+	await get_tree().create_timer(0.36).timeout
+
 
 func _choose_card(index: int) -> void:
 	var director := _director()
@@ -441,6 +444,9 @@ func _settle() -> void:
 	for frame in 4: await get_tree().physics_frame
 
 func _key(code: int) -> void:
+	# Timers resume after nodes have processed. Inject on the next frame's
+	# pre-process signal, otherwise just_pressed can expire before melee polls.
+	await get_tree().process_frame
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.physical_keycode = code
@@ -471,7 +477,7 @@ func _shot(title: String) -> void:
 	_check(get_viewport().get_texture().get_image().save_png(path)==OK,"Native proof saved: "+title)
 
 func _release_actions() -> void:
-	for action in ["hammer","interact","fire","aim","reload","move_forward"]:
+	for action in ["melee","interact","fire","aim","reload","move_forward"]:
 		Input.action_release(action)
 
 func _check(ok: bool,message: String) -> void:

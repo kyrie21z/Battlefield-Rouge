@@ -58,7 +58,7 @@ func _ready() -> void:
 		slot.set_process(false)
 	player.stats.base[Stats.SKILL_UNLOCKED] = 1.0
 	player.health.health = player.health.max_health
-	player.weapon.select(0)
+	player.weapon._process(1.0)
 	player.weapon.ammo = player.weapon.magazine_capacity()
 	player.weapon.reserve = 240
 	_refresh(vitals, panel, shield_slot, melee_slot)
@@ -77,7 +77,7 @@ func _ready() -> void:
 	player.weapon._process(0.5)
 	_refresh(vitals, panel, shield_slot, melee_slot)
 	await _shot("03_reloading")
-	player.weapon.select(0)
+	player.weapon._process(1.0)
 	player.weapon.ammo = player.weapon.magazine_capacity()
 	player.weapon.reserve = 240
 	player.shield.try_activate()
@@ -112,31 +112,22 @@ func _ready() -> void:
 		actor.set_process(true)
 	for slot: Control in [vitals, panel, shield_slot, melee_slot, magazine_slot]:
 		slot.set_process(true)
-	await _tap("weapon_next")
-	await _tap("switch_melee")
-	_check("wheel selects shotgun and Q selects axe", panel.selected_index == 1
-		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 1)
-	await _shot("11_shotgun_axe")
-	await _tap("weapon_next")
-	await _tap("switch_melee")
-	_check("wheel selects sniper and Q selects tachi", panel.selected_index == 2
-		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 2)
-	await _shot("12_sniper_tachi")
-	await _tap("weapon_next")
-	_check("wheel wraps to rifle", panel.selected_index == 0)
-
+	Input.action_press("aim")
+	await get_tree().create_timer(0.4).timeout
+	_check("ADS focuses the pistol without a scope", player.weapon.aiming
+		and not hud.has_node("Scope"))
+	await _shot("11_pistol_ads")
+	Input.action_release("aim")
+	player.get_node("ShadowBody").set_fracture_level(4)
+	await _frames(4)
+	await _shot("12_fractured_hand")
 	player.weapon.ammo = 4
 	await _tap("reload")
 	await get_tree().create_timer(0.4).timeout
-	_check("R advances the live reload bar", panel.reload_visible and panel.reload_fraction > 0.0)
+	_check("R advances the live reconstruction bar", panel.reload_visible and panel.reload_fraction > 0.0)
 	await _shot("13_live_reload")
-	await _tap("weapon_next")
-	_check("switching during reload removes the progress bar", not panel.reload_visible)
-	await _tap("weapon_prev")
-	_check("interrupted rifle still has four rounds", player.weapon.ammo == 4)
-	await _tap("reload")
-	await get_tree().create_timer(3.0).timeout
-	_check("live reload completes", not panel.reload_visible
+	await get_tree().create_timer(0.5).timeout
+	_check("live reconstruction completes", not panel.reload_visible
 		and player.weapon.ammo == player.weapon.magazine_capacity())
 
 	player.stats.base[Stats.SKILL_UNLOCKED] = 1.0
@@ -152,7 +143,6 @@ func _ready() -> void:
 	await get_tree().create_timer(1.0).timeout
 	_check("live parry window closes", not melee_slot.parry_flash)
 	player.stats.base[Stats.PARRY_CAPACITY] = 0.0
-	player.melee.select(0)
 
 	player.health.apply_damage(78.0, Hitbox.BodyPart.BODY)
 	await _frames(2)
@@ -171,9 +161,7 @@ func _ready() -> void:
 	await _tap("reload")
 	await get_tree().create_timer(0.4).timeout
 	await _shot("14_reload_1280x720")
-	await _tap("weapon_next")
-	await _tap("switch_melee")
-	await _shot("15_switch_1280x720")
+	await _shot("15_reconstruction_1280x720")
 	await _world_proof(scene, player, hud, director)
 	print("HUD PROOF %s" % ("PASSED" if _failures == 0 else "FAILED"))
 	get_tree().quit(0 if _failures == 0 else 1)
@@ -198,14 +186,14 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 	player.aim_at(point.global_position + Vector3.UP * 2.0)
 	for i in 6:
 		await get_tree().physics_frame
-	_check("walking to the open building enables hammer reach", point.player_in_reach and not point.locked)
+	_check("walking to the open building enables blade reach", point.player_in_reach and not point.locked)
 	for i in 4:
-		await _tap("hammer")
+		await _tap("melee")
 		await get_tree().create_timer(1.0).timeout
 	_check("E swings advance the on-target progress ring", point.progress > 0.0
 		and point.progress < 1.0 and marker.progress_visible
 		and is_equal_approx(marker.progress_fraction, point.progress))
-	await _shot("17_hammer_ring_1920x1080")
+	await _shot("17_clock_ring_1920x1080")
 	player.aim_at(player.global_position + Vector3(10.0, 1.5, 12.0))
 	await _frames(3)
 	_check("turning away clamps the marker and arrow to the edge", marker.behind
@@ -218,7 +206,7 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 	player.aim_at(point.global_position + Vector3.UP * 2.0)
 	var swings := 0
 	while not point.is_captured() and swings < 20:
-		await _tap("hammer")
+		await _tap("melee")
 		await get_tree().create_timer(1.0).timeout
 		swings += 1
 	await _frames(3)

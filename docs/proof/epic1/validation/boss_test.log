@@ -1,0 +1,75 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== run order
+  [ok] there are three zones
+  [ok] the boss zone is the last one
+== the wave: one big enemy with two escorts, nine small ones in all
+  [ok] ten enemies in all
+  [ok] nine of them are small
+  [ok] the boss has far more health (900 vs 90)
+  [ok] the boss is taller (3.2 m vs 1.9 m)
+  [ok] the boss shoots from higher up
+  [ok] the boss wears the Hazmat model
+  [ok] the small enemies use the Sloth crystal variants
+  [ok] the boss head hitbox moved onto the new skeleton
+  [ok] a bigger head pays less per headshot (1.25 vs 2.00)
+  [ok] two small enemies escort the boss at 2-6 m
+  [ok] the other seven hold the front and middle, nearer the player
+  [ok] the enemies are in front of the core, not past it
+== the boss has a health bar
+  [ok] the director reports the boss
+  [ok] only the boss is flagged as one
+  [ok] the bar is shown
+  [ok] it starts full (900 / 900)
+  [ok] the label gives the numbers
+  [ok] a hit immediately lowers the bar to 858
+  [ok] the label immediately follows
+  [ok] hitting a small enemy does not move it
+== the core stays shut while the boss stands
+  [ok] the zone is the boss zone
+  [ok] it starts with the boss still to fell
+  [ok] the core is locked
+  [ok] the objective says to fell the boss
+  [ok] one blade strike would finish the core
+  [ok] small zones still use the 10% rhythm
+  [ok] ten enemies are alive and the core stays shut
+  [ok] walking up to the core puts the player in reach
+  [ok] striking a locked core adds nothing
+  [ok] the hint is still on screen
+== the nine small enemies do not open the core
+  [ok] nine small enemies dead, core still shut
+  [ok] killing them never counted as clearing the zone
+== the boss's death opens the core, and one blade strike shatters it
+  [ok] the boss is dead and the small enemies are not
+  [ok] the core opens
+  [ok] the objective names the blade
+  [ok] the bar is empty once the boss is dead
+  [ok] the label says it has fallen
+  [ok] one ordinary blade reaches 100%
+  [ok] that one blade strike collapses every block
+  [ok] the director is in FLAG_PLANTED
+  [ok] the short objective confirms the core capture
+  [ok] a flag was planted on the core
+  [ok] killing the wave never counted as clearing the zone
+== victory
+  [ok] no win yet while the flag is rising
+  [ok] the end screen appears
+  [ok] it says victory
+  [ok] it names the city core
+  [ok] the run is won once
+  [ok] no buff is offered after the boss
+== defeat
+  [ok] a swing before the boss falls adds nothing
+  [ok] the core is open and still empty
+  [ok] the player is dead
+  [ok] the end screen appears
+  [ok] it says defeat
+  [ok] the run is reset to the first zone
+  [ok] the core was not captured
+  [ok] no victory was reported
+  [ok] a late capture after death does not turn it into a win
+== a small zone has no boss bar
+  [ok] zone 1 has no boss
+  [ok] zone 1 shows no boss bar
+  [ok] zone 1 shows no boss marker
+ALL PASSED (63 checks, 0 failed)

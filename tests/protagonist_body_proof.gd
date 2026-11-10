@@ -1,31 +1,9 @@
-extends Node
-## Proof frames for the grey-white crystal protagonist body: front / three-quarter
-## / side views with normal shadow casting while it holds the rifle in the aim
-## pose, the same body SHADOWS_ONLY running and standing with the gun, and
-## close-up side / top strips of the upper body with each of the three guns.
-## Needs a real display:
-##   godot --path . res://tests/protagonist_body_proof.tscn -- --out=<dir>
-## Default output is docs/proof/protagonist-body. Quits 0 after the seven JPGs.
-
-const PLAYER_SCENE := "res://actors/player/player.tscn"
-const STILLS := [
-	{"file": "01_front.jpg", "from": Vector3(0.0, 0.9, -4.2)},
-	{"file": "02_three_quarter.jpg", "from": Vector3(-2.8, 1.05, -3.0)},
-	{"file": "03_side.jpg", "from": Vector3(-4.2, 0.9, 0.0)},
-]
-const LOOK_AT := Vector3(0.0, 0.88, 0.0)
-## The gun panels are laid out rifle | shotgun | sniper, in `Weapon.data_set`
-## order; `GUN_SLOTS` is how many to render.
-const GUN_SLOTS := 3
-const PANEL_WIDTH := 800
-
-
-var _out_dir := "res://docs/proof/protagonist-body"
-var _key: DirectionalLight3D
+extends Node3D
+## Native, production-player evidence: horizontal, torso/legs, gait and shadow.
+## godot --path . res://tests/protagonist_body_proof.tscn -- --out=<directory>
+var _out_dir := "res://docs/proof/epic1"
 var _player: Player
-var _shadow: Node3D
-var _cam: Camera3D
-
+var _body: Node3D
 
 func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
@@ -33,173 +11,132 @@ func _ready() -> void:
 			_out_dir = arg.trim_prefix("--out=")
 	_out_dir = ProjectSettings.globalize_path(_out_dir)
 	if DisplayServer.get_name() == "headless":
-		push_error("protagonist body proof needs a native display")
+		push_error("Body awareness proof requires a renderer")
 		get_tree().quit(1)
 		return
 	DirAccess.make_dir_recursive_absolute(_out_dir)
-	DisplayServer.window_set_size(Vector2i(1280, 720))
-	_build_environment()
-	_build_floor()
-	# The whole player, so the shadow body finds its weapon and the gun shows.
-	_player = load(PLAYER_SCENE).instantiate() as Player
+	DisplayServer.window_set_size(Vector2i(1280, 900))
+	_environment()
+	_player = preload("res://actors/player/player.tscn").instantiate() as Player
 	add_child(_player)
 	_player.set_physics_process(false)
-	_player.global_position = Vector3.ZERO
-	_player.velocity = Vector3.ZERO
+	_player.weapon.set_process(false)
+	_player.melee.set_process(false)
+	_body = _player.get_node("ShadowBody")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	# The first-person viewmodels sit in the world at head height; the camera
-	# here is not the player's, so they would float in the frame.
-	(_player.get_node("Head") as Node3D).visible = false
-	_shadow = _player.get_node("ShadowBody") as Node3D
-	_shadow.set_process(false)
-	_cam = Camera3D.new()
-	_cam.fov = 35.0
-	add_child(_cam)
-	_cam.current = true
-	await _frames(3)
-
-	_set_shadows(GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
-	for shot in STILLS:
-		_cam.position = shot["from"]
-		_cam.look_at(LOOK_AT)
-		await _frames(5)
-		await _shot(shot["file"])
-
-	# Running: the legs blend onto `run` while the upper body keeps aiming.
-	# The ground shots raise the key almost overhead, which keeps the shadow a
-	# readable figure instead of a long smear, and look straight down at it.
-	_set_shadows(GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
-	_key.rotation_degrees = Vector3(-80.0, 155.0, 0.0)
-	_cam.fov = 27.0
-	_cam.position = Vector3(0.55, 2.4, 1.5)
-	_cam.look_at(Vector3(0.1, 0.0, 0.2))
-	_player.velocity = Vector3(0.0, 0.0, 3.0)
-	_shadow._process(0.2)
-	await _frames(24)
-	await _shot("04_shadow_run.jpg")
-
-	# Standing again, same shadow view.
+	await _frames(8)
+	await _shot("body_forward.png")
+	_player._pitch = deg_to_rad(-65.0)
+	_player._apply_look()
+	await _frames(5)
+	await _shot("body_torso.png")
+	_player._pitch = deg_to_rad(-88.0)
+	_player._apply_look()
+	await _frames(5)
+	await _shot("body_0.png")
+	_player.velocity = Vector3(0.0, 0.0, -3.0)
+	await _frames(18)
+	await _shot("body_walking_a.png")
+	await _frames(20)
+	await _shot("body_walking_b.png")
 	_player.velocity = Vector3.ZERO
-	_shadow._process(0.2)
-	await _frames(10)
-	await _shot("05_shadow_idle.jpg")
+	_player._pitch = deg_to_rad(-65.0)
+	_player._apply_look()
+	for level in [1, 2, 3, 4]:
+		_player._pitch = 0.0 if level == 1 else deg_to_rad(-88.0)
+		_player._apply_look()
+		_body.set_fracture_level(level)
+		await _frames(5)
+		await _shot("body_%d.png" % level)
+	_body.set_fracture_level(0)
+	_player._pitch = 0.0
+	_player._apply_look()
+	_player._pitch = deg_to_rad(80.0)
+	_player._apply_look()
+	await _frames(5)
+	await _shot("body_aim_up.png")
+	_player._pitch = 0.0
+	_player._apply_look()
+	_player.melee.swing_now()
+	_advance_combat(0.14)
+	await _frames(5)
+	await _shot("body_melee.png")
+	_advance_combat(0.35)
+	# The same production nodes, with both presentation clocks advanced together:
+	# settled 58-degree ADS, final body fracture and the middle of a real slash.
+	_body.set_fracture_level(4)
+	_player.weapon.aiming = true
+	_advance_combat(1.0)
+	_player.melee.swing_now()
+	_advance_combat(0.14)
+	await _frames(5)
+	await _shot("body_ads_melee_4.png")
+	_advance_combat(0.35)
+	_player.weapon.aiming = false
+	_body.set_fracture_level(0)
+	_advance_combat(1.0)
+	var camera := Camera3D.new()
+	add_child(camera)
+	camera.fov = 48.0
+	camera.look_at_from_position(Vector3(-2.5, 1.5, -2.6), Vector3(0.0, 0.85, 0.0))
+	camera.current = true
+	# The head remains shadows-only in every first-person frame. This external
+	# audit restores it only to show that the original full body is retained.
+	var head_mesh := _body.find_child("GEO_m_head", true, false) as MeshInstance3D
+	head_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	await _frames(5)
+	await _shot("body_external.png")
+	_body.set_fracture_level(4)
+	await _frames(5)
+	await _shot("body_full_4.png")
+	_body.set_fracture_level(0)
+	camera.look_at_from_position(Vector3(0.0, 3.5, 2.3), Vector3(0.0, 0.0, -0.6))
+	await _frames(5)
+	await _shot("body_shadow.png")
+	print("BODY AWARENESS PROOF: complete")
+	get_tree().quit()
 
-	# Close-ups so the gun placement can be judged: one strip per view, one
-	# panel per gun, in weapon order.
-	await _gun_strip("06_guns_side.jpg", "side")
-	await _gun_strip("07_guns_top.jpg", "top")
-
-	print("PROTAGONIST BODY PROOF: saved 7 images to %s" % _out_dir)
-	get_tree().quit(0)
-
-
-## Renders the upper body with each gun and stitches the panels side by side.
-func _gun_strip(file: String, view: String) -> void:
-	var weapon := _player.get_node("Head/Camera3D/Weapon") as Weapon
-	var panels: Array[Image] = []
-	# Looking straight down, the whole frame is the light floor; a dark sheet
-	# under the upper body keeps the white figure readable.
-	var backdrop: MeshInstance3D
-	if view == "top":
-		backdrop = _dark_sheet()
-	for slot in GUN_SLOTS:
-		weapon.select(slot)
-		await get_tree().process_frame
-		_set_shadows(GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
-		if view == "side":
-			_cam.fov = 36.0
-			_cam.position = Vector3(-1.80, 1.58, -0.28)
-			_cam.look_at(Vector3(0.02, 1.40, -0.28))
-		else:
-			_cam.fov = 32.0
-			_cam.look_at_from_position(Vector3(0.03, 3.5, -0.40),
-				Vector3(0.03, 1.4, -0.40), Vector3(0.0, 0.0, -1.0))
-		await _frames(4)
-		await RenderingServer.frame_post_draw
-		panels.append(get_viewport().get_texture().get_image())
-	var panel_height := PANEL_WIDTH * panels[0].get_height() / panels[0].get_width()
-	var strip := Image.create(PANEL_WIDTH * panels.size(), panel_height, false, Image.FORMAT_RGB8)
-	for i in panels.size():
-		var panel: Image = panels[i]
-		panel.resize(PANEL_WIDTH, panel_height, Image.INTERPOLATE_LANCZOS)
-		strip.blit_rect(panel, Rect2i(0, 0, PANEL_WIDTH, panel_height),
-			Vector2i(PANEL_WIDTH * i, 0))
-	var path := _out_dir.path_join(file)
-	var err := strip.save_jpg(path, 0.92)
-	print("[proof] %s -> %s (%s)" % [file, path, error_string(err)])
-	if backdrop != null:
-		backdrop.queue_free()
-
-
-func _dark_sheet() -> MeshInstance3D:
-	var sheet := MeshInstance3D.new()
-	var plane := PlaneMesh.new()
-	plane.size = Vector2(6.0, 6.0)
-	sheet.mesh = plane
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.12, 0.13, 0.15)
-	material.roughness = 1.0
-	sheet.material_override = material
-	sheet.position = Vector3(0.0, 0.002, 0.0)
-	sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(sheet)
-	return sheet
-
-
-func _set_shadows(mode: GeometryInstance3D.ShadowCastingSetting) -> void:
-	for node in _shadow.find_children("*", "MeshInstance3D", true, false):
-		(node as MeshInstance3D).cast_shadow = mode
-
-
-func _shot(file: String) -> void:
-	await RenderingServer.frame_post_draw
-	var path := _out_dir.path_join(file)
-	var err := get_viewport().get_texture().get_image().save_jpg(path, 0.9)
-	print("[proof] %s -> %s (%s)" % [file, path, error_string(err)])
-
+func _advance_combat(seconds: float) -> void:
+	var remaining := seconds
+	while remaining > 0.000001:
+		var step := minf(remaining, 1.0 / 120.0)
+		# Scene order matches production: pistol presentation, then blade phase.
+		_player.weapon._process(step)
+		_player.melee._process(step)
+		_player._process(step)
+		remaining -= step
 
 func _frames(count: int) -> void:
 	for i in count:
 		await get_tree().process_frame
 
+func _shot(file: String) -> void:
+	await RenderingServer.frame_post_draw
+	var error := get_viewport().get_texture().get_image().save_png(_out_dir.path_join(file))
+	if error != OK:
+		push_error("Could not save " + file)
+		get_tree().quit(1)
 
-func _build_environment() -> void:
+func _environment() -> void:
 	var world := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.14, 0.15, 0.17)
+	env.background_color = Color(0.18, 0.20, 0.23)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.66, 0.68, 0.72)
-	env.ambient_light_energy = 0.35
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.ambient_light_color = Color.WHITE
+	env.ambient_light_energy = 0.45
 	world.environment = env
 	add_child(world)
-
-	# Key from the model's front-right, so the 01 front view is lit and the
-	# run shadow falls to -X +Z, where the 04 camera looks.
-	_key = DirectionalLight3D.new()
-	_key.light_energy = 1.6
-	_key.light_color = Color(0.95, 0.97, 1.0)
-	_key.rotation_degrees = Vector3(-55.0, 155.0, 0.0)
-	_key.shadow_enabled = true
-	add_child(_key)
-
-	var fill := DirectionalLight3D.new()
-	fill.light_energy = 0.45
-	fill.light_color = Color(0.78, 0.84, 1.0)
-	fill.rotation_degrees = Vector3(-25.0, -35.0, 0.0)
-	add_child(fill)
-
-
-func _build_floor() -> void:
+	var key := DirectionalLight3D.new()
+	key.light_energy = 1.2
+	key.rotation_degrees = Vector3(-50.0, -35.0, 0.0)
+	key.shadow_enabled = true
+	add_child(key)
 	var floor_mesh := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(20.0, 20.0)
 	floor_mesh.mesh = plane
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.45, 0.46, 0.47)
-	material.roughness = 0.9
+	material.albedo_color = Color(0.33, 0.35, 0.38)
 	floor_mesh.material_override = material
-	floor_mesh.position = Vector3(0.0, -0.001, 0.0)
-	floor_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(floor_mesh)

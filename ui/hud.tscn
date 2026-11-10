@@ -1,10 +1,9 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="Script" path="res://ui/crosshair.gd" id="2_crosshair"]
 [ext_resource type="Script" path="res://ui/strike_bar.gd" id="3_strike"]
 [ext_resource type="Script" path="res://ui/capture_debug.gd" id="4_debug"]
-[ext_resource type="Script" path="res://ui/scope.gd" id="5_scope"]
 [ext_resource type="Script" path="res://ui/vitals.gd" id="6_vitals"]
 [ext_resource type="Script" path="res://ui/weapon_panel.gd" id="7_weapon_panel"]
 [ext_resource type="Script" path="res://ui/ability_slot.gd" id="8_ability_slot"]
@@ -28,26 +27,6 @@ shader_parameter/max_strength = 0.9
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
-
-[node name="Scope" type="Control" parent="."]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Reticle" type="Control" parent="Scope"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("5_scope")
 
 [node name="DamageFlash" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_hurt")
@@ -150,7 +129,7 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -536.0
+offset_left = -252.0
 offset_top = -244.0
 offset_right = -32.0
 offset_bottom = -144.0
@@ -335,7 +314,7 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
-text = "E 挥锤 · 金色区间 = 完美打击"
+text = "V 挥刃 · 金色区间 = 完美打击"
 horizontal_alignment = 1
 
 [node name="Result" type="Label" parent="StrikeBar"]

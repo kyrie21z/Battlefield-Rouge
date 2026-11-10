@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== softened gunshots
+  [ok] gun_pistol: soft attack (29% at 1 ms), peaks at -3 dBFS (-3.0 dB)
+  [ok] gunshots are deterministic
+  [ok] the headshot kill sound is its own stream
+== pistol recoil contract
+  [ok] pistol camera kick is 1.2 degrees
+  [ok] pistol yaw stays within 0.3 degrees
+  [ok] pistol recovers in 0.12 seconds
+  [ok] ADS dampens presentation
+== kill bursts
+  [ok] both kills make a death burst
+  [ok] the headshot burst is larger (1.60 > 1.00)
+  [ok] and starts at head height (1.44 > 0.80)
+  [ok] the chunks live for a moment (0.70 s)
+  [ok] both bursts free themselves
+== the body and hitboxes never move
+  [ok] a headshot flinch leaves the body still
+  [ok] and every hitbox still where it was
+  [ok] the death lean leaves the body still
+  [ok] the lean and burst leave the hitboxes alone
+== kill confirm text
+  [ok] a body kill says 击杀
+  [ok] in white
+  [ok] a second kill inside 2.5 s says 双杀
+  [ok] after 2.5 s the combo starts over
+  [ok] a headshot kill says 爆头击杀
+  [ok] in gold
+  [ok] and the text has faded
+== kill hitstop
+  [ok] a body kill asks for 0.05 s (0.050)
+  [ok] a headshot kill asks for 0.075 s (0.075)
+  [ok] headless still refuses to slow the game
+== seeded bursts
+  [ok] the same seed makes the same chunks
+  [ok] a different seed makes different chunks
+  [ok] the seeded bursts draw nothing from the global sequence
+ALL PASSED (0 failed)

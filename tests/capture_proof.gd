@@ -3,8 +3,8 @@ extends Node
 ## as Proof for Issue #5. Needs a display, so no --headless. Run from the
 ## project root:
 ##   godot --path . res://tests/capture_proof.tscn -- --out=<dir>
-## The guards are killed by damage rather than shot, and the hammer swings are
-## real presses of the `hammer` action, timed against the hit moment.
+## The guards are killed by damage rather than shot, and the blade swings are
+## real presses of the `melee` action, timed against the hit moment.
 ## Each shot prints the debug bar text, so the log shows the same numbers.
 
 const SETTLE_FRAMES := 3
@@ -79,17 +79,17 @@ func _run() -> void:
 		_strikes.filter(func(s: Array): return not s[0]).size()])
 
 
-## Presses `hammer` when the swing would land `offset_s` seconds after a hit
+## Presses `melee` when the swing would land `offset_s` seconds after a hit
 ## moment (0.0 = on it, 0.4 = between two of them), to within a frame or two.
 func _swing_at(offset_s: float) -> void:
-	while Time.get_ticks_msec() - _last_swing_msec < int(Hammer.SWING_COOLDOWN * 1000.0) + 50 \
+	while Time.get_ticks_msec() - _last_swing_msec < int(0.35 * 1000.0) + 50 \
 			or absf(CapturePoint.beat_offset(_point.beat_time()) - offset_s) > TIMING_TOLERANCE:
 		await get_tree().process_frame
 	_last_swing_msec = Time.get_ticks_msec()
 	print("press at offset %+d ms, progress %.0f%%" % [roundi(CapturePoint.beat_offset(_point.beat_time()) * 1000.0), _point.progress * 100.0])
-	Input.action_press("hammer")
+	Input.action_press("melee")
 	await get_tree().process_frame
-	Input.action_release("hammer")
+	Input.action_release("melee")
 
 
 func _shot(shot_name: String) -> void:

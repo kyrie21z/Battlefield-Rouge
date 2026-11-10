@@ -18,27 +18,20 @@ static func generate(kind: String) -> AudioStreamWAV:
 	match kind:
 		# Layered player guns: a low thump, a bright crack, the body of the blast
 		# and a tail. The older single-burst kinds below stay for enemies.
-		"gun_rifle":
+		"enemy_shot":
 			return _layered_gunshot({
 				"duration": 0.34, "seed": 11,
 				"thump_from": 150.0, "thump_to": 58.0, "thump_decay": 30.0, "thump_amp": 0.72,
 				"crack_decay": 110.0, "crack_amp": 0.38,
 				"body_decay": 22.0, "body_amp": 0.82, "body_lp": 0.24,
 				"tail_decay": 9.0, "tail_amp": 0.16, "tail_lp": 0.07})
-		"gun_shotgun":
+		"gun_pistol":
 			return _layered_gunshot({
-				"duration": 0.62, "seed": 12,
-				"thump_from": 110.0, "thump_to": 38.0, "thump_decay": 15.0, "thump_amp": 1.0,
-				"crack_decay": 60.0, "crack_amp": 0.41,
-				"body_decay": 15.0, "body_amp": 1.0, "body_lp": 0.17,
-				"tail_decay": 6.0, "tail_amp": 0.24, "tail_lp": 0.05})
-		"gun_sniper":
-			return _layered_gunshot({
-				"duration": 0.95, "seed": 13,
-				"thump_from": 90.0, "thump_to": 30.0, "thump_decay": 9.0, "thump_amp": 1.08,
-				"crack_decay": 80.0, "crack_amp": 0.56,
-				"body_decay": 12.0, "body_amp": 0.9, "body_lp": 0.13,
-				"tail_decay": 4.2, "tail_amp": 0.3, "tail_lp": 0.035})
+				"duration": 0.20, "seed": 14,
+				"thump_from": 150.0, "thump_to": 65.0, "thump_decay": 35.0, "thump_amp": 0.6,
+				"crack_decay": 130.0, "crack_amp": 0.4,
+				"body_decay": 28.0, "body_amp": 0.65, "body_lp": 0.24,
+				"tail_decay": 15.0, "tail_amp": 0.1, "tail_lp": 0.07})
 		"hit_kill":
 			return _kill_confirm(false)
 		"hit_kill_head":
@@ -53,24 +46,6 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _hurt_thump(0.30, 120.0, 42.0, 15.0, 0.8, 32)
 		"heartbeat":
 			return _heartbeat()
-		"gunshot_sniper":
-			return _noise_burst(0.34, 20.0, 1.0, 0.2)
-		"gunshot_shotgun":
-			return _noise_burst(0.22, 26.0, 0.95, 0.16)
-		"gunshot_rifle":
-			return _noise_burst(0.24, 24.0, 0.95, 0.22)
-		"gunshot_ak47":
-			return _noise_burst(0.13, 26.0, 0.8, 0.2)
-		"gunshot_medium":
-			return _noise_burst(0.16, 30.0, 0.7, 0.18)
-		"gunshot_deagle":
-			return _noise_burst(0.14, 30.0, 0.85, 0.15)
-		"gunshot_small":
-			return _noise_burst(0.1, 36.0, 0.5, 0.14)
-		"reload":
-			return _click_sequence([0.0, 0.13, 0.26, 0.38], 0.055)
-		"bolt":
-			return _click_sequence([0.0, 0.16, 0.3], 0.05)
 		"dry":
 			return _click_sequence([0.0], 0.04)
 		"hit_flesh":
@@ -79,40 +54,19 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _noise_burst(0.09, 46.0, 0.5, 0.1)
 		"melee_swing":
 			return _knife_swing(0.22, 0.38, 0.55, 0.24)
-		"melee_swing_heavy":
-			return _knife_swing(0.34, 0.5, 0.4, 0.2)
 		"melee_hit":
 			return _knife_hit(0.15, 0.6)
 		"dash":
 			return _knife_swing(0.24, 0.55, 0.6, 0.18)
-		"hammer_hit":
-			return _hammer_thud(false)
-		"hammer_perfect":
-			return _hammer_thud(true)
-		"hammer_break":
-			return _hammer_break()
+		"clock_hit":
+			return _clock_thud(false)
+		"clock_perfect":
+			return _clock_thud(true)
+		"clock_break":
+			return _clock_break()
 		"shockwave":
 			return _noise_burst(0.55, 6.0, 1.0, 0.08)
 	return _noise_burst(0.1, 30.0, 0.5, 0.15)
-
-
-static func gunshot_for(kind: String) -> String:
-	match kind:
-		"sniper":
-			return "gunshot_sniper"
-		"shotgun":
-			return "gunshot_shotgun"
-		"deagle":
-			return "gunshot_deagle"
-		"ak47":
-			return "gunshot_ak47"
-		"rifle_bolt", "rifle_semi":
-			return "gunshot_rifle"
-		"smg":
-			return "gunshot_medium"
-		"pistol":
-			return "gunshot_small"
-	return "gunshot_medium"
 
 
 static func _noise_burst(duration: float, decay: float, amp: float, lp_factor: float) -> AudioStreamWAV:
@@ -336,7 +290,7 @@ static func _knife_hit(duration: float, amp: float) -> AudioStreamWAV:
 
 
 ## Struck-metal ring: a few decaying sine partials over a short noise click.
-## Clearly tonal, so a perfect hammer strike never sounds like the dull thud of
+## Clearly tonal, so a perfect blade strike never sounds like the dull thud of
 ## an ordinary one.
 static func _ping(duration: float, partials: Array[float], decay: float) -> AudioStreamWAV:
 	var sample_count := int(duration * SAMPLE_RATE)
@@ -355,9 +309,9 @@ static func _ping(duration: float, partials: Array[float], decay: float) -> Audi
 	return _make_wav(data)
 
 
-## Hammer on stone: a low thud, a short crack and a noise body. A perfect strike
+## Blade on stone: a low thud, a short crack and a noise body. A perfect strike
 ## adds a bright bell on top so it reads even over the building's flash.
-static func _hammer_thud(bell: bool) -> AudioStreamWAV:
+static func _clock_thud(bell: bool) -> AudioStreamWAV:
 	var duration := 0.5 if bell else 0.22
 	var sample_count := int(duration * SAMPLE_RATE)
 	var samples := PackedFloat32Array()
@@ -386,7 +340,7 @@ static func _hammer_thud(bell: bool) -> AudioStreamWAV:
 
 ## The stopped clock breaking open: a heavy crunch, then a clock spring letting
 ## go (a fast falling tone) with a small metallic chime over it.
-static func _hammer_break() -> AudioStreamWAV:
+static func _clock_break() -> AudioStreamWAV:
 	var duration := 0.95
 	var sample_count := int(duration * SAMPLE_RATE)
 	var samples := PackedFloat32Array()

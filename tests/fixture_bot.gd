@@ -1,12 +1,12 @@
 class_name FixtureBot
 extends Node
 ## Plays a run with no human, for the AC-07 check (docs/adr/0005): fights the
-## nearest enemy, walks to the capture point, swings the hammer on the beat and
-## takes the first buff offered. On a small zone's hammer phase it stays at the
+## nearest enemy, walks to the capture point, swings the blade on the beat and
+## takes the first buff offered. On a small zone's blade phase it stays at the
 ## building and only shoots enemies that reach it, so the reinforcement waves
 ## cannot pull it off the objective. After the flag it walks to the buff
 ## pedestal and presses interact; it does not chase enemies that are already
-## retreating. It moves, aims down the sights and hammers through the real
+## retreating. It moves, aims down the sights and strikes through the real
 ## input actions. It turns with Player.aim_at(), the way a mouse would, and
 ## shoots with Weapon.try_fire(): the `fire` action only works while the mouse
 ## is captured, and a headless run cannot capture it.
@@ -21,12 +21,12 @@ const STAND_OFF := 12.0
 const STRAFE_TICKS := 40
 ## It looks down the sights beyond this distance, for the tighter spread.
 const AIM_FROM := 8.0
-## Hammer.SWING_COOLDOWN in physics ticks, plus a tick of margin.
-const SWING_GAP_TICKS := 56
-## Seconds from a hit moment within which it presses the hammer. One tick is
+## Blade swing duration in physics ticks, plus a tick of margin.
+const SWING_GAP_TICKS := 23
+## Seconds from a hit moment within which it presses the blade. One tick is
 ## 1/60 s, so a window of this half-width catches one tick per beat.
 const BEAT_TOLERANCE := 0.009
-## North of a small-zone building, still inside the 3.2 m hammer radius, so the
+## North of a small-zone building, still inside the capture Area, so the
 ## bot can see reinforcements coming from -z without standing in the mesh.
 const POINT_STAND_OFFSET := Vector3(0.0, 0.0, -2.2)
 ## While walking to the building, fight only an enemy this close. Farther ones
@@ -39,7 +39,7 @@ const MOVE_ACTIONS: Array[StringName] = [&"move_forward", &"move_back", &"move_l
 ## load, and a count from the run would then be a tick out of step.
 var _ticks := 0
 var _last_swing_tick := -1000
-var _hammer_down := false
+var _blade_down := false
 var _interact_down := false
 var _zone_id := 0
 
@@ -57,9 +57,9 @@ func reset() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if _hammer_down:
-		Input.action_release(&"hammer")
-		_hammer_down = false
+	if _blade_down:
+		Input.action_release(&"melee")
+		_blade_down = false
 	if _interact_down:
 		Input.action_release(&"interact")
 		_interact_down = false
@@ -80,34 +80,34 @@ func _physics_process(_delta: float) -> void:
 		_release_all()
 		return
 	# Small zones hold the building under reinforcements, then walk to the pedestal.
-	# The boss zone ignores the ring of minions: shoot the boss, then one hammer.
+	# The boss zone ignores the ring of minions: shoot the boss, then one blade strike.
 	if director.is_boss_zone:
 		var boss := director.boss
 		if boss != null and is_instance_valid(boss) and not boss.health.is_dead():
 			_fight(player, boss)
 			return
 		# The core is open. Clear whoever is still shooting, then walk over for
-		# the one hammer. Chasing the ring before the boss is down never happens.
-		if director.phase == ZoneDirector.Phase.HAMMER_POINT:
+		# the one blade strike. Chasing the ring before the boss is down never happens.
+		if director.phase == ZoneDirector.Phase.CLOCK_POINT:
 			var threat := _nearest_enemy(player)
 			if threat != null:
 				_fight(player, threat)
 				return
-			_hammer(player, director.capture_point)
+			_blade(player, director.capture_point)
 			return
 		_release_all()
 		return
 	if director.phase == ZoneDirector.Phase.FLAG_PLANTED:
 		_claim_pedestal(player, director)
 		return
-	if director.phase == ZoneDirector.Phase.HAMMER_POINT:
+	if director.phase == ZoneDirector.Phase.CLOCK_POINT:
 		_hold_point(player, director.capture_point)
 		return
 	var target := _nearest_enemy(player)
 	if target != null:
 		_fight(player, target)
-	elif director.phase == ZoneDirector.Phase.HAMMER_POINT:
-		_hammer(player, director.capture_point)
+	elif director.phase == ZoneDirector.Phase.CLOCK_POINT:
+		_blade(player, director.capture_point)
 	else:
 		_release_all()
 
@@ -139,11 +139,15 @@ func _hold_point(player: Player, point: CapturePoint) -> void:
 		_walk_toward(player, point.global_position + POINT_STAND_OFFSET)
 		return
 	_move(player, Vector3.ZERO)
-	var on_beat := absf(CapturePoint.beat_offset(point.beat_time())) <= BEAT_TOLERANCE
+	player.aim_at(point.global_position + Vector3.UP)
+	var on_beat := absf(CapturePoint.beat_offset(point.beat_time() + player.melee.scaled_time(player.melee.current().windup + player.melee.current().active * MeleeWeapon.STRIKE_AT))) <= BEAT_TOLERANCE
 	if on_beat and _ticks - _last_swing_tick >= SWING_GAP_TICKS:
-		Input.action_press(&"hammer")
-		_hammer_down = true
+		Input.action_press(&"melee")
+		_blade_down = true
 		_last_swing_tick = _ticks
+		return
+	if player.melee.is_swinging():
+		return
 	var threat := _nearest_enemy(player, FIRE_RANGE)
 	if threat == null:
 		_set_action(&"aim", 0.0)
@@ -170,16 +174,17 @@ func _claim_pedestal(player: Player, director: ZoneDirector) -> void:
 	_interact_down = true
 
 
-func _hammer(player: Player, point: CapturePoint) -> void:
+func _blade(player: Player, point: CapturePoint) -> void:
 	_set_action(&"aim", 0.0)
 	if not point.player_in_reach:
 		_walk_toward(player, point.global_position)
 		return
 	_move(player, Vector3.ZERO)
-	var on_beat := absf(CapturePoint.beat_offset(point.beat_time())) <= BEAT_TOLERANCE
+	player.aim_at(point.global_position + Vector3.UP)
+	var on_beat := absf(CapturePoint.beat_offset(point.beat_time() + player.melee.scaled_time(player.melee.current().windup + player.melee.current().active * MeleeWeapon.STRIKE_AT))) <= BEAT_TOLERANCE
 	if on_beat and _ticks - _last_swing_tick >= SWING_GAP_TICKS:
-		Input.action_press(&"hammer")
-		_hammer_down = true
+		Input.action_press(&"melee")
+		_blade_down = true
 		_last_swing_tick = _ticks
 
 
@@ -236,6 +241,8 @@ func _move(player: Player, world_direction: Vector3) -> void:
 
 
 func _release_all() -> void:
+	Input.action_release(&"melee")
+	_blade_down = false
 	for action in MOVE_ACTIONS:
 		_set_action(action, 0.0)
 	_set_action(&"aim", 0.0)

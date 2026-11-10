@@ -44,7 +44,7 @@ func _ready() -> void:
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	Events.gunshot.connect(_on_gunshot)
-	Events.hammer_struck.connect(_on_hammer_struck)
+	Events.clock_struck.connect(_on_clock_struck)
 	# A visible chest aperture rewards aim without making the shell invulnerable.
 	set_core_exposed(false)
 

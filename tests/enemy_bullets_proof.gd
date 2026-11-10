@@ -3,7 +3,7 @@ extends Node
 ## reinforcement spawns:
 ##   godot --path . res://tests/enemy_bullets_proof.tscn -- --out=docs/proof/enemy-bullets
 ## Frames: 01 a 30 m/s enemy tracer in flight, 02 a wave spawning out of sight
-## while the player hammers the building. Needs a real display.
+## while the player strikes the building. Needs a real display.
 
 const ZONE := "res://maps/zone_1.tscn"
 
@@ -48,7 +48,7 @@ func _ready() -> void:
 	await _seconds(0.06)
 	_shot("01_enemy_tracer")
 
-	# 2. Hammering the building when a wave spawns at the hidden flank markers.
+	# 2. Clock strikes at the building when a wave spawns at the hidden flank markers.
 	var point := _scene.get_node("CapturePoint") as CapturePoint
 	_player.global_position = point.global_position + Vector3(0.0, 0.0, 3.4)
 	_player.global_rotation = Vector3.ZERO

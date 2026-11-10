@@ -44,6 +44,9 @@ func _run() -> void:
 	await _test_mouse_look()
 	await _test_styles()
 	await _test_pause()
+	scene.queue_free()
+	await _frames(3)
+	await get_tree().create_timer(0.15).timeout
 	_finished = true
 
 
@@ -124,8 +127,8 @@ func _test_mouse_look() -> void:
 	var two := absf(_player.rotation.y)
 	_check("2x mouse sensitivity doubles the yaw delta", is_equal_approx(two, one * 2.0))
 
-	_player.weapon.select(2)
 	_player.weapon.aiming = true
+	(_player.get_node("Head/Camera3D") as Camera3D).fov = _player.weapon.data.ads_fov
 	_player.global_rotation = Vector3.ZERO
 	_player.set_look_sensitivity(base, 1.0)
 	_player._unhandled_input(event)
@@ -139,9 +142,8 @@ func _test_mouse_look() -> void:
 	_player.global_rotation = Vector3.ZERO
 	_player._unhandled_input(event)
 	var hip := absf(_player.rotation.y)
-	_check("and does nothing while not aiming", is_equal_approx(hip, ads_one))
+	_check("and does nothing while not aiming", is_equal_approx(hip * _player.weapon.data.ads_fov / _player.base_fov, ads_one))
 	_player.weapon.aiming = false
-	_player.weapon.select(0)
 	_player.set_look_sensitivity(base, 1.0)
 
 

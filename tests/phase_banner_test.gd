@@ -2,7 +2,7 @@ extends Node
 ## Headless check of the centre-screen phase banners:
 ##   godot --headless --path . res://tests/phase_banner_test.tscn
 ## Each phase shows the right headline, the reinforcement warning is once per
-## zone and queues behind "据点开放", and the banner hides for the scope and
+## zone and queues behind "据点开放", and the banner remains visible in ADS and hides for
 ## the buff selection.
 
 var _failures := 0
@@ -55,7 +55,7 @@ func _run() -> void:
 	_check("the reinforcement warning is once per zone", _banner.title_text() == warn
 		and _banner.queued_title().is_empty())
 
-	await _test_scope_hide()
+	await _test_ads_visible()
 	await _test_replace()
 	await _test_flag(scene)
 	await _close(scene)
@@ -63,18 +63,17 @@ func _run() -> void:
 	_finished = true
 
 
-func _test_scope_hide() -> void:
+func _test_ads_visible() -> void:
 	print("== hiding the banner")
 	_director.phase_changed.emit(ZoneDirector.Phase.CLEAR_GUARDS)
 	await _frames(2)
-	_player.weapon.select(2)
 	Input.action_press("aim")
 	await _seconds(0.7)
-	_check("scoped", _player.weapon.is_scoped())
-	_check("the banner hides behind the scope", not _banner.visible and _banner.is_showing())
+	_check("pistol aims", _player.weapon.aiming)
+	_check("ADS keeps the current phase banner visible", _banner.visible and _banner.is_showing())
 	Input.action_release("aim")
 	await _seconds(0.3)
-	_check("and comes back with the scope down", _banner.visible)
+	_check("banner remains after ADS", _banner.visible)
 
 
 func _test_replace() -> void:
@@ -89,7 +88,7 @@ func _test_replace() -> void:
 
 func _test_flag(scene: Node) -> void:
 	print("== flag and objective text")
-	_director.phase_changed.emit(ZoneDirector.Phase.HAMMER_POINT)
+	_director.phase_changed.emit(ZoneDirector.Phase.CLOCK_POINT)
 	await _frames(2)
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	point.player_in_reach = true
@@ -118,10 +117,10 @@ func _test_boss() -> void:
 	(_director.boss as Enemy).health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	await _frames(3)
 	_check("the open core says 砸碎城市核心", _banner.title_text() == "砸碎城市核心" and _banner.is_showing())
-	_check("with the hammer action", "按 E" in _banner.subtitle_text())
+	_check("with the blade action", "按 V" in _banner.subtitle_text())
 	_director.capture_point.add_capture_progress(1.0)
 	await _frames(3)
-	_check("captured core replaces the hammer instruction immediately",
+	_check("captured core replaces the blade instruction immediately",
 		_banner.title_text() == "核心已击碎" and _banner.subtitle_text().is_empty()
 		and _banner.title_color() == PhaseBanner.TITLE_GREEN)
 	# Let the real delayed victory callback finish before releasing its owner.

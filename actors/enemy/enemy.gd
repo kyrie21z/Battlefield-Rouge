@@ -150,13 +150,13 @@ func _ready() -> void:
 	_hitbox_rids.append(get_rid())
 	for hitbox in find_children("*", "Hitbox", true, false):
 		_hitbox_rids.append((hitbox as Hitbox).get_rid())
-	_gunshot = ProceduralAudio.generate("gun_rifle")
+	_gunshot = ProceduralAudio.generate("enemy_shot")
 	_audio.stream = _gunshot
 	_audio.volume_db = ENEMY_GUNSHOT_DB
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	Events.gunshot.connect(_on_gunshot)
-	Events.hammer_struck.connect(_on_hammer_struck)
+	Events.clock_struck.connect(_on_clock_struck)
 	_anim.play("Idle")
 
 
@@ -559,8 +559,8 @@ func _on_gunshot(position: Vector3) -> void:
 		_alert(position)
 
 
-## Hammering the capture point is a noise like a gunshot (issue #40).
-func _on_hammer_struck(position: Vector3) -> void:
+## Clock strikes at the capture point is a noise like a gunshot (issue #40).
+func _on_clock_struck(position: Vector3) -> void:
 	if state == State.IDLE and global_position.distance_to(position) <= hearing_range:
 		_alert(position)
 

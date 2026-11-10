@@ -12,17 +12,13 @@
 | Pride 开场 | `ui/game_start.tscn`、`ui/pride_opening/opening.tscn` | 普通启动自动播放的五句引导，可逐句推进、观察和跳过；确认后进入原开局三选一。每次启动播放一次，死亡重开和 fixture 不重播。 |
 | 战区 | Zone | 一张场景，有一组敌人和一个据点。现在 `RunState.ZONE_SCENES` 里是三张图：两张小关和 Boss 关。 |
 | 清敌 | `Events.zone_cleared` | 战区内的守卫全部被消灭，据点建筑随之开放。 |
-| 据点 | `CapturePoint` | 占点建筑（灰盒方块）。清守卫前锁定；开放后用锤砸，进度到 100% 插旗。进度只增不减。 |
-| 锤 | `Hammer`，`hammer` 动作（E，临时） | 占点工具。按键后挥一次，冷却 0.9 秒。只发 `swung`，砸没砸中由据点判定。不是第四把养成近战。 |
-| 枪 | `Weapon`，`weapons/rifle.tres` / `shotgun.tres` / `sniper.tres` | 一个节点扛三把枪，`data_set` 就是滚轮顺序。`data` 永远指向手里那把，开火、换弹、扩散都照它算。 |
-| 切换枪 | `weapon_next` / `weapon_prev` 动作（滚轮上 / 下），`Weapon.select()` | 突击步枪 → 霰弹枪 → 狙击枪，循环。换枪会中断正在进行的换弹，但每把枪的弹匣和备弹分开记，换回来还是原样。开镜时这对动作改成换倍率（见「镜」）。 |
-| 弹丸 | `WeaponData.pellets` | 一次扳机打几条射线。步枪 1 条，霰弹枪 9 条，每条都在同一个扩散锥里取方向、各自结算。`damage` 是**单颗**的伤害。 |
-| 变焦 | `WeaponData.ads_fov`，`Weapon.fov_for()` | 机瞄时相机插值到的视野角：突击步枪 54°、霰弹枪 62°。有镜的枪不看 `ads_fov`，走「基础视野 ÷ 倍率」。 |
-| 镜、开镜 | `WeaponData.scope_zoom_levels`，`Weapon.is_scoped()` | 有倍率表的枪瞄准时是开镜：视图模型隐藏、视野 = 75° ÷ 倍率、`ui/scope.gd` 在整屏上画分划和倍率读数（不遮黑，镜的身份靠变焦和分划）。狙击枪 2× / 4× / 8×。 |
-| 倍率 | `Weapon.zoom_index` / `zoom_level()`，`cycle_zoom()` | 镜的放大倍数。开镜时滚轮上下换一档（越界回绕），并发 `zoom_changed` 让 HUD 重画读数；鼠标灵敏度同时除以倍率。 |
-| 近战 | `MeleeWeapon`，`melee` 动作（V） | 当前近战武器挥一次。起手 → 生效窗口 → 收招三段；刀尖按屏幕上的两个点扫过去。视图模型只在挥砍时出现，同时收枪。 |
-| 近战数据 | `MeleeData`，`weapons/melee/*.tres` | 一把近战的全部手感：伤害、距离、弧宽、命中目标数、起手/生效/收招时间、前冲、击退、握法、屏幕上的起止瞄准点、视图模型亮度。 |
-| 切换近战 | `switch_melee` 动作（Q），`MeleePool.ALL` | 匕首 → 斧 → 太刀循环。挥砍中不允许切换。 |
+| 据点 | `CapturePoint` | 占点建筑（灰盒方块）。清守卫前锁定；开放后用挥刃敲击，进度到 100% 插旗。进度只增不减。 |
+| 黑晶手枪 | `Weapon` / `obsidian_pistol.tres` | 唯一远程武器，8 发半自动；右键 ADS 聚焦至 58°。 |
+| 晶体重组 | `Weapon.try_reload()` / `ammo_refilled` | 空匣自动或 R 主动，基础 0.85 秒绽放、悬浮、合拢后恢复弹匣。 |
+| 意志短刃 | `MeleeWeapon` / `mind_blade.tres` | V 或侧键瞬发，斩击、弹反、敲钟合一；无切刀循环。 |
+| 短刃弹反 | `BladeParryArea` / `Projectile` | 生效窗口反转敌弹归属与方向，配合 UI 0.05 秒 hitstop。 |
+| 身躯感知与裂痕 | `ShadowBody` / `fracture_level` | 完整白晶人体；低头可见胸腹和行走双腿，0–4 级裂痕从手腕蔓延全身；监听 `Events.sin_defeated(count)`。 |
+| 战斗测试台 | `tests/combat_bench.tscn` | 独立可玩验收场，0–4 或按钮切换裂痕。 |
 | 击退 | `Enemy.apply_impact(direction, force, stagger)` | 近战命中时把身体推开，`stagger` 内敌人自己的 AI 不接管速度。 |
 | 前冲、吸附 | `MeleeWeapon.lunge` 信号，`MeleeData.magnet_range` | 挥砍开始先找 `magnet_range` 内、`magnet_arc_degrees` 锥里**最近的敌人**：朝**它**冲 `lunge` 米（匕首 0.35 / 斧 0.45 / 太刀 0.55，0.1~0.12 秒），冲的时候覆盖玩家自己的速度，所以**不按方向键也会冲**；同一个敌人还会被当成这一刀的命中弧心（见下条），所以准星偏一点也算命中。空挥不动；敌人已在 `stop_distance` 内（贴脸）也不冲；超过 `magnet_range` 只砍不冲。每把的 `magnet_range` 都略短于自己的 `reach`。 |
 | 弧心吸附 | `MeleeWeapon._magnet`，`_advance_phase()` | 吸附到的那个人在生效窗口开始时被记下来，锥形判定的中心从「准星方向」改成「指向那个人的方向」，所以 43° 偏角的敌人也能劈中（匕首的弧只有 ±35°）。没有目标时弧心就是准星。 |
@@ -33,15 +29,15 @@
 | 斧的板面 | `MeleeData.*_roll`（斧 75°） | 竖着往下劈时，斧头的板面要落在挥砍自己的竖直平面里，从眼睛看过去接近侧对镜头——斧刃先着地。板面正对镜头（`*_roll = 0`）就是拿斧子的平面往下拍，被试玩否掉了。75° 离纯侧对差 15°，留一点斧头的体量；测试查 `blade_facing()` < 0.45。 |
 | 斧的握把 | `MeleeData.cut_from_hand` / `cut_to_hand`（斧 x = 0.05） | 两手放在中线附近、胸口前方，斧头走中线：双手举着、从最中间往下劈，刀尖 (0,0.79) → (0,-0.95) 从画面上缘劈到下缘。 |
 | 视图模型亮度 | `MeleeData.view_brightness` | 视图模型不受光，材质亮度只能在这里提。斧头是深炭色，1.6 才看得清；匕首和太刀保持 1.0。 |
-| 命中时刻 | `CapturePoint.BEAT_PERIOD`，`beat_offset()` | 据点开放后每 1 秒出现一次，首次在 0.5 秒后。挥锤时刻离最近的命中时刻有多远，决定是不是完美打击。见 ADR 0003。 |
-| 完美打击 | `CapturePoint.struck(perfect=true)` | 挥锤落在命中时刻 ±`perfect_window_ms` 内：本次进度 ×`perfect_multiplier`，金色音效、闪光和屏幕闪（AC-03）。窗口外是普通锤击：钝响，短促白光，只记普通进度。 |
+| 命中时刻 | `CapturePoint.BEAT_PERIOD`，`beat_offset()` | 据点开放后每 1 秒出现一次，首次在 0.5 秒后。短刃命中时刻离最近的命中时刻有多远，决定是不是完美打击。见 ADR 0003。 |
+| 完美打击 | `CapturePoint.struck(perfect=true)` | 刀锋命中落在命中时刻 ±`perfect_window_ms` 内：本次进度 ×`perfect_multiplier`，金色音效、闪光和屏幕闪（AC-03）。窗口外是普通敲钟：钝响，短促白光，只记普通进度。 |
 | 占点配置 | `CaptureConfig`，`zone/capture_config.tres` | AC-03 的三个数：窗口 150ms、普通 +10%、完美 ×2.0。试玩只改这个文件。节拍周期和冷却是规则，写在代码常量里。 |
 | 起点 | Fixture，`RunFixture`，`fixtures/*.tres` | 一局的可命名起点：开始的战区、已有增益、随机种子（AC-07）。现有 FX-001（新开一局）、FX-002（Boss 起点）。死亡或胜利后重开回到同一起点。`--fixture=<id>` 从命令行进入。见 ADR 0005。 |
 | 种子 | `RunState.run_seed`，`zone_seed()` | 一局所有随机数的来源。战区开头 `seed(zone_seed())`。普通局每次新开换一个，fixture 局固定。 |
 | 游戏时间 | `SimClock` | 从战区开头数起的物理 tick 时间，不读墙钟。节拍和掩体冷却用它，固定步长下每次运行相同。 |
 | 复现检查 | `tests/fixture_test.tscn`，`FixtureBot` | 机器人把每个 fixture 打若干遍，比较记录的哈希（AC-07 的证明）。需要 `--fixed-fps 60`。 |
 | 阶段 | `ZoneDirector.Phase` | 第一关先 `BUFF_SELECT`，再 `CLEAR_GUARDS` → `HAMMER_POINT` → `FLAG_PLANTED`。小关 2 进场直接 `CLEAR_GUARDS`，Boss 进场直接 `HAMMER_POINT`。两个小关在增益台按 F 后再进入 `BUFF_SELECT`。 |
-| 节拍条、调试条 | `StrikeBar`、`CaptureDebug`（F3） | 节拍条在锤程内显示金色窗口和移动的标记。调试条显示阶段、进度、配置文件路径和三个数、上一击（AC-03 的证明）。 |
+| 节拍条、调试条 | `StrikeBar`、`CaptureDebug`（F3） | 节拍条在挥刃可及范围内显示金色窗口和移动的标记。调试条显示阶段、进度、配置文件路径和三个数、上一击（AC-03 的证明）。 |
 | 插旗 | `CapturePoint` 的 `Flag` 节点 | 进度 100% 时旗杆从建筑顶部升起。小关同时播冲击波并亮出增益台；Boss 等 1.4 秒后直接胜利。 |
 | 增益 | `Buff`，`BuffPool.ALL` | 当前九卡：枪械、刀具、技能各三张；独特图标、稳定 id 和叠层说明，只修改 Stats。旧六张通用卡保留为历史资源及 fixture 兼容。 |
 | 发牌袋 | `BuffPool.reset()` / `pick()` | 每次每派一张，先核心再另两张，用完重洗；全局随机受战区种子控制，新局及 fixture 重开清袋。 |
@@ -55,7 +51,7 @@
 | 能力槽 | `AbilityBar`，`AbilitySlot` | 图形 HUD 右下方的 G 护盾、V 近战、C 弹匣方槽。C 无增益时锁定，有增益但未持有弹匣时暗态 `0/1`，最后一发打空获得后立即亮态 `1/1`，投出回暗态；不在护盾槽重复画危险弹匣角标。 |
 | 受击反馈 | `Health.damaged`，`HUD`，`DamageIndicator` | 玩家中枪时的呈现：边缘红色暗角（中心不填色）、受击音效（0.06 秒内的命中合成一次）、指向攻击者的屏幕边缘弧线（存命中时的世界位置，按玩家朝向每帧重算）、只晃渲染相机的镜头后坐，以及 30% 生命以下的脉冲暗角与心跳（35% 以上退出）。格挡和弹反不是掉血，没有这套反馈。 |
 | 击杀反馈 | `HitReaction`，`HUD.KillText`，`DebrisBurst.spawn_death()` | 击杀时的呈现：模型向射击者反方向偏 23°（只动 mesh，不动 CharacterBody 和 hitbox），胸口（爆头在头部、Boss 2.5 倍）爆出体块与 0.12 秒亮光，准星下方显示「击杀」/「爆头击杀」/「双杀」/「三杀」/「连杀 ×N」；爆头击杀的 hitstop 是 0.075 秒，普通击杀 0.05 秒。 |
-| 锤击反馈 | `CapturePoint.struck` / `fractured` / `captured`，`hammer_hit` / `hammer_perfect` / `hammer_break` | 锤据点时的呈现：每次命中晃渲染相机（普通 0.45°、完美 0.9° 加 0.035 秒 hitstop），未碎方块挤压回弹，普通/完美分别爆 14 / 30 片石屑和尘雾，准星上方浮出白色「+10%」/ 金色「+20%」（打击条只显示「完美打击」或「偏早/偏晚 N ms」）；每 25% 掉落一组方块并爆中号碎屑；100% 时炸出黄铜齿轮、齿圈、细杆等钟表零件，配暖光、尘环和一声重碎的 `hammer_break`。 |
+| 敲钟反馈 | `CapturePoint.struck` / `fractured` / `captured`，`clock_hit` / `clock_perfect` / `clock_break` | 挥刃敲钟时的呈现：每次命中晃渲染相机（普通 0.45°、完美 0.9° 加 0.035 秒 hitstop），未碎方块挤压回弹，普通/完美分别爆 14 / 30 片石屑和尘雾，准星上方浮出白色「+10%」/ 金色「+20%」（打击条只显示「完美打击」或「偏早/偏晚 N ms」）；每 25% 掉落一组方块并爆中号碎屑；100% 时炸出黄铜齿轮、齿圈、细杆等钟表零件，配暖光、尘环和一声重碎的 `clock_break`。 |
 | 小地图 | `Minimap`，`ZoneDirector.living_enemies()`，`reinforcement_spawned` | HUD 右上角的圆形小地图（200 px）：玩家居中、随朝向旋转，28 米范围；`Geometry` 下的方块缓存成俯视多边形，敌人红点（逃跑的变淡）、Boss 大暗红菱形、据点/增益台按 WorldMarker 配色，超出范围的目标钳到边缘成小三角；增援出生时在对应方向闪 1.2 秒红脉冲；开镜时隐藏。 |
 | 阶段横幅 | `PhaseBanner`，`HUD/PhaseBanner` | 每次阶段变化在画面 24% 高度处弹出一条大标题 + 副标题：战斗开始、据点开放、增援来袭（每关只一次，排在据点开放之后）、据点已占领、Boss 现身、砸碎城市核心。弹出 0.15 秒、停留约 2.8 秒、淡出 0.4 秒；开镜、增益选择和死亡时隐藏。左上角目标面板仍是常驻提醒，横幅标题不照抄面板原句。 |
 | 数值 | `Stats` | 基础数值加上增益修正。新的 9 条也只走这里。 |
@@ -78,7 +74,7 @@
 | 九条增益 | `BuffPool.ALL` | 每派 3 条，共 9 条，图标不同（AC-08）；当前效果为可调试玩默认，非最终平衡锁定。 |
 | 进关选择 | `ZoneDirector._offer_buff("enter")` | 只在一局第一关（`RunState.zone_index == 0`）开打前选 1 条。小关 2 和 Boss 进场不选。按是不是一局的第一关判断，不按 fixture 起点（AC-04）。 |
 | 关末再选 | `ZoneDirector._offer_buff("clear")`，`BuffPedestal` | 两个小关插旗后，到旗旁增益台按 F 才各选 1 条，本局叠加；Boss 结束后不选（AC-04）。 |
-| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和7名放在前沿/中段及侧翼的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一锤击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
+| Boss 关 / 城市核心 | `maps/boss.tscn`，`ZoneDirector.is_boss_zone` | 只有一波：1 个大敌人（Boss）、2 名护卫（2–6 米内）和7名放在前沿/中段及侧翼的小敌人。Boss 活着时核心关闭，目标「打倒 Boss」。Boss 倒下后核心开放，一刃击碎（`boss_capture_config.tres` 的 `progress_per_swing = 1`），不必清完小怪。没有增援、冲击波和增益台。Boss 有血条。插旗即胜，死亡即负（AC-02）。见 ADR 0004 文末修订。 |
 | 关卡选择 | 尚未实现 | 只切换已解锁的关。顺序：小关 1 → 小关 2 → Boss。这是规则，不是 AC-01。 |
 | Cut-001b | 文档，不是脚本 | MVP 的 IN/OUT、解锁顺序和 AC-01 至 AC-08。 |
 

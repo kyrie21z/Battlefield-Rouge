@@ -2,7 +2,7 @@ class_name MusicDirector
 extends Node
 ## Background music for a zone. The HUD creates one (not under fixtures or
 ## headless runs) and it reads the zone director it is given:
-##  - CLEAR_GUARDS, or HAMMER_POINT while enemies are alive → "combat",
+##  - CLEAR_GUARDS, or CLOCK_POINT while enemies are alive → "combat",
 ##  - BOSS_STANDING, or anything in the boss zone while the boss lives → "boss",
 ##  - otherwise "calm", but only after MIN_CALM seconds without combat, so a
 ##    lull between reinforcement waves does not flip the music back and forth.
@@ -79,7 +79,7 @@ static func desired_track(director: ZoneDirector) -> String:
 			return "boss"
 		ZoneDirector.Phase.CLEAR_GUARDS:
 			return "combat"
-		ZoneDirector.Phase.HAMMER_POINT:
+		ZoneDirector.Phase.CLOCK_POINT:
 			return "combat" if not director.living_enemies().is_empty() else "calm"
 	return "calm"
 

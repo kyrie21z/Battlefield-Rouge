@@ -122,7 +122,7 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 	_check("%s leaves each real reinforcement capsule clear of WORLD (%s)" % [path.get_file(),blocked_spawns],blocked_spawns.is_empty())
 	_check("%s keeps every reinforcement marker on its intended navigation floor (%s)" % [path.get_file(),off_nav],off_nav.is_empty())
 	# Since issue #42 the guards are spread over the whole approach instead of
-	# ringing the building: none inside the hammer reach, but at least one close
+	# ringing the building: none inside the blade reach, but at least one close
 	# enough to defend the point and one out in the battlefield.
 	var nearest := INF
 	var farthest := 0.0
@@ -133,7 +133,7 @@ func _check_layout(path: String, zone_index: int, guard_count: int) -> void:
 		farthest = maxf(farthest, gap)
 		if gap < 3.2:
 			clear = false
-	_check("%s guards stay out of the hammer reach (nearest %.1f m)" % [path.get_file(), nearest], clear)
+	_check("%s guards stay out of the blade reach (nearest %.1f m)" % [path.get_file(), nearest], clear)
 	_check("%s guards defend the point and the approach (%.1f-%.1f m)" % [
 		path.get_file(), nearest, farthest], nearest <= 16.0 and farthest > 15.0)
 	_check("%s uses the cadence resource" % path.get_file(), director.reinforcement_config != null and director.reinforcement_config.resource_path == CONFIG_PATH)
@@ -345,7 +345,7 @@ func _rhythm_and_pedestal() -> void:
 	director.reinforcement_config = tuned
 	for enemy in _enemies(scene):
 		enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-	_check("opening the building spawns a four-enemy wave", director.reinforcement_count() == 4 and director.phase == ZoneDirector.Phase.HAMMER_POINT)
+	_check("opening the building spawns a four-enemy wave", director.reinforcement_count() == 4 and director.phase == ZoneDirector.Phase.CLOCK_POINT)
 	point.player_in_reach = true
 	point.resolve_swing(2.0)
 	var held := point.progress
@@ -353,7 +353,7 @@ func _rhythm_and_pedestal() -> void:
 	var sample_health := sample.health.health
 	sample.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	_check("killing a reinforcement does not move progress", is_equal_approx(point.progress, held) and point.progress > 0.0)
-	_check("the building stays open", director.phase == ZoneDirector.Phase.HAMMER_POINT and not point.locked)
+	_check("the building stays open", director.phase == ZoneDirector.Phase.CLOCK_POINT and not point.locked)
 	await _wait(0.9)
 	_check("later waves stop at the eight-enemy cap", director.reinforcement_count() == 8)
 	_check("nine bodies were spawned to hold eight after one kill", director.reinforcement_spawn_log.size() == 9)

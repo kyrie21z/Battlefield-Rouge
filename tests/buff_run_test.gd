@@ -264,14 +264,14 @@ func _play_existing_run(indices: Array, label: String) -> void:
 				enemy.set_physics_process(false)
 			director.capture_point.player_in_reach = true
 			director.capture_point.resolve_swing(2.5)
-			_check("a hammer does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
+			_check("a blade strike does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
 			director.boss.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
+			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.CLOCK_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
 			director.capture_point.resolve_swing(2.5)
 		else:
 			for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 				enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-			_check("clear guards opens capture", director.phase == ZoneDirector.Phase.HAMMER_POINT)
+			_check("clear guards opens capture", director.phase == ZoneDirector.Phase.CLOCK_POINT)
 			director.capture_point.player_in_reach = true
 			for strike in 12:
 				director.capture_point.resolve_swing(float(strike))
@@ -302,7 +302,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			var ending := _end_screen(director)
 			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 0 and ending != null)
 			if ending != null:
-				_check("one hammer wins after the Boss is dead", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and director.boss.health.is_dead())
+				_check("one blade strike wins after the Boss is dead", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and director.boss.health.is_dead())
 			await _shot(label + "_victory")
 	var contexts: Array[String] = []
 	for entry in RunState.selection_history:
@@ -379,11 +379,11 @@ func _shot(file_name: String) -> void:
 
 func _binding_checks() -> void:
 	print("== input bindings after the melee/shield merge")
-	_check("Q cycles melee", _bound_key("switch_melee") == KEY_Q)
+	_check("Old melee cycle is removed", not InputMap.has_action("switch_melee"))
 	_check("G is the shield", _bound_key("shield") == KEY_G)
 	_check("F stays interact", _bound_key("interact") == KEY_F)
 	_check("V swings the current melee", _bound_key("melee") == KEY_V)
-	_check("E is still the capture hammer", _bound_key("hammer") == KEY_E)
+	_check("Old E tool is removed", not InputMap.has_action("hammer"))
 	_check("R is still reload", _bound_key("reload") == KEY_R)
 	_check("C throws the stored dangerous magazine", _bound_key("throw_magazine") == KEY_C)
 

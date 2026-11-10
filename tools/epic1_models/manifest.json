@@ -1,0 +1,174 @@
+{
+  "models": [
+    {
+      "file": "assets/models/weapons/obsidian_pistol.glb",
+      "source": "tools/epic1_models/obsidian_pistol.blend",
+      "blender_version": "5.2.3 LTS",
+      "source_polygons": 120,
+      "glb_triangles": 180,
+      "objects": {
+        "barrel_block": {
+          "polygons": 46,
+          "triangles": 76,
+          "triangles_authored": 16,
+          "quads_authored": 30,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.113599993288517,
+            0.06650000065565109
+          ]
+        },
+        "core_crystal": {
+          "polygons": 4,
+          "triangles": 4,
+          "triangles_authored": 4,
+          "quads_authored": 0,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.05849999934434891,
+            0.057500001043081284
+          ]
+        },
+        "grip_block": {
+          "polygons": 36,
+          "triangles": 56,
+          "triangles_authored": 16,
+          "quads_authored": 20,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "slide_block": {
+          "polygons": 34,
+          "triangles": 44,
+          "triangles_authored": 24,
+          "quads_authored": 10,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.00910000130534172,
+            0.06800000369548798
+          ]
+        }
+      },
+      "bounds_game": {
+        "min": [
+          -0.01599999889731407,
+          -0.05000000074505806,
+          -0.17649999260902405
+        ],
+        "max": [
+          0.016000010073184967,
+          0.08500000834465027,
+          0.04349999874830246
+        ],
+        "size": [
+          0.03200000897049904,
+          0.13500000908970833,
+          0.2199999913573265
+        ]
+      },
+      "source_forward": "-Y",
+      "export_correction": "180 degrees about Blender Z, baked before Y-up export",
+      "game_forward": "-Z",
+      "game_up": "+Y",
+      "sha256": "db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401",
+      "muzzle_game": [
+        -0.0,
+        0.06599999964237213,
+        -0.17650000751018524
+      ],
+      "grip_height_m": 0.1,
+      "target_dimensions_m": [
+        0.032,
+        0.135,
+        0.22
+      ],
+      "muzzle_recess_depth_m": 0.01,
+      "budget_policy": "quality-first; source polygons and render triangles reported separately"
+    },
+    {
+      "file": "assets/models/weapons/mind_blade.glb",
+      "source": "tools/epic1_models/mind_blade.blend",
+      "blender_version": "5.2.3 LTS",
+      "source_polygons": 45,
+      "glb_triangles": 70,
+      "objects": {
+        "blade": {
+          "polygons": 21,
+          "triangles": 22,
+          "triangles_authored": 20,
+          "quads_authored": 1,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.20000000298023224,
+            0.0
+          ]
+        },
+        "grip": {
+          "polygons": 22,
+          "triangles": 44,
+          "triangles_authored": 0,
+          "quads_authored": 22,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "spine_energy": {
+          "polygons": 2,
+          "triangles": 4,
+          "triangles_authored": 0,
+          "quads_authored": 2,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.18850000202655792,
+            0.0
+          ]
+        }
+      },
+      "bounds_game": {
+        "min": [
+          -0.007499993313103914,
+          -0.019999999552965164,
+          -0.3400000035762787
+        ],
+        "max": [
+          0.007500006817281246,
+          0.019999999552965164,
+          0.05999999865889549
+        ],
+        "size": [
+          0.01500000013038516,
+          0.03999999910593033,
+          0.4000000022351742
+        ]
+      },
+      "source_forward": "-Y",
+      "export_correction": "180 degrees about Blender Z, baked before Y-up export",
+      "game_forward": "-Z",
+      "game_up": "+Y",
+      "sha256": "dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f",
+      "blade_length_m": 0.28,
+      "grip_to_tip_m": 0.34,
+      "overall_length_m": 0.4,
+      "target_dimensions_m": [
+        0.015,
+        0.04,
+        0.4
+      ],
+      "budget_policy": "quality-first; source polygons and render triangles reported separately",
+      "game_thickness_axis": "X",
+      "game_cutting_edge": "-Y"
+    }
+  ]
+}

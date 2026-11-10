@@ -128,7 +128,6 @@ func _open(spec: Dictionary) -> Node:
 	player.set_process(false)
 	player.weapon.visible = false
 	player.melee.visible = false
-	player.hammer.visible = false
 	(scene.get_node("HUD") as CanvasLayer).visible = false
 	get_tree().paused = false
 	var director := scene.get_node("ZoneDirector") as ZoneDirector

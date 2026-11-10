@@ -1,5 +1,5 @@
 extends Node
-## Headless check of the hammer capture (Cut-001b AC-01 and AC-03). Run from
+## Headless check of the blade capture (Cut-001b AC-01 and AC-03). Run from
 ## the project root (it is a scene, not a --script, so the autoloads exist):
 ##   godot --headless --path . res://tests/capture_hammer_test.tscn
 ## Prints one line per check. Exits 1 if a check failed or if the run stopped
@@ -50,10 +50,10 @@ func _run() -> void:
 	for i in guards.size():
 		_check("building still locked with %d guards alive" % (guards.size() - i), point.locked)
 		(guards[i] as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
-	_check("last guard down -> HAMMER_POINT", director.phase == ZoneDirector.Phase.HAMMER_POINT)
+	_check("last guard down -> CLOCK_POINT", director.phase == ZoneDirector.Phase.CLOCK_POINT)
 	_check("building is open", not point.locked)
 
-	print("== stage 2: hammer the building (AC-01, AC-03)")
+	print("== stage 2: blade the building (AC-01, AC-03)")
 	point.resolve_swing(2.0)
 	_check("a swing out of reach adds nothing", point.progress == 0.0 and _strikes.is_empty())
 	player.global_position = point.global_position + Vector3(0.0, 0.0, 3.0)
@@ -147,7 +147,7 @@ func _run() -> void:
 	scene.queue_free()
 	await get_tree().process_frame
 
-	print("== real input path: E key -> Hammer -> CapturePoint")
+	print("== real input path: V key -> MindBlade -> CapturePoint")
 	scene = load("res://maps/zone_2.tscn").instantiate()
 	add_child(scene)
 	await get_tree().process_frame
@@ -162,12 +162,14 @@ func _run() -> void:
 	player.global_position = point.global_position + Vector3(0.0, 0.0, 3.0)
 	for i in 4:
 		await get_tree().physics_frame
-	await _tap_hammer()
-	_check("pressing E resolves one swing against the building", _strikes.size() == 1)
-	await _tap_hammer()
+	await _tap_blade()
+	await get_tree().create_timer(0.21).timeout
+	_check("pressing V resolves one swing against the building", _strikes.size() == 1)
+	await _tap_blade()
 	_check("a second press inside the swing cooldown is ignored", _strikes.size() == 1)
-	await get_tree().create_timer(Hammer.SWING_COOLDOWN + 0.1).timeout
-	await _tap_hammer()
+	await get_tree().create_timer(player.melee.current().cycle() + 0.1).timeout
+	await _tap_blade()
+	await get_tree().create_timer(0.21).timeout
 	_check("after the cooldown the next press swings again", _strikes.size() == 2)
 	scene.queue_free()
 	await get_tree().process_frame
@@ -207,7 +209,7 @@ func _expect_last(label: String, perfect: bool, worth: float) -> void:
 	_check(label, not last.is_empty() and last[0] == perfect and is_equal_approx(last[2], worth))
 
 
-## This scene is about the hammer, not the reinforcement pressure. A zero cap
+## This scene is about the blade, not the reinforcement pressure. A zero cap
 ## keeps the shared cadence resource intact and stops waves from shooting the
 ## scripted player during the waits below.
 func _silence_reinforcements(director: ZoneDirector) -> void:
@@ -232,9 +234,9 @@ func _check(label: String, ok: bool) -> void:
 
 ## Presses and releases E. Waits for a frame boundary first: a timer resumes
 ## after the nodes' _process of its frame, and a press made then would be
-## released before the hammer ever polls it.
-func _tap_hammer() -> void:
+## released before the blade ever polls it.
+func _tap_blade() -> void:
 	await get_tree().process_frame
-	Input.action_press("hammer")
+	Input.action_press("melee")
 	await get_tree().process_frame
-	Input.action_release("hammer")
+	Input.action_release("melee")

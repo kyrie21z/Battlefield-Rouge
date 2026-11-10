@@ -10,12 +10,8 @@ extends Node
 const ICON_SIZE := Vector2i(256, 128)
 const OUTPUT_DIR := "res://assets/ui/weapons"
 const MODELS := [
-	["ak", "res://weapons/viewmodels/rifle_view.tscn"],
-	["shotgun", "res://weapons/viewmodels/shotgun_view.tscn"],
-	["sniper", "res://weapons/viewmodels/sniper_view.tscn"],
-	["knife", "res://weapons/viewmodels/knife_view.tscn"],
-	["axe", "res://weapons/viewmodels/axe_view.tscn"],
-	["tachi", "res://weapons/viewmodels/tachi_view.tscn"],
+	["pistol", "res://weapons/obsidian_pistol/obsidian_pistol_view.tscn"],
+	["mind_blade", "res://weapons/mind_blade/mind_blade_view.tscn"],
 ]
 
 var _viewport: SubViewport
@@ -54,15 +50,16 @@ func _render(icon_name: String, scene_path: String) -> void:
 	_world.add_child(view)
 	await get_tree().process_frame
 
-	var meshes := view.find_children("*", "MeshInstance3D", true, false)
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = Color.WHITE
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var bounds := AABB()
 	var has_bounds := false
-	for found in meshes:
+	for found in view.find_children("*", "MeshInstance3D", true, false):
 		var mesh := found as MeshInstance3D
+		if not mesh.visible:
+			continue
 		mesh.material_override = material
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var box: AABB = mesh.global_transform * mesh.get_aabb()

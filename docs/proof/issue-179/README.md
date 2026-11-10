@@ -31,3 +31,7 @@ flock /tmp/epic675-native.lock /tmp/epic34-plan/godot-wsl --path . --quit-after 
 ARCHITECTURE：`audio/realms` 由房间注入玩家/几何，环境和跨领域馈赠反馈分离，不读 RunState。
 GLOSSARY：镜潭声景、`sorrow_tear_collected` 成功拾取反馈。
 ASSETS：以上为本仓库原创程序合成音频，无下载/旧工程素材。
+
+## 集中生产集成
+
+`tests/sorrow_audio_integration_test.tscn` 在真实 Sloth/Fear/Wrath/Sorrow 房间验证自动安装、跨域泪晶、玻璃单源，以及真实 Sorrow Boss 死亡后雨声停止：**8 checks, 0 failures**（`integration.log`），Godot 4.7.2 headless，无脚本错误或退出警告。缺少专属环境 director 的房间由 RealmStage 安装通用 RealmAudioDirector，确保跨域馈赠不会依赖其他声景 issue 的合并顺序。

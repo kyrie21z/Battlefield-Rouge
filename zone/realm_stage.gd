@@ -97,11 +97,10 @@ func _ready() -> void:
 
 func _install_audio() -> void:
 	var path := "res://audio/realms/%s_audio_director.gd" % REALMS[realm]
-	if ResourceLoader.exists(path):
-		var audio := load(path).new() as RealmAudioDirector
-		audio.name = "RealmAudio"
-		audio.setup(self)
-		add_child(audio)
+	var audio := load(path).new() as RealmAudioDirector if ResourceLoader.exists(path) else RealmAudioDirector.new()
+	audio.name = "RealmAudio"
+	audio.setup(self)
+	add_child(audio)
 
 func _apply_run() -> void:
 	player.boons.restore(saved_boons)

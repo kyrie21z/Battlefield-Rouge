@@ -76,6 +76,12 @@ func _ready() -> void:
 	_boss_name.offset_top = 25
 	_boss_bar = ProgressBar.new()
 	_boss_bar.show_percentage = false
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = BoonIdentity.COLORS[stage.realm]
+	_boss_bar.add_theme_stylebox_override("fill",fill)
+	var background := StyleBoxFlat.new()
+	background.bg_color = Color(0.06,0.06,0.07,0.85)
+	_boss_bar.add_theme_stylebox_override("background",background)
 	_boss_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_boss_bar.offset_left = -240
 	_boss_bar.offset_right = 240

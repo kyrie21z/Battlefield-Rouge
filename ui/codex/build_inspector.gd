@@ -174,9 +174,22 @@ func refresh() -> void:
 	content.add_child(grid)
 	for slot in player.boons.slots:
 		var card := slot.data
+		var frame := PanelContainer.new()
+		frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var card_style := StyleBoxFlat.new()
+		var accent := BoonIdentity.accent(card) if card != null else Color("686a70")
+		card_style.bg_color = Color(accent.r*0.075+0.04,accent.g*0.075+0.04,accent.b*0.075+0.045,1.0)
+		card_style.border_color = Color(accent,0.7)
+		card_style.set_border_width_all(1)
+		card_style.border_width_left = 3
+		card_style.content_margin_left = 16
+		card_style.content_margin_right = 16
+		card_style.content_margin_top = 12
+		card_style.content_margin_bottom = 12
+		frame.add_theme_stylebox_override("panel",card_style)
+		grid.add_child(frame)
 		var box := VBoxContainer.new()
-		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		grid.add_child(box)
+		frame.add_child(box)
 		box.add_child(label(BoonIdentity.SLOT_NAMES[slot.index],20,Color("c6c3bc")))
 		add_card(box,card)
 	content.add_child(label("次级特质 · %d" % player.boons.traits.size(),26))

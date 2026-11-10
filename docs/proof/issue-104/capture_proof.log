@@ -16,7 +16,7 @@ Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 La
 配置 res://zone/capture_config.tres
 起点 普通局（无 fixture）   种子 3259686096
 窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
-节拍周期 1.0 s   与命中时刻相差 -367 ms 
+节拍周期 1.0 s   与命中时刻相差 -367 ms
 上一击 —
 统计 完美 0 / 普通 0
 press at offset -200 ms, progress 0%
@@ -38,7 +38,7 @@ struck ordinary +410 ms +10%
 配置 res://zone/capture_config.tres
 起点 普通局（无 fixture）   种子 3259686096
 窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
-节拍周期 1.0 s   与命中时刻相差 +492 ms 
+节拍周期 1.0 s   与命中时刻相差 +492 ms
 上一击 普通  +410 ms  +10.0%
 统计 完美 1 / 普通 1
 press at offset -202 ms, progress 30%

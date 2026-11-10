@@ -51,6 +51,7 @@ func _ready() -> void:
 	Events.zone_cleared.connect(func(zone: int): _log("zone_cleared %d" % zone))
 	Events.point_captured.connect(func(zone: int): _log("point_captured %d" % zone))
 	Events.buff_chosen.connect(func(buff: Resource): _log("buff %s" % buff.resource_path.get_file()))
+	Events.boon_chosen.connect(func(boon: Resource): _log("boon %s" % boon.id))
 	Events.player_died.connect(func(): _log("player_died"))
 	Events.run_won.connect(func(): _log("run_won"))
 	await _run()

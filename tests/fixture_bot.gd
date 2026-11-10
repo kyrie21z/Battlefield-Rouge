@@ -191,6 +191,9 @@ func _blade(player: Player, point: CapturePoint) -> void:
 func _take_first_buff(director: ZoneDirector) -> void:
 	for child in director.get_children():
 		if child.has_signal("chosen"):
+			if child is BoonPicker and child._pending != null:
+				child.confirm_replacement(true)
+				return
 			var choices := child.get_node("Center/Box/Choices")
 			if choices.get_child_count() > 0:
 				(choices.get_child(0) as Button).pressed.emit()

@@ -2,6 +2,7 @@ extends Node
 ## Native evidence of final-shot storage, C throwing before reload completes,
 ## and the real 6m explosion at a distant enemy. No player-centred blast exists.
 ## AI and movement are staged; the real map, HUD and player/enemy models render.
+## The old magazine perk is injected by a legacy fixture, not by boon selection.
 
 var _out := "res://docs/proof/empty-magazine"
 var _checks := 0
@@ -31,8 +32,11 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	RunState.start_fixture(RunFixture.by_id("FX-001"))
-	BuffPool.reset(40408)
+	var fixture := RunFixture.by_id("FX-001").duplicate() as RunFixture
+	fixture.id = "LEGACY-MAGAZINE-PROOF"
+	fixture.run_seed = 40408
+	fixture.buffs.assign([BuffPool.ALL[0]])
+	RunState.start_fixture(fixture)
 	var scene: Node = load(RunState.zone_scene()).instantiate()
 	scene.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(scene)
@@ -40,6 +44,7 @@ func _run() -> void:
 	var player := scene.get_node("Player") as Player
 	(director.selection.get_node("Center/Box/Choices").get_child(0) as Button).pressed.emit()
 	await get_tree().process_frame
+	player.boons.clear() # Isolate the historical magazine from new family shots.
 	player.set_physics_process(false)
 	player.set_process(false)
 	player.set_process_unhandled_input(false)
@@ -62,7 +67,7 @@ func _run() -> void:
 	player.weapon.reserve = 100
 	player.weapon.ammo_changed.emit(player.weapon.ammo, player.weapon.reserve)
 	await _frames(5)
-	_check("real entry choice enables the dangerous-magazine perk", player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE) > 0.0)
+	_check("explicit legacy fixture enables the dangerous-magazine perk", player.stats.get_value(Stats.RELOAD_BLAST_DAMAGE) > 0.0)
 	_check("C is unlocked and empty before the final shot", not magazine_slot.locked and not magazine_slot.slot_ready and magazine_slot.count_text == "0/1")
 	await _shot("01-ready-last-round")
 	var thrown: Array[Node3D] = []
@@ -70,7 +75,7 @@ func _run() -> void:
 	player.combat_traits.reload_charge_stored.connect(func():
 		before_reload[0] = not player.weapon.is_reloading() and player.weapon.ammo == 0)
 	player.combat_traits.reload_charge_thrown.connect(func(charge: Node3D): thrown.append(charge))
-	_check("last real rifle shot is accepted", player.weapon.try_fire())
+	_check("last real pistol shot is accepted", player.weapon.try_fire())
 	_check("one charge is stored synchronously before reload begins", before_reload[0] and player.combat_traits.has_reload_charge())
 	_check("automatic reload starts while the charge is already available", player.weapon.is_reloading() and player.weapon.ammo == 0)
 	_check("emptying the gun does not automatically throw or explode", thrown.is_empty() and not scene.has_node("BlastPulse"))

@@ -25,7 +25,8 @@ signal enemies_changed(alive: int, total: int)
 ## listeners; it never changes the spawn order or the run's timing.
 signal reinforcement_spawned(position: Vector3)
 
-const BUFF_SELECT := preload("res://ui/buff_select.tscn")
+const BUFF_SELECT := preload("res://ui/boon_picker/boon_picker.tscn")
+const DOOR_MARKER := preload("res://zone/door/door_reward_marker.tscn")
 const RUN_END := preload("res://ui/run_end.tscn")
 const ENEMY_SCENE := preload("res://actors/enemy/enemy.tscn")
 const BUFF_CHOICES := 3
@@ -93,6 +94,10 @@ var _shockwave_played := false
 ## Markers already used by the current wave, so two enemies do not share one.
 var _wave_used_markers: Array[Node3D] = []
 var _spawn_clearance_shape: CapsuleShape3D
+var _offer_rng := RandomNumberGenerator.new()
+var reward_sin := 0
+var reward_marker: DoorRewardMarker
+var _reward_offer: Array[BoonData] = []
 
 
 func _enter_tree() -> void:
@@ -101,6 +106,8 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	zone_index = RunState.zone_index
+	_offer_rng.seed = RunState.zone_seed() ^ 0x0FFE2
+	reward_sin = _offer_rng.randi_range(0, 3)
 	# Nothing has drawn a random number yet; everything the zone draws from here
 	# on follows from the run's seed, and every time in it counts from here (AC-07).
 	seed(RunState.zone_seed())
@@ -475,6 +482,13 @@ func _spawn_pedestal() -> void:
 	buff_pedestal.name = "BuffPedestal"
 	get_parent().add_child(buff_pedestal)
 	buff_pedestal.global_position = capture_point.global_position + PEDESTAL_OFFSET
+	reward_marker = DOOR_MARKER.instantiate() as DoorRewardMarker
+	reward_marker.reward = reward_sin
+	reward_marker.show_frame = true
+	reward_marker.hint = "按 %s 领取门扉馈赠" % KeyHint.of("interact")
+	buff_pedestal.add_child(reward_marker)
+	reward_marker.position.y = 2.4
+	buff_pedestal.show_reward_theme(BoonIdentity.COLORS[reward_sin])
 
 
 func _offer_buff(context: String) -> void:
@@ -483,25 +497,52 @@ func _offer_buff(context: String) -> void:
 	selection_context = context
 	selection_count += 1
 	var stage_name := "Boss · 城市核心" if is_boss_zone else "小关 %d" % (zone_index + 1)
-	var title := "进入%s前：选择一个增益" % stage_name if context == "enter" \
-		else "%s已完成：选择通关增益" % stage_name
+	var title := "进入%s前：选择心魔馈赠" % stage_name if context == "enter" \
+		else "%s · %s的门扉馈赠" % [stage_name, BoonIdentity.SIN_NAMES[reward_sin]]
 	_set_phase(Phase.BUFF_SELECT, title)
-	selection = BUFF_SELECT.instantiate() as CanvasLayer
+	selection = BUFF_SELECT.instantiate() as BoonPicker
 	add_child(selection)
-	selection.call("setup", BuffPool.pick(BUFF_CHOICES), title)
-	selection.connect("chosen", _on_buff_chosen)
+	_reward_offer = BoonOffers.pick(_player.boons, _offer_rng, BUFF_CHOICES,
+		-1 if context == "enter" else reward_sin, [], context == "enter")
+	selection.call("setup", _reward_offer, _player.boons, title, RunState.boon_rerolls)
+	selection.connect("chosen", _on_boon_chosen)
+	selection.connect("reroll_requested", _reroll_boons)
+	selection.connect("skipped", _on_boon_skipped)
 
 
-func _on_buff_chosen(buff: Buff) -> void:
+func _reroll_boons() -> void:
+	if _ended or _transitioning or selection_context.is_empty() or not is_instance_valid(selection):
+		return
+	if not RunState.spend_boon_reroll():
+		return
+	_reward_offer = BoonOffers.pick(_player.boons, _offer_rng, BUFF_CHOICES,
+		-1 if selection_context == "enter" else reward_sin, _reward_offer, selection_context == "enter")
+	(selection as BoonPicker).update_offer(_reward_offer, RunState.boon_rerolls)
+	(selection as BoonPicker).show_reroll_cost()
+
+
+func _on_boon_chosen(boon: BoonData) -> void:
 	if _ended or _transitioning or selection_context.is_empty():
 		return
 	var context := selection_context
 	selection_context = ""
 	selection = null
-	RunState.record_selection(context, buff)
-	Events.buff_chosen.emit(buff)
+	RunState.record_boon_selection(context, boon)
+	Events.boon_chosen.emit(boon)
+	_finish_reward(context)
+
+
+func _on_boon_skipped() -> void:
+	if _ended or _transitioning or selection_context.is_empty():
+		return
+	var context := selection_context
+	selection_context = ""
+	selection = null
+	_finish_reward(context)
+
+
+func _finish_reward(context: String) -> void:
 	if context == "enter":
-		_player.stats.apply_buff(buff)
 		_start_combat()
 	else:
 		_transitioning = true
@@ -520,7 +561,7 @@ func _show_end(title: String, subtitle: String) -> void:
 	_ended = true
 	selection_context = ""
 	if is_instance_valid(selection):
-		selection.queue_free()
+		(selection as BoonPicker).dismiss_for_transition()
 	selection = null
 	var screen := RUN_END.instantiate()
 	add_child(screen)

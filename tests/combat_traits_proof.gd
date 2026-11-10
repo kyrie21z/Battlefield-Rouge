@@ -1,7 +1,7 @@
 extends Node
 ## Staged visual proof of the three core actions, using actual game components.
-## This fixture grants all cores for demonstration; normal choice timing is
-## independently verified by buff_run_test. Enemy AI is held still for framing.
+## This fixture grants legacy perks for demonstration; current boon selection
+## is independently verified by buff_run_test. Enemy AI is held for framing.
 
 var _out := "res://docs/proof/active-buffs"
 var _failures := 0
@@ -27,8 +27,11 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	RunState.start_new_run()
-	BuffPool.reset(40408)
+	var fixture := RunFixture.new()
+	fixture.id = "LEGACY-ACTIONS-PROOF"
+	fixture.run_seed = 40408
+	fixture.buffs.assign([BuffPool.ALL[0]])
+	RunState.start_fixture(fixture)
 	var scene := load(RunState.zone_scene()).instantiate() as Node
 	scene.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(scene)
@@ -36,6 +39,7 @@ func _run() -> void:
 	var player := scene.get_node("Player") as Player
 	(director.selection.get_node("Center/Box/Choices").get_child(0) as Button).pressed.emit()
 	await get_tree().process_frame
+	player.boons.clear() # These screenshots exercise only the restored old perks.
 	player.set_physics_process(false)
 	player.weapon.set_process(false)
 	player.global_position = Vector3.ZERO

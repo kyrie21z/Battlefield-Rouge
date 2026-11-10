@@ -121,4 +121,10 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 枪击、刀击与弹反飞弹使用同步可改写的 before/after 上下文，Health 在队伍、弹反及无敌检查后提供扣血前拦截，旧反击盾吸收器后接独立赐福屏障。衍生伤害带 tag/proc_depth，通过 Health/Hitbox 结算，深度上限 4；技能仍需自己的触发过滤。敌人和弹丸通过 Events 生命周期注册，Zone 为已存在敌人补注入；范围查询过滤同队、死亡与 WORLD 遮挡。敌人移动、动画、SlothAttack 和弹丸支持局部时间，恢复计时在玩家组件上运行，不修改 Engine.time_scale。暂停冻结临时计时，死亡和场景退出释放临时效果；退出不会发空装备保存事件。
 
-只有 Zone 接线 `RunState.boons` 的恢复、种子与保存；BoonManager 不读取 RunState。赐福随机使用独立并注入种子的 RNG，不装备卡时不消耗旧 fixture 的全局随机序列。旧 BuffPicker 仍用于该基础 PR 的正式发牌，完整赐福选择界面由 #124 接入。
+只有 Zone 接线 `RunState.boons` 的恢复、种子与保存；BoonManager 不读取 RunState。赐福随机使用独立并注入种子的 RNG，不装备卡时不消耗旧 fixture 的全局随机序列。#114 基础 PR 保留旧 BuffPicker；#124 已在此基础上接入下述正式选择界面。
+
+### 门扉与选卡（#124）
+
+正式进场及插旗后 F 交互使用 `ui/boon_picker/boon_picker.tscn`。初始给枪/刃/冲刺各一个核心候选，通关给与浮空心魔徽记一致的三张候选；替换需要确认。`BoonOffers` 使用 Zone 独立 RNG 和 `BoonManager.can_equip`，门扉可选到符合双系条件的双重卡。RunState 管理每局 2 次重抽与选卡历史；UI不直接扣费或推进关卡。暂停只冻结战斗，入场动画和确认交互继续；死亡界面接管暂停，空池仍可继续。
+
+`BoonIdentity` 是图标/主题数据，世界标识不依赖 UI Control。七种门扉标识均可配置，当前生产小关实际发放四系赐福；石榴/血量/商店图标为后续房间配置预留，未新增经济或房间流程。HUD显示当前赐福，历史 fixture Buff仍可恢复。当前保留每局三次选择，完整传奇成型需要后续增加房间循环；见 [ADR 0017](docs/adr/0017-boon-door-rewards.md)。

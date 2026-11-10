@@ -3,7 +3,7 @@ extends Node
 ## --headless --path . res://tests/buff_run_test.tscn
 ## With a display, append -- --proof=res://docs/proof/ac-04-ac-08 to save screenshots.
 
-const FIXTURE := "buff-two-small-zones-and-boss-20261027-seed-40408"
+const FIXTURE := "boon-two-small-zones-and-boss-epic2-seed-40408"
 const EXPECTED_SCENES: Array[String] = [
 	"res://maps/zone_1.tscn", "res://maps/zone_2.tscn", "res://maps/boss.tscn",
 ]
@@ -52,15 +52,15 @@ func _run() -> void:
 	await _combat_checks()
 	await _play_run([0, 1, 2], "mixed")
 	await _restart_from_end()
-	_check("restart resets buffs, unlocks and history", RunState.buffs.is_empty() and RunState.selection_history.is_empty() and RunState.zone_index == 0)
-	await _play_existing_run([0, 0, 0], "firearm")
+	_check("restart resets buffs, boons, rerolls and history", RunState.buffs.is_empty() and RunState.boons.is_empty() and RunState.boon_rerolls == RunState.STARTING_REROLLS and RunState.selection_history.is_empty() and RunState.zone_index == 0)
+	await _play_existing_run([0, 0, 0], "restarted")
 	await _restart_from_end()
 	var director := _director()
 	await _choose(director, 2)
 	var player := get_tree().get_first_node_in_group("player") as Player
 	player.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	await get_tree().process_frame
-	_check("death clears build and history", RunState.buffs.is_empty() and RunState.selection_history.is_empty() and RunState.zone_index == 0)
+	_check("death clears build and history", RunState.buffs.is_empty() and RunState.boons.is_empty() and RunState.selection_history.is_empty() and RunState.zone_index == 0)
 	_check("death shows end screen", director.get_children().any(func(n: Node): return n.has_signal("restart_pressed")))
 	await _restart_from_end()
 	_check("death restart opens exactly one entry choice", _director().selection_context == "enter" and _director().selection_count == 1)
@@ -248,12 +248,8 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			_check("later zone is already in combat", director.phase == expected_phase)
 			_check("guards already have a target", get_tree().get_nodes_in_group("enemy").all(func(e: Enemy): return e.target != null))
 		var player := get_tree().get_first_node_in_group("player") as Player
-		var expected := Stats.new()
-		for buff: Buff in RunState.buffs:
-			expected.apply_buff(buff)
-		for stat: StringName in expected.base:
-			_check("current scene preserves stacks: " + str(stat), is_equal_approx(expected.get_value(stat), player.stats.get_value(stat)))
-		expected.free()
+		_check("current scene restores every accepted boon", player.boons.all_equipped().size() == RunState.boons.size()
+			and RunState.boons.all(func(card: BoonData): return player.boons.has(card.id)))
 		if boss_zone:
 			_check("this is the boss zone", director.is_boss_zone and director.boss != null)
 			_check("the core stays shut while the Boss lives", director.phase == ZoneDirector.Phase.BOSS_STANDING
@@ -283,6 +279,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 				director.selection == null and director.selection_context.is_empty() and not get_tree().paused)
 			var pedestal := director.buff_pedestal
 			_check("buff pedestal stands beside the flag", pedestal != null)
+			_check("door symbol describes the next boon offer", director.reward_marker != null and director.reward_marker.reward == director.reward_sin)
 			player.global_position = pedestal.global_position
 			Input.action_press("interact")
 			await get_tree().physics_frame
@@ -307,21 +304,15 @@ func _play_existing_run(indices: Array, label: String) -> void:
 	var contexts: Array[String] = []
 	for entry in RunState.selection_history:
 		contexts.append("%d:%s" % [entry.zone_index, entry.context])
-	_check("exactly three choices in expected order", contexts == EXPECTED_SELECTIONS and RunState.buffs.size() == 3)
-	if label == "mixed":
-		var schools := {}
-		for buff: Buff in RunState.buffs:
-			schools[buff.school_id] = true
-		_check("mixed build keeps all three schools", schools.size() == 3)
-	else:
-		_check("linear build stays in selected school", RunState.buffs.all(func(b: Buff): return b.school_id == &"firearm"))
+	_check("exactly three choices in expected order", contexts == EXPECTED_SELECTIONS and RunState.selection_history.size() == 3)
+	_check("build consists of persistent boon cards", not RunState.boons.is_empty() and RunState.boons.all(func(card): return card is BoonData))
 	print("SELECTION HISTORY " + label + ": " + str(contexts))
 
 
 func _choose(director: ZoneDirector, index: int) -> void:
 	var select := director.selection
 	var choices := select.get_node("Center/Box/Choices")
-	var count_before := RunState.buffs.size()
+	var count_before := RunState.selection_history.size()
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_1 + index
 	key.pressed = true
@@ -329,7 +320,9 @@ func _choose(director: ZoneDirector, index: int) -> void:
 	# Synthetic events are accumulated just like platform events. Flush before
 	# checking the synchronous result or the fallback click masks keyboard bugs.
 	Input.flush_buffered_events()
-	_check("number key selects card", RunState.buffs.size() == count_before + 1)
+	if select is BoonPicker and select._pending != null:
+		select.confirm_replacement(true)
+	_check("number key selects card and replacement can confirm", RunState.selection_history.size() == count_before + 1)
 	# Repeated same-frame keyboard and mouse input must not add another buff.
 	Input.parse_input_event(key.duplicate() as InputEventKey)
 	Input.flush_buffered_events()
@@ -339,7 +332,7 @@ func _choose(director: ZoneDirector, index: int) -> void:
 	key.pressed = false
 	Input.parse_input_event(key)
 	Input.flush_buffered_events()
-	_check("one selection despite duplicate input", RunState.buffs.size() == count_before + 1)
+	_check("one selection despite duplicate input", RunState.selection_history.size() == count_before + 1)
 	await get_tree().process_frame
 
 

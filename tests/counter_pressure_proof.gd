@@ -1,6 +1,7 @@
 extends Node
 ## Native evidence for persistent capacity shielding on a real playable map.
-## Uses the actual skill choice, physical G input and hostile Projectile hits.
+## A legacy fixture grants the old shield perk; current entry uses boon cards.
+## Physical G input and hostile Projectile hits exercise the real shield.
 ## Other AI is frozen to isolate shielding; no shield clock/state is assigned.
 
 var _out := "res://artifacts/counter-pressure-native"
@@ -36,9 +37,12 @@ func _process(delta: float) -> void:
 
 func _run() -> void:
 	_check(RenderingServer.get_current_rendering_method()=="forward_plus","native Forward+ renderer")
-	RunState.clear_fixture()
-	RunState.start_new_run()
-	RunState.run_seed=20261108
+	var fixture := RunFixture.new()
+	fixture.id = "LEGACY-COUNTER-PROOF"
+	fixture.description = "Legacy shield-only visual fixture; not a new boon reward"
+	fixture.run_seed = 20261108
+	fixture.buffs.assign([BuffPool.ALL[6]])
+	RunState.start_fixture(fixture)
 	_scene=load("res://maps/zone_1.tscn").instantiate() as Node3D
 	add_child(_scene)
 	var director := _scene.get_node("ZoneDirector") as ZoneDirector
@@ -49,17 +53,10 @@ func _run() -> void:
 		if enemy is SlothEnemy:enemy._cancel_attack()
 	_check(minions.size()==7,"proof uses the authored increased first wave")
 	_check(director.selection!=null,"real opening card UI is present")
-	var counter_index := -1
-	var offered: Array[Buff] = director.selection.get("_offered")
-	for index in offered.size():
-		if offered[index].id==&"skill_unlock":counter_index=index
-	_check(counter_index>=0,"the actual offered cards include the counter skill ID")
-	if counter_index<0:
-		get_tree().quit(1)
-		return
-	(director.selection.get_node("Center/Box/Choices").get_child(counter_index) as Button).pressed.emit()
+	(director.selection.get_node("Center/Box/Choices").get_child(0) as Button).pressed.emit()
 	await get_tree().process_frame
-	_check(_player.shield.is_unlocked() and _player.shield.is_counter_mode(),"actual counter card unlocks persistent shielding")
+	_player.boons.clear() # Isolate the historical shield from new family effects.
+	_check(_player.shield.is_unlocked() and _player.shield.is_counter_mode(),"explicit legacy fixture unlocks persistent shielding")
 	_check(is_equal_approx(_player.shield.capacity(),100.0),"default capacity is 100 absorbed damage")
 	_player.set_physics_process(false)
 	_player.set_process_unhandled_input(false)
@@ -121,7 +118,7 @@ func _run() -> void:
 	var report := {"checks":_checks,"failures":_failures,"renderer":RenderingServer.get_current_rendering_method(),
 		"adapter":RenderingServer.get_video_adapter_name(),"capacity":_player.shield.capacity(),"manual_absorbed":35.0,
 		"automatic_absorbed":100.0,"pulse_count":_pulses,"screenshots":_shots,
-		"staging":"Real zone_1, actual first skill choice, physical G, actual hostile Projectiles. Other AI frozen and one authored Sloth target placed four metres ahead; normal shield clocks and damage remain unchanged."}
+		"staging":"Real zone_1 with explicit legacy skill_unlock fixture, current boon entry accepted then removed for isolation, physical G, actual hostile Projectiles. Other AI frozen and one authored Sloth target placed four metres ahead; normal shield clocks and damage remain unchanged. This does not demonstrate a current boon award."}
 	var file := FileAccess.open(_out.path_join("counter-report.json"),FileAccess.WRITE)
 	if file!=null:file.store_string(JSON.stringify(report,"\t")+"\n")
 	Input.action_release("shield")

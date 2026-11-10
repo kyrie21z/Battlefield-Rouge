@@ -14,6 +14,7 @@ signal player_died
 signal zone_cleared(zone_index: int)
 signal point_captured(zone_index: int)
 signal buff_chosen(buff: Resource)
+signal boon_chosen(boon: Resource)
 signal run_won
 
 ## Presentation hook: count of defeated inner demons (0..4).

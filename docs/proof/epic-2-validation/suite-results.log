@@ -1,0 +1,58 @@
+active_magazine_test | exit=0 | no errors/warnings | ACTIVE MAGAZINE: 50 checks, 0 failed
+body_awareness_test | exit=0 | no errors/warnings | BODY AWARENESS: ALL PASSED (0 failed)
+boon_combat_bench_test | exit=0 | no errors/warnings | BOON BENCH: ALL PASSED (0 failed)
+boon_damage_scaling_test | exit=0 | no errors/warnings | DAMAGE SCALING: 34 checks, 0 failed, completed=true
+boon_offers_test | exit=0 | no errors/warnings | BOON OFFERS: ALL PASSED (0 failed)
+boon_picker_test | exit=0 | no errors/warnings | BOON PICKER: ALL PASSED (0 failed)
+boon_pipeline_test | exit=0 | no errors/warnings | BOON PIPELINE: 64 checks, 0 failed, completed=true
+boss_test | exit=0 | no errors/warnings | ALL PASSED (63 checks, 0 failed)
+buff_run_test | exit=0 | no errors/warnings | boon-two-small-zones-and-boss-epic2-seed-40408: ALL PASSED (0 failed)
+capture_hammer_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+cloak_defense_test | exit=0 | no errors/warnings | CLOAK DEFENSE: 21 checks, 0 failed, finished=true
+combat_bench_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+combat_traits_test | exit=0 | no errors/warnings | COMBAT TRAITS: ALL PASSED (0 failed)
+counter_shield_test | exit=0 | no errors/warnings | COUNTER SHIELD: 28 checks, 0 failed
+crystal_seams_test | exit=0 | no errors/warnings | CRYSTAL SEAMS: ALL PASSED (0 failed)
+dash_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+dual_boons_test | exit=0 | no errors/warnings | ALL PASSED (0 failed, finished=true)
+enemy_bullet_test | exit=0 | no errors/warnings | ENEMY BULLETS: ALL PASSED (0 failed)
+enemy_layout_test | exit=0 | no errors/warnings | ALL PASSED (55 checks, 0 failed)
+fear_boon_core_test | exit=0 | no errors/warnings | ALL PASSED (0 failed, finished=true)
+fear_boon_traits_test | exit=0 | no errors/warnings | ALL PASSED (0 failed, finished=true)
+fear_decoy_snapshot_test | exit=0 | no errors/warnings | ALL PASSED (0 failed, finished=true)
+firing_position_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+fixture_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+gun_feel_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+hammer_feel_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+hit_feel_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+hud_test | exit=0 | no errors/warnings | ALL PASSED (282 checks, 0 failed)
+hurt_feedback_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+keybinding_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+melee_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+mind_blade_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+minimap_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+music_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+obsidian_pistol_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+opening_boot_test | exit=0 | no errors/warnings |  OPENING BOOT: 30 checks, 0 failures
+opening_transition_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+phase_banner_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+protagonist_body_test | exit=0 | no errors/warnings | PROTAGONIST BODY: ALL PASSED (0 failed)
+reflected_round_test | exit=0 | no errors/warnings | REFLECTED ROUND: ALL PASSED (0 failed)
+reinforcement_test | exit=0 | no errors/warnings | ALL PASSED (77 checks, 0 failed)
+reload_blast_test | exit=0 | no errors/warnings | RELOAD BLAST: 43 checks, 0 failed
+school_icons_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+settings_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+shield_visual_test | exit=0 | no errors/warnings | SHIELD FEEDBACK: 25 checks, 0 failed
+sloth_boon_core_test | exit=0 | no errors/warnings | SLOTH CORE: ALL PASSED (0 failed)
+sloth_boon_traits_test | exit=0 | no errors/warnings | SLOTH TRAITS: ALL PASSED (0 failed)
+sloth_cache_test | exit=0 | no errors/warnings |   [ok] killing cached variant 2 leaves its peer visible and alive SLOTH_CACHE_COMPLETE checks=16 failures=0
+sloth_enemy_test | exit=0 | no errors/warnings | SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)
+sloth_integration_test | exit=0 | no errors/warnings | PASS | Defeat restart creates one fresh entry choice SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures
+sloth_pursuit_test | exit=0 | no errors/warnings | SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)
+sloth_revision_test | exit=0 | no errors/warnings | NAVY REVISION: 27 checks, 0 failed
+sorrow_boon_core_test | exit=0 | no errors/warnings | SORROW CORE: ALL PASSED (0 failed)
+sorrow_boon_traits_test | exit=0 | no errors/warnings | SORROW TRAITS: ALL PASSED (0 failed)
+spawn_sight_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+weapons_test | exit=0 | no errors/warnings | ALL PASSED (0 failed)
+wrath_core_test | exit=0 | no errors/warnings | WRATH CORE: 21 checks, 0 failed, completed=true
+wrath_traits_test | exit=0 | no errors/warnings | WRATH TRAITS: 36 checks, 0 failed, completed=true

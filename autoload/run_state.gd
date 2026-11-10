@@ -15,6 +15,9 @@ const ZONE_SCENES: Array[String] = [
 var zone_index := 0
 var buffs: Array[Resource] = []
 var boons: Array[Resource] = []
+## Local run allowance; metaprogression is outside Epic 2.
+const STARTING_REROLLS := 2
+var boon_rerolls := STARTING_REROLLS
 ## Accepted choices in order, including the zone and entry/clear context (AC-04).
 var selection_history: Array[Dictionary] = []
 ## Every random choice in a zone is drawn after the zone director seeds the
@@ -43,6 +46,7 @@ func start_new_run() -> void:
 	zone_index = 0
 	buffs.clear()
 	boons.clear()
+	boon_rerolls = STARTING_REROLLS
 	selection_history.clear()
 	run_seed = randi()
 	BuffPool.reset()
@@ -75,6 +79,23 @@ func record_selection(context: String, buff: Buff) -> void:
 	changed.emit()
 
 
+func record_boon_selection(context: String, boon: BoonData) -> void:
+	selection_history.append({
+		"zone_index": zone_index, "context": context,
+		"buff_id": boon.id, "buff_title": boon.name,
+		"boon_id": boon.id, "slot": boon.slot, "sin": boon.sin,
+	})
+	changed.emit()
+
+
+func spend_boon_reroll() -> bool:
+	if boon_rerolls <= 0:
+		return false
+	boon_rerolls -= 1
+	changed.emit()
+	return true
+
+
 ## Moves to the next zone. Returns false once the last zone is done.
 func advance_zone() -> bool:
 	if zone_index + 1 >= ZONE_SCENES.size():
@@ -102,6 +123,7 @@ func _apply(start: RunFixture) -> void:
 	zone_index = start.start_zone
 	buffs.assign(start.buffs)
 	boons.clear()
+	boon_rerolls = STARTING_REROLLS
 	run_seed = start.run_seed
 	selection_history.clear()
 	BuffPool.reset()

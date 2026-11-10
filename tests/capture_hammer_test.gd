@@ -228,7 +228,10 @@ func _silence_reinforcements(director: ZoneDirector) -> void:
 func _choose_entry(scene: Node) -> void:
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
 	if is_instance_valid(director.selection):
-		(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
+		var picker := director.selection as BoonPicker
+		(picker.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
+		if picker._pending != null:
+			(picker._confirmation.find_child("Confirm", true, false) as Button).pressed.emit()
 
 
 func _check(label: String, ok: bool) -> void:

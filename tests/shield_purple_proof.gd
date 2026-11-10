@@ -1,6 +1,7 @@
 extends Node
 ## Native rendering of the raised shield, absorbed hit and outgoing counter.
 ## Pixel comparisons use the same frozen view before/after the real actions.
+## The old shield perk is an explicit legacy fixture, not a current boon reward.
 
 var _out := "res://docs/proof/active-buffs"
 var _failures := 0
@@ -30,8 +31,11 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	RunState.start_new_run()
-	BuffPool.reset(40408)
+	var fixture := RunFixture.new()
+	fixture.id = "LEGACY-SHIELD-PROOF"
+	fixture.run_seed = 40408
+	fixture.buffs.assign([BuffPool.ALL[6]])
+	RunState.start_fixture(fixture)
 	var scene := (load(RunState.zone_scene()) as PackedScene).instantiate()
 	scene.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(scene)
@@ -39,9 +43,9 @@ func _run() -> void:
 	var player := scene.get_node("Player") as Player
 	for frame in 3:
 		await get_tree().process_frame
-	var skill_card := director.selection.get_node("Center/Box/Choices").get_child(2) as Button
-	skill_card.pressed.emit()
+	(director.selection.get_node("Center/Box/Choices").get_child(0) as Button).pressed.emit()
 	await get_tree().process_frame
+	player.boons.clear() # Keep this legacy shield evidence independent of boons.
 	player.set_process(false)
 	player.set_physics_process(false)
 	player.weapon.set_process(false)
@@ -57,8 +61,8 @@ func _run() -> void:
 		await get_tree().physics_frame
 	await RenderingServer.frame_post_draw
 	var baseline := get_viewport().get_texture().get_image()
-	_check("actual skill choice unlocks the same G shield", player.shield.is_unlocked())
-	_check("first skill card retains 115 maximum health", player.health.max_health == 115.0)
+	_check("explicit legacy fixture unlocks the same G shield", player.shield.is_unlocked())
+	_check("legacy skill perk retains 115 maximum health", player.health.max_health == 115.0)
 	var source := guards[1] as Enemy
 	var health_before := player.health.health
 	var target_before := source.health.health

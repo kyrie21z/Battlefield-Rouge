@@ -1,0 +1,333 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (230 steps)
+[   0% ] update_scripts_classes | SlothAttack
+[   0% ] update_scripts_classes | SlothEnemy
+[   0% ] update_scripts_classes |
+[   1% ] update_scripts_classes |
+[   1% ] update_scripts_classes | SlothShatter
+[   2% ] update_scripts_classes | SlothVisual
+[   2% ] update_scripts_classes | Enemy
+[   3% ] update_scripts_classes | FiringPositionBoard
+[   3% ] update_scripts_classes | BodyFracture
+[   3% ] update_scripts_classes |
+[   4% ] update_scripts_classes | CombatTraits
+[   4% ] update_scripts_classes |
+[   5% ] update_scripts_classes | PlayerDash
+[   5% ] update_scripts_classes | Player
+[   6% ] update_scripts_classes | PlayerShield
+[   6% ] update_scripts_classes | ProtagonistBody
+[   6% ] update_scripts_classes |
+[   7% ] update_scripts_classes |
+[   7% ] update_scripts_classes |
+[   8% ] update_scripts_classes | DualBoonManager
+[   8% ] update_scripts_classes | FearCriticalFeedback
+[   9% ] update_scripts_classes | FearEdgeWarning
+[   9% ] update_scripts_classes | FearEffect
+[   9% ] update_scripts_classes | FearHomingCrystal
+[  10% ] update_scripts_classes | FearTraitsRuntime
+[  10% ] update_scripts_classes | SlothEffect
+[  11% ] update_scripts_classes | SlothFeedback
+[  11% ] update_scripts_classes | SlothTraits
+[  12% ] update_scripts_classes | SlothWave
+[  12% ] update_scripts_classes | SorrowEffect
+[  12% ] update_scripts_classes | SorrowTraits
+[  13% ] update_scripts_classes | SorrowWaterBlade
+[  13% ] update_scripts_classes | SorrowWaterFx
+[  14% ] update_scripts_classes | WrathBoons
+[  14% ] update_scripts_classes | WrathEmbers
+[  15% ] update_scripts_classes | WrathTraits
+[  15% ] update_scripts_classes | BoonCatalog
+[  16% ] update_scripts_classes | BoonData
+[  16% ] update_scripts_classes | BoonEffect
+[  16% ] update_scripts_classes | BoonIdentity
+[  17% ] update_scripts_classes | BoonManager
+[  17% ] update_scripts_classes | BoonOffers
+[  18% ] update_scripts_classes | BoonPalette
+[  18% ] update_scripts_classes | BoonPool
+[  19% ] update_scripts_classes | BoonSlot
+[  19% ] update_scripts_classes | Buff
+[  19% ] update_scripts_classes | BuffPool
+[  20% ] update_scripts_classes | School
+[  20% ] update_scripts_classes | SchoolCatalog
+[  21% ] update_scripts_classes | ErosionStatus
+[  21% ] update_scripts_classes | FearDecoy
+[  22% ] update_scripts_classes | LatencyStatus
+[  22% ] update_scripts_classes | PanicFlawStatus
+[  22% ] update_scripts_classes | SpiteStatus
+[  23% ] update_scripts_classes | CollisionLayers
+[  23% ] update_scripts_classes | Health
+[  24% ] update_scripts_classes | Hitbox
+[  24% ] update_scripts_classes | HitReaction
+[  25% ] update_scripts_classes | KeyHint
+[  25% ] update_scripts_classes | SimClock
+[  25% ] update_scripts_classes | Stats
+[  26% ] update_scripts_classes |
+[  26% ] update_scripts_classes |
+[  27% ] update_scripts_classes | RunFixture
+[  27% ] update_scripts_classes | TearCrystal
+[  28% ] update_scripts_classes |
+[  28% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  30% ] update_scripts_classes |
+[  30% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  36% ] update_scripts_classes |
+[  36% ] update_scripts_classes |
+[  37% ] update_scripts_classes | CombatBenchTarget
+[  37% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  39% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  41% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  42% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  46% ] update_scripts_classes | FixtureBot
+[  47% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  75% ] update_scripts_classes | BoonPicker
+[  75% ] update_scripts_classes | BoonPresentation
+[  76% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  77% ] update_scripts_classes | AbilitySlot
+[  77% ] update_scripts_classes | BoonReplacePrompt
+[  78% ] update_scripts_classes | BossHealth
+[  78% ] update_scripts_classes | BuffBar
+[  79% ] update_scripts_classes |
+[  79% ] update_scripts_classes | CaptureDebug
+[  80% ] update_scripts_classes | Crosshair
+[  80% ] update_scripts_classes | DamageIndicator
+[  80% ] update_scripts_classes | GameSettings
+[  81% ] update_scripts_classes |
+[  81% ] update_scripts_classes | HealthTrail
+[  82% ] update_scripts_classes | HitStop
+[  82% ] update_scripts_classes |
+[  83% ] update_scripts_classes | HudStyle
+[  83% ] update_scripts_classes | KeyBindings
+[  83% ] update_scripts_classes | Minimap
+[  84% ] update_scripts_classes | MusicDirector
+[  84% ] update_scripts_classes | ObjectivePanel
+[  85% ] update_scripts_classes | PauseMenu
+[  85% ] update_scripts_classes | PhaseBanner
+[  86% ] update_scripts_classes | ProceduralMusic
+[  86% ] update_scripts_classes |
+[  87% ] update_scripts_classes | SceneFade
+[  87% ] update_scripts_classes | SchoolBadge
+[  87% ] update_scripts_classes | StrikeBar
+[  88% ] update_scripts_classes | Vitals
+[  88% ] update_scripts_classes | WeaponPanel
+[  89% ] update_scripts_classes | WorldMarker
+[  89% ] update_scripts_classes | CrystalImpact
+[  90% ] update_scripts_classes | DebrisBurst
+[  90% ] update_scripts_classes | Impact
+[  90% ] update_scripts_classes | Tracer
+[  91% ] update_scripts_classes | MeleeData
+[  91% ] update_scripts_classes | MeleeWeapon
+[  92% ] update_scripts_classes |
+[  92% ] update_scripts_classes | ObsidianPistolView
+[  93% ] update_scripts_classes | WrathProjectile
+[  93% ] update_scripts_classes | WrathSpike
+[  93% ] update_scripts_classes | ProceduralAudio
+[  94% ] update_scripts_classes | Projectile
+[  94% ] update_scripts_classes | ReloadCharge
+[  95% ] update_scripts_classes | ViewSpring
+[  95% ] update_scripts_classes | Weapon
+[  96% ] update_scripts_classes | WeaponData
+[  96% ] update_scripts_classes | DoorRewardMarker
+[  96% ] update_scripts_classes | BuffPedestal
+[  97% ] update_scripts_classes | CaptureConfig
+[  97% ] update_scripts_classes | CapturePoint
+[  98% ] update_scripts_classes | CoverPoint
+[  98% ] update_scripts_classes | ReinforcementConfig
+[  99% ] update_scripts_classes | ZoneDirector
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (62 steps)
+[   0% ] _update_scan_actions | hit_body.ogg
+[   1% ] _update_scan_actions | hit_head.ogg
+[   3% ] _update_scan_actions | enemy.gltf
+[   4% ] _update_scan_actions | hazmat.gltf
+[   6% ] _update_scan_actions | red_crystal_enemy_animated.glb
+[   7% ] _update_scan_actions | red_crystal_enemy_parts.glb
+[   9% ] _update_scan_actions | red_crystal_enemy_rigged.glb
+[  11% ] _update_scan_actions | red_crystal_enemy_shards.glb
+[  12% ] _update_scan_actions | red_crystal_enemy_static.glb
+[  14% ] _update_scan_actions | soldier.gltf
+[  15% ] _update_scan_actions | ak.gltf
+[  17% ] _update_scan_actions | axe.glb
+[  19% ] _update_scan_actions | axe_Atlas_Pirate.png
+[  20% ] _update_scan_actions | knife.glb
+[  22% ] _update_scan_actions | mind_blade.glb
+[  23% ] _update_scan_actions | obsidian_pistol.glb
+[  25% ] _update_scan_actions | shotgun.glb
+[  26% ] _update_scan_actions | sniper.glb
+[  28% ] _update_scan_actions | tachi.glb
+[  30% ] _update_scan_actions | tachi_Atlas_Pirate.png
+[  31% ] _update_scan_actions | shield.svg
+[  33% ] _update_scan_actions | dual.svg
+[  34% ] _update_scan_actions | fear.svg
+[  36% ] _update_scan_actions | resonance.svg
+[  38% ] _update_scan_actions | shop.svg
+[  39% ] _update_scan_actions | sloth.svg
+[  41% ] _update_scan_actions | sorrow.svg
+[  42% ] _update_scan_actions | vitality.svg
+[  44% ] _update_scan_actions | wrath.svg
+[  46% ] _update_scan_actions | blade_damage.svg
+[  47% ] _update_scan_actions | blade_range.svg
+[  49% ] _update_scan_actions | blade_speed.svg
+[  50% ] _update_scan_actions | firearm_damage.svg
+[  52% ] _update_scan_actions | firearm_magazine.svg
+[  53% ] _update_scan_actions | firearm_rate.svg
+[  55% ] _update_scan_actions | skill_cooldown.svg
+[  57% ] _update_scan_actions | skill_duration.svg
+[  58% ] _update_scan_actions | skill_unlock.svg
+[  60% ] _update_scan_actions | arms_dealer.svg
+[  61% ] _update_scan_actions | berserker.svg
+[  63% ] _update_scan_actions | hawkeye.svg
+[  65% ] _update_scan_actions | ak.png
+[  66% ] _update_scan_actions | axe.png
+[  68% ] _update_scan_actions | knife.png
+[  69% ] _update_scan_actions | shotgun.png
+[  71% ] _update_scan_actions | sniper.png
+[  73% ] _update_scan_actions | tachi.png
+[  74% ] _update_scan_actions | muzzle.png
+[  76% ] _update_scan_actions | puff.png
+[  77% ] _update_scan_actions | spark.png
+[  79% ] _update_scan_actions | carbine_csg_blockout.jpg
+[  80% ] _update_scan_actions | carbine_lowpoly_showcase.jpg
+[  82% ] _update_scan_actions | fpp_concept.jpg
+[  84% ] _update_scan_actions | mind_blade_turnaround.jpg
+[  85% ] _update_scan_actions | obsidian_blade.jpg
+[  87% ] _update_scan_actions | obsidian_pistol.jpg
+[  88% ] _update_scan_actions | obsidian_pistol_turnaround.jpg
+[  90% ] _update_scan_actions | pride-concept.jpg
+[  92% ] _update_scan_actions | pride-atlas.png
+[  93% ] _update_scan_actions | mind_blade.svg
+[  95% ] _update_scan_actions | pistol_icon.svg
+[  96% ] _update_scan_actions | icon.svg
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (5 steps)
+[   0% ] reimport | Preparing files to reimport...
+[  16% ] reimport | Preparing files to reimport...
+[  33% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  66% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] reimport | carbine_csg_blockout.jpg
+[   0% ] reimport | carbine_csg_blockout.jpg
+[  16% ] reimport | carbine_lowpoly_showcase.jpg
+[  33% ] reimport | fpp_concept.jpg
+[  50% ] reimport | obsidian_blade.jpg
+[  66% ] reimport | obsidian_pistol.jpg
+[  83% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (5 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout

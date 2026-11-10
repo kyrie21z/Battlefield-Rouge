@@ -289,3 +289,18 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 复用上文登记的 `red_crystal_enemy_animated.glb`（11 个部位、24 骨）、`red_crystal_enemy_shards.glb`（56 个预切碎片）与 `protagonist_crystal_material.tres`；没有新角色素材，原文件保持不变。此前只投影的身体现在仅头部保持 `SHADOWS_ONLY`，胸腹、双臂和双腿可见，旧独立枪影副本移除。
 
 裂缝沿原网格非共面晶体接缝，统一黑色。渲染副本保留原三角形、顶点位置、法线、UV、骨索引与权重，仅增加边距离/选择属性；0 级恢复原资源。材质与碎片姿态逐实例管理。原生取证为 Godot 4.7.2 Forward+ 直接截图，见 [#105 验收记录](proof/issue-105/README.md)。
+
+## Epic 2：门扉与赐福身份图标
+
+以下八张 SVG 为本项目原创代码绘制，不下载第三方图片，不从旧工程提取；许可证随本项目。对应四系徽记、双重共鸣及三种房间奖励展示。PNG 证明是 Godot 4.7.2 Forward+ 直接截图，未重绘；界面测试图使用可控 BoonData，实际关卡记录单独注明。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `assets/ui/boons/dual.svg` | `7b10bbc1218ba3792afa124013910055df0567f47096e7216aa161baf1c44e32` |
+| `assets/ui/boons/fear.svg` | `a1f2415e9ebd92d2d4813f181c10a6e274691cbaaf80cf8125bf1ab03fed2039` |
+| `assets/ui/boons/resonance.svg` | `162e3f6b9d3440989edf94ba9ab045e2dc2a3544c342b20a8179eb8926f19856` |
+| `assets/ui/boons/shop.svg` | `2a92ca59d1f9896757e21190d8bf95392d1251f82c95dc3fc48bca50854b45bd` |
+| `assets/ui/boons/sloth.svg` | `73e9ad4b2ebafe3c0c00b0e7f7f6cbe6ac0d466ee6e304d959059c9516b58b9d` |
+| `assets/ui/boons/sorrow.svg` | `bc81cb3150f9e589f4651e13f25fc397fabe5d32371df1c45c0154aa2b2db0b7` |
+| `assets/ui/boons/vitality.svg` | `de7d2e9f494f6154f68250862a331bf225bfdfbdef328565d0adb9be282f1da4` |
+| `assets/ui/boons/wrath.svg` | `e2f552e6b6494e965a4352ceaac0a937bc600d76fb3a83bc94f410f4b54b3221` |

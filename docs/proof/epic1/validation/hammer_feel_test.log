@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== an ordinary strike
+  [ok] the view shakes
+  [ok] an ordinary strike kicks 0.45 deg (0.45)
+  [ok] the floating text says +10%
+  [ok] it starts white and fully opaque
+  [ok] an ordinary strike throws 14 chips
+  [ok] the aim camera does not move
+  [ok] the blocks settle exactly back on their rests
+  [ok] the text has faded
+  [ok] the text started rising (-226)
+== a perfect strike
+  [ok] a perfect strike kicks harder (0.90 > 0.45)
+  [ok] the floating text says +20%
+  [ok] it is gold
+  [ok] a perfect strike throws 30 chips
+  [ok] it asks for a 0.035 s hitstop (0.035)
+  [ok] the blocks settle exactly back on their rests
+== quarter breaks
+  [ok] 25% emits fractured(1)
+  [ok] a quarter break kicks 0.7 deg (0.70)
+  [ok] one fractured per quarter, no duplicates
+  [ok] six blocks have come off, two are left
+== the stopped clock breaks open
+  [ok] capture fires once
+  [ok] the payoff kicks 1.6 deg (1.60)
+  [ok] brass clock parts burst out (30)
+  [ok] the gear specs are deterministic
+  [ok] the spawned gears use those specs
+  [ok] the pieces are still in the air
+  [ok] and they fall
+  [ok] the collision shape never moved
+ALL PASSED (0 failed)

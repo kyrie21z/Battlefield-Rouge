@@ -98,7 +98,7 @@ func _run() -> void:
 	_check("it starts with the boss still to fell", director.phase == ZoneDirector.Phase.BOSS_STANDING)
 	_check("the core is locked", point.locked)
 	_check("the objective says to fell the boss", director.objective == "打倒 Boss" and objective.text == "击倒 Boss" and objective.visible)
-	_check("one hammer would finish the core", is_equal_approx(point.config.progress_per_swing, 1.0))
+	_check("one blade strike would finish the core", is_equal_approx(point.config.progress_per_swing, 1.0))
 	_check("small zones still use the 10% rhythm", shared.resource_path == CONFIG_PATH and is_zero_approx(shared.progress_per_swing) and is_equal_approx(shared.normal_progress(), 0.10))
 	_check("ten enemies are alive and the core stays shut", director.enemies_total == 10 and not boss.health.is_dead())
 	player.global_position = point.global_position + Vector3(3.6, 0.0, 0.0)
@@ -107,7 +107,7 @@ func _run() -> void:
 	_check("walking up to the core puts the player in reach", point.player_in_reach)
 	point.resolve_swing(2.0)
 	point.resolve_swing(2.5)
-	_check("hammering a locked core adds nothing", point.progress == 0.0 and point.locked)
+	_check("striking a locked core adds nothing", point.progress == 0.0 and point.locked)
 	_check("the hint is still on screen", objective.text == "击倒 Boss")
 
 	print("== the nine small enemies do not open the core")
@@ -116,7 +116,7 @@ func _run() -> void:
 	_check("nine small enemies dead, core still shut", director.phase == ZoneDirector.Phase.BOSS_STANDING and point.locked and point.progress == 0.0)
 	_check("killing them never counted as clearing the zone", _zone_cleared == 0)
 
-	print("== the boss's death opens the core, and one hammer shatters it")
+	print("== the boss's death opens the core, and one blade strike shatters it")
 	# Reload a fresh wave so the small enemies are still alive for this check.
 	get_tree().paused = false
 	scene.free()
@@ -138,13 +138,13 @@ func _run() -> void:
 	boss.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
 	_check("the boss is dead and the small enemies are not", boss.health.is_dead() and small.all(func(e: Enemy): return not e.health.is_dead()))
 	_check("the core opens", director.phase == ZoneDirector.Phase.CLOCK_POINT and not point.locked)
-	_check("the objective names the hammer", director.objective == "砸碎城市核心，按 E" and objective.text == "挥刃敲钟")
+	_check("the objective names the blade", director.objective == "砸碎城市核心，按 V" and objective.text == "挥刃敲钟")
 	_check("the bar is empty once the boss is dead", bar.displayed_health == 0.0)
 	_check("the label says it has fallen", bar.health_text == "已倒下" and bar.fallen
 		and bar.fill_color == CapturePoint.COLOR_LOCKED)
 	point.resolve_swing(2.5)
-	_check("one ordinary hammer reaches 100%", point.is_captured() and is_equal_approx(point.progress, 1.0))
-	_check("that one hammer collapses every block", point.fracture_stage == 4 and point.intact_block_count() == 0)
+	_check("one ordinary blade reaches 100%", point.is_captured() and is_equal_approx(point.progress, 1.0))
+	_check("that one blade strike collapses every block", point.fracture_stage == 4 and point.intact_block_count() == 0)
 	_check("the director is in FLAG_PLANTED", director.phase == ZoneDirector.Phase.FLAG_PLANTED)
 	_check("the short objective confirms the core capture", objective.text == "城市核心已夺取")
 	_check("a flag was planted on the core", point.get_node_or_null("Flag") != null)

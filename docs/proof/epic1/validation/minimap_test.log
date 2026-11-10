@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== pistol ADS keeps navigation visible
+  [ok] pistol is aiming
+  [ok] ADS keeps the minimap visible
+  [ok] map remains visible after ADS
+== level geometry
+  [ok] geometry polygons were read (40)
+  [ok] the floor is excluded
+== world to map
+  [ok] 10 m ahead maps above the centre
+  [ok] 10 m right maps to the right
+  [ok] both directions use the same scale
+  [ok] after a 90 deg turn the same point is to the right
+  [ok] turning does not change the distance
+== enemy markers
+  [ok] the guards are living
+  [ok] a nearby guard is drawn
+  [ok] an enemy beyond range is not drawn
+  [ok] a dead enemy leaves living_enemies
+== out-of-range objectives
+  [ok] the capture point clamps to the rim
+  [ok] and keeps its direction
+== reinforcement warning
+  [ok] spawning a reinforcement signals its position
+  [ok] the minimap starts a pulse
+  [ok] the pulse expires
+== the boss on the boss map
+  [ok] the boss is alive
+  [ok] living_enemies includes the boss
+  [ok] the boss map minimap was set up
+ALL PASSED (0 failed)

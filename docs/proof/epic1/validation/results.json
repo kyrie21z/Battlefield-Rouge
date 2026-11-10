@@ -1,0 +1,389 @@
+[
+  {
+    "test": "active_magazine_test",
+    "exit_code": 0,
+    "seconds": 9.7,
+    "errors": [],
+    "summary": [
+      "ACTIVE MAGAZINE: 50 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "body_awareness_test",
+    "exit_code": 0,
+    "seconds": 4.2,
+    "errors": [],
+    "summary": [
+      "BODY AWARENESS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "boss_test",
+    "exit_code": 0,
+    "seconds": 22.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (63 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "buff_run_test",
+    "exit_code": 0,
+    "seconds": 18.9,
+    "errors": [],
+    "summary": [
+      "buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "capture_hammer_test",
+    "exit_code": 0,
+    "seconds": 22.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "cloak_defense_test",
+    "exit_code": 0,
+    "seconds": 13.3,
+    "errors": [],
+    "summary": [
+      "CLOAK DEFENSE: 21 checks, 0 failed, finished=true"
+    ]
+  },
+  {
+    "test": "combat_bench_test",
+    "exit_code": 0,
+    "seconds": 11.0,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "combat_traits_test",
+    "exit_code": 0,
+    "seconds": 5.7,
+    "errors": [],
+    "summary": [
+      "COMBAT TRAITS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "counter_shield_test",
+    "exit_code": 0,
+    "seconds": 6.2,
+    "errors": [],
+    "summary": [
+      "COUNTER SHIELD: 28 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "crystal_seams_test",
+    "exit_code": 0,
+    "seconds": 1.9,
+    "errors": [],
+    "summary": [
+      "CRYSTAL SEAMS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "dash_test",
+    "exit_code": 0,
+    "seconds": 22.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "enemy_bullet_test",
+    "exit_code": 0,
+    "seconds": 2.7,
+    "errors": [],
+    "summary": [
+      "ENEMY BULLETS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "enemy_layout_test",
+    "exit_code": 0,
+    "seconds": 18.8,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (55 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "firing_position_test",
+    "exit_code": 0,
+    "seconds": 21.3,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "fixture_test",
+    "exit_code": 0,
+    "seconds": 101.9,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "gun_feel_test",
+    "exit_code": 0,
+    "seconds": 37.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "hammer_feel_test",
+    "exit_code": 0,
+    "seconds": 18.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "hit_feel_test",
+    "exit_code": 0,
+    "seconds": 29.6,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "hud_test",
+    "exit_code": 0,
+    "seconds": 17.5,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (282 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "hurt_feedback_test",
+    "exit_code": 0,
+    "seconds": 16.4,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "keybinding_test",
+    "exit_code": 0,
+    "seconds": 25.5,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "melee_test",
+    "exit_code": 0,
+    "seconds": 2.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "mind_blade_test",
+    "exit_code": 0,
+    "seconds": 2.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "minimap_test",
+    "exit_code": 0,
+    "seconds": 30.2,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "music_test",
+    "exit_code": 0,
+    "seconds": 214.8,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "obsidian_pistol_test",
+    "exit_code": 0,
+    "seconds": 2.0,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "opening_boot_test",
+    "exit_code": 0,
+    "seconds": 40.3,
+    "errors": [],
+    "summary": [
+      "OPENING BOOT: 30 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "opening_transition_test",
+    "exit_code": 0,
+    "seconds": 36.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "phase_banner_test",
+    "exit_code": 0,
+    "seconds": 32.5,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "protagonist_body_test",
+    "exit_code": 0,
+    "seconds": 5.0,
+    "errors": [],
+    "summary": [
+      "PROTAGONIST BODY: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "reflected_round_test",
+    "exit_code": 0,
+    "seconds": 8.7,
+    "errors": [],
+    "summary": [
+      "REFLECTED ROUND: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "reinforcement_test",
+    "exit_code": 0,
+    "seconds": 85.3,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (77 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "reload_blast_test",
+    "exit_code": 0,
+    "seconds": 13.0,
+    "errors": [],
+    "summary": [
+      "RELOAD BLAST: 43 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "school_icons_test",
+    "exit_code": 0,
+    "seconds": 2.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "settings_test",
+    "exit_code": 0,
+    "seconds": 18.2,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "shield_visual_test",
+    "exit_code": 0,
+    "seconds": 8.5,
+    "errors": [],
+    "summary": [
+      "SHIELD FEEDBACK: 25 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "sloth_cache_test",
+    "exit_code": 0,
+    "seconds": 6.7,
+    "errors": [],
+    "summary": [
+      "SLOTH_CACHE_COMPLETE checks=16 failures=0"
+    ]
+  },
+  {
+    "test": "sloth_enemy_test",
+    "exit_code": 0,
+    "seconds": 58.1,
+    "errors": [],
+    "summary": [
+      "SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "sloth_integration_test",
+    "exit_code": 0,
+    "seconds": 66.3,
+    "errors": [],
+    "summary": [
+      "SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures"
+    ]
+  },
+  {
+    "test": "sloth_pursuit_test",
+    "exit_code": 0,
+    "seconds": 19.4,
+    "errors": [],
+    "summary": [
+      "SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "sloth_revision_test",
+    "exit_code": 0,
+    "seconds": 17.6,
+    "errors": [],
+    "summary": [
+      "NAVY REVISION: 27 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "spawn_sight_test",
+    "exit_code": 0,
+    "seconds": 14.4,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "weapons_test",
+    "exit_code": 0,
+    "seconds": 2.0,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  }
+]

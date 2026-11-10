@@ -19,15 +19,6 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_remove_temp()
 	await _run()
-	for voice in find_children("*", "AudioStreamPlayer", true, false):
-		voice.stop()
-		voice.stream = null
-	for child in get_children():
-		child.queue_free()
-	get_tree().paused = false
-	await get_tree().process_frame
-	OS.delay_msec(100)
-	await get_tree().process_frame
 	PauseMenu.allow_headless = false
 	GameSettings.settings_path = GameSettings.DEFAULT_PATH
 	_remove_temp()

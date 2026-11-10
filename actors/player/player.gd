@@ -15,8 +15,6 @@ extends CharacterBody3D
 var ads_sensitivity := 1.0
 @export var base_fov := 75.0
 @export var fov_lerp_speed := 14.0
-## How fast the self-recovering part of recoil settles, per second.
-@export var recoil_recovery := 8.0
 
 ## Seed of the shake's own random generator: what the player sees must never
 ## draw from the global sequence (ADR 0005).

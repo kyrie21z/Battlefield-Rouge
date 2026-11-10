@@ -3,6 +3,7 @@ extends Node
 
 const PANEL_SIZE := Vector2i(500, 600)
 const PISTOL := preload("res://weapons/obsidian_pistol/obsidian_pistol_view.tscn")
+const BLADE := preload("res://weapons/mind_blade/mind_blade_view.tscn")
 
 
 func _ready() -> void:
@@ -11,15 +12,17 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 	var jobs := [
-		[PISTOL, Vector3(0.9, 0.2, 0.8), true, "黑晶手枪 · 绽放", "四独立块 · 0.35 / 0.30 / 0.20 秒"],
 		[PISTOL, Vector3(2, 0, 0), false, "黑晶手枪 · 侧面", "120 源多边形 / 180 三角面 · 220 mm"],
 		[PISTOL, Vector3(0.9, 0.5, -0.9), false, "黑晶手枪 · 四分之三", "220 × 135 × 32 mm · 内凹六角枪口"],
+		[PISTOL, Vector3(0.9, 0.2, 0.8), true, "黑晶手枪 · 绽放", "四独立块 · 自身中心旋转"],
+		[BLADE, Vector3(2, 0, 0), false, "意志短刃 · 侧面", "45 源多边形 / 70 三角面 · 400 mm"],
+		[BLADE, Vector3(0.8, 0.35, 0.7), false, "意志短刃 · 四分之三", "400 × 40 × 15 mm · Tanto 双坡面"],
 	]
 	var strip := Image.create(PANEL_SIZE.x * jobs.size(), PANEL_SIZE.y, false, Image.FORMAT_RGB8)
 	for i in jobs.size():
 		var panel := await _render(jobs[i])
 		strip.blit_rect(panel, Rect2i(Vector2i.ZERO, PANEL_SIZE), Vector2i(i * PANEL_SIZE.x, 0))
-	var folder := "res://docs/proof/issue-102"
+	var folder := "res://docs/proof/epic1"
 	DirAccess.make_dir_recursive_absolute(folder)
 	var result := strip.save_png(folder + "/models.png")
 	print("MODEL PROOF: %s" % error_string(result))

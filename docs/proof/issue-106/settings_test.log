@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== defaults and files
+  [ok] sensitivity multiplier defaults to 1
+  [ok] ADS multiplier defaults to 1
+  [ok] crosshair style defaults to cross+dot
+  [ok] white, size 1, 1.5 px, 0.9 alpha, dynamic gap
+  [ok] save to a temp file
+  [ok] load the temp file
+  [ok] round trip keeps every value
+== the game still looks the same
+  [ok] crosshair defaults are unchanged
+  [ok] player look defaults are unchanged
+  [ok] the HUD owns settings and does not read a real file in headless
+== clamping
+  [ok] values clamp to their ranges
+== mouse look
+  [ok] 2x mouse sensitivity doubles the yaw delta
+  [ok] ADS 0.5 halves the look while zoomed
+  [ok] and does nothing while not aiming
+== crosshair styles
+  [ok] style 0 draws
+  [ok] style 1 draws
+  [ok] style 2 draws
+  [ok] style 3 draws
+  [ok] the ring style draws a ring
+  [ok] the cross style draws lines but no dot
+== pause menu
+  [ok] pause opens the menu and pauses
+  [ok] pause again closes it and unpauses
+  [ok] resume asks for mouse capture
+  [ok] it opens over a buff selection
+  [ok] closing over a buff selection keeps the tree paused
+  [ok] it refuses while paused outside a buff selection
+  [ok] it refuses under a fixture
+  [ok] the temp settings file was written on close
+ALL PASSED (0 failed)

@@ -1,0 +1,1978 @@
+{
+  "reference_commit": "85555908f532fa582844de1408d21318fde9f588",
+  "production_files_compared": 489,
+  "production_equal": true,
+  "tracked_differences_outside_explicit_test_document_evidence_allowlist": [],
+  "unexpected_untracked_files": [],
+  "retained_test_improvements": [
+    "tests/capture_proof.gd",
+    "tests/mind_blade_test.gd",
+    "tests/obsidian_pistol_test.gd"
+  ],
+  "document_corrections": [
+    "ARCHITECTURE.md",
+    "GLOSSARY.md",
+    "docs/ASSETS.md",
+    "docs/NARRATIVE_FOUNDATION.md",
+    "docs/proof/epic1/README.md",
+    "docs/proof/epic1/SHA256SUMS.txt"
+  ],
+  "files": [
+    {
+      "path": ".cursor/environment.json",
+      "sha256": "e5fe11f7c7ca561de34353399ac251224714ced9d885f1ac7136a60f9183059c"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "6fe81ed8ac746bc050cbdcab4bec6f3290f2b9a0b7c1c4a9f8c8298ec16bb4c5"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "eaccaea063ded038f9defcc1625e7565d9ef92e8c8d755c6f578cb9cb5c6ac83"
+    },
+    {
+      "path": "actors/enemy/boss.tscn",
+      "sha256": "df3255f5d774cd67f365604052d442f44ec010b2ca29b2a9399cb0399547a07d"
+    },
+    {
+      "path": "actors/enemy/enemy.gd",
+      "sha256": "67fe2494be862f444af91573507f1ca42c364de6ca45a3adde8c62c137d11c0e"
+    },
+    {
+      "path": "actors/enemy/enemy.gd.uid",
+      "sha256": "c13f53d8cbb33ac5c9250a1bbd9a39b3aa5e3ad8f6974a1299175ff7ab2ba5c0"
+    },
+    {
+      "path": "actors/enemy/enemy.tscn",
+      "sha256": "a17b9a8b3f71c55e06cfb74fdbabe37c3bf6595e7e4053b8bea7e1ce0139b1ce"
+    },
+    {
+      "path": "actors/enemy/firing_position_board.gd",
+      "sha256": "c198128c7366b04a03284a2d2a72eb1961e9d944dbed6ecb54a1fa361813ce00"
+    },
+    {
+      "path": "actors/enemy/firing_position_board.gd.uid",
+      "sha256": "13f6cb32b46fd177714bea796ebad9c624d7be0ded6b842bf41470dba02df37d"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_attack.gd",
+      "sha256": "1e588757a685f386edaf8f6689eb73a575d7d9ded1b170646dbcfeb5fbb146a9"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_attack.gd.uid",
+      "sha256": "3c8a925917515564237db50c4f420710ccbda907c178e7bc45ba7e942d8f912c"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_enemy.gd",
+      "sha256": "d1af5ec159df263eff603765e3052822d21b62a12914f6a1da9a73e2ddb6fe00"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_enemy.gd.uid",
+      "sha256": "fefdeaad62b91743317379ae2f38a73c4e1692d1f9a428c9dd1788af35b84860"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_enemy.tscn",
+      "sha256": "511ff5a3a572d3fd415303d520fdb2a98acb2eebcc069a2a967ca919440f7087"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_health.gd",
+      "sha256": "a2bacd55ebbd16c3434e4c7568c4e04a5c41c51456c3dbdf9771c2fb3b39ac3e"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_health.gd.uid",
+      "sha256": "c2cdef75d9706ded60f230ab80251024947f7efdb47e1958e87f00b5f0fc28eb"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_hit_reaction.gd",
+      "sha256": "5240839c86500c9b09a7c51b27a8279403005c46f2052dcf671f5eeb3903991a"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_hit_reaction.gd.uid",
+      "sha256": "eec01968f19d06fdce77c7e82d64d757ffe71a908b0943c620768fc4d7412109"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_shatter.gd",
+      "sha256": "ce2a90a3928ecb17fee117b77229de3e11f2d6b6c9492ed5d6188200bcd80d0f"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_shatter.gd.uid",
+      "sha256": "1daf4a45332a5894514c7750695e87e32e2c1be15afa81aa3ccad1cebd4c0272"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_visual.gd",
+      "sha256": "0ee522cfe53d71b89a8b05adf550e074b8ac92979770b618782781a4614243e1"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_visual.gd.uid",
+      "sha256": "50e50148ea83bb829284d506f87f7f6d60d3acea5e9afca36cab830011a76256"
+    },
+    {
+      "path": "actors/player/body_fracture.gd",
+      "sha256": "9b5f61347ef65ea862beedd9595f4d126766a74a8b12fe6eaa8fe05d2e5f52c7"
+    },
+    {
+      "path": "actors/player/body_fracture.gd.uid",
+      "sha256": "b62d18c9eea87c3c9605b889dca20664ccff146c1d7ce0f59d9cf3f9977381f0"
+    },
+    {
+      "path": "actors/player/body_fracture.gdshader",
+      "sha256": "b74830fa0210534d0c5d622dabfccf04c4fef2854f0c7c9fb5799086740e61b2"
+    },
+    {
+      "path": "actors/player/body_fracture.gdshader.uid",
+      "sha256": "d0c660dd0dce13cde6c6911f66d6af753ba27f9769255dc2ed071e1dd65fee61"
+    },
+    {
+      "path": "actors/player/body_pose_modifier.gd",
+      "sha256": "fd4e5cfdd78cb16a7dc9b7dceea5c27b6b06b2d422bc9483dfc9fbf6f9a38e99"
+    },
+    {
+      "path": "actors/player/body_pose_modifier.gd.uid",
+      "sha256": "0d6947ab43f47bd7348756e14eda0d126a835ab56406ef803a06cefcfef9939d"
+    },
+    {
+      "path": "actors/player/combat_traits.gd",
+      "sha256": "d1eb24bd619925b515d3a8914a4c9117227e26da69a5047c789e2e72c84cc4ae"
+    },
+    {
+      "path": "actors/player/combat_traits.gd.uid",
+      "sha256": "0c6ebafc81fce8db689894da0f31f4cef95f00171e37bdcd46512042cfc0ddc1"
+    },
+    {
+      "path": "actors/player/crystal_seams.gd",
+      "sha256": "e7f7e3f312b7bc47ec8b3e06127f4b616924dcdaab56d001fe2b4d4e4c6a33c1"
+    },
+    {
+      "path": "actors/player/crystal_seams.gd.uid",
+      "sha256": "f84e09e96bbdf2333d4ba4a15a546f0dd61f1d4ef35eed86b238342ba5da2afd"
+    },
+    {
+      "path": "actors/player/dash.gd",
+      "sha256": "78785c93683be70bbbc953c6211d1299711e53ed935376721d206059c5c51f86"
+    },
+    {
+      "path": "actors/player/dash.gd.uid",
+      "sha256": "df23de9858339dffc9d8e980b8d5f8544c732ba9e7b177c0e51cf538ed680c7a"
+    },
+    {
+      "path": "actors/player/player.gd",
+      "sha256": "e106264c7bd7e045fb47e24fbcf1caeb42c265398147742e887aa592f7c23ac9"
+    },
+    {
+      "path": "actors/player/player.gd.uid",
+      "sha256": "e3167afee1191ad062541f0a993e95b783c48bd9226015be63cec508699e846d"
+    },
+    {
+      "path": "actors/player/player.tscn",
+      "sha256": "7e1bc29c5d3b4a6ac779724b7270abfc7eecefe57f7e2d3786489170f39230c3"
+    },
+    {
+      "path": "actors/player/player_shield.gd",
+      "sha256": "5b13a8e6eb0be47254e66151de92319c2f9aab6dfbaf7d22262b65eab6e1a745"
+    },
+    {
+      "path": "actors/player/player_shield.gd.uid",
+      "sha256": "ad7c6b7a0acb20d10ab99b0c2e18ed3c8c7598d00913b1f4dea054c0a5c7cc5f"
+    },
+    {
+      "path": "actors/player/protagonist_body.tscn",
+      "sha256": "1532cab7b2827427d47cac902cfa9cadecfddb019ce0496134a15de2021a3535"
+    },
+    {
+      "path": "actors/player/shadow_body.gd",
+      "sha256": "c14a8b9b34ececf9b22efffe03a38af372710f104d0c3530b7c65583b262dc78"
+    },
+    {
+      "path": "actors/player/shadow_body.gd.uid",
+      "sha256": "2dc9bf74a55183aa53bdc4ff718ea73275ac7b6f03e140b7c986fb5261a9c0b9"
+    },
+    {
+      "path": "assets/audio/hit_body.ogg",
+      "sha256": "e71d23abcc3f10d9d6bc9615b2a431fff70b12333a5fcdd9964457564ace4349"
+    },
+    {
+      "path": "assets/audio/hit_body.ogg.import",
+      "sha256": "4f55c0010babd6b63aca36793461b270ab8352c5ff50a23789581476c4d94193"
+    },
+    {
+      "path": "assets/audio/hit_head.ogg",
+      "sha256": "8ac5869ea434cf0d364872774efe70b2d666a4f02ba35ddfc1e051d336721be8"
+    },
+    {
+      "path": "assets/audio/hit_head.ogg.import",
+      "sha256": "2037d6a68ac54cdf2d461fd2d49fbb1e87f856a0557a815c0c9d58907943fc13"
+    },
+    {
+      "path": "assets/materials/protagonist_crystal_material.tres",
+      "sha256": "dfa5b91de24cd05e8461a57d1dea8b8ed7fca131a6432ac80329a68381723cfc"
+    },
+    {
+      "path": "assets/materials/red_crystal_crystal.gdshader",
+      "sha256": "69432d61cbf32314e3672baba0307e9d3cd04206fdf05edfda61cde24d0a9f51"
+    },
+    {
+      "path": "assets/materials/red_crystal_crystal.gdshader.uid",
+      "sha256": "fc67fb142299ce42564084ba8b8ef0ab9cecb714e74be84a2a541e5dd707c90d"
+    },
+    {
+      "path": "assets/materials/red_crystal_crystal_shard.gdshader",
+      "sha256": "0cb1c522525329d64bbbd0b1ce99cb516f2d25bd5f94556130ab874d7fb181f7"
+    },
+    {
+      "path": "assets/materials/red_crystal_crystal_shard.gdshader.uid",
+      "sha256": "6d0069e30b68d79a9795f81d034516e60877e63aec9ebdb8db99510e4c64450c"
+    },
+    {
+      "path": "assets/materials/red_crystal_material.tres",
+      "sha256": "bfd1011c44cedbf1e2271467b7749a9b290b7e03b2df403068dfd22769301005"
+    },
+    {
+      "path": "assets/materials/red_crystal_material_shader.tres",
+      "sha256": "40e63da472c8d296a26ce2e114a9887b8d0218a8e585fc3e1eda8453f1e1588b"
+    },
+    {
+      "path": "assets/materials/red_crystal_material_shard.tres",
+      "sha256": "dd8fb309ac6953f6b13d5cc71198a55eca1f22b9657d4976e5ee6270f659fdc8"
+    },
+    {
+      "path": "assets/materials/sloth_cloth.gdshader",
+      "sha256": "3cd8da587583e353f8d587753b34833771f6e5f91838d6411351a45362a7ca59"
+    },
+    {
+      "path": "assets/materials/sloth_cloth.gdshader.uid",
+      "sha256": "a11a6b633be0d1439471d206d062333c1cc49bc5720d9e95e9b77eb6ea676b0c"
+    },
+    {
+      "path": "assets/models/characters/enemy.gltf",
+      "sha256": "60c77a900ddd76086bb0d8c8e4cc87685dcc889f871c17b9d5bfefe94fa8894a"
+    },
+    {
+      "path": "assets/models/characters/enemy.gltf.import",
+      "sha256": "b2389914d178888abbead6ea9a96ab892b02897ef0cf080e253b3b9d281e5f43"
+    },
+    {
+      "path": "assets/models/characters/hazmat.gltf",
+      "sha256": "43d8c6d6e7e95647f24da08d10570a2a29cd7f1e924546bb085b09c62deddc6e"
+    },
+    {
+      "path": "assets/models/characters/hazmat.gltf.import",
+      "sha256": "c623f6532ed7b1562999939568d544af13ff22bf86a23c83ed6d1feb55a701cc"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_animated.glb",
+      "sha256": "c2a219a3e021b38d5ec302636314963ff9d56eda5c0d4ca36396c6b75bd230fc"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_animated.glb.import",
+      "sha256": "02c5c9459b245eac3755a644110fb385a4459bf507ba041128734e6971f2afc6"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_parts.glb",
+      "sha256": "2fa065d1bbe358935c089c115d0a893a65fa0c172ece1ae4dc0234b8b21b45d7"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_parts.glb.import",
+      "sha256": "dcc128f8ac8f1cdd64d1c0f17732768e0bafadcca05b8bfcd96bef162ec44fdf"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_rigged.glb",
+      "sha256": "bfb49c86c7d7f1bd1803dd6a3e4fa59e357f6e220717abd1df1d9f490836e742"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_rigged.glb.import",
+      "sha256": "0ded5c0e68bc1165fc80b1837574b83bc390c59ac303c374adaa3a290dee1a8d"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_shards.glb",
+      "sha256": "aa0d516abde333abb8fdf69b201b581fe564e3cb7ee2529014d87dc203cd4bc2"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_shards.glb.import",
+      "sha256": "9baa634acabad5b7c32ebb6b8773f200ae294911d1b01b265068d1d91878c114"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_static.glb",
+      "sha256": "3f8afcf5dd5bb816e3c7e64304279f259d5fe19f75540acdbee14d3827c6a4a1"
+    },
+    {
+      "path": "assets/models/characters/red_crystal_enemy_static.glb.import",
+      "sha256": "b1e7698611d1ceace9ee8e460e2d910cf6943105f3febef8e33351d26d04564a"
+    },
+    {
+      "path": "assets/models/characters/soldier.gltf",
+      "sha256": "d1395255f7cfa8f766369e37e724fa44e2895a46a719d17f720c9c78b014a901"
+    },
+    {
+      "path": "assets/models/characters/soldier.gltf.import",
+      "sha256": "5239071ef3d5718d8f38e1d85bb56d37f42212c7cf923662ed6dd7c9770cab3d"
+    },
+    {
+      "path": "assets/models/weapons/ak.gltf",
+      "sha256": "7320d771b829e2dcc0e4463a608d1be9b7217bdf0fdf109e8961a83af1854010"
+    },
+    {
+      "path": "assets/models/weapons/ak.gltf.import",
+      "sha256": "b5ac49c4a99da7856ca2af67a38f3be2c5ea3f8b5eeec36c8bb6accc0a432b96"
+    },
+    {
+      "path": "assets/models/weapons/axe.glb",
+      "sha256": "2812579b6314ccdaa72428e27c4b424164c11794d3e0ef737d9c7a16a388579d"
+    },
+    {
+      "path": "assets/models/weapons/axe.glb.import",
+      "sha256": "7c8748c7aa000d722bcd03cf94003f467695141392d2f8a692a6fa24922b7083"
+    },
+    {
+      "path": "assets/models/weapons/axe_Atlas_Pirate.png",
+      "sha256": "a538d23f834ab4233d871cb9688f98ff574fc31b00e4dd99b9b42750f577ede4"
+    },
+    {
+      "path": "assets/models/weapons/axe_Atlas_Pirate.png.import",
+      "sha256": "15bbbe3eda282a60e49a760c58d4018507934705d6799a6d3f88ca171fae64f6"
+    },
+    {
+      "path": "assets/models/weapons/knife.glb",
+      "sha256": "7d24319650c01c86f3559ecf2e6fca978a601fa64e513f0c1db5be0cf458d5f0"
+    },
+    {
+      "path": "assets/models/weapons/knife.glb.import",
+      "sha256": "1c69675c21df90cfca55c87647bbd0f35829ee4660aa37cf81b95ebd8673e0ce"
+    },
+    {
+      "path": "assets/models/weapons/mind_blade.glb",
+      "sha256": "dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f"
+    },
+    {
+      "path": "assets/models/weapons/mind_blade.glb.import",
+      "sha256": "83b6a40cae7b6bdaa6afcf8b946542e859dc7b3ada66784e2343c807bf508338"
+    },
+    {
+      "path": "assets/models/weapons/obsidian_pistol.glb",
+      "sha256": "db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401"
+    },
+    {
+      "path": "assets/models/weapons/obsidian_pistol.glb.import",
+      "sha256": "f63e5c5a3bdcafcb21ed5ab10c22b5e191a241cc42cd2372ec146de1760c0d38"
+    },
+    {
+      "path": "assets/models/weapons/shotgun.glb",
+      "sha256": "a2c3383f896ba8a1b82bd7559a9190be24996698c11418e0d1a3d614f4afa681"
+    },
+    {
+      "path": "assets/models/weapons/shotgun.glb.import",
+      "sha256": "1effc419246d681c60355090fea5d2f507f06481a31194541d1a751f0ffb27d3"
+    },
+    {
+      "path": "assets/models/weapons/sniper.glb",
+      "sha256": "2669f9bd659955439c3159e62197e1e2f732deefc83abf3498b63b12c46cd838"
+    },
+    {
+      "path": "assets/models/weapons/sniper.glb.import",
+      "sha256": "05c9cbf2e6ce583560d945dcda72f6b786bad1c680be077d351233619a2587d4"
+    },
+    {
+      "path": "assets/models/weapons/tachi.glb",
+      "sha256": "81284656ec36b6d85eef16bec56c6c4e6987694b4dd8895096a01bdecdce47d6"
+    },
+    {
+      "path": "assets/models/weapons/tachi.glb.import",
+      "sha256": "fe07d0323e98b0b3993b5340dd2160a1ce771e6efadf9b7e5aca8b0f0015bcac"
+    },
+    {
+      "path": "assets/models/weapons/tachi_Atlas_Pirate.png",
+      "sha256": "a538d23f834ab4233d871cb9688f98ff574fc31b00e4dd99b9b42750f577ede4"
+    },
+    {
+      "path": "assets/models/weapons/tachi_Atlas_Pirate.png.import",
+      "sha256": "5476a4a39d6b41768e85314b068e13b51d565e37eca0bb7bb0ea5c1a510f58df"
+    },
+    {
+      "path": "assets/ui/abilities/shield.svg",
+      "sha256": "1331ce8e5fa06746ab364f9accce5f3e94da003d01ba90c02aa35cc1dfebc4bd"
+    },
+    {
+      "path": "assets/ui/abilities/shield.svg.import",
+      "sha256": "117873c7da9695cd9a24a6e1e06108f0af0bc52c296991838f9c5461d31047b9"
+    },
+    {
+      "path": "assets/ui/buffs/blade_damage.svg",
+      "sha256": "3a2c11173150b983e2393d4e9780ebaa2b535565a27eaee1c42f0ebdbbfb2271"
+    },
+    {
+      "path": "assets/ui/buffs/blade_damage.svg.import",
+      "sha256": "e2a5d7edf02c5ad929c79dca97260706db20107b1fab001d727e2d1ecc8cf7b4"
+    },
+    {
+      "path": "assets/ui/buffs/blade_range.svg",
+      "sha256": "913ddac83fa22a2e617d4e0d4883939e5199b2f090fd7eea0bb6e840cef44672"
+    },
+    {
+      "path": "assets/ui/buffs/blade_range.svg.import",
+      "sha256": "2ea438fa12f6673ab9ce84ce4b56208c151f345c432d9dbd119bde24502610ee"
+    },
+    {
+      "path": "assets/ui/buffs/blade_speed.svg",
+      "sha256": "175666cc34ebe1022b3896cb1ed6712f645b20e68608ec546ae0321cdbdf2c6f"
+    },
+    {
+      "path": "assets/ui/buffs/blade_speed.svg.import",
+      "sha256": "e1922a59c4968cd77bb6b782ca94faf6226621e97612c9d70f5aaeab8629aa28"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_damage.svg",
+      "sha256": "f67648fd137b9f85b0d8465045585eaf6425b4b2c2ad6e96b7702606e3d7f9cc"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_damage.svg.import",
+      "sha256": "b95080ac3843da8af64a11c1c5362d93672e0ed9a7fff1a0309178d68c96679d"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_magazine.svg",
+      "sha256": "7798676dbff642323ef28b6fdf17e396298153b285be717befc4ae4ec2306c85"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_magazine.svg.import",
+      "sha256": "dbaaa623e7739bac96fbbdffdb41b9557350fc349af83bf6103acf1faaa21cd1"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_rate.svg",
+      "sha256": "e6b0ccc35a092988fac5fcc69d52f2ded659f0d22cf4d910d6faeae9d538bdfa"
+    },
+    {
+      "path": "assets/ui/buffs/firearm_rate.svg.import",
+      "sha256": "f995bd92a5ecd6f25852dfa56e414c40d7c9810511b269d12a21319b20c42f4e"
+    },
+    {
+      "path": "assets/ui/buffs/skill_cooldown.svg",
+      "sha256": "fd2adce06a32b4f5e016f86c199262e0be759dd64f23a8948b4034058aac027f"
+    },
+    {
+      "path": "assets/ui/buffs/skill_cooldown.svg.import",
+      "sha256": "66175a474541e1b987dc6d518d1ebf599305e1bd8b9e81dbb01c9fe24e24eb96"
+    },
+    {
+      "path": "assets/ui/buffs/skill_duration.svg",
+      "sha256": "0c523de1decbace848d8d70344e93342d0196d1ab6a754e2a8ac19f0af75c7e7"
+    },
+    {
+      "path": "assets/ui/buffs/skill_duration.svg.import",
+      "sha256": "294cd909f4d04dcdb0765acbe240ab61ea55b7ad6941a6dd8914b9b1591c08b5"
+    },
+    {
+      "path": "assets/ui/buffs/skill_unlock.svg",
+      "sha256": "2990b600034a0cab787c96ef3e849a4f1219799aa699ae7a5d035a50c6e7557b"
+    },
+    {
+      "path": "assets/ui/buffs/skill_unlock.svg.import",
+      "sha256": "56f3f37fe6299bce3f0e3f1a5057a0be2800150cacba3561d3fcf3c2466b78b6"
+    },
+    {
+      "path": "assets/ui/schools/arms_dealer.svg",
+      "sha256": "ac92dc453e7b0af4f5cb142163321fb9649b32f51aed2f9785a3e747b4a58e9f"
+    },
+    {
+      "path": "assets/ui/schools/arms_dealer.svg.import",
+      "sha256": "4bc5117a4cdbfe789437728e1249d63a78e66a992ea4654db9b337900a90e7fa"
+    },
+    {
+      "path": "assets/ui/schools/berserker.svg",
+      "sha256": "8882662b02a37cafbaf5c021eb433a2305cc8eb81d3369f94e3e8704b91d7761"
+    },
+    {
+      "path": "assets/ui/schools/berserker.svg.import",
+      "sha256": "e8bce0867d8702aacbaf9e27c5b34e60c7cf12bd1c11b74f53bcdb50bf415a66"
+    },
+    {
+      "path": "assets/ui/schools/hawkeye.svg",
+      "sha256": "5da5698c659f3050964bce807965179bdb19ab90d279f595ed48a8485c784cdd"
+    },
+    {
+      "path": "assets/ui/schools/hawkeye.svg.import",
+      "sha256": "100750f3eb7d53e2061f480dc54c661fee2339778c041fdff5e6f11658a6cafe"
+    },
+    {
+      "path": "assets/ui/weapons/ak.png",
+      "sha256": "cf7ebde793c39693e4653fb24e91affcad5de0dd4162ca7cf2123fc8fc618cbd"
+    },
+    {
+      "path": "assets/ui/weapons/ak.png.import",
+      "sha256": "719a692a3591035906cf14b90812b37ac2e97454f029a5e6511589325707279b"
+    },
+    {
+      "path": "assets/ui/weapons/axe.png",
+      "sha256": "8c901c5c3ea786b34f1b8a89e8a6db5485e5d524dc1a5711ca52ec5ed1aa1f60"
+    },
+    {
+      "path": "assets/ui/weapons/axe.png.import",
+      "sha256": "bebe05f31fbac5c3886c904c60d07404c38f48d20400a9eccf8a0ace5e4bcb62"
+    },
+    {
+      "path": "assets/ui/weapons/knife.png",
+      "sha256": "3b3b1e8b15e7f6c72b79e9bdda599c5b727689d8219d1b1593a89c389d91848a"
+    },
+    {
+      "path": "assets/ui/weapons/knife.png.import",
+      "sha256": "d9d1f47f732227b40099db61be60d09bf0eac202ab29afa26611b55cf05c6a69"
+    },
+    {
+      "path": "assets/ui/weapons/shotgun.png",
+      "sha256": "547043a2d642f8dadc063876762f2fdf0ec9029278f0220e21c0fe129604661d"
+    },
+    {
+      "path": "assets/ui/weapons/shotgun.png.import",
+      "sha256": "ba72ce8647f933147eb28b40287c740b1ba5b2ae41f9d3b0cc0256c7c347d2d5"
+    },
+    {
+      "path": "assets/ui/weapons/sniper.png",
+      "sha256": "d5f80362dfaa271ae0322d972c1a89b6322b2bca4b067007d4b808764fa04c95"
+    },
+    {
+      "path": "assets/ui/weapons/sniper.png.import",
+      "sha256": "bdc4f6b137436d8da3272bc35810c7e15e91cdd3e634a9e5a28f4f777e507c1b"
+    },
+    {
+      "path": "assets/ui/weapons/tachi.png",
+      "sha256": "274cceeed1f5dc2676ae5696ba2661c1b4d81c36b740b55aa2d18af24d0a9b8a"
+    },
+    {
+      "path": "assets/ui/weapons/tachi.png.import",
+      "sha256": "027e48a63709e5d477762da91a5652baff833988c2d579317e66398a120134ef"
+    },
+    {
+      "path": "assets/vfx/muzzle.png",
+      "sha256": "96164063353cc0386b3d3ad0d64b9be6c369e1d5d8510f84fcf33604b4729084"
+    },
+    {
+      "path": "assets/vfx/muzzle.png.import",
+      "sha256": "d166d0749ddc66a3a5f5999c2a497d3d73c802dc7c512976c9fb67ce7ed93b66"
+    },
+    {
+      "path": "assets/vfx/puff.png",
+      "sha256": "2db2f69874cdb1e5203f2f86803d5debde30402590cf50a810afaba882184616"
+    },
+    {
+      "path": "assets/vfx/puff.png.import",
+      "sha256": "7688bc409e28d7e6b854cd4d1b9f211f2ea8b483cf8bb04e87404fbf97ca83e2"
+    },
+    {
+      "path": "assets/vfx/spark.png",
+      "sha256": "9624ea2017b8b2767a9d3b82e978b7fdf5154d83e6756cd919da51447bb97138"
+    },
+    {
+      "path": "assets/vfx/spark.png.import",
+      "sha256": "916c8fddacc21d18e1942e8adc0ba3845f1e6b05dc5176240218e28f70bf7b2e"
+    },
+    {
+      "path": "autoload/events.gd",
+      "sha256": "48a146dcc3cb3d2ad21b899cd8c2a5fdd34a80e098fd6e297d5f90ffa6e6abe2"
+    },
+    {
+      "path": "autoload/events.gd.uid",
+      "sha256": "3153fcac657b8a6119d7f6b772acec7bbaf3cebb60e12d13fca3d473f49e309f"
+    },
+    {
+      "path": "autoload/input_map_setup.gd",
+      "sha256": "d773b6f10f7a79c21a08b64fdfa200033f63a54e81dc01957fbd79ca472a78b9"
+    },
+    {
+      "path": "autoload/input_map_setup.gd.uid",
+      "sha256": "a240393b33e36baf38f67d1e86d6179230159a8a830a997335469bc9186e64fd"
+    },
+    {
+      "path": "autoload/run_state.gd",
+      "sha256": "fb6261e2c77683780761acd5ef56ec669636604b4c55209a8a6f86511d34af62"
+    },
+    {
+      "path": "autoload/run_state.gd.uid",
+      "sha256": "203ab76d5d67429049f737c7fe3972964fa28677669bebebf45199fd956c8922"
+    },
+    {
+      "path": "buffs/blade_damage.tres",
+      "sha256": "bd852bf9a6635297bf8dcc0e99b46299dbffc0f1f6842d657e5f805489905ec9"
+    },
+    {
+      "path": "buffs/blade_range.tres",
+      "sha256": "ea522f3d4dba3c9102c9ed00fa61bf404008fd4fbb07f3f44cd6f12d1705d46a"
+    },
+    {
+      "path": "buffs/blade_speed.tres",
+      "sha256": "e6f2954c754e3bf68e77872d899f9f8ba54e5a146ace05db82a594736e0c9512"
+    },
+    {
+      "path": "buffs/buff.gd",
+      "sha256": "106142a7c86ee530bc9896fde5cac16998c0e32d32b1aab3c650f2c52e1c49ea"
+    },
+    {
+      "path": "buffs/buff.gd.uid",
+      "sha256": "d3f5958dee5a8db11a9edca55c5e7b392b8055bbcf274f9207ce3d4612798c1c"
+    },
+    {
+      "path": "buffs/buff_pool.gd",
+      "sha256": "3442b702e723081e71d94a0f6262f4a86a5e04073f784a1d0b4780f3bd0b09c5"
+    },
+    {
+      "path": "buffs/buff_pool.gd.uid",
+      "sha256": "28dbb9fa2b81eedbc9a743a81098de06d8408a77fab9d7e08bf0762099a30237"
+    },
+    {
+      "path": "buffs/extended_mag.tres",
+      "sha256": "54ae6b069c6222a6cc3eb0758c814496735614abf9f05a3dc3c371eefe7c2d51"
+    },
+    {
+      "path": "buffs/field_armor.tres",
+      "sha256": "0d8e58263bf7b3a3ab72b427ff15822a28b20c18fb03574b70befa4a28d3ec4c"
+    },
+    {
+      "path": "buffs/firearm_damage.tres",
+      "sha256": "b73e138cffdc1bc5eff21a0ca6e92a584f2a491f8cd1635f8c101d42d0ca6d86"
+    },
+    {
+      "path": "buffs/firearm_magazine.tres",
+      "sha256": "43ffefd9ebf34db8c51a3dc5c1f4cf6fe1ea2d03cfba7848d87f39b83caafd0d"
+    },
+    {
+      "path": "buffs/firearm_rate.tres",
+      "sha256": "237c878645ad08cf4b51b3d29c8efdd9363de48707353a7a3f0b56375bffa0d3"
+    },
+    {
+      "path": "buffs/hollow_point.tres",
+      "sha256": "e318ef9a2d9f5b6efb581db3d3d2f45d2442d76345034e3ab75ddb453ed91006"
+    },
+    {
+      "path": "buffs/light_boots.tres",
+      "sha256": "03ee3147cd82e6529d01a2ef56e021742d78153aa4ab65ecb68ad9a738913b92"
+    },
+    {
+      "path": "buffs/quick_hands.tres",
+      "sha256": "a57530028dac444ff6ea0c74d4b64358fcac42b0cc48bc55f1dec8ada86c5de8"
+    },
+    {
+      "path": "buffs/rapid_fire.tres",
+      "sha256": "42fe2c5e9c9eb02e288cc8799adcb515bbe132c8d3bc6a693780749918955c1e"
+    },
+    {
+      "path": "buffs/school.gd",
+      "sha256": "55b62edd0b09ad2d04a119760c048c6a3b8fe48337746455781fbec4291c7ee7"
+    },
+    {
+      "path": "buffs/school.gd.uid",
+      "sha256": "47a1a5d8aeb73555bb8f0f1658f26a3f873fe2e9530cd532420769d18bcbba69"
+    },
+    {
+      "path": "buffs/school_catalog.gd",
+      "sha256": "fdb1aaa5ebe2f259d7a6d635c138dd656bc2b2b0b3140da9d736dbedcfc2af16"
+    },
+    {
+      "path": "buffs/school_catalog.gd.uid",
+      "sha256": "ef506ce29afe32b1892b5785e5412ccda8d65d5f14a2db8f9da0e789ea4883ce"
+    },
+    {
+      "path": "buffs/skill_cooldown.tres",
+      "sha256": "3ebbeeef1a7624e1da6b471c2aa20fc8452262de16212d610c07834e0c2b6d2d"
+    },
+    {
+      "path": "buffs/skill_duration.tres",
+      "sha256": "0781112a2044f0b3f280545556b69f0baf95ed3fb80056fdbabff4e58b32717b"
+    },
+    {
+      "path": "buffs/skill_unlock.tres",
+      "sha256": "75e64a2c16fb38658f8cad73cc2d7ccc76f4565ce09da692ebff6ab80165cfd8"
+    },
+    {
+      "path": "components/collision_layers.gd",
+      "sha256": "ae0ce254fcb0c7e704ec56548a2b3617cbc8d8ca0fd0bce81b0b196492468a85"
+    },
+    {
+      "path": "components/collision_layers.gd.uid",
+      "sha256": "b0616747145b08c82b88051bf1427327f08bc66423af66a623cce034ff7bdeed"
+    },
+    {
+      "path": "components/health.gd",
+      "sha256": "4a69ec8a0002c08756cba71137f2a21495296ec8d77fb1e925d3e9a4e80cf40e"
+    },
+    {
+      "path": "components/health.gd.uid",
+      "sha256": "a0d1efd238402d8f82566865ba74b974e323ac86168500737800f70e9a91a057"
+    },
+    {
+      "path": "components/hit_reaction.gd",
+      "sha256": "723194c5c38bdd90d210f8f7f50d841c9e0c0d2075078760bb6f86939339227b"
+    },
+    {
+      "path": "components/hit_reaction.gd.uid",
+      "sha256": "a0e971f10a85c66db3fe85a9440001fdd342b4f291b4687944793fa62464b65c"
+    },
+    {
+      "path": "components/hitbox.gd",
+      "sha256": "a6fc67b6082cbc9a642d35cb46197bda6bf02cda8a25225bcdbf398d78c58b22"
+    },
+    {
+      "path": "components/hitbox.gd.uid",
+      "sha256": "9acb52148d763e5b5354f1eb7d1d976c2d1557f940a6bc630d340c3a0b98eb16"
+    },
+    {
+      "path": "components/key_hint.gd",
+      "sha256": "3c96239e1c0d2b3ea9789d7dc267b0730bcadb5a84a60316d8e00f282e052c97"
+    },
+    {
+      "path": "components/key_hint.gd.uid",
+      "sha256": "5d915c5a3348d1996eee819beda398f19872ff6cee40713ab02970abfb8dd338"
+    },
+    {
+      "path": "components/sim_clock.gd",
+      "sha256": "dff9bcbc054cbafb3f5f5afd063132a3be11bd41965056c97ab9ad1ebab296a6"
+    },
+    {
+      "path": "components/sim_clock.gd.uid",
+      "sha256": "fbdb33ab29fc3d1fe692f46c360d38552e8dfd8f13fde6d0889d66a4f92f9244"
+    },
+    {
+      "path": "components/stats.gd",
+      "sha256": "5d3847ffc6d502fd90295574f6cae436d833605685694fe6873c55ee7357806f"
+    },
+    {
+      "path": "components/stats.gd.uid",
+      "sha256": "65c1e54de49148e49c3bb71d61c883b2b80c58b32990d5157a634976ad75591a"
+    },
+    {
+      "path": "default_bus_layout.tres",
+      "sha256": "32586a913e62e4cf90b442a6927932e9b29f9a3b4abda3742dad872d81256d38"
+    },
+    {
+      "path": "environments/sloth/architecture.gd",
+      "sha256": "351c8b40651a61ae9d5300ea03d08bd3d72b215632d7dc21997017c778e5bdf7"
+    },
+    {
+      "path": "environments/sloth/architecture.gd.uid",
+      "sha256": "25ef8b8abc2f1961ddbb57bd88ab164195d97176d4bbe08b9fa6d9856e324d8f"
+    },
+    {
+      "path": "environments/sloth/cloud_sea.gdshader",
+      "sha256": "83d81eac35d59b89ba5101fbe0e93cbe3466a9e1dafc00c8630ce8004b0cadee"
+    },
+    {
+      "path": "environments/sloth/cloud_sea.gdshader.uid",
+      "sha256": "ae44801e37823cd0961ad53b5305d981d152b90e893f3162488c0b538a84a499"
+    },
+    {
+      "path": "environments/sloth/courtyard.gd",
+      "sha256": "651789cd5961632dbf720d42158c4c70b22fa6018691ee489f71ad04f820ba0b"
+    },
+    {
+      "path": "environments/sloth/courtyard.gd.uid",
+      "sha256": "1e147c164baea9ed50ac986a0ef77f22897de5d48ce048ad1220e9b2e45642aa"
+    },
+    {
+      "path": "environments/sloth/floor.gdshader",
+      "sha256": "a826a92acc6d9458acb5a051e33bf7abb266e9826416fc14363ce117eacf2ead"
+    },
+    {
+      "path": "environments/sloth/floor.gdshader.uid",
+      "sha256": "15961693b05b954f1b7a78a5fded77666948ebb5bbe0b8aaa01580f0ef4f17bc"
+    },
+    {
+      "path": "environments/sloth/sanctum_sky.gdshader",
+      "sha256": "bdf7b43cb993ead23b86a8563516bc18124a65052605b3ccc8ef60af820467e4"
+    },
+    {
+      "path": "environments/sloth/sanctum_sky.gdshader.uid",
+      "sha256": "27c79df25257074e012da77b07021718aa7f11bc563efc894bf51180a04fac45"
+    },
+    {
+      "path": "environments/sloth/stone.gdshader",
+      "sha256": "70338c3e1b51649e1feeeadcf6aabfb2d9a05ce26cfbbf95c961b6b8f59fa715"
+    },
+    {
+      "path": "environments/sloth/stone.gdshader.uid",
+      "sha256": "deae65e21b97b9c498d4c25d72adbec8cf4edc707f783364732e79f7e8a4d3a8"
+    },
+    {
+      "path": "fixtures/fx-001.tres",
+      "sha256": "58db57aa4c26532bc7b59d3d49d600fef8a5dccb59f1f1b185d2e785209a6fa7"
+    },
+    {
+      "path": "fixtures/fx-002.tres",
+      "sha256": "23ff36c8fbd2a7ec283fe60a2bd3b84f6f6b3c3415ef51b01912024c09a02e7f"
+    },
+    {
+      "path": "fixtures/run_fixture.gd",
+      "sha256": "b39a331817b73919c30126a22a3fbb58789993a65a472d6fb11563a43717c7ef"
+    },
+    {
+      "path": "fixtures/run_fixture.gd.uid",
+      "sha256": "ad238e2d2ed89935ade684aeaf858c1195b2a71de7d8db10807656592cd6e12e"
+    },
+    {
+      "path": "icon.svg",
+      "sha256": "6c80384360a5b269d1054bfb27241258154e2cc8167c522016fdc1820e84e0f8"
+    },
+    {
+      "path": "icon.svg.import",
+      "sha256": "0bd58e76f4438561105dee9ce4759b7dbb9df4d008c8f909f714a33782c6f212"
+    },
+    {
+      "path": "maps/boss.tscn",
+      "sha256": "6591230ac0afa024424fe46d793a308df5822ead5ec863f0eca8ba5c59f5d36d"
+    },
+    {
+      "path": "maps/zone_1.tscn",
+      "sha256": "103baaa5808d5379ad3cd196c4794e52267b1b66f2d0875c2b5ba067fa73eb85"
+    },
+    {
+      "path": "maps/zone_2.tscn",
+      "sha256": "3d258ca1aae0e5f3cb1943b71f170c90cadedd20827d87eed206519b6e34b0ae"
+    },
+    {
+      "path": "project.godot",
+      "sha256": "f7005aecc14b0c3dd068cf3a4b0eb188523c1b90115c48a261805ff6f7e4419d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/.gdignore",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/.gitattributes",
+      "sha256": "dd05a8e5b709497f3f11c6f295eace496c9e7ec2f6d0bd0739ecbd87ab63debe"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/.gitignore",
+      "sha256": "0a58d0607f6a4bc18ae135e2d18ced14eaef4ea5ef42dc2a81f72169d682c583"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/integration.patch",
+      "sha256": "7bb3a011599ffc31f702b0e406a448b41decf38a964f7a9ed85f9f71ca41d236"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_attack.gd",
+      "sha256": "14e4f1c7b504dd5e0a75ac7b8519ecc87ff5f9714e50fed27b834c1bc3e83807"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_attack.gd.uid",
+      "sha256": "3c8a925917515564237db50c4f420710ccbda907c178e7bc45ba7e942d8f912c"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_enemy.gd",
+      "sha256": "540b97b813b38d04b8771c421386a306160b9e310e67fa9847cbc03197fe4b33"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_enemy.gd.uid",
+      "sha256": "fefdeaad62b91743317379ae2f38a73c4e1692d1f9a428c9dd1788af35b84860"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_enemy.tscn",
+      "sha256": "511ff5a3a572d3fd415303d520fdb2a98acb2eebcc069a2a967ca919440f7087"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_health.gd",
+      "sha256": "286214e5ac833f9518e5ed497845583d01c250e6a01762419efe9637238170cb"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_health.gd.uid",
+      "sha256": "c2cdef75d9706ded60f230ab80251024947f7efdb47e1958e87f00b5f0fc28eb"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_hit_reaction.gd",
+      "sha256": "5240839c86500c9b09a7c51b27a8279403005c46f2052dcf671f5eeb3903991a"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_hit_reaction.gd.uid",
+      "sha256": "eec01968f19d06fdce77c7e82d64d757ffe71a908b0943c620768fc4d7412109"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_shatter.gd",
+      "sha256": "ce2a90a3928ecb17fee117b77229de3e11f2d6b6c9492ed5d6188200bcd80d0f"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_shatter.gd.uid",
+      "sha256": "1daf4a45332a5894514c7750695e87e32e2c1be15afa81aa3ccad1cebd4c0272"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_visual.gd",
+      "sha256": "0ee522cfe53d71b89a8b05adf550e074b8ac92979770b618782781a4614243e1"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/actors/enemy/sloth/sloth_visual.gd.uid",
+      "sha256": "50e50148ea83bb829284d506f87f7f6d60d3acea5e9afca36cab830011a76256"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/assets/materials/sloth_cloth.gdshader",
+      "sha256": "3cd8da587583e353f8d587753b34833771f6e5f91838d6411351a45362a7ca59"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/assets/materials/sloth_cloth.gdshader.uid",
+      "sha256": "a11a6b633be0d1439471d206d062333c1cc49bc5720d9e95e9b77eb6ea676b0c"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/project.godot",
+      "sha256": "b676af3cd5aa0eff417ccca8a225bf4453d15aeaaefb9c3c48012362c13268c9"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/cloak_defense_test.gd",
+      "sha256": "9002817aeafe64d4ea9ec3ebc529bf2674db7457aab841f5f6edb22727dabf0b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/cloak_defense_test.gd.uid",
+      "sha256": "16434f2684beea98a7db27ac67964153a00bf157aa3ae122b2045249bd75ef03"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/cloak_defense_test.tscn",
+      "sha256": "f29fcc39fd6ca8c0097dc61eff5e36657a8b90de3133f7d54fba188921f9c98d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_cache_test.gd",
+      "sha256": "3000d465811852e441439f2e32ea683c1120617cf472163e84ab7bb39cc23e20"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_cache_test.gd.uid",
+      "sha256": "1fef6a4fea99a04a92fe163ea27ef241fcac4b245d2684afa8a0f97565b08cb1"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_cache_test.tscn",
+      "sha256": "d74ee0afe7ad62a1637fe11768376fc67e0defe9b088e0535d2b3167cd9eeb17"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_enemy_test.gd",
+      "sha256": "24d4dfdcfcd5f400f5e4c7042d491fd1e1f3b9c7a5856b8e2085edea2159b0f4"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_enemy_test.gd.uid",
+      "sha256": "9ac7e2dcbc12c6a77f8c63a9dab2c809a6df8a0712958bbf2c8c91903ef5d48f"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_enemy_test.tscn",
+      "sha256": "2b1bee86c4144dd7916c2a44db70e992c4c594d9f8d203cd985fe0be8aa819df"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_performance.gd",
+      "sha256": "2e3b792ba963eb2f4b979e79c5e7d12c834aa18396740176c7c80a2a062d7058"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_performance.gd.uid",
+      "sha256": "e659b945c3a328a9e4edb15608fe9fd53bd9a5b53cb4f4ef095be97b17e2c46b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_performance.tscn",
+      "sha256": "cebe2fd32e599f88dbb932dc66a79a9505cfae2710f2906b0d282b8a82fe4cbb"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_revision_test.gd",
+      "sha256": "0bf32a6b4445d5d522e91b17df2c74306f224adbeaf5340b5d50509f45d240b8"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_revision_test.gd.uid",
+      "sha256": "61801b6daad1f6c73706a91573e8bcee49498ca34d5542850a128cfca8e45eea"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tests/sloth_revision_test.tscn",
+      "sha256": "8c25db4a2f7e0694f39991f0b4f9fb122b7eacb596d301184599db05bbeec3a3"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/ability_view.gd",
+      "sha256": "c4f87d2cf0feac441f55d0ba9cb8c98292cbd5d72310632f7585811b90ab0117"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/ability_view.gd.uid",
+      "sha256": "6ebc0418a703bb26e6f4c206f913c52ab90621bf008042a97d8029065084411d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/ability_view.tscn",
+      "sha256": "ab82b029190d027f721a93ca7e91d9f197119d6e9f85a4e9eced0843af7499d6"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/gallery.gd",
+      "sha256": "ce06e16bdc061afd086984981d14b60d60cb070d1c74362d7015273108601243"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/gallery.gd.uid",
+      "sha256": "087bc45cd420dfe52903092cc1b78cc3e271ae16ddc783ea1c40dd657d9165d6"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/overlay/tools/sloth_enemies/gallery.tscn",
+      "sha256": "6ccbe4fbdda723ace15bbacc25620794f9530161a6fd02e3cbbf59aabff04018"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/payload.json",
+      "sha256": "539368abc9d2fb133b6dc1b275a3505948fb77e904d7d8fc162df2bbe373c862"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/prepare.py",
+      "sha256": "d98398dbb3ffdbee1a358910a2cc37b497f4122edeb9509632c6bd22f7bf858b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/01-lineup.jpg",
+      "sha256": "7b6dde9046eb086f5ccddabd5fc4eea73548dcb2a5147a58395c883b0cf546f7"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/02-mantle-rear.jpg",
+      "sha256": "31b7b5281058197f70ab2f57e8e582bac19726ae6b7d263e96ef745655228b7a"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/03-impact-shatter.jpg",
+      "sha256": "c7f540d31bb63944a1bbd96972deeab6a02c3d02bfd24d94a62f52a1b787f599"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/04-cloak-throw.jpg",
+      "sha256": "3d567c3ca02887965b7b89cf51f66020bedeb6cb7166cc6fb8ea5250d920d5ec"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/05-cloak-evade.jpg",
+      "sha256": "636f5f52bebbaef9db8e5c5bb90665e3dbce57898aa72780e5d8c86cd0e0f574"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/06-charge-lock.jpg",
+      "sha256": "55212eadb93f540bc672e9d9b979e541f365fbe91263f95847f50139686b30a4"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/07-fast-release.jpg",
+      "sha256": "24aa1659b506ad468dc817760353fd77ddb5dd1e42a8a9b3dceecf6a6e41749d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/08-windows-opengl.jpg",
+      "sha256": "171985668847eaefa0d20ccc6a76c7a104e476156486e5f644f30b3e92314057"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/cloak-defense-headless.log",
+      "sha256": "6348f1c36b7288041625dcae14fb86b4912db480aa4ff2d119b679b2a1733149"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/cloak-defense-native.log",
+      "sha256": "0d954f00405c4f1f6ae112315a25861453d4ece91fc212d335d01224fdfc3b62"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/cloak-fixture.log",
+      "sha256": "f474df79280da850ebdc489cbf7af432c3015f8bffb1ce449c273bef80c382db"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/cloak-host-diagnostics.log",
+      "sha256": "96fe4cf77a7e4e0ce07154a303cae1616a296f64da5009429c5ae14a30dd3a9c"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/functional-headless.log",
+      "sha256": "6b57c007fc5623a46b6bfff86d31e46226a02485082ae6a7e1256d57a6fd97d0"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/functional-native.log",
+      "sha256": "b44b30dfca4613b3910de1c4243af114922df2d6e5ef7dbf56b80554d1270532"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/navy-v2-functional-headless.log",
+      "sha256": "2ee6b4aa0ced335c1b001be7bd2c14d09dfd8c7585fbd34fe856b6b7db5f9d9b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/navy-v2-functional-native.log",
+      "sha256": "2eccbea46965e69463969b38a926c9f9bfcd78eb8c2106772abef44df00164cd"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/navy-v2-navy-revision-headless.log",
+      "sha256": "6a50e15646ae0d87bd3dd1cc8edff35f0d103788068da001c461a459364a4f99"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/navy-v2-navy-revision-native.log",
+      "sha256": "9e0e1b67714d0dffd04ebdcf1d30024812dbc144a6d622a5b5f54b9d69062e14"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/v1-functional-headless.log",
+      "sha256": "8aeb3b30a3d4454cbbea8185379afafb51d365ff9a3a36ae42fc9fd96d5a4813"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/history/v1-functional-native.log",
+      "sha256": "e7ed00b77d31d6dcfd0d5cd73ce7233fd47a5195581c16498116b38ab4f39df5"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/native-host-diagnostics.log",
+      "sha256": "9c7998c52bc305f7e8efee89be09bb5ded24cfd3dc7d0df0381f56520afe5c65"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/navy-revision-headless.log",
+      "sha256": "08c4275a8c58c39ffea222cdd7d6363c553468b3c0ae144ea394e255d775123f"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/navy-revision-native.log",
+      "sha256": "b0441c6b2219bba8f964d3785dbb857f1c559b6ba52eba004165ec6eec4fe309"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/visual-structure.log",
+      "sha256": "77cc5fbe0bba3a96cce61e179fe147a410b904e073f088b299437673ad96ccd0"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-cache-headless.log",
+      "sha256": "40611e285f5e9174c02c258af214f3e859ad0b35146ab2cc4eba5342aa2d1f96"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-fixture.log",
+      "sha256": "0504beb7e7557802cdd89347bb040c059f66008fdcca637a99ed3917d4822491"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-forward_plus-before.json",
+      "sha256": "7e698c9eddda05980d7968b6dc82cf186dff31e73e6d6cded6e8da4b69ec828d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-forward_plus-functional.log",
+      "sha256": "4452b77d5cb03f7477026ba8c9a676376e4ececd6e8d0169080e551ef485966b"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-forward_plus-performance.json",
+      "sha256": "8b2a7c04596e5ca9dab02ac96971a9ae3f97ec57d763be8a43fbf82978b41907"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-forward_plus-performance.log",
+      "sha256": "f1a79a4f9ca393b7af5415648600a55c4236609add83d02dfd9a4ea34d56fc58"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-gl_compatibility-functional.log",
+      "sha256": "a2be7db6604e289c83f6cec5638000e360f0ea7be8b92bf24c3cfe2e7115105d"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-gl_compatibility-performance.json",
+      "sha256": "173ea3f3348fce172bda09cd25fd1efff1ad8e151141e1b5cf05036a715ddd41"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-gl_compatibility-performance.log",
+      "sha256": "4a53d156995fca5767985216cd897c17b0da8bda9de0b6aa3404850a6a432b85"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-mobile-functional.log",
+      "sha256": "e41af65607979250f808be26db56930329dc1afcf513c24440b39d3dbb8306ba"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-mobile-performance.json",
+      "sha256": "bbf8421bbd6906998388d9199080e9fb49f02a15cd7f1276f36d0a3faf2c9004"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-mobile-performance.log",
+      "sha256": "2eb865d828133e983e1fccba198f0a6a7298e6584ca0975cf6d7338adf9f96e9"
+    },
+    {
+      "path": "prototypes/sloth_enemy_reserve/proof/windows-performance-diagnostics.log",
+      "sha256": "eb4106723fb84ff6076bd4e568494361bf741d2eeb4f3f90fba756fecc1d773e"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/UPSTREAM.json",
+      "sha256": "0dc73f33e0a435d2b84a4263d792c201c24e110828be3509242d7d0d6c6c7ef6"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/manifest.json",
+      "sha256": "38357b881ded42d040c6af71a3782a915b08388c518f1004a8e06b09fc7a398d"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/boss-sanctum.jpg",
+      "sha256": "44e9c56459245921d2566f942268eb65ff19fb2db6de5fd5a49fe4288d7fd1e2"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/native.log",
+      "sha256": "4bfdaedfbfacfeb3bfcfb8b8b05949c28413c73ddf0852b6a3fb5cc1fd759676"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/performance-after.log",
+      "sha256": "7fbb4538a69063ef88d56c046c32caf01f08cba6440c97613e3bc56d6e0d7aff"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/room-01-entry.jpg",
+      "sha256": "3d63475c530e12682eecc4d03d6fd30fd528d256e6da17a1e932c7b51501cf63"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/room-01-overview.jpg",
+      "sha256": "091f7041477023f926451b83d46c0d07df912a75d8f34bb651a8505d0a45e0db"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/room-02-entry.jpg",
+      "sha256": "bf2b161eedb65ed2542529978cdf4cb7faae2429eb6e95727ac97cd71d7cf10d"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/room-02-overview.jpg",
+      "sha256": "01e0598111a030bf8b44ab77c3f91439d1bf32f855fd09cf0d44eb04561026fd"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/rooms-native.log",
+      "sha256": "f35be0a066719b943ed6e57939476b7b3b71456597cfd92b734db544e79dca81"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/rooms-performance.log",
+      "sha256": "827b769be4f7369a6c40d9d8595ee2ca0fe56caa961db7ea9896b23d412ea5a5"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/rooms-test.log",
+      "sha256": "4f3ad0af69ff65359fac835a89b84be3c2086aefa9c3bbf3c027197bfb66140d"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/scene-test.log",
+      "sha256": "c1fb94b8ac857da95d75cb94d22da71dea3407e30778e1592e262e9e950be79d"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/proof/viewer-smooth.log",
+      "sha256": "ca559efa8c831f67616f366e6d3e5cd9ac77f0819427725f685dabd1491eebfd"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/.gitignore",
+      "sha256": "806f90a611874f3993a8b974a197f01fe4ca91650f512417b4b37dbe376c694b"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/cloud_sea.gdshader",
+      "sha256": "83d81eac35d59b89ba5101fbe0e93cbe3466a9e1dafc00c8630ce8004b0cadee"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/cloud_sea.gdshader.uid",
+      "sha256": "a2c23e9c8db214be5e09268ee01af4c136b675575e328b02bdd52cba989fb26c"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/floor.gdshader",
+      "sha256": "a826a92acc6d9458acb5a051e33bf7abb266e9826416fc14363ce117eacf2ead"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/floor.gdshader.uid",
+      "sha256": "8e0edcd5a37ba146a9537e993f872dbbccf6f4cc26ed572db74ff6bf7353a5f4"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/main.tscn",
+      "sha256": "309eeb99e1201d60466e662ee6b473321f56a1cc87b2193de1b625dd3ccc3f6b"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/project.godot",
+      "sha256": "1a12fe88c0893fe899dae098c9575a9b42dcdccaeca2a7130f15698efb768970"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/rooms.gd",
+      "sha256": "8ee93a34c7c5cb13f4115b0d2641fc31509527c48268fd8d9a5a6762d8f64110"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/rooms.gd.uid",
+      "sha256": "7064030b3fbb8a19a515c7b47fa5f787df39ba6d9e198a3309257d518fe8f143"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/rooms_hud.gd",
+      "sha256": "e1a285042e4e4c976149d2bb83f546c6ee7baa69d5c22129b3a9d27feb8b76ba"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/rooms_hud.gd.uid",
+      "sha256": "5e85a1c5974a82037353d285b7f58324eb3720c0922477ae77a40a4050ce63c4"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/rooms_preview.tscn",
+      "sha256": "07198cdf1154ae59e2a441900c87c9679d45b04a0d58bcf83d3843145bdc029a"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/sanctum.gd",
+      "sha256": "d2f8b01bade629c923e75930edf5c0dd02ff3bf02b13d3d3b3bb882a32c365f1"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/sanctum.gd.uid",
+      "sha256": "e3537eb1a12e7b498a7c4e2076858de011ea5395109db3996ef5f70d0f901310"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/sanctum_sky.gdshader",
+      "sha256": "bdf7b43cb993ead23b86a8563516bc18124a65052605b3ccc8ef60af820467e4"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/sanctum_sky.gdshader.uid",
+      "sha256": "a9cbfe2b9e91c0ccd3257de22328aa0daf9fdb77a0466f402b44cacbe77ddd42"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/stone.gdshader",
+      "sha256": "70338c3e1b51649e1feeeadcf6aabfb2d9a05ce26cfbbf95c961b6b8f59fa715"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/stone.gdshader.uid",
+      "sha256": "7cbefaa36c0a98c426fba7c58a3e12b48bc8d411c2206d98a6f386700e2465db"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/render_performance.gd",
+      "sha256": "7c30daee8b019142f22e60ae7a059baea7f41a7434058a3bffd367b567a1f107"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/render_performance.gd.uid",
+      "sha256": "c5ad709e0da8b1dd3a2fd28a7bee082f9e3675c457bf6dc52a6e596a3fe37e58"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/rooms_performance.gd",
+      "sha256": "aff22a91f2e05d43be0e063faee0d3009027d61dc41ee36045d01ad57eeac917"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/rooms_performance.gd.uid",
+      "sha256": "6aed86dc3586cc67806a84abacdbc4b7d6a09365a70c458dc186d77ea825aa2e"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/rooms_test.gd",
+      "sha256": "69efa5bd49bb14094aedf4c984deb8a5d50c0d089fe6b089cc200706ff5e7f7a"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/rooms_test.gd.uid",
+      "sha256": "9d909f1276403ee6b4dbd6cfd88144176a15db414fce394cfd2d36df9fcdbdc0"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/scene_test.gd",
+      "sha256": "c529dc63d41c331b6b964f47b32f4f8938b1710d027802bee0298c5eb7f8da50"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/scene_test.gd.uid",
+      "sha256": "b9564c2dc6846fba6d1f7ac2722fb02a2cba65142c5a01bfc62ee82b6f2aa37a"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/viewer_smooth_test.gd",
+      "sha256": "89d3a7fb66f3d3e242987fcd2c1e232f8a2ea661448143cf8687f496c79e7b8d"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/tests/viewer_smooth_test.gd.uid",
+      "sha256": "c58a304799fcf94706401d1b085254828c49e84f9ad7b82f202d1dc5dc8e674f"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/viewer.gd",
+      "sha256": "b7631af45257f52740a9028c3ae7f0338cc7c0f4ea9ceb30cc0e4b2a21f83afd"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/viewer.gd.uid",
+      "sha256": "7173d8739214045248cc1860b8bd616c060c49c6854ef68eac5317151d24cd82"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/viewer_hud.gd",
+      "sha256": "906ede4c6f8ca720e63da140f2a86b6899711db15873c08339cac4f0522d8191"
+    },
+    {
+      "path": "prototypes/sloth_scene_reserve/viewer/viewer_hud.gd.uid",
+      "sha256": "7ad8446459da3a20f36c84b5d21789e763a25548d92540ff5d88b403a74146a5"
+    },
+    {
+      "path": "tests/combat_bench.gd",
+      "sha256": "14b559a291e4c62fc6ed83d45ac18c082eb1e711c5ecf6536430a9bedf43a046"
+    },
+    {
+      "path": "tests/combat_bench.gd.uid",
+      "sha256": "0d5244a8254f2109dfdd2f15e287c4a4e7052a67a2efcdef560a8c7038be0597"
+    },
+    {
+      "path": "tests/combat_bench.tscn",
+      "sha256": "dfee73e25c2f49724881abc1a8bcaed1e26f776735f8aca9cf56cdf8f1a69a56"
+    },
+    {
+      "path": "tests/combat_bench_target.gd",
+      "sha256": "7327d870062a7b6b2d471aec3a1ca7ec4bcc448025213c7ea64509b9a301e689"
+    },
+    {
+      "path": "tests/combat_bench_target.gd.uid",
+      "sha256": "e5073c08c104e9a12fb3447793c707208ca3b2b528a07fa19716ff0aca4cedb2"
+    },
+    {
+      "path": "tools/archive/legacy_weapons/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tools/archive/legacy_weapons/export_gun_models.py",
+      "sha256": "e3f69b1d06845e6d0f8b16724157c0b7447805285da668f115bbea14862aa6fe"
+    },
+    {
+      "path": "tools/archive/legacy_weapons/export_melee_models.py",
+      "sha256": "3111a8c393fd311a92f2c8ef1f94c38352ec617d51a775875ad7cc0ef6edecef"
+    },
+    {
+      "path": "tools/crystal_enemy/anim_shatter.gd",
+      "sha256": "670b253581c8b9012c6081cf95178ce4af3f1ee0a321f3d1d5c8b9823c2ddede"
+    },
+    {
+      "path": "tools/crystal_enemy/anim_shatter.gd.uid",
+      "sha256": "6de1e875cabcec3d0b4d5555c0a7fc0f58929a8de5a048f5b6e01bed42fc9480"
+    },
+    {
+      "path": "tools/crystal_enemy/anim_shatter.tscn",
+      "sha256": "1e2b3c5da6a268b1d6f83944db65a6bdf215062e9192396e4a3dec2bdaacc39d"
+    },
+    {
+      "path": "tools/crystal_enemy/check_glb.py",
+      "sha256": "66bae30d474381aef729715cf711659f088cd344c553f58baf5b885597a64dc0"
+    },
+    {
+      "path": "tools/crystal_enemy/check_normals.py",
+      "sha256": "8e3759af3ee262bc425cc75c2d6f0742846e8098f28b33c099d08521f0b08348"
+    },
+    {
+      "path": "tools/crystal_enemy/gallery.gd",
+      "sha256": "d104f832c3e8d5fed093c2fcad797601db2ed2f364fe63de98ddd95105db80d6"
+    },
+    {
+      "path": "tools/crystal_enemy/gallery.gd.uid",
+      "sha256": "31727dffe0b3c176c489a1b7d3b49f7dfbb2feae29f1640bce276e2afadb3f04"
+    },
+    {
+      "path": "tools/crystal_enemy/gallery.tscn",
+      "sha256": "81cfdeed47d1777b341e9033da2c69e64dc9356399603eb759b6ad69eea3fed3"
+    },
+    {
+      "path": "tools/crystal_enemy/glb_writer.py",
+      "sha256": "0116c82cdbb7c0df0bdd6c74222f6f1bd1c166c52fdbdb1ac76a148eb55c21b3"
+    },
+    {
+      "path": "tools/crystal_enemy/views.gd",
+      "sha256": "d64ca19f820e194e6201693e5c5a9434bead68dc6df858b2ec2e772c9ad4ae4a"
+    },
+    {
+      "path": "tools/crystal_enemy/views.gd.uid",
+      "sha256": "19450e72bd7cae975e224754c95956f01a7078de64e6a5760df3357b068ba8d8"
+    },
+    {
+      "path": "tools/crystal_enemy/views.tscn",
+      "sha256": "78f5b900843df90cefa82370a0d9427743201c0f405f67fd327ce3378d08cc9c"
+    },
+    {
+      "path": "tools/epic1_models/.gdignore",
+      "sha256": "05015cd22277743a72d456d53a7611ea804c72bb6fe06f427132057ec1860746"
+    },
+    {
+      "path": "tools/epic1_models/generate.py",
+      "sha256": "87c0a89ba8dccdd546e1c190ee08f5d9b68c62f6d79d041251db86dd2ebdffdf"
+    },
+    {
+      "path": "tools/epic1_models/manifest.json",
+      "sha256": "f250d2a8fd7544b9ecfc8039bf822652e6e6a69ab53aba668cdc2a385cca2b4b"
+    },
+    {
+      "path": "tools/epic1_models/mind_blade.blend",
+      "sha256": "63c28c22d206a82b5b22f8f60a80ec8f633951bcd574361868bda4262333adea"
+    },
+    {
+      "path": "tools/epic1_models/obsidian_pistol.blend",
+      "sha256": "2509273befaadd8dffe2e5e3a2b180f77541030cfb05aa7d5ad88e04335e211a"
+    },
+    {
+      "path": "tools/gen_zones.py",
+      "sha256": "bd27e937273dfe47fbea893eafc3ef7bc52b1011eb311d73d181531d8e12bca7"
+    },
+    {
+      "path": "tools/gun_sources/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tools/gun_sources/Shotgun.fbx",
+      "sha256": "aa400b2aa6eaf59178f02dce10d85022e4ef7f19349b0a703a008ac3aa152a23"
+    },
+    {
+      "path": "tools/gun_sources/Sniper_2.fbx",
+      "sha256": "6048fe5fe2ce1d2b57b7862b7f812f0cbf1e6c017bbba4f53e84ac36b6018fdb"
+    },
+    {
+      "path": "tools/melee_sources/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tools/melee_sources/太刀.fbx",
+      "sha256": "3bb8e530e63171326370919f09f2de041e2f7fa552ff723de69ff8365273ae9c"
+    },
+    {
+      "path": "tools/melee_sources/斧子.fbx",
+      "sha256": "74d2aa994826be0a9ebcd8cdda4c72b1321620af0ab71de8e4177af16d1f588f"
+    },
+    {
+      "path": "tools/render_icons.gd",
+      "sha256": "4b008b58409dc486d8cd332c51e909bc5f8c6a500e7700d2cc59c453a533f016"
+    },
+    {
+      "path": "tools/render_icons.gd.uid",
+      "sha256": "71bba5f68d97379c35dcebc39d31fcbac117cfec93b0b2c84f1be8c58c197c55"
+    },
+    {
+      "path": "tools/render_icons.tscn",
+      "sha256": "5379a00ec8c62ddaaf83b934e960b6dcd3381aa3fb7c71551e2f7204c38b09a9"
+    },
+    {
+      "path": "tools/review/install_godot.sh",
+      "sha256": "6ab51839d1347a9ce1f5b34a17de328eefada9071bcc7382e21aebfabfeb34cd"
+    },
+    {
+      "path": "tools/review/run_checks.sh",
+      "sha256": "8d6b5b40674c3cf1317602aa77fa2cbb949b05a82b275a2f26a98c6c9044ca9f"
+    },
+    {
+      "path": "ui/ability_slot.gd",
+      "sha256": "ee1b8bff851d42af350fada2ec7308004035e4d0205081c2e1165ba01a3c767f"
+    },
+    {
+      "path": "ui/ability_slot.gd.uid",
+      "sha256": "6ae0dd512e49300687c91577196e4d8dbfa2d666d42377b3fec9709b2a4cf2b4"
+    },
+    {
+      "path": "ui/boss_health.gd",
+      "sha256": "a2146f58747985f13bc04d3cfe9e1c9eb535d76297e77ab3d63980b28b491716"
+    },
+    {
+      "path": "ui/boss_health.gd.uid",
+      "sha256": "f600fbfdf98af6eb96f989ca9543c795d188522bd9d54f76758ac539fa06eb9a"
+    },
+    {
+      "path": "ui/buff_bar.gd",
+      "sha256": "90ee09e1af97d26ec5a2dddcfe5ac093cd25cb7a1128e5458c6f58d2cbeed017"
+    },
+    {
+      "path": "ui/buff_bar.gd.uid",
+      "sha256": "3738421d5a74629a3b5715e541467429c54035c4b8c20d50d7fcc2abf2f982e3"
+    },
+    {
+      "path": "ui/buff_select.gd",
+      "sha256": "35fee7539a62b2319f1867d583c0a8a65b7156fc1cd1380408ec95a3857f2c28"
+    },
+    {
+      "path": "ui/buff_select.gd.uid",
+      "sha256": "dd54da3f67ee755fac72c9dae1e710665379a60b9bf748f7f66eb50cd15f19a1"
+    },
+    {
+      "path": "ui/buff_select.tscn",
+      "sha256": "54be65036736c1938b391b66f3ea0999f0b245607a3b77f3eae1cd99cb3928c7"
+    },
+    {
+      "path": "ui/capture_debug.gd",
+      "sha256": "52d8397d06f753ad072e511cf445f4c01807c9f92f99f7610a984c891533af94"
+    },
+    {
+      "path": "ui/capture_debug.gd.uid",
+      "sha256": "bcfaf2399d4e9f6f812dfc35b730489710449b89e362cab61e9b70e3f90078df"
+    },
+    {
+      "path": "ui/crosshair.gd",
+      "sha256": "11384d59bd01d9d5ae8376ae96f5d16bc4c1d9be17523d57613073e3106c891d"
+    },
+    {
+      "path": "ui/crosshair.gd.uid",
+      "sha256": "e6b7aa2ef66668876763dce5f184f5740058ea60f92fecdf080221f964b53e70"
+    },
+    {
+      "path": "ui/damage_indicator.gd",
+      "sha256": "96dc149186c75ff7fdbb4cb3ef965a22355cc47b69a208fee2dcc407a2d7e63a"
+    },
+    {
+      "path": "ui/damage_indicator.gd.uid",
+      "sha256": "0bb14cd3984814a3e03a75c4abe84e1ac1dc0963f74fd7dfd3501527f1064552"
+    },
+    {
+      "path": "ui/damage_vignette.gdshader",
+      "sha256": "94114035963a8d85d00f667871c9c889948444c19432744dfdd21dde99eb07f9"
+    },
+    {
+      "path": "ui/damage_vignette.gdshader.uid",
+      "sha256": "e6298d496e267181f59966751d540fde8a51ae2f40ca7b24a9a93f463ebb0691"
+    },
+    {
+      "path": "ui/game_settings.gd",
+      "sha256": "7102b9ea70f897fd957489ff3a251a57e6f49347660f3041ff666c87f93aa0ca"
+    },
+    {
+      "path": "ui/game_settings.gd.uid",
+      "sha256": "f11b0b101e6909f1fe5aab5eaf99eddf0d4466a7c9a04e2ed0317e62c1bac0bd"
+    },
+    {
+      "path": "ui/game_start.gd",
+      "sha256": "abd0f43162335a7251f0d37889f23110abefa4fbeba84fbcb3f019f052f59810"
+    },
+    {
+      "path": "ui/game_start.gd.uid",
+      "sha256": "fd8379bc676fdd4c718816b4f89408b5ad84b454794edce6112a651b26f141ca"
+    },
+    {
+      "path": "ui/game_start.tscn",
+      "sha256": "2a6b9a7e1132b18d439625274ca91832d82b926c731dd792223f244a27babdaf"
+    },
+    {
+      "path": "ui/health_trail.gd",
+      "sha256": "bb31fdb3ea185b2983d2bcfd40517bec8929ce351f69b84f1aff7902148ef21b"
+    },
+    {
+      "path": "ui/health_trail.gd.uid",
+      "sha256": "d740ba1998b16b366394166068b5e986c51d35d6953604f44cfd425cee0e098c"
+    },
+    {
+      "path": "ui/hit_stop.gd",
+      "sha256": "82486a7bd54e067bf1ebdc8c29054bff5fdff588a7016ad457fbf4cdecdcaac2"
+    },
+    {
+      "path": "ui/hit_stop.gd.uid",
+      "sha256": "fa545fdccf6cb76ade89e6b2689adda15b30a15060aa96cceec366ccc1e38b1a"
+    },
+    {
+      "path": "ui/hud.gd",
+      "sha256": "42acd5953ee475c85e23418f5899075adce9e2a2cdd05026e26ff88ebc8a68bd"
+    },
+    {
+      "path": "ui/hud.gd.uid",
+      "sha256": "fbf89a409caeb2897e9b60623b9143e4e869817f28651c00941fa658496804e2"
+    },
+    {
+      "path": "ui/hud.tscn",
+      "sha256": "20f08f88530c143d7a10a0080cea2a724f102365a5f3a1c7dddff513e1062654"
+    },
+    {
+      "path": "ui/hud_style.gd",
+      "sha256": "4dc4710956f3a877d1f40e042f89c92688411ed287831500586d8b9a5db8451f"
+    },
+    {
+      "path": "ui/hud_style.gd.uid",
+      "sha256": "c322c5376f0be24535eeb9cddcabe395dadbb8b07aaf00895cb0dcebd86c0553"
+    },
+    {
+      "path": "ui/key_bindings.gd",
+      "sha256": "acf3c324c70a973fb3329ea8f5e40cee7e0bc0b1ee4b395e16e204ce13319574"
+    },
+    {
+      "path": "ui/key_bindings.gd.uid",
+      "sha256": "3c71dff3b2663dd0e13a406d17c173c2369d72853fe6c29c2c27379fa26a9b06"
+    },
+    {
+      "path": "ui/minimap.gd",
+      "sha256": "d56e7d0f8a1a5a15a3d7be9f5a655405fff10f6c24ed86d321b7e4c2d9a5830b"
+    },
+    {
+      "path": "ui/minimap.gd.uid",
+      "sha256": "c0c5887e1875d5de83bac917cf98ef3c93d1e6d558bb1bbd697b25c0dcd2097b"
+    },
+    {
+      "path": "ui/music_director.gd",
+      "sha256": "924685b9030cc58c3f82dc83b7c6938917298155bd8d2709b0355ef777abb615"
+    },
+    {
+      "path": "ui/music_director.gd.uid",
+      "sha256": "d057d93eea3fa935a5270cef3459dcc50363174d8c23684f774dad369741e29a"
+    },
+    {
+      "path": "ui/objective_panel.gd",
+      "sha256": "3e24a87d494f9dd35de0ddd821181dca5657ec3759b83394ac1159badcf782a6"
+    },
+    {
+      "path": "ui/objective_panel.gd.uid",
+      "sha256": "0d6d12711677e2b42d27bfec3e5a14dc6a81bf04771f95110a8e89310456db93"
+    },
+    {
+      "path": "ui/pause_menu.gd",
+      "sha256": "6d920c96c1b45dc2a2b13842dde2f80423453f65d22c66e4d22580f233fe3e39"
+    },
+    {
+      "path": "ui/pause_menu.gd.uid",
+      "sha256": "0cea7f0bfeb8ccd48d17c6d2ce2fa9f9ee98a46eed20764a1499eb17bd8512e6"
+    },
+    {
+      "path": "ui/phase_banner.gd",
+      "sha256": "da7379b014239065825d420615caef0c5c14400bcda4bc12637c0ad725fb813c"
+    },
+    {
+      "path": "ui/phase_banner.gd.uid",
+      "sha256": "b5bdd941ba107bcd0a6632683f3eb3d2d3f063c175ee6e78b345e7898dd48175"
+    },
+    {
+      "path": "ui/pride_opening/assets/pride-atlas.png",
+      "sha256": "9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840"
+    },
+    {
+      "path": "ui/pride_opening/assets/pride-atlas.png.import",
+      "sha256": "14494e38c2ad61b36c3018ce626843d5ebbfe35c05b8df5c65182a44d161b86e"
+    },
+    {
+      "path": "ui/pride_opening/crown_avatar.gd",
+      "sha256": "1552d5885e76a272f942b677249e3fcc1fb8c329a8b7f801d8eed00d9d0917d1"
+    },
+    {
+      "path": "ui/pride_opening/crown_avatar.gd.uid",
+      "sha256": "6c8cc4a5d1732a113c5d30898e600077459b29c4fb4af293d8c77311607dffe4"
+    },
+    {
+      "path": "ui/pride_opening/dialogue.json",
+      "sha256": "cf7a72323814a1a0f7576cc3418202a681a23343a5664cd5972299eb9d2d45c1"
+    },
+    {
+      "path": "ui/pride_opening/gray_gradient.gdshader",
+      "sha256": "c930b051294817f2fa7756cb3ad2b21f2c021f1eb8d6c8fc81d93340213a4a98"
+    },
+    {
+      "path": "ui/pride_opening/gray_gradient.gdshader.uid",
+      "sha256": "c8f90cf352b96717dec9b10624906fc15d16d381c0bd4d8d5ad8397542b692a1"
+    },
+    {
+      "path": "ui/pride_opening/opening.gd",
+      "sha256": "442bbbe0eb252af7901c74edf4ee5d2342d8f22f40134520530969a68659afb8"
+    },
+    {
+      "path": "ui/pride_opening/opening.gd.uid",
+      "sha256": "ee41c7cbf9f73ab82c84cc3b41cbc7b8e95dc44b216bd6306317241786c9fce8"
+    },
+    {
+      "path": "ui/pride_opening/opening.tscn",
+      "sha256": "eb8d58767f7707a0a3b698b648d06a5a2fcda91f958e3474588bf9b0f2f08cb4"
+    },
+    {
+      "path": "ui/pride_opening/opening_flow.gd",
+      "sha256": "96a1f5d0a7a0c863d4f23a2b6bc78f390ba268d04b21f30465e4c4418b6cf4c3"
+    },
+    {
+      "path": "ui/pride_opening/opening_flow.gd.uid",
+      "sha256": "7253cbb06d52f99ecf0504e262ea15b7df0c8f36521d55ef4e999fbc2491d0ee"
+    },
+    {
+      "path": "ui/procedural_music.gd",
+      "sha256": "af13762b79d16d5faa26d38a9f646a63c3a52342e8b79d5e47281dd992a150b2"
+    },
+    {
+      "path": "ui/procedural_music.gd.uid",
+      "sha256": "cf74600cb645b8139fd98a5ade14df58a3effcd20fbd368a4ab8d58582a477d8"
+    },
+    {
+      "path": "ui/run_end.gd",
+      "sha256": "22b357fe4600ad83276720bec45cec801a88a8e5d552b71e6cb4721915d31f32"
+    },
+    {
+      "path": "ui/run_end.gd.uid",
+      "sha256": "671f1a67ed1704ad78a7162392417459da6d7d11d475762d5def474f9e1264b3"
+    },
+    {
+      "path": "ui/run_end.tscn",
+      "sha256": "5fd3f74f7f38852fdaf8da736c0798ef542dfe1d4c684e86515b1b8ff3414d3f"
+    },
+    {
+      "path": "ui/scene_fade.gd",
+      "sha256": "e1d612795d11294438b41264f3aa3bd8ddd06409bd341f2b308b079fcccca200"
+    },
+    {
+      "path": "ui/scene_fade.gd.uid",
+      "sha256": "22b9bcffd8d974a19bcc0cf66b8e16633f86cde5475f63e249b2c02fabe40585"
+    },
+    {
+      "path": "ui/school_badge.gd",
+      "sha256": "b12eb91d887569254ce5e5718a8c8fbf1c21bc98aa977c7603a5ae1e7e49508a"
+    },
+    {
+      "path": "ui/school_badge.gd.uid",
+      "sha256": "db13c738e26711e027dca31f87b1345c79fafc3f375786f225400c617894e536"
+    },
+    {
+      "path": "ui/strike_bar.gd",
+      "sha256": "4cf2083d3f8720bc25ac5957d284c3315143a3379281256820dd5f5bea14802c"
+    },
+    {
+      "path": "ui/strike_bar.gd.uid",
+      "sha256": "13ee27a6f226f61549198ff59f992787cdcde7dac4a158b9f0aeb114df4d8d6b"
+    },
+    {
+      "path": "ui/vitals.gd",
+      "sha256": "2778ab9af660048d19293dcb1f8ab9b7be66cec511d9d292172c24de72b26b0e"
+    },
+    {
+      "path": "ui/vitals.gd.uid",
+      "sha256": "d5c693a39c132229aa5903f1a28bbb3c7168b43afc80ebb12fca0f018c3e59eb"
+    },
+    {
+      "path": "ui/weapon_panel.gd",
+      "sha256": "168b1dfaa194cf9da07cc11cc6aa215bcbed4d0e6a41fd15d578ae4438dea16f"
+    },
+    {
+      "path": "ui/weapon_panel.gd.uid",
+      "sha256": "62faa4e9e0e456603070949c38009a2999b13786c03c86b46824946e694ee0fb"
+    },
+    {
+      "path": "ui/world_marker.gd",
+      "sha256": "daa05027ece8abbdddb36d6892ae16c415a6fd352352a361962c4813f52eada6"
+    },
+    {
+      "path": "ui/world_marker.gd.uid",
+      "sha256": "5362cc9f8db0d8a0695d86100c0aa3b2ad53cb2b1323e8622f684bbe7f952097"
+    },
+    {
+      "path": "weapons/effects/crystal_impact.gd",
+      "sha256": "0abd5dcaa364b665d9073fa65acf858fbbe28b2da7ee07ea649fe3f57a74606b"
+    },
+    {
+      "path": "weapons/effects/crystal_impact.gd.uid",
+      "sha256": "e5ee15c43c5ada6a67ef3d2749b4eea058d1cec51652e263a0a8e5d07e2b361d"
+    },
+    {
+      "path": "weapons/effects/debris_burst.gd",
+      "sha256": "93ab987ff4f2d3565575c82004ac45d8703587130007ed926b9ab667d9d64cdf"
+    },
+    {
+      "path": "weapons/effects/debris_burst.gd.uid",
+      "sha256": "320c1f0e7fced24106eb0c00198c643d1a09b81e71a111a9e77b547d56165c57"
+    },
+    {
+      "path": "weapons/effects/impact.gd",
+      "sha256": "643a5b4e7dcc472c6fd2c0ae77c4dd11620e2a5edd086c0a7fbeef0309e3b75b"
+    },
+    {
+      "path": "weapons/effects/impact.gd.uid",
+      "sha256": "ac8030100afa4b33774ae80e13985515f46a62d82591a6305458b76ba986e2d3"
+    },
+    {
+      "path": "weapons/effects/tracer.gd",
+      "sha256": "d9701705f2620a78ca8511c07a4b8a9168a8b919f98a98b8bda31b89c718f73a"
+    },
+    {
+      "path": "weapons/effects/tracer.gd.uid",
+      "sha256": "714d4c6ddce73adf0097348156dba3085fbd6494dff0e0cc0355f729279924be"
+    },
+    {
+      "path": "weapons/melee/melee_data.gd",
+      "sha256": "6aa99f9773ceb5262f8425c598e6600e867f60aa6142f527c6ade74ab458cc2f"
+    },
+    {
+      "path": "weapons/melee/melee_data.gd.uid",
+      "sha256": "3360b3dbd1f561e65515aa43b2c00d95bff4f26feb87b1d96cf5d4e9cbb28063"
+    },
+    {
+      "path": "weapons/melee/melee_weapon.gd",
+      "sha256": "1ef30eaf16a4e330ed18d3d15b89e8ff32bbb5bbbb9aa827396c4ac5022555e7"
+    },
+    {
+      "path": "weapons/melee/melee_weapon.gd.uid",
+      "sha256": "16c80eafb16603d869009cdcb0fec467587fcc46cab529d8a5e6dd84f0d6a8e0"
+    },
+    {
+      "path": "weapons/mind_blade/mind_blade.svg",
+      "sha256": "5d4a027b1a5afcae43408ff33eb6afd18222d76839e777fe3700b010b2dac684"
+    },
+    {
+      "path": "weapons/mind_blade/mind_blade.svg.import",
+      "sha256": "1b41799440a168db9690e45edd67a50b9e77bd59595992d71726179387cd6942"
+    },
+    {
+      "path": "weapons/mind_blade/mind_blade.tres",
+      "sha256": "584bfb561389410096a7ba006d337e5bff1edc9d2e550c4299d410459c05a122"
+    },
+    {
+      "path": "weapons/mind_blade/mind_blade_view.tscn",
+      "sha256": "9d1b4115eacd94287e835cdcd0b7f475799f1b33a9145244a79397a3df0d1e13"
+    },
+    {
+      "path": "weapons/mind_blade/parry_area.gd",
+      "sha256": "765f039696ebfbbe9b756c31cbb24b7ec9327fbf7fdd71015933ef7a8f5d2646"
+    },
+    {
+      "path": "weapons/mind_blade/parry_area.gd.uid",
+      "sha256": "216880a9ca51b5bbf72b61a033f3e4d2bd3817cfd56c5d503067c801cde43a74"
+    },
+    {
+      "path": "weapons/obsidian_pistol/obsidian_pistol.tres",
+      "sha256": "dbafbfd0bfe0499278820ce6c66242d03f79057748c11b9cd9a56b48ced93cf4"
+    },
+    {
+      "path": "weapons/obsidian_pistol/obsidian_pistol_view.gd",
+      "sha256": "75ce2bfceb4d7cdb3b38919ca0550b6851ef4cc0ad9b8cdb98e9bc97b8c0a0e1"
+    },
+    {
+      "path": "weapons/obsidian_pistol/obsidian_pistol_view.gd.uid",
+      "sha256": "c920bf1822f65ee62b3ced4d6bb1bbf5e45fe3332571b48a91cd6cf0af30630a"
+    },
+    {
+      "path": "weapons/obsidian_pistol/obsidian_pistol_view.tscn",
+      "sha256": "14e6f105da8a81e7385b9bb122f97f236a7ff60bff24a80a9a3d8fdb222adb38"
+    },
+    {
+      "path": "weapons/obsidian_pistol/pistol_icon.svg",
+      "sha256": "e1f55a3c0332ce86b5bffd610152fd05bf4676d4425ad6ac07b3311b2058720e"
+    },
+    {
+      "path": "weapons/obsidian_pistol/pistol_icon.svg.import",
+      "sha256": "733f0908ab4e2598cf154350b0ff5615b3320bccf8cb13ba256c7cdbf658a0a6"
+    },
+    {
+      "path": "weapons/procedural_audio.gd",
+      "sha256": "7b7deb2e77d2eb0877208b7d861c328e1b9c054e062bcd291fde5d2900c26689"
+    },
+    {
+      "path": "weapons/procedural_audio.gd.uid",
+      "sha256": "1a52a0108b51e77753cc063f606f9e5ec96b463b330d12ceb02f3afa23f62892"
+    },
+    {
+      "path": "weapons/projectile.gd",
+      "sha256": "5d1ed8de448088518e26a08201ee657df93f1a20306d70698e90b3584c4c4ea8"
+    },
+    {
+      "path": "weapons/projectile.gd.uid",
+      "sha256": "9e8358a0887233886e8e4ee8973dd0aa0ccb412aeeb50b99aef61a64e4047b2f"
+    },
+    {
+      "path": "weapons/reload_charge.gd",
+      "sha256": "940795f70479c13fb9ed661d1b1e83039e6f1de023411858cd80546ca1cf0681"
+    },
+    {
+      "path": "weapons/reload_charge.gd.uid",
+      "sha256": "1294f0e2ba93cf0f76445fe4e29b6c4051da0b31a9e863b276cdd7b635e64eaa"
+    },
+    {
+      "path": "weapons/view_spring.gd",
+      "sha256": "5f986f03b2e957d5db06b9ce51a673d6b43ea28ae042ceb0e35dce746a28ccfd"
+    },
+    {
+      "path": "weapons/view_spring.gd.uid",
+      "sha256": "4a182d7f731a3b6456d3f4be24d9da3c191229194e305eee169956822154c81b"
+    },
+    {
+      "path": "weapons/weapon.gd",
+      "sha256": "6739ae61b7f41c613c31d4d0b9cba0bfddfeeef8cc9ce1d8701f79b71266051c"
+    },
+    {
+      "path": "weapons/weapon.gd.uid",
+      "sha256": "65e3aaf834d42d5131a1690b8e10c335ff7ea3f81b6057b34478d905c59039a8"
+    },
+    {
+      "path": "weapons/weapon_data.gd",
+      "sha256": "81cd0542d17007d8a8bdb6bfaf62449c30556cac94e8d7e22bacb12031a64c9d"
+    },
+    {
+      "path": "weapons/weapon_data.gd.uid",
+      "sha256": "4d100269ce0867b6e1e69af227bf17ed36d83686925b5bac7313e91384949e19"
+    },
+    {
+      "path": "zone/boss_capture_config.tres",
+      "sha256": "46981d0ccaf0bce5b06ecb939e26a199de0c3d4def8679c04c385992075ca072"
+    },
+    {
+      "path": "zone/buff_pedestal.gd",
+      "sha256": "a566a44a8a1cf9d4f813ab7b794fcb1f954fdd7d7bb532e77d4db58cffd1e94f"
+    },
+    {
+      "path": "zone/buff_pedestal.gd.uid",
+      "sha256": "7198a8437abd6732611b5b532406816afbaeeadf57fe04b82130cd5a011db8b4"
+    },
+    {
+      "path": "zone/capture_config.gd",
+      "sha256": "405f6793175f009a9c8996b11e4fe6a0e9e7d59215e3158699ed5de924cea889"
+    },
+    {
+      "path": "zone/capture_config.gd.uid",
+      "sha256": "e4b4fba5136d1f9b0a11c448b430c5d0ce4840b03c36ff629d29a35210713cf9"
+    },
+    {
+      "path": "zone/capture_config.tres",
+      "sha256": "0d5e8122909ef0ff06fa3b09898a74eb080534b00bba17e02d9d5bd86df2450f"
+    },
+    {
+      "path": "zone/capture_point.gd",
+      "sha256": "dea35b3fdba264b43cb2df34d66b85da04110bae16d8d16b791d71da3dd9dad9"
+    },
+    {
+      "path": "zone/capture_point.gd.uid",
+      "sha256": "c66481863a88246ec5e8d94183fbb9bb68f79b51d8d706e8c2cb5ed01f864372"
+    },
+    {
+      "path": "zone/cover_point.gd",
+      "sha256": "2ac6cc5d2d40fff1b1d4516195c58d63dd7b3aaef5f8c1a342698158370dd7b0"
+    },
+    {
+      "path": "zone/cover_point.gd.uid",
+      "sha256": "af8b99848abbfbcef7174b72066e161b8fc90384376996c5aa59f9ab92107003"
+    },
+    {
+      "path": "zone/reinforcement_config.gd",
+      "sha256": "ed59de1eff55ed2237270cd313c62dbb090355785b421bf2a84e9784180617f4"
+    },
+    {
+      "path": "zone/reinforcement_config.gd.uid",
+      "sha256": "3ba92da514142b5ec0e7e72064740e3bec556adc9d4a3639ad38c51b41d70de8"
+    },
+    {
+      "path": "zone/reinforcement_config.tres",
+      "sha256": "4b672bb296cc9d708f9dd51377af19d7b256468db4b3417900a38da4f0fbb610"
+    },
+    {
+      "path": "zone/zone_director.gd",
+      "sha256": "97098ad260d06b29aad8a8cbafaf798d518ca55b3bd5c1cad160fba7262b9434"
+    },
+    {
+      "path": "zone/zone_director.gd.uid",
+      "sha256": "95cb1fa49b7676aaf9503931b8fc4c58badac87b4e04bba171bcfa1131ffcd56"
+    }
+  ]
+}

@@ -150,7 +150,7 @@ func _ready() -> void:
 	_hitbox_rids.append(get_rid())
 	for hitbox in find_children("*", "Hitbox", true, false):
 		_hitbox_rids.append((hitbox as Hitbox).get_rid())
-	_gunshot = ProceduralAudio.generate("gun_rifle")
+	_gunshot = ProceduralAudio.generate("enemy_shot")
 	_audio.stream = _gunshot
 	_audio.volume_db = ENEMY_GUNSHOT_DB
 	health.damaged.connect(_on_damaged)

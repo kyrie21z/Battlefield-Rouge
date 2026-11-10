@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] locked shield has no raised rim
+  [ok] real counter card unlocks protection and its rim
+  [ok] rim cannot intercept gameplay input
+  [ok] uncharged shield does not advertise a counter
+  [ok] unused protection remains beyond the former time limit
+  [ok] unused protection can close without a free counter or visual wave
+  [ok] cooldown allows the next raised shield
+  [ok] thick rim remains for the whole protection, beyond its raise flash
+  [ok] real enemy projectile is absorbed by the raised shield
+  [ok] actual absorbed hit starts the impact feedback and sustained charge
+  [ok] blocking does not release damage before expiry
+  [ok] charge remains readable after the brief hit flash
+  [ok] pausing freezes protection and its impact feedback together
+  [ok] manual release returns the fifteen absorbed damage once at six metres
+  [ok] outgoing wave is visible from the first-person view after protection ends
+  [ok] expiring consumes the primed charge
+  [ok] counter creates the matching world-space wave
+  [ok] outgoing feedback lasts longer than a single rendered frame
+  [ok] pausing freezes both first-person and world-space outgoing waves
+  [ok] visible outgoing feedback does not prolong invulnerability
+  [ok] outgoing overlay clears while the normal eight-second cooldown continues
+  [ok] extra feedback updates cannot deal a second pulse
+  [ok] a later actual block can prime a fresh counter
+  [ok] real death clears all shield feedback without another counter
+  [ok] the temporary world wave recycles
+SHIELD FEEDBACK: 25 checks, 0 failed

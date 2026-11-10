@@ -1,0 +1,26 @@
+[
+  {
+    "test": "pistol_native_test",
+    "exit_code": 0,
+    "seconds": 9.8,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "capture_proof",
+    "exit_code": 0,
+    "seconds": 23.4,
+    "errors": [],
+    "summary": [
+      "struck perfect -13 ms +20%",
+      "struck ordinary +418 ms +10%",
+      "struck perfect -17 ms +20%",
+      "struck perfect -17 ms +20%",
+      "struck perfect -11 ms +20%",
+      "struck perfect -20 ms +20%",
+      "CAPTURE PROOF PASSED"
+    ]
+  }
+]

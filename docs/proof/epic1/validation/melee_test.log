@@ -1,0 +1,45 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] V starts the single blade
+[ok] one 0.45m lunge for a target at four metres
+[ok] wind-up cannot damage yet
+[ok] input cannot restart a committed swing
+[ok] wind-up ends at 80ms
+[ok] active slash lands exactly 55 damage
+[ok] slash supplies knockback and stagger
+[ok] end sample never double-damages
+[ok] one clock strike per slash
+[ok] recovery returns to idle
+[ok] outside the front cone cannot pull player
+[ok] outside arc is unharmed
+[ok] one slow frame preserves 350ms cycle
+[ok] actual blade triangles match Blender receipt (70)
+[ok] blade source records only flat triangles/quads
+[ok] blade receipt hash matches actual GLB
+[ok] blade is exactly 40mm wide and 15mm thick
+[ok] imported blade uses flat face normals
+[ok] blade overall length is 40cm
+[ok] swing tip matches imported blade geometry
+[ok] sweep catches bullet crossing whole parry sphere
+[ok] reflection changes ownership and clears enemy exclusions
+[ok] reflected bullet flies back faster
+[ok] returned projectile damages its original enemy
+[ok] idle blade does not parry
+[ok] idle bullet reaches the player
+[ok] active blade cannot parry behind player
+[ok] wall prevents magnet acquisition
+[ok] wall prevents parry through cover
+[ok] wall also blocks slash
+[ok] wall still stops the unreflected bullet
+[ok] paused blade rejects public swing
+[ok] pause freezes blade window and projectile
+[ok] death/cancel immediately removes parry window
+[ok] 75 FOV public grip follows rendered blade through all phases
+[ok] 75 FOV wrist path fits 44cm arm (0.415m)
+[ok] 75 FOV blade tip remains in front of near plane
+[ok] 58 FOV public grip follows rendered blade through all phases
+[ok] 58 FOV wrist path fits 44cm arm (0.409m)
+[ok] 58 FOV blade tip remains in front of near plane
+[ok] cancel returns idle and hides view
+[ok] deactivated blade rejects public swing
+ALL PASSED (0 failed)

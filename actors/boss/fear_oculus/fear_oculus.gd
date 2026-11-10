@@ -1,6 +1,7 @@
 class_name FearOculus
 extends Enemy
 signal defeated
+@export var realm_damage_scale := 1.0
 @export var warnings_enabled := true:
 	set(value):
 		warnings_enabled = value
@@ -133,7 +134,7 @@ func scan_damage(direction: Vector3) -> void:
 		return
 	var ray := PhysicsRayQueryParameters3D.create(eye_position(), target.global_position + Vector3.UP, CollisionLayers.WORLD)
 	if get_world_3d().direct_space_state.intersect_ray(ray).is_empty():
-		(target.get_node("Health") as Health).apply_damage(9.0, Hitbox.BodyPart.BODY, self, {"tag": &"oculus_gaze"})
+		(target.get_node("Health") as Health).apply_damage(9.0 * realm_damage_scale, Hitbox.BodyPart.BODY, self, {"tag": &"oculus_gaze"})
 
 func beam_damage(direction: Vector3) -> void:
 	var ray := PhysicsRayQueryParameters3D.create(eye_position(), eye_position() + direction * 42, CollisionLayers.WORLD | CollisionLayers.HITBOXES, _hitbox_rids)
@@ -141,14 +142,14 @@ func beam_damage(direction: Vector3) -> void:
 	if not hit.is_empty():
 		set_beam(direction, 0.2, eye_position().distance_to(hit.position))
 		if hit.collider is Hitbox:
-			(hit.collider as Hitbox).apply_hit_at(18.0, self, hit.position, direction, false, {"tag": &"oculus_beam"})
+			(hit.collider as Hitbox).apply_hit_at(18.0 * realm_damage_scale, self, hit.position, direction, false, {"tag": &"oculus_beam"})
 
 func release_ring() -> void:
 	for index in 24:
 		var angle := TAU * index / 24.0
 		var direction := Vector3(sin(angle), 0, cos(angle))
 		var bullet := Projectile.spawn(get_parent(), global_position + Vector3.UP * 1.1 + direction * 1.0,
-			direction, self, 12.0, 13.0, _hitbox_rids, Color(0.6, 0.2, 0.95))
+			direction, self, 12.0 * realm_damage_scale, 13.0, _hitbox_rids, Color(0.6, 0.2, 0.95))
 		_projectiles.append(weakref(bullet))
 
 func set_beam(direction: Vector3, radius: float, distance: float) -> void:

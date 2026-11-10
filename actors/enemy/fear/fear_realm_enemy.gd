@@ -3,6 +3,7 @@ extends Enemy
 ## Actual gaze cancellation, collision-checked blink and a warned physical pounce.
 enum Variant { WATCHER, TREMBLER, FALLER }
 @export_enum("Watcher", "Trembler", "Faller") var variant := 0
+@export var realm_damage_scale := 1.0
 @export var warnings_enabled := true:
 	set(value):
 		warnings_enabled = value
@@ -169,7 +170,7 @@ func advance_attack(delta: float) -> void:
 				if not _pounce_hit and _distance_to_target() < 1.9 and has_line_of_sight():
 					_pounce_hit = true
 					pounce_hits += 1
-					(target.get_node("Health") as Health).apply_damage(22.0, Hitbox.BodyPart.BODY, self)
+					(target.get_node("Health") as Health).apply_damage(22.0 * realm_damage_scale, Hitbox.BodyPart.BODY, self)
 			elif attack_elapsed >= windup() + 0.38:
 				if is_instance_valid(arena) and arena.has_method("flip_tile_near"):
 					arena.call("flip_tile_near", global_position)
@@ -188,7 +189,7 @@ func _fire(damage: float, speed: float) -> void:
 	if not has_line_of_sight():
 		return
 	shots_fired += 1
-	Projectile.spawn(get_parent(), _eye(), locked_direction, self, damage, speed, _hitbox_rids, Color(0.66, 0.28, 0.96))
+	Projectile.spawn(get_parent(), _eye(), locked_direction, self, damage * realm_damage_scale, speed, _hitbox_rids, Color(0.66, 0.28, 0.96))
 
 func _update_lock_line() -> void:
 	var a := _eye()

@@ -1,5 +1,5 @@
 extends Node
-## Headless checks for the opening -> zone handoff:
+## Headless checks for the opening -> campaign handoff and isolated fixture entry:
 ##   godot --headless --path . res://tests/opening_transition_test.tscn
 
 const BOOT := preload("res://ui/game_start.tscn")
@@ -61,12 +61,17 @@ func _test_fade() -> void:
 	await _frames(2)
 
 
-func _test_opening_entry() -> void:
-	print("== opening path")
+func _start_campaign() -> void:
 	RunState.clear_fixture()
 	RunState.start_new_run()
+	RunDirector.begin_run(146001)
 	get_tree().paused = false
-	var path := RunState.zone_scene()
+
+
+func _test_opening_entry() -> void:
+	print("== opening path")
+	_start_campaign()
+	var path := RunDirector.scene_path()
 	var boot := BOOT.instantiate()
 	get_tree().root.add_child(boot)
 	get_tree().current_scene = boot
@@ -106,7 +111,8 @@ func _test_opening_entry() -> void:
 			break
 		await get_tree().process_frame
 	_check("the loading hint is presented before synchronous scene loading", loading_frames >= 2)
-	_check("the zone becomes the current scene", switched)
+	_check("the campaign stage becomes the current scene", switched
+		and get_tree().current_scene == RunDirector.current_stage)
 	var covered := _fade_nodes()
 	_check("the fade survives the scene change and covers its first frames",
 		covered.size() == 1 and covered[0].is_black())
@@ -119,11 +125,9 @@ func _test_opening_entry() -> void:
 
 func _test_loading_failure_retry(empty_scene: bool) -> void:
 	print("== loading %s failure and retry" % ["empty scene" if empty_scene else "missing resource"])
-	RunState.clear_fixture()
-	RunState.start_new_run()
-	get_tree().paused = false
-	var path := RunState.zone_scene()
-	var original_seed := RunState.run_seed
+	_start_campaign()
+	var path := RunDirector.scene_path()
+	var original_seed := RunDirector.run_seed
 	# Run the actual error/retry flow for both a missing resource and a resource
 	# that loads but cannot instantiate. Avoid preloading a combat class.
 	var observations := {"attempts": 0, "loading_visible": [], "empty_scene": empty_scene}
@@ -158,8 +162,8 @@ func _test_loading_failure_retry(empty_scene: bool) -> void:
 		await _capture_loading_error()
 	_check("the actual resource read follows the loading hint", observations["loading_visible"] == [true])
 	_check("failed entry leaves run state intact and releases its guard",
-		RunState.run_seed == original_seed and RunState.buffs.is_empty()
-		and RunState.selection_history.is_empty() and not boot._load_requested)
+		RunDirector.run_seed == original_seed and RunDirector.boons.is_empty()
+		and RunDirector.selections.is_empty() and not boot._load_requested)
 	await _frames(3)
 	_check("failure waits for the player without automatically retrying", observations["attempts"] == 1)
 	# Use the real error button, not a second call to the private entry path.
@@ -174,13 +178,14 @@ func _test_loading_failure_retry(empty_scene: bool) -> void:
 	var gone := await _wait_for(func() -> bool: return _fade_nodes().is_empty(), 5000)
 	_check("successful retry removes the error and fade overlays", gone)
 	_check("successful retry preserves the seed and initial selection state",
-		RunState.run_seed == original_seed and RunState.buffs.is_empty()
-		and RunState.selection_history.is_empty())
+		RunDirector.run_seed == original_seed and RunDirector.boons.is_empty()
+		and RunDirector.selections.is_empty())
 	await _close_current_scene()
 
 
 func _test_fixture_entry() -> void:
 	print("== fixture path")
+	RunDirector.active = false
 	RunState.start_fixture(RunFixture.by_id("FX-001"))
 	get_tree().paused = false
 	var path := RunState.zone_scene()
@@ -199,7 +204,7 @@ func _test_fixture_entry() -> void:
 			switched = true
 			break
 		await get_tree().process_frame
-	_check("the fixture path still enters the zone synchronously", switched)
+	_check("the fixture path still enters the zone synchronously", switched and not RunDirector.active)
 	_check("it never creates a fade overlay", not overlay_seen and _fade_nodes().is_empty())
 	await _close_current_scene()
 	RunState.clear_fixture()

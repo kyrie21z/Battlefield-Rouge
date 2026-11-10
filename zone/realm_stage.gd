@@ -22,6 +22,7 @@ var player: Player
 var geometry: Node3D
 var enemies: Array[Enemy] = []
 var boss: Enemy
+var boss_drop_position := Vector3.ZERO
 var shard: PsycheShardPickup
 var boss_defeated := false
 var hud: RealmHUD
@@ -162,6 +163,8 @@ func _register_actor(actor: Enemy) -> void:
 
 func _on_enemy_died(_source: Node, _actor: Enemy) -> void:
 	# Health emits synchronously; finish after all death cleanup has run.
+	if _actor == boss:
+		boss_drop_position = _actor.global_position
 	_check_clear.call_deferred()
 
 func living_enemies() -> int:
@@ -199,7 +202,7 @@ func _finish_boss_defeat() -> void:
 		return
 	shard = SHARD.instantiate() as PsycheShardPickup
 	shard.realm = realm
-	var desired := boss.global_position + Vector3(2,0,2)
+	var desired := boss_drop_position + Vector3(2,0,2)
 	var landing := NavigationServer3D.map_get_closest_point(_region.get_navigation_map(),desired)
 	shard.position = landing + Vector3.UP*0.1
 	shard.setup(player)
@@ -307,7 +310,9 @@ func _on_player_died(_source: Node) -> void:
 		selection.dismiss_for_transition()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	var cause: StringName = &"environment" if player.health.last_damage_context.get("environmental_fatal",false) else &"combat"
+	var cause: StringName = &"combat"
+	if player.health.last_damage_context.get("environmental_fatal",false):
+		cause = StringName(player.health.last_damage_context.get("tag",&"environment"))
 	player_fallen.emit(self,cause)
 
 func objective_text() -> String:

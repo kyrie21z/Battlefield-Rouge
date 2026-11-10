@@ -132,3 +132,9 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 ## Epic 3：领域约束接口（#138）
 
 Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责；深渊致死走 Health 明确的 environmental_fatal 分支及正常死亡信号。
+
+### 四领域组合根（#146）
+
+`autoload/RunDirector` 与旧 `RunState` 同属允许拥有对局状态的组合根；正式入口选择前者，旧 fixture 继续选择后者。`RealmStage` 不读取 RunDirector，通过 configure_run 及信号组成流程。四种 Enemy 派生、Boss、PsycheFragments 和 CrownRadiance 都只接收注入的引用与值，不寻找对局控制器。新地图由 gen_zones.py 调用 gen_realms.py 生成，旧地图逐字保持。
+
+`PsycheFragments` 管理独立碎片运行态，BoonManager 管理可替换的赐福；两者不混存。普通击退经 Enemy.apply_impact，独立脉冲经 apply_fragment_impact；普通防御受 Health.unbuffered 关闭，fragment_absorber 仍单独结算实际吸收与 HP 溢出。数值增益通过 Stats，实际位移保留物理碰撞，所有能力暂停冻结。原始黑晶素材及黑接缝保持，终局金缮由后续演出显式启用。状态边界及验证见 [ADR 0018](docs/adr/0018-realms-and-independent-fragments.md)。

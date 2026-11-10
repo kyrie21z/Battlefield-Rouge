@@ -367,3 +367,17 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 ## #179 悲伤镜潭程序声景（2026-11-10）
 
 `audio/realms/sorrow_sound_bank.gd` 为项目原创数学合成器，沿用仓库 MIT 许可；没有外部采样或旧工程素材。使用正弦共鸣、指数包络与私有 RNG（固定种子 179），缓存 22050 Hz / PCM16 / 单声道。雨声循环 4 秒；水钟 2.4 秒、回流水波 1.1 秒、泪晶喷射与滑水各 0.65 秒、玻璃碎响 0.42 秒、涉水 0.6 秒。生成代码 SHA-256：`19681f0238224a6a7761edccf4999a01fcea085ade2854094cec79718498dae3`。只发布代码，不新增音频二进制；触发/生命周期证据和人工听感未验收边界见 [#179 证明](proof/issue-179/README.md)。
+
+## #170 光固化打印（2026-11-10）
+
+打印网格、光锥、激光环、48 个 GPU 火星与 2.5 秒蜂鸣均为项目原创代码生成，遵循仓库 MIT 许可；未新增下载素材，原白晶人形、皇冠和语音原件不变。声音采用 780/1561 Hz 激光双音、118 Hz 步进振荡与 210 Hz 锁合音，复用 `ProceduralAudio` 的 PCM 输出。源文件 SHA-256：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `levels/climax/print_projection.gd` | `5ec627e1d6c5df0c566fc2a0fe13b9527424814803e59a741e4df705888d2b1f` |
+| `levels/climax/shaders/print_slice.gdshader` | `0453a5a741adfe42593a649ce80762664f2d60015a18de73f7caf7a110adbef4` |
+| `levels/climax/shaders/print_projection.gdshader` | `000ee2fe28d125d5dd66b73cbe3da7b270fc1750501c84c55968a38aa662620c` |
+
+## #168 四系晶屑（2026-11-10）
+
+`assets/particles/crystal_burst.gd` 以平面法线八面体、程序圆环与 GPU 粒子生成琥珀、幽紫、绯红、苍蓝四系反馈。全部为本项目原创代码，遵循仓库 MIT 许可，无第三方模型或贴图。生成源 SHA-256：`69c5f09b2afd5e74389387380c7ad427faa8bed84c822dd4bc8b8740bd761ab1`。预建 48 个 emitter、每色 12 个，满池跳过视觉，不改变伤害。原生性能与截图采集开销的区分见 [#168 证明](proof/issue-168/README.md)。

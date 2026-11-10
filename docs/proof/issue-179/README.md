@@ -11,7 +11,7 @@
 - Boss 剥夺后立即停止雨与所有环境水音（无潮湿 crossfade 尾音）。后续真实卡牌泪晶事件仍可响。
 - 未知音色回退父类 `get_sound`，事件先调用父类，保证悲伤房间中的跨领域馈赠仍有原音色。
 
-共享 `RealmAudioDirector` / `RealmSoundBank` / `RealmStage` 属父任务，仅复制前两者用于本地验证，不属于本提交。完整运行须先集成共享 #176 框架及每领域 SorrowBoonAudio 接线。
+共享 `RealmAudioDirector` / `RealmSoundBank` 框架来自已合入的 #176；本 issue 的集中集成提交补齐 `RealmStage` 每领域 SorrowBoonAudio 接线。
 
 ## 验证
 
@@ -43,3 +43,9 @@ ASSETS：以上为本仓库原创程序合成音频，无下载/旧工程素材�
 真实 sorrow_boss 场景中，begin_move(TIDE) 的预警不响；物理蓄力完成产生一个 SorrowTide 和一个水钟；重复观察不重播；下一次蓄力中 Boss 死亡后停止所有水声、没有补播。连同四领域生产接线共 **12 checks, 0 failures**（`tide-integration.log`），Godot 4.7.2 headless，无脚本错误或退出警告。
 
 统一术语应将正式“水钟”说明为巨碑径向潮汐释放的共鸣；旧敲钟事件是兼容入口，不代表正式地图有可交互钟据点。
+
+## 主线组合验证范围
+
+完整回归基线纳入 #168 四系晶屑与 #170 打印效果。`RealmStage` 保留播种前晶屑预热以及每领域音频安装；拾取音频位置是音频反馈位置，不替代视觉晶体的世界位置。#169 镜潭视觉尚不在本次基线，水面组合验证由后续合并负责；合并时须完整保留视觉物理更新与泪晶去重，只通过 `audio_managed` 门控旧 `splash.play()`，不能停止水面 `_physics_process()`。
+
+本次固定提交完整回归的日志和结果写入仓库外 `/tmp/epic675-validation/pr179-suite`，不将尚未完成的运行列为通过证据。

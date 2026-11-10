@@ -12,6 +12,7 @@ var _last_strike := "尚未敲钟"
 var _time := 0.0
 
 func _ready() -> void:
+	CrystalBurst.prepare(self)
 	seed(101106)
 	var world := WorldEnvironment.new()
 	world.environment = Environment.new()

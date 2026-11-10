@@ -1,6 +1,6 @@
 class_name WeaponPanel
 extends Control
-## One pistol: current/capacity, name and reload progress.
+## One pistol: current/capacity, name and crystal reassembly progress.
 
 const AMMO_POS := Vector2(18.0, 44.0)
 const AMMO_FONT := 36

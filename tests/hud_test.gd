@@ -96,7 +96,7 @@ func _run() -> void:
 		and is_equal_approx(_vitals.displayed_health, 40.0) and not _vitals.warning)
 	_check("healing immediately resets the white trail", is_equal_approx(_vitals.delayed_health, 40.0))
 
-	print("== pistol magazine and reload")
+	print("== pistol magazine and crystal reconstruction")
 	_player.weapon.ammo = 8
 	_panel.advance(0.0)
 	_check("ammo numbers show capacity", _panel.ammo_text == "8 / 8" and not _panel.ammo_low)
@@ -131,9 +131,9 @@ func _run() -> void:
 	var remaining := _player.weapon._reload_left
 	_player.weapon.try_reload()
 	_check("pressing R again does not restart it", _player.weapon._reload_left == remaining)
-	_player.weapon._process(10.0)
+	_player.weapon._process(0.35)
 	_panel.advance(0.0)
-	_check("repeated R still completes on the original clock", not _panel.reload_visible
+	_check("repeated R completes at 0.85 seconds", not _panel.reload_visible
 		and _player.weapon.ammo == _player.weapon.magazine_capacity())
 
 	print("== buff icon bar")

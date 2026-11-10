@@ -1,0 +1,62 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] single eight-round semi-auto pistol
+  [ok] isolated pistol uses one compatibility slot
+  [ok] unlimited crystal regeneration
+  [ok] view uses imported Blender model without CSG
+  [ok] Blender source count records flat triangle/quad polygons
+  [ok] model hash matches Blender export receipt
+  [ok] actual imported GLB triangle count matches Blender receipt (180)
+  [ok] pistol measures 220 x 135 x 32mm
+  [ok] 32mm slanted grip is centred on root origin
+  [ok] GLB preserves flat face normals
+  [ok] muzzle marker matches barrel opening
+  [ok] all four pieces pivot around their own geometry centres
+  [ok] gun stays right of centre in hip and ADS
+  [ok] hip field of view is 75 degrees
+  [ok] ADS uses 58 degrees and tightens spread
+  [ok] damage remains full through thirty metres
+  [ok] damage falls smoothly after thirty metres
+  [ok] R on full magazine is a no-op
+  [ok] pause rejects public fire/reload without spending ammo
+  [ok] click fires immediately
+  [ok] first click damages real Hitbox by 35
+  [ok] a pistol hit spawns solid polyhedral shards instead of flesh particles
+  [ok] pistol body hit has no red particle puff
+  [ok] crystal fragments travel and shrink in three dimensions
+  [ok] crystal impact queues cleanup at the .45 second lifetime
+  [ok] crystal presentation does not consume simulation randomness
+  [ok] recoil signal has 1.2 pitch and bounded random yaw
+  [ok] cannot fire twice inside 0.18 seconds
+  [ok] cooldown still holds at 0.179 seconds
+  [ok] next click at 0.18 seconds fires
+  [ok] round 3 fires
+  [ok] round 4 fires
+  [ok] round 5 fires
+  [ok] round 6 fires
+  [ok] round 7 fires
+  [ok] round 8 fires
+  [ok] eighth round immediately begins bloom
+  [ok] exact base reassembly duration is .85 seconds
+  [ok] reassembly blocks shots
+  [ok] pause freezes reassembly and refuses shots
+  [ok] bloom opens each block by 5 to 15 cm
+  [ok] R during bloom cannot restart it
+  [ok] floating stage leaves magazine empty
+  [ok] no early ammo before the snap
+  [ok] snap and ammo_refilled agree on the exact completion frame
+  [ok] all pieces return exactly to rest
+  [ok] reassembly snap lights the muzzle on the ammo_refilled frame
+  [ok] the snap flash ends without firing or spending a round
+  [ok] completion emits once
+  [ok] blade makes room without hiding pistol or cancelling recharge
+  [ok] manual recharge restores 8/8
+  [ok] death cancels recharge without granting ammo
+  [ok] dead weapon rejects firing and recharge
+  [ok] dead weapon cannot restart recharge
+[skip] fire press/hold/release requires native mouse capture; run this scene natively
+  [ok] reload-speed Stats scales the whole cycle to 0.425 seconds
+  [ok] speed-scaled bloom still opens all four blocks
+  [ok] speed-scaled suspension keeps the partial magazine
+  [ok] speed-scaled snap restores buffed 12-round capacity
+ALL PASSED (0 failed)

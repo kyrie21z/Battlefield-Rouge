@@ -58,7 +58,7 @@ func _ready() -> void:
 
 func _make_world() -> void:
 	var environment := WorldEnvironment.new()
-	environment.environment = Environment.new()
+	environment.environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	environment.environment.background_mode = Environment.BG_COLOR
 	environment.environment.background_color = Color(0.86, 0.88, 0.89)
 	environment.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

@@ -133,7 +133,7 @@ func _after_hit(context: Dictionary) -> void:
 	if bool(context.get("fear_critical", false)):
 		var point: Vector3 = context.get("position", target.global_position + Vector3.UP)
 		manager.feedback(point, PanicFlawStatus.COLOR, 0.7)
-		FearCriticalFeedback.spawn(manager.player.get_parent(), point, float(context.dealt))
+	var fracture_played := false
 	if index >= 0 and status != null:
 		var point: Vector3 = context.get("fear_flaw_position", status.facet_position(index))
 		var broke := status.break_facet(index, context.get("kind") == &"gun" and manager.has(GUN) and not status.health.is_dead())
@@ -141,6 +141,10 @@ func _after_hit(context: Dictionary) -> void:
 			var fracture := context.duplicate()
 			fracture["position"] = point
 			manager.dispatch(&"fear_flaw_broken", fracture)
+			fracture_played = bool(fracture.get("fear_flaw_audio_managed",false))
+	if bool(context.get("fear_critical", false)):
+		var point: Vector3 = context.get("position", target.global_position + Vector3.UP)
+		FearCriticalFeedback.spawn(manager.player.get_parent(), point, float(context.dealt), not fracture_played)
 	if natural and context.get("kind") == &"gun" and manager.has(GUN) and manager.is_enemy(target):
 		apply_panic(target, _parameter(GUN, "panic_duration", 4.0))
 

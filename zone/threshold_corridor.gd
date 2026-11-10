@@ -12,7 +12,7 @@ var _end_wall: StaticBody3D
 func _ready()->void:
 	CrystalBurst.prepare(self)
 	var world:=WorldEnvironment.new()
-	var settings:=Environment.new()
+	var settings:= preload("res://environments/default_env.tres").duplicate() as Environment
 	settings.background_mode=Environment.BG_COLOR
 	settings.background_color=Color("eff0ed")
 	settings.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR

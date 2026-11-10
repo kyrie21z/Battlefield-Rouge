@@ -148,11 +148,19 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 `SorrowAudioDirector` 负责本房间水声；独立 `SorrowBoonAudio` 在每个领域监听已装备赐福的真实泪晶事件。`SorrowRealm.set_audio_managed(true)` 显式关闭旧 splash 音源，保留涟漪及独立场景默认行为。玻璃反馈通过公开 `PsycheFragments.set_brittle_audio` 替换已有伤害音源，避免重复 Health 监听。`SorrowEffect` 仅在实际消费成功后派发 `sorrow_tear_collected`，视觉和音频可以分别订阅。
 
+恐惧声音表现由 `RealmStage` 注入演员和玩家；`FearAudioDirector` 只读取真实蓄力、预警与成功瞬移状态，使用固定 8 个持续声部。短音复用 `RealmAudioDirector` 的 16 个声部，动态音库把跨领域赐福语义事件映射到声效。`fear_flaw_audio_managed` 在同步事件分发中声明音频接管，没有接管者时保留原暴击声音，避免独立入口丢声或正式房间双播。
+
 ## Epic 7：赐福图鉴（#174）
 
 `DualBoonCodex` 通过 `setup(manager, discovered)` 接收真实装备与发现快照，只读查询 `BoonManager.can_equip`。父级 `BuildInspector` 持有暂停和页面生命周期，子页面只在可见时处理肩键和内部焦点，隐藏后不截获战斗输入。
 
 `MetaProgression` 在成功选卡事件上记录发现，`RunDirector` 在恢复装备时补录；新增 `discovered_boons` 是兼容 v1 旧档的可选字段，随原校验和及原子写盘保存。失败时保留待写知识，下次打开检视或成功存档重试；UI 不发放赐福、不修改战斗装备。
+
+## Epic 6：接触光照与瞄准景深（#171）
+
+`environments/default_env.tres` 是共享 SSAO/SSIL 参数资源。RealmStage、四领域环境与演出组合根复制此资源后保留各自氛围，不共享可变 Environment 实例。Forward+ 高质量屏幕空间接触光照用于增强白色建筑的尺度和交界可读性。
+
+`ADSFocus` 是 Player 的呈现组件，仅给渲染用 ViewCamera 注入私有 `CameraAttributesPractical`；瞄准和伤害仍由原逻辑相机完成。它以至多 20 Hz 的物理查询获取焦点并平滑收敛，瞄准时使用轻度前后景模糊；死亡、禁用和退出释放或恢复相机状态，不修改武器、命中或移动数值。
 
 ### 心象日记与双面档案（#175）
 

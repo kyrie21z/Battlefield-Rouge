@@ -1,0 +1,32 @@
+{
+  "issue": 169,
+  "renderer": "Godot 4.7.2 Vulkan Forward+",
+  "images": [
+    {
+      "path": "enemy-wake.png",
+      "bytes": 633515,
+      "sha256": "da325abfcfcaf05633780717cb4b23ae133af518c948ea6165c1cd47054f3ee7"
+    },
+    {
+      "path": "mirror-ssr-off.png",
+      "bytes": 531921,
+      "sha256": "427342581fb39f7dd899bf3460fe35e147ebb6b55d4e6327394cbd4cd1f74f75"
+    },
+    {
+      "path": "mirror-ssr-on.png",
+      "bytes": 571483,
+      "sha256": "0a908f747ae297477ef68007ceb391cce69bcb130add0ce79bdacc206c456994"
+    },
+    {
+      "path": "player-dash.png",
+      "bytes": 629016,
+      "sha256": "cc9cacba9298db81cc673b485405bae1a1a08a66ed0841ba6757f568a72152eb"
+    },
+    {
+      "path": "tear-shot.png",
+      "bytes": 718203,
+      "sha256": "36dee3c7f462eccf32790ca0087c40c22cc5fe3b2a6811b04de861c5a4c0c5d9"
+    }
+  ],
+  "ssr_comparison": "same camera and water clock; inspect original on/off PNGs"
+}

@@ -1,0 +1,35 @@
+{
+  "head": "0d755b145c2cdbb698e38b8893c682efb0e865ca",
+  "count": 90,
+  "exit_passed": 89,
+  "missing_tests": [],
+  "error_logs": {},
+  "nonzero_or_failed_assertions": [
+    {
+      "test": "realm_stage_test",
+      "exit": 1,
+      "lines": [
+        "FAIL real realm effect drives the monochrome screen shader",
+        "REALM STAGE: 27 checks, 1 failed"
+      ]
+    }
+  ],
+  "existing_exit_cleanup_categories": {},
+  "fixture_primary_hashes": {
+    "pr173-suite": [
+      "   FX-001  18f02a294f3e538a",
+      "   FX-002  ad3703cd93d3073e"
+    ],
+    "pr168-fixed": [
+      "   FX-001  18f02a294f3e538a",
+      "   FX-002  ad3703cd93d3073e"
+    ],
+    "pr174-suite": [
+      "   FX-001  18f02a294f3e538a",
+      "   FX-002  ad3703cd93d3073e"
+    ]
+  },
+  "fixture_equal": true,
+  "tracked_diff": "",
+  "hypothesis": "realm_stage_test waits only physics_frame twice before observing RealmHUD._process-driven visibility; not proven runtime cause; original failure preserved."
+}

@@ -1,0 +1,101 @@
+=== sorrow_water_test ===
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS tests use isolated autoload profile
+PASS production map uses new opaque mirror shader
+PASS production rain is 750 GPU white threads
+PASS production realm enables SSR with 128 steps
+PASS idle feet emit no artificial actor rings
+PASS real grounded player motion creates normal packets and original splash
+PASS real dash starts
+PASS dash draws denser wakes without changing distance
+PASS real enemy AI movement drives foot ripples
+PASS dead and idle actors stop emitting
+PASS real successful pistol shot
+PASS successful shot displaces wet shooter water
+PASS cooldown rejects extra trigger
+PASS rejected trigger emits no extra water event
+PASS real tear placement creates a landing ring
+PASS real blade starts
+PASS real blade converts tear to owned flying projectiles and a water ring
+PASS real pickup creates exactly landing and consumption rings
+PASS real gun can fire at a tear
+PASS actual gun ray consumes tear and creates its water ring
+PASS same-frame tear consumption is observed once
+PASS dry platform motion emits no false rings
+PASS airborne motion emits no water rings
+PASS teleport does not paint a room-long wake
+PASS pause freezes water and GPU rain clocks
+PASS presentation never consumes seeded gameplay RNG
+PASS event flood remains a bounded 32-entry uniform pool
+PASS flood updates rain impact height and water together
+PASS visual changes preserve collision and baked navigation
+PASS deprivation suppresses water, rain and new rings
+PASS restoring water cannot resurrect old wave packets
+PASS realm removal disconnects global presentation listeners
+SORROW WATER: 32 checks, 0 failed
+
+=== sorrow_realm_test ===
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS mirror water shader, eight melted pillars and four low platforms exist
+PASS silent white rain falls over ankle water
+PASS actual player movement emits water ripple and splash
+PASS Sorrow body retains original 24 bones
+PASS live gravity aura changes player jump and dash reach
+PASS leaving gravity range restores movement
+PASS source death clears its gravity constraint immediately
+PASS cyan death creates 56 actual rigid crystal droplets
+PASS shards preserve source cyan material
+PASS diving removes hittable body while leaving water silhouette
+PASS Corroder resurfaces behind player with restored hitboxes
+PASS behind-player emergence stays inside real WORLD boundary
+PASS actual slime projectile damages and slows player
+PASS slime source death clears slow and flying globs
+PASS actual expanding cry makes screen monochrome
+PASS cry changes real reload speed and skill cooldown stats
+PASS pause does not consume source effect duration
+PASS caster removal clears cry monochrome and reload debuff
+PASS all cyan rigid droplets expire
+PASS water visibly floods lower platforms
+PASS deprivation fully evaporates water and stops rain
+PASS dry world creates no phantom water ripples
+SORROW REALM: 22 checks, 0 failed
+
+=== sorrow_monolith_test ===
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS giant keeps real Enemy/Health and original crystal skeleton
+PASS wave remains telegraphed before release
+PASS real full-room tide hits grounded player
+PASS tide pushes actual player with collision motion
+PASS locked rain launches 25 actual downward projectiles
+PASS center tear damages actual player hitbox
+PASS slap aim remains locked and can be dodged
+PASS slap punishes staying in marked area
+PASS local time stop freezes rising water and boss deadline
+PASS actual gun ray damages giant
+PASS battle progression raises actual shader water plane
+PASS low platform is actually submerged while high platform remains usable
+PASS real giant death emits one Sorrow realm event
+PASS defeat dries mirror water and shuts off rain
+PASS death clears tell, waves and unlanded rain projectiles
+PASS giant fractures into 56 physical cyan pieces
+PASS post-boss ordinary buffering stays deprived
+PASS physical Tenderness pickup enables independent 60 barrier
+PASS independent barrier absorbs 60 and actual overflow shatters HP
+PASS pickup never restores ordinary buffering and real HP loss sounds brittle
+PASS giant physical shards fully clean up
+PASS duplicate damage cannot duplicate Sorrow completion
+SORROW MONOLITH: 22 checks, 0 failed
+
+=== native-proof ===
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+NATIVE CAPTURE mirror-ssr-on result=0 frame_ms=16.06
+NATIVE CAPTURE mirror-ssr-off result=0 frame_ms=16.06
+NATIVE CAPTURE enemy-wake result=0 frame_ms=16.06
+NATIVE CAPTURE player-dash result=0 frame_ms=358.28
+NATIVE CAPTURE tear-shot result=0 frame_ms=358.28
+SORROW WATER NATIVE: movement=24 shots=1 tears=2 pool=32 checks_failed=0 profile=user://meta_test_issue169_native.json

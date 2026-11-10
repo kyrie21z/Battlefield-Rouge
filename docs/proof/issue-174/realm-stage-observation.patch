@@ -1,0 +1,17 @@
+diff --git a/tests/realm_stage_test.gd b/tests/realm_stage_test.gd
+index 57a7a06..e73c6b3 100644
+--- a/tests/realm_stage_test.gd
++++ b/tests/realm_stage_test.gd
+@@ -76,0 +77 @@ func _ready() -> void:
++	mono_probe("after_effect_assignment")
+@@ -77,0 +79 @@ func _ready() -> void:
++	mono_probe("after_original_two_physics_frames")
+@@ -78,0 +81,4 @@ func _ready() -> void:
++	await get_tree().process_frame
++	mono_probe("after_one_process_signal")
++	await get_tree().process_frame
++	mono_probe("after_two_process_signals")
+@@ -112,0 +119,3 @@ func check(label: String,passed: bool) -> void:
++
++func mono_probe(point: String) -> void:
++	print("MONO_PROBE ",JSON.stringify({"point":point,"physics":Engine.get_physics_frames(),"idle":Engine.get_process_frames(),"monochrome":stage.player.realm_effects.monochrome,"visible":stage.hud._monochrome.visible,"shader_amount":(stage.hud._monochrome.material as ShaderMaterial).get_shader_parameter("amount"),"paused":get_tree().paused,"hud_can_process":stage.hud.can_process(),"hud_processing":stage.hud.is_processing(),"inspector_opened":stage.hud.inspector.opened}))

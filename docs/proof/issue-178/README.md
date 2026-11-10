@@ -32,3 +32,5 @@ Godot 4.7.2 / Jolt：
 根审查发现第一次删除旧声音会令旧战斗入口的真实撞墙静音。追加修复恢复条件回退，而不是假定所有Player都由RealmStage装配。`tests/wrath_audio_test.tscn` 使用直接实例化的生产Player/SlothEnemy和物理WORLD墙，测试真实碰撞后：没有音频director时播放原始clock_break；暂停、碰撞结算中玩家死亡、事件期间移除赐福时拒绝deferred发声，恢复后也不补播。正常Stage的一次真实重撞/五枚真实尖刺和无fallback断言仍保留。最新34/34检查通过，退出0且无错误或警告，完整结果见 `wrath-fallback.log`。
 
 父共享base须在实际消费wall_slam的同一context写 `wrath_wall_audio_managed=true`；本追加提交不包含借入的共享base。
+
+集中集成后的 Godot 4.7.2 headless 重跑为 **34 checks, 0 failures**（`integration.log`），无脚本错误或退出警告。已含父共享 bank 路由、真实 WrathSpike source 过滤与 managed 事件确认；测试同时证明生产场景只发一个重撞声、五个实际尖刺音，以及无控制器时单一旧声音和暂停/死亡/移除后的延迟回调不会补播。

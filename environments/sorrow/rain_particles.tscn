@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Shader" path="res://environments/sorrow/rain_motion.gdshader" id="1"]
+
+[sub_resource type="ShaderMaterial" id="Motion"]
+resource_local_to_scene = true
+shader = ExtResource("1")
+
+[sub_resource type="StandardMaterial3D" id="WhiteRain"]
+shading_mode = 0
+albedo_color = Color(0.72, 0.81, 0.87, 1)
+emission_enabled = true
+emission = Color(0.14, 0.18, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="Thread"]
+material = SubResource("WhiteRain")
+size = Vector3(0.007, 0.28, 0.007)
+
+[node name="WhiteRain" type="GPUParticles3D"]
+amount = 750
+lifetime = 3600.0
+explosiveness = 1.0
+use_fixed_seed = true
+seed = 169
+visibility_aabb = AABB(-20, 0, -24, 40, 14, 48)
+local_coords = true
+fixed_fps = 60
+interpolate = false
+process_material = SubResource("Motion")
+draw_pass_1 = SubResource("Thread")
+cast_shadow = 0

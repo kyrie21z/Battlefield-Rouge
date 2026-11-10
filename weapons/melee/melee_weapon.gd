@@ -1,32 +1,7 @@
 class_name MeleeWeapon
 extends Node3D
-## The melee loadout: three weapons, one swinging at a time, cycled with
-## `switch_melee` and swung with `melee`. Each weapon reads as its own attack
-## because the data drives everything — a dagger that flicks across the screen in
-## a third of a second, a two-handed axe that has to be wound up and slams down
-## the centre line, a tachi that cuts the other diagonal and reaches furthest.
-##
-## The swing is written on screen (see MeleeData): the tip of the blade travels
-## the straight line between `cut_from_aim` and `cut_to_aim`, so a slash is a
-## slash across the whole frame instead of a weapon wobbling next to the
-## crosshair. The hand position supplies the depth the screen cannot.
-##
-## Every swing snaps onto a body that is already close: the player is pulled a
-## short distance toward it (`lunge`, applied by the owner) and the hit arc is
-## centred on it, so "face the enemy and press V" lands even off a few degrees and
-## even with no movement key held. How far "close" is, how far the dash goes and
-## how wide the magnet cone is are per weapon (`MeleeData.magnet_range`, `lunge`,
-## `magnet_arc_degrees`), so the dagger stays a short flick and the tachi reaches
-## furthest. A swing with nothing in range stays put and keeps the player's aim.
-##
-## The weapon never touches the camera or the player's body itself: it emits
-## `recoil` and `lunge`, and the owner applies them. It only reads `Stats`.
-## Gun buffs still scale a swing through `DAMAGE` and `FIRE_RATE`. Blade cards
-## multiply `MELEE_DAMAGE`, `MELEE_SPEED` and `MELEE_RANGE`; each base is 1, so
-## an unbuffed swing matches the `.tres`.
-##
-## Hit resolution mirrors weapon.gd: a physics query finds hitboxes, then
-## Hitbox.apply_hit() does the damage and Health filters friendly fire.
+## The equipped mind blade, with the old loadout API retained until issue #106.
+## Reads Stats; recoil, movement and presentation are applied by the owner.
 
 ## One swing has started. `step` counts up across swings, so tests and the HUD
 ## can tell a combo apart from the first hit.
@@ -84,9 +59,13 @@ class Pose:
 ## The attacker's body. Its `team` keeps the arc off the player's own hitboxes.
 @export var shooter: CollisionObject3D
 
+## Null is the temporary legacy-test loadout; Player explicitly equips MindBlade.
+@export var blade_data: MeleeData
 var weapons: Array[MeleeData] = []
 var index := 0
+var _views: Array[Node3D] = []
 
+var _active_enabled := true
 var _phase := Phase.IDLE
 var _phase_left := 0.0
 var _cooldown := 0.0
@@ -107,7 +86,8 @@ var _swing_forward := Vector3.FORWARD
 ## hit arc (see _advance_phase), so "face the enemy and press V" lands on the enemy
 ## even when the aim was a little off.
 var _magnet: Hitbox = null
-var _views: Array[Node3D] = []
+var _view: Node3D
+var _magnet_forward := Vector3.FORWARD
 var _pivot: Node3D
 var _audio: AudioStreamPlayer
 var _hit_sound: AudioStreamWAV
@@ -125,10 +105,10 @@ var _cut_motion := Vector3.ZERO
 
 
 func _ready() -> void:
-	weapons = MeleePool.ALL.duplicate()
 	_pivot = Node3D.new()
 	_pivot.name = "Pivot"
 	add_child(_pivot)
+	weapons.assign([blade_data] if blade_data != null else MeleePool.ALL)
 	for data in weapons:
 		_views.append(_make_view(data))
 	_audio = AudioStreamPlayer.new()
@@ -138,8 +118,35 @@ func _ready() -> void:
 	select(0)
 
 
+func _exit_tree() -> void:
+	# Release any swing still queued on the audio thread when changing scenes.
+	if is_instance_valid(_audio):
+		_audio.stop()
+		_audio.stream = null
+
+
 func current() -> MeleeData:
 	return weapons[index] if index >= 0 and index < weapons.size() else null
+
+## The imported blade root is the grip centre. Body IK follows the same
+## world-space frame as the rendered blade through wind-up, slash and recovery.
+func grip_transform() -> Transform3D:
+	return _view.global_transform if is_instance_valid(_view) else global_transform
+
+
+func select(new_index: int) -> void:
+	if weapons.is_empty() or _phase != Phase.IDLE:
+		return
+	index = wrapi(new_index, 0, weapons.size())
+	_view = _views[index]
+	var data := current()
+	_rest = Pose.new(data.rest_hand, data.rest_aim, data.rest_roll)
+	_pivot.transform = _pose_of(_rest)
+	selected.emit(index, data)
+
+
+func select_next() -> void:
+	select(index + 1)
 
 
 func is_swinging() -> bool:
@@ -152,29 +159,11 @@ func blade_length() -> float:
 	return data.blade_length if data != null else 0.4
 
 
-func select(new_index: int) -> void:
-	if weapons.is_empty():
-		return
-	if _phase != Phase.IDLE:
-		# Switching mid-swing would leave the old viewmodel in the air.
-		return
-	index = wrapi(new_index, 0, weapons.size())
-	# Keep the hidden viewmodel on the selected weapon's rest pose, so the next
-	# swing does not start by jumping from wherever the last one ended.
-	var data := current()
-	if data != null and _pivot != null:
-		_rest = Pose.new(data.rest_hand, data.rest_aim, data.rest_roll)
-		_pivot.transform = _pose_of(_rest)
-	selected.emit(index, current())
-
-
-func select_next() -> void:
-	select(index + 1)
-
-
 ## Starts a swing if the weapon is ready. Returns whether it started, so tests
 ## do not have to guess at the cooldown.
 func swing_now() -> bool:
+	if not is_inside_tree() or get_tree().paused or not _active_enabled:
+		return false
 	var data := current()
 	if data == null or _phase != Phase.IDLE or _cooldown > 0.0:
 		return false
@@ -195,6 +184,9 @@ func swing_now() -> bool:
 	_swing_origin = _eye()
 	_swing_forward = _forward()
 	_magnet = _magnet_target(data)
+	_magnet_forward = _swing_forward
+	if is_instance_valid(_magnet):
+		_magnet_forward = (_magnet.global_position - _swing_origin).normalized()
 	_step_toward(data, _magnet)
 
 	if _phase_left <= 0.0:
@@ -231,11 +223,15 @@ func cancel() -> void:
 	_hide_views()
 
 
+## Permanent for this player instance; a respawn constructs a fresh blade.
+func deactivate() -> void:
+	_active_enabled = false
+	cancel()
+	set_process(false)
+
+
 func view_visible() -> bool:
-	for view in _views:
-		if view != null and view.visible:
-			return true
-	return false
+	return _view != null and _view.visible
 
 
 ## Where the tip of the blade is on screen right now, in the same normalised
@@ -290,18 +286,21 @@ func edge_leading() -> float:
 
 func _process(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
-	if _phase != Phase.IDLE:
-		_phase_left -= delta
+	var remaining := delta
+	# Carry unused frame time across phases, so 80/120/150 ms stays invariant
+	# under low frame rates and one large update cannot skip the physical hit.
+	while _phase != Phase.IDLE and remaining > 0.000001:
+		var step := minf(remaining, _phase_left)
+		_phase_left = maxf(0.0, _phase_left - step)
+		remaining -= step
+		if _phase == Phase.WINDUP or _phase == Phase.ACTIVE:
+			_swing_forward = _swing_forward.slerp(_magnet_forward, minf(step * 30.0, 1.0))
 		if _phase == Phase.ACTIVE and not _struck_this_swing \
 				and _phase_left <= _active_len * (1.0 - STRIKE_AT):
 			_strike()
-		if _phase_left <= 0.0:
-			_advance_phase()
 		_update_pose()
-	# No mouse-capture gate, unlike the gun: the hammer swings with a free cursor
-	# too, and a headless run never captures the mouse.
-	if Input.is_action_just_pressed("switch_melee"):
-		select_next()
+		if _phase_left <= 0.000001:
+			_advance_phase()
 	if Input.is_action_just_pressed("melee"):
 		swing_now()
 
@@ -328,7 +327,8 @@ func _advance_phase() -> void:
 					and not _magnet.health.is_dead():
 				var to_body := _magnet.global_position - _swing_origin
 				if to_body.length_squared() > 0.0001:
-					_swing_forward = to_body.normalized()
+					_magnet_forward = to_body.normalized()
+			_swing_forward = _swing_forward.slerp(_magnet_forward, 0.75)
 			if _phase_left <= 0.0:
 				_advance_phase()
 		Phase.ACTIVE:
@@ -487,7 +487,7 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 
 	hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, health.is_dead())
 	recoil.emit(data.camera_kick, data.camera_kick_yaw * (1.0 if _swing_count % 2 == 0 else -1.0), 0.35)
-	_play(_hit_sound, -2.0, randf_range(0.94, 1.06))
+	_play(_hit_sound, -2.0, 1.02)
 	_spawn_impact(hitbox.global_position, push)
 	return true
 
@@ -524,25 +524,12 @@ func _make_view(data: MeleeData) -> Node3D:
 	view.position = Vector3.ZERO
 	view.rotation_degrees = Vector3.ZERO
 	view.visible = false
-	_flat_shade(view, data.view_brightness)
+	if blade_data == null:
+		_flat_shade(view, data.view_brightness)
 	_pivot.add_child(view)
 	return view
 
 
-## A blade is one flat plate: turned away from the sun its whole face goes to the
-## ambient colour, which at half a metre reads as a dark shape filling the corner
-## of the screen. The viewmodel is flat-shaded instead: the albedo texture already
-## carries the painted shading, and the weapon then looks the same whatever the
-## player is facing. Materials are set as per-instance surface overrides, so the
-## shared mesh is never modified.
-##
-## The faces are also forced double sided. The exported blades are single-sided
-## plates, so half of every swing looks through the weapon at the world behind it.
-## A weapon swinging past the camera must be solid from both sides; that is
-## cheaper to fix here than to re-export every prop.
-##
-## `brightness` lifts the albedo, because unshaded means no light response at all:
-## the axe head's charcoal would otherwise stay a dark blob at arm's length.
 func _flat_shade(view: Node3D, brightness: float) -> void:
 	var lift := Color(brightness, brightness, brightness, 1.0)
 	for found in view.find_children("*", "MeshInstance3D", true, false):
@@ -571,11 +558,9 @@ func _show_view() -> void:
 	for i in _views.size():
 		_views[i].visible = i == index
 
-
 func _hide_views() -> void:
 	for view in _views:
 		view.visible = false
-
 
 ## Lays out the swing: the three poses it travels through and how long each
 ## phase got. The pose is driven from the phase timers (see _update_pose), not

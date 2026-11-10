@@ -6,7 +6,7 @@ extends Node
 ## before the last check, so it cannot pass by accident.
 
 # Existing HUD coverage plus eight capacity-shield state/feedback checks.
-const EXPECTED_CHECKS := 290
+const EXPECTED_CHECKS := 286
 
 var _checks := 0
 var _failures := 0
@@ -204,13 +204,10 @@ func _run() -> void:
 	_test_counter_shield_ui(scene)
 
 	print("== melee slot")
-	for i in MeleePool.ALL.size():
-		var data: MeleeData = MeleePool.ALL[i]
-		_player.melee.select(i)
-		_melee_slot.advance(0.0)
-		_check("%s is the selected blade" % data.display_name, _player.melee.index == i
-			and _player.melee.current() == data)
-		_check("%s shows its melee icon" % data.display_name, _melee_slot.current_icon == data.icon)
+	var blade_data := _player.melee.current()
+	_melee_slot.advance(0.0)
+	_check("single mind blade equipped", blade_data.resource_path.ends_with("mind_blade.tres"))
+	_check("mind blade icon reaches the ability slot", _melee_slot.current_icon == blade_data.icon)
 	_check("locked parry has no stored-round dots", not _melee_slot.stored_visible
 		and _melee_slot.stored_capacity == 0 and not _melee_slot.parry_flash)
 	_player.stats.base[Stats.PARRY_CAPACITY] = 2.0

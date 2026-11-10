@@ -264,6 +264,47 @@ def pistol():
                   "budget_policy": "quality-first; source polygons and render triangles reported separately"}
 
 
+def blade():
+    root = scene("MindBlade")
+    black = material("Obsidian_Blade", (0.017, 0.021, 0.028))
+    gold = material("Spine_Energy", (.11, .052, .012), (.38, .15, .018))
+    # Sharp Tanto shoulders and twin planar bevels meet along the side ridges.
+    # Width is exactly 40mm; thickness is 15mm including the narrow gold inlay.
+    def diamond(z, half_thickness, top, bottom):
+        return [(0, top, z), (half_thickness, 0, z),
+                (0, bottom, z), (-half_thickness, 0, z)]
+    rings = [diamond(-.060, .005, .017, -.017),
+             diamond(-.076, .0075, .020, -.020),
+             [(0, .018, -.295), (.006, 0, -.303),
+              (0, -.020, -.300), (-.006, 0, -.303)]]
+    vertices, faces = loft(rings, cap_end=False)
+    tip = len(vertices)
+    vertices.append((0, .014, -.340))
+    for i in range(4):
+        faces.append((8 + i, 8 + (i + 1) % 4, tip))
+    add_mesh("blade", vertices, faces, root, black)
+    # No guard: an octagonal crystal grip joins the blade directly, ending in a
+    # shallow chamfered cap rather than the pointed end of a second blade.
+    section = [(-.0045, -.010), (.0045, -.010), (.0065, -.007), (.0065, .007),
+               (.0045, .010), (-.0045, .010), (-.0065, .007), (-.0065, -.007)]
+    rings = [[(x, y, z) for x, y in section] for z in [-.060, .054]]
+    rings.append([(x * .78, y * .78, .060) for x, y in section])
+    vertices, faces = loft(rings)
+    add_mesh("grip", vertices, faces, root, black)
+    # The two thin inlays sit on the raised ridge and follow its taper. Keeping
+    # the seam narrower than one millimetre preserves the black silhouette.
+    vertices, faces = [], []
+    for sign in [-1, 1]:
+        append_geometry(vertices, faces,
+                        [(sign * .0075, -.0004, -.078), (sign * .0075, .0004, -.078),
+                         (sign * .00603, .0004, -.299), (sign * .00603, -.0004, -.299)], [(0, 1, 2, 3)])
+    add_mesh("spine_energy", vertices, faces, root, gold)
+    return root, {"blade_length_m": .28, "grip_to_tip_m": .34, "overall_length_m": .40,
+                  "target_dimensions_m": [.015, .040, .400],
+                  "budget_policy": "quality-first; source polygons and render triangles reported separately",
+                  "game_forward": "-Z", "game_thickness_axis": "X", "game_cutting_edge": "-Y"}
+
+
 def export(root, name, detail):
     bpy.context.view_layer.update()
     objects = [o for o in root.children if o.type == "MESH"]
@@ -318,7 +359,7 @@ def export(root, name, detail):
 
 
 reports = []
-for builder, name in [(pistol, "obsidian_pistol")]:
+for builder, name in [(pistol, "obsidian_pistol"), (blade, "mind_blade")]:
     root, detail = builder()
     reports.append(export(root, name, detail))
 (HERE / "manifest.json").write_text(json.dumps({"models": reports}, indent=2) + "\n", encoding="utf-8")

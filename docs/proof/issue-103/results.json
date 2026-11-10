@@ -1,0 +1,56 @@
+[
+  {
+    "test": "import",
+    "exit_code": 0,
+    "seconds": 15.28,
+    "passed": true,
+    "checks": 0
+  },
+  {
+    "test": "mind_blade_test",
+    "exit_code": 0,
+    "seconds": 3.5,
+    "passed": true,
+    "checks": 38
+  },
+  {
+    "test": "melee_test",
+    "exit_code": 0,
+    "seconds": 33.57,
+    "passed": true,
+    "checks": 87
+  },
+  {
+    "test": "hud_test",
+    "exit_code": 0,
+    "seconds": 10.78,
+    "passed": true,
+    "checks": 286
+  },
+  {
+    "test": "capture_hammer_test",
+    "exit_code": 0,
+    "seconds": 13.16,
+    "passed": true,
+    "checks": 53
+  },
+  {
+    "test": "buff_run_test",
+    "exit_code": 0,
+    "seconds": 16.21,
+    "passed": true,
+    "checks": 283
+  },
+  {
+    "test": "melee_proof",
+    "exit_code": 0,
+    "passed": true,
+    "renderer": "Forward+ / Vulkan",
+    "images": [
+      "01_mind_blade_windup.png",
+      "02_mind_blade_cut.png",
+      "03_mind_blade_strike.png"
+    ],
+    "review": "02_mind_blade_cut.png visually inspected; blade and pistol are both visible."
+  }
+]

@@ -183,6 +183,7 @@ func _physics_process(delta: float) -> void:
 	# frame short nor leaves a 27 m/s slide behind. The vertical is zeroed on the
 	# hand-back so a rising dash does not fling the player past its end point.
 	var dashing := _dash_left > 0.0
+	var lunging := not dashing and _lunge_left > 0.0
 	if dashing:
 		_dash_left = maxf(_dash_left - delta, 0.0)
 		velocity = _dash_velocity
@@ -208,11 +209,15 @@ func _physics_process(delta: float) -> void:
 		# A melee swing carries the player: the step overrides the walked velocity
 		# for its short duration, so the distance is exactly `speed * duration`
 		# instead of building up frame by frame.
-		if _lunge_left > 0.0:
+		if lunging:
+			var fraction := minf(delta, _lunge_left) / delta
 			_lunge_left = maxf(_lunge_left - delta, 0.0)
-			velocity.x = _lunge.x
-			velocity.z = _lunge.z
+			velocity.x = _lunge.x * fraction
+			velocity.z = _lunge.z * fraction
 	move_and_slide()
+	if lunging and _lunge_left <= 0.0:
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 	if dashing and _dash_left <= 0.0:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
@@ -305,8 +310,7 @@ func view_is_shaking() -> bool:
 
 func _on_died(_source: Node) -> void:
 	hammer.set_process(false)
-	melee.cancel()
-	melee.set_process(false)
+	melee.deactivate()
 	dash.cancel()
 	dash.set_physics_process(false)
 	shield.cancel()
@@ -329,10 +333,10 @@ func _on_dash(direction: Vector3, speed: float, duration: float) -> void:
 	_dash_left = duration
 
 
-## Swinging a blade means the rifle is out of the way for that moment.
+## The pistol yields space to the blade without leaving the hand.
 func _on_melee_swing_started(_index: int, _step: int) -> void:
-	weapon.set_drawn(false)
+	weapon.set_melee_active(true)
 
 
 func _on_melee_swing_finished() -> void:
-	weapon.set_drawn(true)
+	weapon.set_melee_active(false)

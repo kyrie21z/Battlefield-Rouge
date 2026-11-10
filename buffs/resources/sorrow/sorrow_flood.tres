@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_flood"
+name = "融蚀洪流"
+sin = 3
+slot = 3
+rarity = 2
+core = false
+description = "满层目标每次受伤，将溶蚀扩散到周围所有可见敌人。"
+parameters = {"radius": 3.5, "spread_layers": 1.0}
+prerequisite_any = Array[String](["sorrow_gun_needles", "sorrow_blade_tide"])
+script_hook = ExtResource("2")

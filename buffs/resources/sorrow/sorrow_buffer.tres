@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_buffer"
+name = "潮湿缓冲"
+sin = 3
+slot = 3
+rarity = 0
+core = false
+description = "单次高额伤害的50%变为3秒水滞债务；拾取泪晶消除未结算债务。"
+parameters = {"threshold": 20.0, "fraction": 0.5, "duration": 3.0}
+script_hook = ExtResource("2")

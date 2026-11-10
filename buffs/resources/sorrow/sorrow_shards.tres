@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_shards"
+name = "悲恸裂片"
+sin = 3
+slot = 3
+rarity = 0
+core = false
+description = "枪或刀打碎泪晶造成水爆，并对周围敌人附加2层溶蚀。"
+parameters = {"radius": 3.0, "damage": 45.0}
+script_hook = ExtResource("2")

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_abyss"
+name = "无尽悲渊"
+sin = 3
+slot = 3
+rarity = 3
+core = false
+description = "击杀留下喷泉；泪晶升华为穿透追踪水刃，喷泉持续发射水刃。"
+parameters = {"fountain_duration": 6.0, "fire_interval": 0.6, "maximum_fountains": 12.0, "blade_damage": 14.0, "blade_speed": 22.0}
+required_trait_sin = 3
+required_trait_count = 2
+script_hook = ExtResource("2")

@@ -11,6 +11,13 @@ var _dashing := false
 var _last_dash := Vector3.ZERO
 var _water_boost := false
 var _visuals: Array[Node3D] = []
+var _traits: SorrowTraits
+
+
+func setup(value: BoonManager) -> void:
+	super.setup(value)
+	_traits = SorrowTraits.new()
+	_traits.setup(self)
 
 
 func parameter(id: String, key: String, fallback: float) -> float:
@@ -24,6 +31,7 @@ func parameter(id: String, key: String, fallback: float) -> float:
 
 
 func on_event(event: StringName, ctx: Dictionary) -> void:
+	_traits.on_event(event, ctx)
 	_prune_transients()
 	match event:
 		&"hit_after":
@@ -59,6 +67,9 @@ func on_event(event: StringName, ctx: Dictionary) -> void:
 
 
 func tick(delta: float) -> void:
+	_traits.tick(delta)
+	if manager.health.is_dead():
+		return
 	_prune_transients()
 	for key: int in states.keys():
 		var status = states[key]
@@ -101,6 +112,7 @@ func add_erosion(enemy: Node, layers: int, _context: Dictionary = {}) -> void:
 		status.saturated.connect(func(value: ErosionStatus): spawn_tear(value.target.global_position, 1, {"enemy": value.target, "reason": &"saturation"}))
 		status.expired.connect(func(value: ErosionStatus): _remove_state(value.target.get_instance_id()))
 	status.add_layers(layers)
+	_traits.status_changed(enemy)
 
 
 func _alive(enemy: Node) -> bool:
@@ -116,6 +128,8 @@ func _remove_state(key: int) -> void:
 	if is_instance_valid(status):
 		status.cancel()
 	states.erase(key)
+	if _traits != null and is_instance_valid(status) and is_instance_valid(status.target):
+		_traits.status_changed(status.target)
 
 
 func spawn_tear(pos: Vector3, count := 1, context: Dictionary = {}) -> void:
@@ -135,11 +149,14 @@ func _pickup(tear: TearCrystal) -> void:
 		return
 	manager.grant_shield(parameter(GUN, "tear_shield", 25.0))
 	var origin := manager.player.global_position + Vector3.UP
+	_traits.pickup(origin)
 	manager.aoe(origin, parameter(GUN, "pickup_radius", 3.0), parameter(GUN, "pickup_damage", 10.0), {"tag": &"sorrow_pickup", "proc_depth": 1})
 	manager.feedback(origin, ErosionStatus.CYAN, 1.0)
 
 
 func _strike_tear(tear: TearCrystal, ctx: Dictionary) -> void:
+	if _traits.break_tear(tear, ctx):
+		return
 	if ctx.get("kind") != &"blade" or not manager.has(BLADE):
 		return
 	var position := tear.global_position
@@ -230,6 +247,8 @@ func water_regions() -> Array[Dictionary]:
 
 
 func cleanup() -> void:
+	_traits.cleanup()
+	_traits = null
 	_prune_transients()
 	for key: int in states.keys():
 		_remove_state(key)

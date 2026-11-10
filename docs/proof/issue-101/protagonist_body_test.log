@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] the model has 11 MeshInstance3D
+  [ok] every mesh is SHADOWS_ONLY
+  [ok] every mesh uses the grey-white MI_ProtagonistCrystal
+  [ok] one Skeleton3D with 24 bones
+  [ok] idle and run clips exist
+  [ok] both clips loop linearly
+  [ok] an active AnimationTree drives the body
+  [ok] the legs start on idle
+  [ok] moving at 3 m/s blends the legs onto run
+  [ok] stopping blends the legs back to idle
+  [ok] the aim pose owns 12 upper bones
+  [ok] the filter leaves hips and legs to idle / run
+  [ok] a BoneAttachment3D hangs the gun off the right hand
+  [ok] pistol is the right-hand shadow model
+  [ok] pistol muzzle points forward
+  [ok] the gun touches the right hand (0.01 m)
+  [ok] no recoil before a shot
+  [ok] firing makes the shot one-shot active
+  [ok] the gun hides while a blade is swung
+  [ok] the gun is back once the blade is away
+  [ok] wheel retains one pistol attachment
+  [ok] the model is 1.75 m tall (1.6-1.9 m)
+  [ok] the feet sit at 0.000 m (within 0.05 m of the floor)
+  [ok] no soldier node left under ShadowBody
+PROTAGONIST BODY: ALL PASSED (0 failed)

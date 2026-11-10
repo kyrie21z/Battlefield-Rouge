@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] single eight-round semi-auto pistol
+  [ok] isolated weapon accepts one pistol in the compatibility rack
+  [ok] ordinary reload reserves remain until #102
+  [ok] view uses imported Blender model without CSG
+  [ok] Blender source count records flat triangle/quad polygons
+  [ok] model hash matches Blender export receipt
+  [ok] actual imported GLB triangle count matches Blender receipt (180)
+  [ok] pistol measures 220 x 135 x 32mm
+  [ok] 32mm slanted grip is centred on root origin
+  [ok] GLB preserves flat face normals
+  [ok] muzzle marker matches barrel opening
+  [ok] all four pieces pivot around their own geometry centres
+  [ok] gun stays right of centre in hip and ADS
+  [ok] hip field of view is 75 degrees
+  [ok] ADS uses 58 degrees and tightens spread
+  [ok] damage remains full through thirty metres
+  [ok] damage falls smoothly after thirty metres
+  [ok] paused public fire spends no ammo
+  [ok] click fires immediately
+  [ok] real Hitbox receives 35 damage
+  [ok] pistol hit creates eight solid crystal fragments
+  [ok] recoil is 1.2 pitch with bounded random yaw
+  [ok] cooldown rejects an immediate second shot
+  [ok] cooldown still holds at 179ms
+  [ok] shot becomes ready at 180ms
+  [ok] round 3 fires
+  [ok] round 4 fires
+  [ok] round 5 fires
+  [ok] round 6 fires
+  [ok] round 7 fires
+  [ok] round 8 fires
+  [ok] empty magazine starts ordinary reload
+  [ok] #101 has no crystal reassembly animation
+  [ok] ordinary reload restores playable magazine
+[skip] fire press/hold/release requires native mouse capture; run this scene natively
+  [ok] death stops reload and public firing
+ALL PASSED (0 failed)

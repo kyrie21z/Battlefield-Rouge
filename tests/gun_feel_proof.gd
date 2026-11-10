@@ -1,7 +1,7 @@
 extends Node
 ## Native-window proof frames for the gun-feel work:
 ##   godot --path . res://tests/gun_feel_proof.tscn -- --out=docs/proof/gun-feel
-## Frames: mid-recoil, tracer + impact, enemy flash, shotgun blast, kill marker.
+## Frames: mid-recoil, tracer + impact, enemy flash, pistol blast, kill marker.
 ## Needs a real display (headless has no renderer).
 
 const ZONE := "res://maps/zone_1.tscn"
@@ -49,15 +49,15 @@ func _ready() -> void:
 	_player.set_physics_process(false)
 	await _stage(0, 9.0)
 
-	# 1. rifle, hip: the frame right after a shot, then the spring ringing back.
+	# 1. pistol, hip: the frame right after a shot, then the spring ringing back.
 	_weapon._cooldown = 0.0
 	_weapon.try_fire()
 	await _frames(1)
-	_shot("01_rifle_recoil_frame1")
+	_shot("01_pistol_recoil_frame1")
 	await _frames(2)
-	_shot("02_rifle_tracer_impact_flash")
+	_shot("02_pistol_tracer_impact_flash")
 	await _frames(10)
-	_shot("03_rifle_settled")
+	_shot("03_pistol_settled")
 
 	# 2. a flash on the enemy, caught the frame after the hit.
 	await _stage(0, 9.0)
@@ -68,12 +68,12 @@ func _ready() -> void:
 	await _frames(12)
 	_shot("05_enemy_after")
 
-	# 3. shotgun: heavy kick and several tracers.
+	# 3. pistol: heavy kick and several tracers.
 	await _stage(1, 7.0)
 	_weapon._cooldown = 0.0
 	_weapon.try_fire()
 	await _frames(2)
-	_shot("06_shotgun_blast")
+	_shot("06_pistol_blast")
 
 	# 4. kill: the red, bigger marker.
 	await _stage(0, 9.0)
@@ -86,8 +86,8 @@ func _ready() -> void:
 
 	# 5. crosshair: hip lines + dot, then iron sights with the dot alone.
 	_player.set_physics_process(true)
-	var names := ["rifle", "shotgun"]
-	for slot in 2:
+	var names := ["pistol"]
+	for slot in 1:
 		await _stage(slot, 12.0)
 		_player.set_physics_process(true)
 		Input.action_release("aim")
@@ -103,8 +103,8 @@ func _ready() -> void:
 
 
 ## Puts the guard `distance` m ahead of the eye and points the gun at its torso.
-func _stage(slot: int, distance: float) -> void:
-	_weapon.select(slot)
+func _stage(_slot: int, distance: float) -> void:
+
 	_weapon.ammo = _weapon.magazine_capacity()
 	_player.global_position = Vector3(0, 0, 8)
 	_player.global_rotation = Vector3.ZERO

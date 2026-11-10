@@ -1,0 +1,64 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== the input action
+  [ok] Shift is bound to `dash`
+  [ok] the hold-to-sprint speed is gone
+  [ok] two charges, full at the start
+  [ok] HUD starts with both pips full
+  [ok] the dash pips clear the shield strip
+== forward dash, no direction held
+  [ok] covers 5 m (5.09 m)
+  [ok] goes straight ahead ((0.0, 0.0, -5.092594))
+  [ok] one charge spent
+  [ok] HUD drops to one pip and starts refilling
+== dash follows the movement input
+  [ok] covers 5 m to the right (5.11 m)
+  [ok] moves +X when D is held ((5.109704, 0.0, 0.0))
+  [ok] both charges spent
+  [ok] HUD shows no ready pips
+== a third dash does nothing
+  [ok] no dash starts without a charge
+  [ok] the body does not move
+== one charge comes back after 1.5 s, one at a time
+  [ok] both charges are back
+  [ok] spending one leaves one
+  [ok] still one at 1.2 s
+  [ok] the second charge is back by 1.55 s
+== one air dash per leave from the ground
+  [ok] the jump left the floor
+  [ok] an air dash is allowed
+  [ok] a second air dash is refused
+  [ok] landing restores the air dash
+  [ok] the ground dash works again
+== holding Shift no longer runs
+  [ok] no charges left, so Shift cannot dash again
+  [ok] holding Shift + W walks at 4.40 m/s
+== dash breaks ADS, keeps reloading, and grants immunity
+  [ok] the shield activates for the overlap test
+  [ok] aiming is on before the dash
+  [ok] the dash is running
+  [ok] ADS is dropped
+  [ok] both immunity sources are on
+  [ok] a hit during the dash deals nothing
+  [ok] the shield still owns its immunity after the dash
+  [ok] the shield alone still blocks
+  [ok] the dash immunity did not leak past its window
+  [ok] a reload starts
+  [ok] the dash does not cancel the reload
+  [ok] the reload is still running when the dash ends
+  [ok] HUD follows the live charge count
+== the dash follows the camera pitch
+  [ok] a 45° pitch lifts the dash (3.60 m up)
+  [ok] its 3D length is still 5 m (5.09 m)
+  [ok] the hand-back zeroes velocity.y (0.00 m/s)
+== a level dash stays level
+  [ok] no vertical drift (0.00 m)
+  [ok] it still covers 5 m (5.09 m)
+== a downward dash slides along the floor
+  [ok] a 45° down dash still covers ground (3.60 m)
+  [ok] it does not sink through the floor (0.00 m)
+== the boundary stops a pitched dash
+  [ok] the jump left the floor
+  [ok] jump + upward dash stays inside x ±30 (29.15)
+  [ok] jump + upward dash stays inside z ±30 (29.15)
+ALL PASSED (0 failed)

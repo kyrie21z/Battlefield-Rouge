@@ -45,6 +45,11 @@ const UPPER_BONES: Array[StringName] = [
 ## right hand. The ak is authored muzzle along -X (its viewmodel yaw is +90), so
 ## it needs -90 here; the shotgun and sniper are exported grip-at-origin, muzzle -Z.
 const GUNS := {
+	"res://weapons/obsidian_pistol/obsidian_pistol.tres": {
+		"scene": preload("res://assets/models/weapons/obsidian_pistol.glb"),
+		"grip": Vector3.ZERO, "yaw": 0.0, "pitch": 0.0,
+		"roll": 0.0, "scale": 1.0,
+	},
 	"res://weapons/rifle.tres": {
 		"scene": preload("res://assets/models/weapons/ak.gltf"),
 		"grip": Vector3(0.032, -0.078, 0.0), "yaw": -90.0, "pitch": 0.0,
@@ -62,7 +67,7 @@ const GUNS := {
 	},
 }
 ## Gun shown when the parent has no Weapon (body instanced alone).
-const DEFAULT_GUN := "res://weapons/rifle.tres"
+const DEFAULT_GUN := "res://weapons/obsidian_pistol/obsidian_pistol.tres"
 
 var _anim: AnimationPlayer
 var _skeleton: Skeleton3D

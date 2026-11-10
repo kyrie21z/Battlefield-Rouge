@@ -13,6 +13,15 @@ var _hud
 
 func _ready() -> void:
 	await _run()
+	for voice in find_children("*", "AudioStreamPlayer", true, false):
+		voice.stop()
+		voice.stream = null
+	for child in get_children():
+		child.queue_free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures,
 		"" if _finished else ", run did not finish"])
@@ -47,7 +56,7 @@ func _run() -> void:
 func _test_gunshot_shape() -> void:
 	print("== softened gunshots")
 	var first_ms := int(0.001 * ProceduralAudio.SAMPLE_RATE)
-	for kind in ["gun_rifle", "gun_shotgun", "gun_sniper"]:
+	for kind in ["gun_pistol"]:
 		var wav := ProceduralAudio.generate(kind)
 		var peak := 0.0
 		var early := 0.0
@@ -63,27 +72,18 @@ func _test_gunshot_shape() -> void:
 		_check("%s: soft attack (%.0f%% at 1 ms), peaks at -3 dBFS (%.1f dB)"
 			% [kind, early / peak * 100.0, peak_db], early < peak * 0.5 and absf(peak_db + 3.0) <= 1.0)
 	_check("gunshots are deterministic",
-		ProceduralAudio.generate("gun_rifle").data == ProceduralAudio.generate("gun_rifle").data)
+		ProceduralAudio.generate("gun_pistol").data == ProceduralAudio.generate("gun_pistol").data)
 	_check("the headshot kill sound is its own stream",
 		ProceduralAudio.generate("hit_kill").data != ProceduralAudio.generate("hit_kill_head").data)
 
 
 func _test_weapon_values() -> void:
-	print("== stronger visual recoil")
-	# kick pitch / roll / back, then shake degrees / FOV punch
-	var want := {
-		"rifle": [1.3, 0.9, 0.026, 0.11, 0.011],
-		"shotgun": [7.0, 2.0, 0.14, 0.55, 0.045],
-		"sniper": [9.0, 2.5, 0.18, 0.75, 0.055]}
-	for name in want:
-		var gun := load("res://weapons/%s.tres" % name) as WeaponData
-		var v: Array = want[name]
-		_check("%s kick is up" % name, is_equal_approx(gun.view_kick_pitch, v[0])
-			and is_equal_approx(gun.view_kick_roll, v[1]) and is_equal_approx(gun.view_kick_back, v[2]))
-		_check("%s shake is up" % name, is_equal_approx(gun.shake_degrees, v[3])
-			and is_equal_approx(gun.shake_fov_punch, v[4]))
-		_check("%s still damps it while aiming" % name, gun.aim_feel_scale < 1.0)
-	_check("a scope still drops the rotation shake", is_equal_approx(Weapon.SCOPED_PUNCH_SCALE, 0.5))
+	print("== pistol recoil contract")
+	var gun := load("res://weapons/obsidian_pistol/obsidian_pistol.tres") as WeaponData
+	_check("pistol camera kick is 1.2 degrees", is_equal_approx(gun.camera_kick, 1.2))
+	_check("pistol yaw stays within 0.3 degrees", is_equal_approx(gun.camera_yaw, 0.3))
+	_check("pistol recovers in 0.12 seconds", is_equal_approx(gun.camera_return_time, 0.12))
+	_check("ADS dampens presentation", gun.aim_feel_scale < 1.0)
 
 
 func _test_kill_bursts() -> void:

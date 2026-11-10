@@ -6,7 +6,7 @@ extends Node
 ## before the last check, so it cannot pass by accident.
 
 # Existing HUD coverage plus eight capacity-shield state/feedback checks.
-const EXPECTED_CHECKS := 295
+const EXPECTED_CHECKS := 290
 
 var _checks := 0
 var _failures := 0
@@ -23,6 +23,15 @@ var _buff_bar: BuffBar
 
 func _ready() -> void:
 	await _run()
+	for voice in find_children("*", "AudioStreamPlayer", true, false):
+		voice.stop()
+		voice.stream = null
+	for child in get_children():
+		child.queue_free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d checks, %d failed%s)" % ["ALL PASSED" if ok else "FAIL", _checks,
 		_failures, "" if _finished else ", run did not finish"])
@@ -87,57 +96,45 @@ func _run() -> void:
 		and is_equal_approx(_vitals.displayed_health, 40.0) and not _vitals.warning)
 	_check("healing immediately resets the white trail", is_equal_approx(_vitals.delayed_health, 40.0))
 
-	print("== ammo and the gun rack")
-	_player.weapon.select(0)
+	print("== pistol magazine and reload")
 	_player.weapon.ammo = 8
-	_player.weapon.reserve = 120
 	_panel.advance(0.0)
-	_check("ammo numbers follow the magazine", _panel.ammo_text == "8 / 120" and not _panel.ammo_low)
-	_player.weapon.ammo = 7
+	_check("ammo numbers show capacity", _panel.ammo_text == "8 / 8" and not _panel.ammo_low)
+	_player.weapon.ammo = 2
 	_panel.advance(0.0)
 	_check("25% or less turns the ammo red", _panel.ammo_low
 		and _panel.ammo_color == HudStyle.WARNING)
-	for i in _player.weapon.data_set.size():
-		var data: WeaponData = _player.weapon.data_set[i]
-		_player.weapon.select(i)
-		_panel.advance(0.0)
-		_check("%s highlights its gun slot" % data.display_name, _panel.selected_index == i)
-		_check("%s shows its gun name" % data.display_name, _panel.gun_name == data.display_name)
-	_check("the panel dropped the duplicate big icon box", not ("current_icon" in _panel))
-	_check("ammo and gun slots share one tight row", _panel.size == Vector2(504.0, 100.0)
-		and _panel.slot_rect(0).position.x > WeaponPanel.AMMO_WIDTH
-		and _panel.slot_rect(2).end.x <= _panel.size.x and _panel.slot_rect(2).end.y <= _panel.size.y)
-	_check("the three gun slots sit side by side", _panel.slot_rect(0).end.x < _panel.slot_rect(1).position.x
-		and _panel.slot_rect(1).end.x < _panel.slot_rect(2).position.x)
-
-	_player.weapon.select(0)
+	_check("the panel shows the single pistol", _panel.gun_name == _player.weapon.data.display_name)
+	_check("there is no obsolete rack or selected slot", not ("selected_index" in _panel)
+		and not _panel.has_method("slot_rect"))
+	_check("ammo and name fit a compact panel", _panel.size.x >= 210.0 and _panel.size.x <= 300.0)
 	_player.weapon.ammo = 7
-	_player.weapon.reserve = 120
 	_player.weapon.try_reload()
 	_panel.advance(0.0)
-	_check("reloading shows a progress bar instead of text", _panel.reload_visible)
+	_check("reload shows a progress bar", _panel.reload_visible)
 	var before := _panel.reload_fraction
 	_player.weapon._process(0.5)
 	_panel.advance(0.0)
 	_check("the reload bar advances", _panel.reload_fraction > before and _panel.reload_fraction < 1.0)
 	_player.weapon._process(10.0)
 	_panel.advance(0.0)
-	_check("the reload bar goes away when the magazine is full", not _panel.reload_visible
+	_check("the bar goes away when reload finishes", not _panel.reload_visible
 		and _player.weapon.ammo == _player.weapon.magazine_capacity())
+	_player.weapon.try_reload()
+	_check("full magazine refuses another reload", not _player.weapon.is_reloading())
 	_player.weapon.ammo = 7
 	_player.weapon.try_reload()
 	_player.weapon._process(0.5)
 	_panel.advance(0.0)
-	_check("another reload is in progress before switching", _panel.reload_visible
+	_check("a second reload is in progress", _panel.reload_visible
 		and _panel.reload_fraction > 0.0 and _panel.reload_fraction < 1.0)
-	_player.weapon.select(1)
+	var remaining := _player.weapon._reload_left
+	_player.weapon.try_reload()
+	_check("pressing R again does not restart it", _player.weapon._reload_left == remaining)
+	_player.weapon._process(10.0)
 	_panel.advance(0.0)
-	_check("switching guns cancels and hides the reload bar", not _player.weapon.is_reloading()
-		and not _panel.reload_visible and is_zero_approx(_panel.reload_fraction))
-	_player.weapon.select(0)
-	_panel.advance(0.0)
-	_check("switching back does not resume or finish the cancelled reload", not _panel.reload_visible
-		and _player.weapon.ammo == 7)
+	_check("repeated R still completes on the original clock", not _panel.reload_visible
+		and _player.weapon.ammo == _player.weapon.magazine_capacity())
 
 	print("== buff icon bar")
 	RunState.start_new_run()

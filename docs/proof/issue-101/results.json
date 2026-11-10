@@ -1,0 +1,98 @@
+[
+  {
+    "scene": "weapons_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "minimap_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "protagonist_body_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "melee_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "hammer_feel_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "dash_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "sloth_integration_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "obsidian_pistol_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "gun_feel_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "hit_feel_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "hud_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "settings_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "phase_banner_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "active_magazine_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "capture_hammer_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "opening_boot_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  }
+]

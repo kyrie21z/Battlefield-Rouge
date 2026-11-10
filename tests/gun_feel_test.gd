@@ -13,6 +13,11 @@ var _weapon: Weapon
 
 func _ready() -> void:
 	await _run()
+	for child in get_children():
+		child.queue_free()
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures,
 		"" if _finished else ", run did not finish"])
@@ -35,8 +40,9 @@ func _run() -> void:
 	await _frames(3)
 
 	await _test_viewmodel_spring()
+	_test_camera_recovery()
 	await _test_camera_shake()
-	await _test_scoped_shake()
+	await _test_ads_shake()
 	await _test_audio_voices()
 	await _test_crosshair(scene)
 	await _test_hitmarker(scene)
@@ -82,7 +88,7 @@ func _test_spring() -> void:
 
 func _test_wav_layers() -> void:
 	print("== procedural sounds")
-	for kind in ["gun_rifle", "gun_shotgun", "gun_sniper", "hit_kill", "hit_tink"]:
+	for kind in ["gun_pistol", "hit_kill", "hit_tink"]:
 		var wav := ProceduralAudio.generate(kind)
 		var peak := 0
 		for i in range(0, wav.data.size(), 2):
@@ -92,16 +98,13 @@ func _test_wav_layers() -> void:
 			peak = maxi(peak, absi(v))
 		_check("%s has samples (%.2f s) and is not silent or clipped flat" % [kind, wav.get_length()],
 			wav.data.size() > 1000 and peak > 4000)
-	_check("heavier guns ring longer (rifle < shotgun < sniper)",
-		ProceduralAudio.generate("gun_rifle").get_length() < ProceduralAudio.generate("gun_shotgun").get_length()
-		and ProceduralAudio.generate("gun_shotgun").get_length() < ProceduralAudio.generate("gun_sniper").get_length())
-	_check("generation is deterministic", ProceduralAudio.generate("gun_rifle").data == ProceduralAudio.generate("gun_rifle").data)
+	_check("generation is deterministic", ProceduralAudio.generate("gun_pistol").data == ProceduralAudio.generate("gun_pistol").data)
 
 
 func _test_viewmodel_spring() -> void:
 	print("== the gun in hand kicks and comes back")
-	for slot in 3:
-		_weapon.select(slot)
+	for slot in 1:
+		_reset_weapon()
 		await _frames(30)
 		var view := _weapon._view
 		var rest := _weapon.data.hip_position
@@ -118,10 +121,8 @@ func _test_viewmodel_spring() -> void:
 		_check("kick scales with weight: back %.3f m, rise %.1f deg" % [_weapon.data.view_kick_back,
 			_weapon.data.view_kick_pitch], true)
 		_weapon.ammo = _weapon.magazine_capacity()
-	_check("rifle < shotgun < sniper in kickback", _weapon.data_set[0].view_kick_back < _weapon.data_set[1].view_kick_back
-		and _weapon.data_set[1].view_kick_back < _weapon.data_set[2].view_kick_back)
 	# Aiming: the spring rides on top of the ADS position instead of fighting it.
-	_weapon.select(0)
+	_reset_weapon()
 	Input.action_press("aim")
 	await _seconds(0.8)
 	var ads := _weapon.data.ads_position
@@ -139,7 +140,7 @@ func _test_viewmodel_spring() -> void:
 
 func _test_camera_shake() -> void:
 	print("== camera shake leaves the aim alone")
-	_weapon.select(1)
+	_reset_weapon()
 	await _frames(20)
 	var aim_camera := _player.get_node("Head/Camera3D") as Camera3D
 	var aim_before := aim_camera.global_transform
@@ -179,12 +180,12 @@ func _test_camera_shake() -> void:
 	await _frames(40)
 
 
-func _test_scoped_shake() -> void:
-	print("== sniper, scoped: a thump but no blur")
-	_weapon.select(2)
+func _test_ads_shake() -> void:
+	print("== ADS preserves the pistol and dampens shake")
+	_reset_weapon()
 	Input.action_press("aim")
 	await _frames(40)
-	_check("scoped", _weapon.is_scoped())
+	_check("pistol is visible in ADS", _weapon.aiming and _weapon._view.visible)
 	var got := []
 	var listener := func(degrees: float, punch: float, _duration: float) -> void:
 		got.append([degrees, punch])
@@ -194,21 +195,24 @@ func _test_scoped_shake() -> void:
 	_weapon.shake.disconnect(listener)
 	_check("one shake signal", got.size() == 1)
 	if got.size() == 1:
-		_check("no rotation shake behind the scope", is_zero_approx(got[0][0]))
-		_check("a small FOV punch remains (%.4f)" % got[0][1], got[0][1] > 0.0 and got[0][1] < _weapon.data.shake_fov_punch)
+		_check("ADS reduces rotation shake", got[0][0] > 0 and got[0][0] < _weapon.data.shake_degrees)
+		_check("ADS reduces FOV punch", got[0][1] > 0 and got[0][1] < _weapon.data.shake_fov_punch)
 	await _frames(60)
-	_check("the scoped aim camera is level", _player.view_camera.transform.is_equal_approx(Transform3D.IDENTITY))
+	_check("ADS settles to 58 degrees", absf(_weapon.camera.fov - 58.0) < 0.1)
 	Input.action_release("aim")
 	await _frames(40)
 
 
 func _test_audio_voices() -> void:
 	print("== audio: a burst does not cut the previous tail")
-	# Let the earlier shots (the sniper rings for ~1 s) finish first.
+	# Let the earlier shots (previous shots may still ring) finish first.
 	await _seconds(1.5)
-	_weapon.select(0)
+	# Simulated frames do not advance the separate real-time audio thread.
+	for voice in _weapon._shot_voices:
+		voice.stop()
+	_reset_weapon()
 	_weapon._cooldown = 0.0
-	_weapon.ammo = 30
+	_weapon.ammo = 8
 	_weapon.try_fire()
 	await get_tree().process_frame
 	var first := _playing_voices()
@@ -221,35 +225,36 @@ func _test_audio_voices() -> void:
 	_check("their pitches differ a little", not is_equal_approx(_weapon._shot_voices[first[0]].pitch_scale,
 		_weapon._shot_voices[second[1] if second[0] == first[0] else second[0]].pitch_scale))
 	# Reload / dry clicks use their own voice and leave the shots alone.
-	_weapon.ammo = 25
+	_weapon.ammo = 5
 	_weapon.try_reload()
 	await get_tree().process_frame
 	_check("starting a reload does not stop the gunshots", _playing_voices().size() >= 2)
-	_check("the reload sound is on its own voice", _weapon._handling_voice.playing)
+	_weapon._finish_reload()
+	_check("reload handling has its own voice", _weapon._handling_voice.playing)
 	_weapon._reload_left = 0.0
 	# A voice that is playing is cut by assigning a stream: the reason for the pool.
 	var probe := AudioStreamPlayer.new()
 	add_child(probe)
-	probe.stream = ProceduralAudio.generate("gun_sniper")
+	probe.stream = ProceduralAudio.generate("gun_pistol")
 	probe.play()
 	await get_tree().process_frame
 	var was_playing := probe.playing
-	probe.stream = ProceduralAudio.generate("gun_rifle")
+	probe.stream = ProceduralAudio.generate("gun_pistol")
 	print("  (info) re-assigning a stream to a playing player: playing before=%s after=%s" % [was_playing, probe.playing])
 	probe.queue_free()
 	# Run out of voices: the pool wraps instead of erroring.
 	for i in 12:
 		_weapon._cooldown = 0.0
-		_weapon.ammo = 30
+		_weapon.ammo = 8
 		_weapon.try_fire()
 		await get_tree().process_frame
 	_check("twelve rapid shots on six voices do not error", true)
 
 
 func _test_crosshair(scene: Node) -> void:
-	print("== crosshair: centre dot, clamped gap, ADS, scope")
+	print("== crosshair: centre dot, clamped gap, ADS")
 	var cross := scene.get_node("HUD/Crosshair") as Crosshair
-	_weapon.select(0)
+	_reset_weapon()
 	Input.action_release("aim")
 	await _seconds(0.6)
 	var draws := cross.dot_draws
@@ -273,30 +278,16 @@ func _test_crosshair(scene: Node) -> void:
 	_check("but the drawn gap never exceeds the clamp (%.1f)" % cross.drawn_gap(), cross.drawn_gap() <= cross.max_gap)
 	_player.velocity = Vector3.ZERO
 
-	for index in 2:
-		_weapon.select(index)
-		Input.action_press("aim")
-		await _seconds(0.7)
-		draws = cross.dot_draws
-		await _frames(2)
-		var name := _weapon.data.display_name
-		_check("%s ADS: the dot stays, the lines go" % name, cross.visible and not cross.show_lines
-			and not _weapon.is_scoped())
-		_check("%s ADS: the dot is still drawn" % name, cross.dot_draws > draws)
-		Input.action_release("aim")
-		await _seconds(0.6)
-
-	_weapon.select(2)
+	_reset_weapon()
 	Input.action_press("aim")
 	await _seconds(0.7)
+	draws = cross.dot_draws
 	await _frames(2)
-	_check("scoped: the scope reticle takes over, no crosshair", _weapon.is_scoped() and not cross.visible)
+	_check("ADS keeps the compact reticle visible", cross.visible)
+	_check("ADS selects the compact diamond", cross.focused and cross.visible)
 	Input.action_release("aim")
 	await _seconds(0.6)
-	await _frames(2)
-	_check("scope down: the crosshair is back", cross.visible and cross.show_lines)
-	_weapon.select(0)
-	await _frames(2)
+	_check("hip reticle returns", cross.visible and cross.show_lines)
 
 
 func _test_hitmarker(scene: Node) -> void:
@@ -469,46 +460,23 @@ func _test_tracers() -> void:
 	await _seconds(1.6)
 	_check("tracers free themselves", _tracers().is_empty())
 
-	_weapon.select(0)
+	for ads in [false, true]:
+		_reset_weapon()
+		if ads:
+			Input.action_press("aim")
+		else:
+			Input.action_release("aim")
+		await _seconds(0.5)
+		_weapon.try_fire()
+		await get_tree().process_frame
+		_check("pistol ADS=%s draws exactly one tracer" % ads, _tracers().size() == 1)
+		await _seconds(1.5)
+		_check("the tracer frees itself", _tracers().is_empty())
 	Input.action_release("aim")
-	await _seconds(0.5)
-	_weapon._cooldown = 0.0
-	_weapon.ammo = 30
-	_weapon.try_fire()
-	await get_tree().process_frame
-	_check("one rifle shot draws one tracer (%d)" % _tracers().size(), _tracers().size() == 1)
-	await _seconds(1.5)
-	_check("the tracer is gone after its short life", _tracers().is_empty())
-	_weapon.select(1)
-	await _seconds(0.3)
-	_weapon._cooldown = 0.0
-	_weapon.ammo = 6
-	_weapon.try_fire()
-	await get_tree().process_frame
-	_check("a shotgun blast draws at most %d of its 9 pellets (%d)" % [_weapon.data.max_tracers, _tracers().size()],
-		_tracers().size() == _weapon.data.max_tracers)
-	await _seconds(1.5)
-	_weapon.select(2)
-	Input.action_press("aim")
-	await _seconds(0.8)
-	_check("scoped", _weapon.is_scoped())
-	_weapon._cooldown = 0.0
-	_weapon.ammo = 5
-	_weapon.try_fire()
-	await get_tree().process_frame
-	_check("scoped sniper still draws a tracer", _tracers().size() == 1)
-	Input.action_release("aim")
-	await _seconds(0.8)
-	_weapon._cooldown = 0.0
-	_weapon.ammo = 5
-	_weapon.try_fire()
-	await get_tree().process_frame
-	_check("hip sniper draws a tracer", _tracers().size() == 1)
-	await _seconds(1.5)
 	# Bullet effects never touch the global random sequence.
-	_weapon.select(0)
+	_reset_weapon()
 	await _seconds(1.5)
-	_weapon.ammo = 30
+	_weapon.ammo = 8
 	_weapon._cooldown = 0.0
 	seed(2024)
 	_weapon._tracers_left = 0
@@ -641,3 +609,21 @@ func _check(label: String, ok: bool) -> void:
 	if not ok:
 		_failures += 1
 	print("  [%s] %s" % ["ok" if ok else "FAIL", label])
+
+
+func _reset_weapon() -> void:
+	_weapon.ammo = _weapon.magazine_capacity()
+	_weapon._cooldown = 0.0
+	_weapon._reload_left = 0.0
+	_weapon._spread = 0.0
+	_weapon._spring.reset()
+
+
+func _test_camera_recovery() -> void:
+	_player._visual_kick = Vector2.ZERO
+	_player._on_weapon_recoil(1.2, 0.3, 0.0)
+	_check("camera receives immediate shot kick", is_equal_approx(_player._visual_kick.x, 1.2))
+	_player._process(0.06)
+	_check("camera smoothly recovers mid-window", _player._visual_kick.x > 0 and _player._visual_kick.x < 1.2)
+	_player._process(0.06)
+	_check("camera kick is exactly recovered at .12 seconds", _player._visual_kick.is_zero_approx())

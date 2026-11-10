@@ -91,7 +91,7 @@ func _zone(index: int) -> void:
 	_check(hud.get("_player")==player and hud.get("_director")==director,"Zone %d HUD reads the actual scene actors" % (index+1))
 	_check(minimap.get("_player")==player and minimap.get("_director")==director and minimap.geometry_count()>0,"Zone %d minimap caches the new nested geometry" % (index+1))
 	_check(not (director.get("_cover_points") as Array).is_empty(),"Zone %d exposes its new physical cover markers" % (index+1))
-	_check(player.weapon.data_set.size()==3 and player.melee!=null and player.shield!=null,"Zone %d retains guns, melee and shield" % (index+1))
+	_check(player.weapon.data_set.size()==1 and player.melee!=null and player.shield!=null,"Zone %d retains pistol, legacy melee and shield" % (index+1))
 	_check(director.capture_point.locked,"Zone %d objective starts locked" % (index+1))
 	if index>0:
 		_check(director.selection_context.is_empty() and not get_tree().paused,"Later zone starts directly without an extra entry card")

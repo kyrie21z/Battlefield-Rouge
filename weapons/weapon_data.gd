@@ -40,6 +40,9 @@ enum FireMode { AUTO, SEMI }
 @export_category("Recoil")
 ## Vertical kick per shot, in degrees.
 @export var camera_kick := 0.35
+## Pistol yaw bound and finite camera return time; legacy recoil patterns remain.
+@export var camera_yaw := 0.0
+@export var camera_return_time := 0.12
 ## Horizontal kick per shot in units of camera_kick, cycled shot by shot so
 ## each weapon has a learnable spray pattern.
 @export var recoil_pattern: Array[float] = []

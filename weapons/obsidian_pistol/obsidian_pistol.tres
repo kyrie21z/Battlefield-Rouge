@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://weapons/weapon_data.gd" id="1"]
+[ext_resource type="PackedScene" path="res://weapons/obsidian_pistol/obsidian_pistol_view.tscn" id="2"]
+
+[ext_resource type="Texture2D" path="res://weapons/obsidian_pistol/pistol_icon.svg" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "黑晶手枪"
+view_scene = ExtResource("2")
+icon = ExtResource("3")
+gunshot_sound = "gun_pistol"
+fire_mode = 1
+fire_interval = 0.18
+damage = 35.0
+max_range = 180.0
+falloff_start = 30.0
+falloff_end = 90.0
+min_damage_scale = 0.5
+hip_spread = 0.8
+ads_spread = 0.12
+spread_per_shot = 0.16
+spread_recovery = 4.0
+max_spread = 1.6
+move_spread_scale = 1.2
+airborne_spread_scale = 1.8
+camera_kick = 1.2
+camera_yaw = 0.3
+camera_return_time = 0.12
+recoil_manual = 0.0
+magazine_size = 8
+reserve_ammo = 120
+reload_time_tactical = 2.2
+reload_time_empty = 2.8
+ads_fov = 58.0
+ads_position = Vector3(0.08, -0.12, -0.33)
+hip_position = Vector3(0.23, -0.19, -0.37)
+view_kick_back = 0.028
+view_kick_pitch = 2.0
+view_kick_yaw = 0.3
+view_kick_roll = 0.6
+view_spring_stiffness = 700.0
+view_spring_damping = 40.0
+shake_degrees = 0.08
+shake_fov_punch = 0.008
+shake_duration = 0.12

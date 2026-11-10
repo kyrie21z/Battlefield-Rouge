@@ -201,3 +201,11 @@
 | 白色细雨 | `rain_particles.tscn` / `rain_layout.gdshaderinc` | 750 条垂直 GPU 雨丝，共用确定性落点与时钟，使雨滴落水和水面圆环同步。 |
 | 水波包 | `SorrowRealm._ripples` | 固定 32 槽视觉环池，由真实涉水、冲刺、成功射击和泪晶交互驱动，不参与伤害或物理结算。 |
 | 镜潭相机环境 | `SorrowRealm.mirror_environment` | 显式赋给 ViewCamera 的悲伤领域环境，确保 SSR 不受同场 WorldEnvironment 创建顺序影响。 |
+
+## 赐福图鉴与发现（#174）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 赐福图鉴 | `DualBoonCodex` | 构筑检视中的只读页面，展示实际 48 张领域赐福与 6 张双重赐福。 |
+| 共鸣拓扑 | `CodexTopology` | 四领域之间的六组组合连线；资格由当前 BoonManager 的真实装备条件决定。 |
+| 发现记录 | `MetaProgression.discovered_boons` | 成功选卡和恢复已有装备时记录的持久知识，独立于当前装备；保存失败保留内存并重试。 |

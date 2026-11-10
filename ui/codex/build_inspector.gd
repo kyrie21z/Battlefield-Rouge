@@ -13,6 +13,12 @@ var _close_button: Button
 var _refresh_pending := false
 var _closing := false
 var _snapshot := {}
+var _page_index := 0
+var _pages: VBoxContainer
+var _build_scroll: ScrollContainer
+var _codex: Control
+var _page_buttons: Array[Button] = []
+var _save_hint: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -54,10 +60,28 @@ func _ready() -> void:
 	_close_button.text = "返回 · %s / ESC" % KeyHint.of("inspect_build")
 	_close_button.pressed.connect(close)
 	tabs.add_child(_close_button)
+	var page_row := HBoxContainer.new()
+	page_row.add_theme_constant_override("separation",12)
+	column.add_child(page_row)
+	for index in 2:
+		var button := Button.new()
+		button.text = ["当前构筑","赐福图鉴"][index]
+		button.add_theme_font_size_override("font_size",20)
+		button.custom_minimum_size = Vector2(160,42)
+		button.toggle_mode = true
+		button.pressed.connect(show_page.bind(index))
+		page_row.add_child(button)
+		_page_buttons.append(button)
+	_save_hint = label("",16,Color("e0b75b"))
+	column.add_child(_save_hint)
+	_pages = VBoxContainer.new()
+	_pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(_pages)
 	var scroll := ScrollContainer.new()
+	_build_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	column.add_child(scroll)
+	_pages.add_child(scroll)
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation",18)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -67,6 +91,8 @@ func _ready() -> void:
 		player.stats.changed.connect(_request_refresh)
 		player.fragments.changed.connect(_request_refresh)
 		player.health.died.connect(_on_death)
+	MetaProgression.changed.connect(_request_refresh)
+	_page_buttons[0].button_pressed = true
 
 func try_open() -> bool:
 	if opened or _closing or get_tree().paused or RunState.fixture != null:
@@ -81,6 +107,8 @@ func try_open() -> bool:
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_close_button.text = "返回 · %s / ESC" % KeyHint.of("inspect_build")
+	if MetaProgression.codex_save_pending:
+		MetaProgression.save()
 	refresh()
 	show()
 	modulate.a = 0.0
@@ -163,10 +191,16 @@ func refresh() -> void:
 	_refresh_pending = false
 	if not opened or not is_instance_valid(player):
 		return
+	_save_hint.text = "档案尚未保存，将在下次打开时重试："+MetaProgression.last_error if MetaProgression.codex_save_pending else ""
+	_save_hint.visible = MetaProgression.codex_save_pending
+	_snapshot = snapshot()
+	if _page_index == 1:
+		if is_instance_valid(_codex):
+			_codex.call("setup",player.boons,MetaProgression.discovered_boons)
+		return
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
-	_snapshot = snapshot()
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation",18)
@@ -241,3 +275,18 @@ static func add_card(parent: Control,card: BoonData,trait_card := false) -> void
 			var names := {"max_health":"生命上限","move_speed":"移速","damage":"枪伤","melee_damage":"刀伤","fire_rate":"射速","reload_speed":"重组速度","crit_chance":"暴击率","dash_recharge":"冲刺充能","damage_taken":"受到伤害","melee_speed":"挥刃速度","melee_range":"刀击距离","crit_multiplier":"暴击伤害","magazine_size":"弹匣容量","clock_progress":"敲钟进度","clock_window":"完美窗口","armor":"护甲"}
 			parts.append("%s  +%.2f / ×%.2f" % [names.get(key,"能力增幅"),modifier.get("add",0),modifier.get("mul",1)])
 		parent.add_child(label(" · ".join(parts),16,Color("aaa7a0")))
+
+
+func show_page(index: int) -> void:
+	_page_index = clampi(index,0,1)
+	if _page_index == 1 and not is_instance_valid(_codex):
+		_codex = load("res://ui/codex/dual_boon_codex.tscn").instantiate() as Control
+		_codex.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_codex.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_pages.add_child(_codex)
+	_build_scroll.visible = _page_index == 0
+	if is_instance_valid(_codex):
+		_codex.visible = _page_index == 1
+	for i in _page_buttons.size():
+		_page_buttons[i].set_pressed_no_signal(i==_page_index)
+	refresh()

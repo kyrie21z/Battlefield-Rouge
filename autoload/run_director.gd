@@ -235,6 +235,7 @@ func restore_player(player: Player) -> void:
 	MetaProgression.apply_to_player(player)
 	if player.boons.all_equipped() != boons:
 		player.boons.restore(boons)
+	MetaProgression.record_discoveries(player.boons.all_equipped())
 	player.fragments.configure_deprivation(deprivations)
 	player.fragments.restore(shards)
 	if hp >= 0.0:

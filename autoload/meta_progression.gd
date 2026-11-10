@@ -22,6 +22,8 @@ var active_run_id := ""
 var _bound_player: WeakRef
 var _read_only := false
 var history := {"run_count":0,"last_depth":0,"death_cause":""}
+var discovered_boons: Array[String] = []
+var codex_save_pending := false
 var isolated_profile := false
 var _cleanup_profile := false
 
@@ -46,6 +48,8 @@ func _ready() -> void:
 			isolated_profile = true
 			_cleanup_profile = true
 	load_save()
+	if name == "MetaProgression":
+		Events.boon_chosen.connect(func(card: Resource): record_discoveries([card]))
 
 func _exit_tree() -> void:
 	if _cleanup_profile:
@@ -190,7 +194,7 @@ func describe(id: String) -> String:
 	return ""
 
 func _payload() -> Dictionary:
-	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate()}
+	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate(),"discovered_boons":discovered_boons.duplicate()}
 
 func _restore(payload: Dictionary) -> void:
 	will_shards = int(payload.will_shards)
@@ -198,6 +202,7 @@ func _restore(payload: Dictionary) -> void:
 	levels = payload.levels.duplicate()
 	settled_runs.assign(payload.settled_runs)
 	history = payload.get("history",{"run_count":0,"last_depth":0,"death_cause":""}).duplicate()
+	discovered_boons.assign(payload.get("discovered_boons",[]))
 
 func _checksum(payload: Dictionary) -> String:
 	var normalized: Variant = JSON.parse_string(JSON.stringify(payload,"",true))
@@ -234,6 +239,14 @@ func _read_payload(path: String) -> Dictionary:
 			return {}
 		if not data.history.get("death_cause") is String or data.history.death_cause.length()>128:
 			return {}
+	if data.has("discovered_boons"):
+		if not data.discovered_boons is Array or data.discovered_boons.size()>256:
+			return {}
+		var known := {}
+		for id in data.discovered_boons:
+			if not id is String or id.is_empty() or id.length()>128 or known.has(id):
+				return {}
+			known[id] = true
 	var seen := {}
 	for id in data.settled_runs:
 		if not id is String or id.is_empty() or id.length()>128 or seen.has(id):
@@ -291,4 +304,22 @@ func save() -> bool:
 		last_error = "无法原子替换存档"
 		return false
 	last_error = ""
+	codex_save_pending = false
 	return true
+
+
+## Discovery is durable across runs; failed writes keep new knowledge in memory
+## and any later successful save includes it without replaying rewards.
+func record_discoveries(cards: Array) -> bool:
+	var known := {}
+	for authored in BoonCatalog.all():
+		known[authored.id] = true
+	var added := false
+	for card in cards:
+		if card is BoonData and known.has(card.id) and not discovered_boons.has(card.id):
+			discovered_boons.append(card.id)
+			added = true
+	if added:
+		codex_save_pending = true
+		changed.emit()
+	return save() if codex_save_pending else true

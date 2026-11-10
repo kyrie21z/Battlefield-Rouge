@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://zone/realm_stage.gd" id="1"]
+[ext_resource type="Script" path="res://environments/wrath/realm.gd" id="2"]
+[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="3"]
+
+[node name="WrathRealm1" type="Node3D"]
+script = ExtResource("1")
+realm = 2
+room_index = 0
+boss_room = false
+
+[node name="Geometry" type="Node3D" parent="."]
+script = ExtResource("2")
+boss_arena = false
+
+[node name="Player" parent="." instance=ExtResource("3")]
+position = Vector3(0, 0.1, 16)

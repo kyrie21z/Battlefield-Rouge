@@ -277,6 +277,9 @@ func _on_weapon_shake(degrees: float, fov_punch: float, duration: float) -> void
 ## Taking damage knocks the rendering camera only: `$Head/Camera3D` stays where
 ## the player aims, so rays, melee and the fixture replay do not move.
 func _on_hurt(dealt: float, _part: Hitbox.BodyPart, _source: Node) -> void:
+	# Armor resists the existing hurt flinch; Health/HUD still report damage.
+	if stats.get_value(Stats.ARMOR) > 0.0:
+		return
 	var max_health := maxf(health.max_health, 1.0)
 	add_view_shake(clampf(HURT_SHAKE_BASE + HURT_SHAKE_PER_HP * dealt / max_health,
 		HURT_SHAKE_BASE, HURT_SHAKE_MAX), 0.0, HURT_SHAKE_DURATION)

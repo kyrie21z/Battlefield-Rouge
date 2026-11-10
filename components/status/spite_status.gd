@@ -31,10 +31,15 @@ func arm(body: CharacterBody3D, direction: Vector3, force: float, duration: floa
 	actor.apply_impact(direction, force, duration)
 
 func is_active() -> bool:
-	return not _resolved and remaining > 0.0 and is_instance_valid(actor)
+	if _resolved or remaining <= 0.0 or not is_instance_valid(actor):
+		return false
+	var health := actor.get_node_or_null("Health") as Health
+	return health == null or not health.is_dead()
 
 func _physics_process(delta: float) -> void:
 	if not is_active():
+		if remaining > 0.0:
+			cancel()
 		return
 	if "boon_time_scale" in actor and (actor.boon_time_scale <= 0.0 or actor.boon_stunned):
 		return
@@ -63,6 +68,10 @@ func _physics_process(delta: float) -> void:
 	_before_velocity = actor.get_real_velocity()
 	if remaining <= 0.0:
 		cancel()
+
+func rupture_if_moving() -> void:
+	if is_active() and legendary and _elapsed >= 0.05 and _before_velocity.length() > threshold:
+		_resolve(actor.global_position + Vector3.UP * 0.1, Vector3.UP, null, true)
 
 func _resolve(point: Vector3, normal: Vector3, other: Node, rupture: bool) -> void:
 	_resolved = true

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_shrapnel"
+name = "破片飞溅"
+sin = 2
+slot = 3
+rarity = 1
+core = false
+description = "撞墙破裂炸射5枚可穿透敌人的熔岩尖刺，每枚18伤。"
+prerequisite_any = Array[String]([])
+required_trait_sin = 2
+required_trait_count = 0
+script_hook = ExtResource("2")

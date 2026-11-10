@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_frenzy"
+name = "沸腾狂潮"
+sin = 2
+slot = 3
+rarity = 2
+core = false
+description = "4秒内连续击杀，每次叠加10%移速与刀速，最高50%，免疫受击硬直。"
+prerequisite_any = Array[String](["wrath_dash_ram", "wrath_shrapnel", "wrath_retaliation", "wrath_desperation", "wrath_reload", "wrath_crusher", "wrath_chain"])
+required_trait_sin = 2
+required_trait_count = 0
+script_hook = ExtResource("2")

@@ -1,0 +1,19 @@
+{
+  "kiln.wav": {
+    "sha256": "55775e585455f24eeee05582a65a69cd8169916d3dc3401f1ec4355322c83e05",
+    "seconds": 4.0,
+    "rate": 22050,
+    "channels": 2,
+    "peak": 0.46966552734375,
+    "rms": 0.11207078652546068
+  },
+  "wall-slam.wav": {
+    "sha256": "1d3ac549a6ec4b1862e487ed61bb4db636bb5e8a282fb1a3701ce5c25a8c8d3d",
+    "seconds": 1.1,
+    "rate": 22050,
+    "channels": 2,
+    "peak": 0.695770263671875,
+    "rms": 0.1135715478773432,
+    "energy_20_120_hz_fraction": 0.8855921458759708
+  }
+}

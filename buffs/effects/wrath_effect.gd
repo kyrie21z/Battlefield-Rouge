@@ -137,7 +137,6 @@ func _wall_slam(ctx: Dictionary) -> void:
 	if ctx.get("kind", &"") == &"blade" and not ctx.get("rupture", false):
 		manager.aoe(origin, 3.6, 30.0, {"tag": &"wrath_blade_blast", "proc_depth": depth + 1})
 	manager.feedback(origin, COLOR, 1.0)
-	_play_slam(point)
 	for index in 3:
 		var offset := Vector3(cos(index * TAU / 3.0), 0.5, sin(index * TAU / 3.0))
 		manager.feedback(point + offset * 0.5, COLOR.lightened(0.15), 0.12)
@@ -166,15 +165,6 @@ func _sweep_feedback(origin: Vector3, forward: Vector3) -> void:
 	for index in 7:
 		var direction := forward.rotated(Vector3.UP, lerpf(-0.9, 0.9, index / 6.0))
 		manager.feedback(origin + direction * 1.1, COLOR, 0.09)
-
-func _play_slam(point: Vector3) -> void:
-	var audio := AudioStreamPlayer3D.new()
-	audio.stream = ProceduralAudio.generate("clock_break")
-	audio.volume_db = -8.0
-	manager.player.get_parent().add_child(audio)
-	audio.global_position = point
-	audio.finished.connect(audio.queue_free)
-	audio.play()
 
 func cleanup() -> void:
 	if traits != null:

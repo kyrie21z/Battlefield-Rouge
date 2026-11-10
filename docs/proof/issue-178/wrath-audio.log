@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production room takes explicit ownership of kiln ambience
+PASS legacy environment cannot restart managed ambience
+PASS real piercer windup starts positional pressure sound
+PASS charge pitch increases with real remaining windup
+PASS deprived warning hides pressure cue without altering windup
+PASS actual 23 m/s rush replaces warning with physical air sound
+PASS real aggressor rush drives saw rotation sound
+PASS stunned powered blade has no residual saw sound
+PASS retreat removes attack sound sources
+PASS real high-speed WORLD contact emits exactly one heavy slam
+PASS actual five emitted lava spikes each have a bounded whoosh
+PASS old unpooled clock-break sound is removed
+PASS floor-only travel produces no additional slam
+PASS piercer real wall self-detonation adds exactly one impact
+PASS distant thermal metal has deterministic simulation-time cadence
+PASS pause freezes metal cadence and rejects new transients
+PASS impact storms cannot allocate unbounded players
+PASS sound synthesis leaves gameplay RNG untouched
+PASS impact loop is cached bounded PCM with zero seam
+PASS real death stops every managed sound
+PASS real boss defeat silences managed kiln without legacy restart
+WRATH AUDIO: 21 checks, 0 failures

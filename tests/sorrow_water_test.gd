@@ -149,8 +149,11 @@ func _run() -> void:
 	check("restoring water cannot resurrect old wave packets",realm._ripples[0].z < 0 and realm.rain.visible and realm.rain.emitting)
 	var callbacks := Events.gunshot.get_connections().size()
 	stage.remove_child(realm)
-	check("realm removal disconnects global presentation listeners",Events.gunshot.get_connections().size() == callbacks-1 and realm._walkers.is_empty() and realm._tears.is_empty())
+	var removed_cleanly := Events.gunshot.get_connections().size() == callbacks-1 and realm._walkers.is_empty() and realm._tears.is_empty() and audio.stopped and not audio.ambient.playing and not audio.ambient_tail.playing and audio.voices.all(func(voice):return not voice.playing)
 	realm.free()
+	var cues_after_removal := audio.cue_counts.duplicate()
+	await frames(3)
+	check("realm removal stops audio immediately and stays silent after geometry free",removed_cleanly and audio.stopped and audio.cue_counts == cues_after_removal and not audio.ambient.playing and not audio.ambient_tail.playing and audio.voices.all(func(voice):return not voice.playing))
 
 func frames(count: int) -> void:
 	for i in count: await get_tree().physics_frame

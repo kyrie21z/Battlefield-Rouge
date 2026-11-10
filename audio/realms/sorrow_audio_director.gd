@@ -8,7 +8,9 @@ var _dashing := false
 var _observed_tides := 0
 
 func _ready() -> void:
-	if stage.geometry is SorrowRealm: stage.geometry.set_audio_managed(true)
+	if stage.geometry is SorrowRealm:
+		stage.geometry.set_audio_managed(true)
+		stage.geometry.tree_exiting.connect(stop_all)
 	super._ready()
 
 func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
@@ -33,6 +35,9 @@ func _on_boon_event(event: StringName, _context: Dictionary) -> void:
 
 func _physics_process(delta: float) -> void:
 	if stopped or deprived or not is_instance_valid(player) or player.health.is_dead(): return
+	if not is_instance_valid(stage) or not is_instance_valid(stage.geometry):
+		stop_all()
+		return
 	# Production rooms have no CapturePoint. The actual radial tide release is
 	# this realm's water-bell beat; windup/cancellation never advances this count.
 	if stage.boss is SorrowMonolith:
@@ -62,5 +67,5 @@ func _physics_process(delta: float) -> void:
 
 func _exit_tree() -> void:
 	super._exit_tree()
-	if is_instance_valid(stage) and stage.geometry is SorrowRealm:
+	if is_instance_valid(stage) and is_instance_valid(stage.geometry) and stage.geometry is SorrowRealm:
 		stage.geometry.set_audio_managed(false)

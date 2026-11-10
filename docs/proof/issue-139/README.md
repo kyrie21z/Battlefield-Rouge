@@ -19,3 +19,9 @@ Boss 1400 HP；招式按地面震波、背甲晶块、钟摆射线轮换，每�
 ## 接入
 
 `res://actors/boss/sloth_colossus/sloth_colossus.tscn`，建议出生 `(0, 0, -8)`。注入 `arena`（具备 `set_deprivation(bool)` 的本地环境）和 `setup(player, [], board)`，并 `player.boons.register_enemy(boss)`。`realm_defeated(0)` 通知区域控制器，但角色不保存跨关数据。正式环境为 `environments/sloth/realm.gd`，设 `boss_arena = true`。
+
+## 血条测试帧同步回归
+
+`hud-before-fix.log` 保留修复前的故障复现：累计8个物理帧时进程帧计数尚未推进，ProgressBar仍为默认上限100；完成一次真实UI处理帧后立即更新为Boss实际1750。原测试只等待physics_frame，不能保证读取过HUD的_process。
+
+测试现显式等待一次完整UI处理帧，仍严格断言1750，并额外用真实Health受击验证当前血量同步、死亡后验证名称和血条隐藏。没有直接调用HUD刷新函数，也没有放宽血量期望。Godot 4.7.2在无固定帧率与`--fixed-fps 60`两种运行方式下均20/20通过，见`hud-unfixed-fps.log`与`hud-fixed-fps.log`。生产HUD无需修改。

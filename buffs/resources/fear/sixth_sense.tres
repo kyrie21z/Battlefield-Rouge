@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_sixth_sense"
+name = "第六感"
+sin = 1
+slot = 3
+rarity = 1
+core = false
+description = "盲区敌人开火时亮起边缘预警；致命一击35%概率免伤并安全后撤3米。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"evade_chance": 0.35, "evade_distance": 3.0}

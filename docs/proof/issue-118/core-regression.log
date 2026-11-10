@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] first ordinary bullet damages 35 before applying panic
+  [ok] first bullet exposes one physical front facet for four seconds
+  [ok] real front facet hit deals exactly 260 percent
+  [ok] gun fracture rotates the facet to enemy back
+  [ok] surface test rejects the opposite face and remote body contact
+  [ok] panic headshot is 200 percent without stacking native head multiplier
+  [ok] blade backstab is guaranteed 200 percent
+  [ok] blade speed modifier is reversible Stats multiplier
+  [ok] pause freezes panic lifetime
+  [ok] expired panic removes physical facets
+  [ok] dash leaves a real two-second target and attracts enemy
+  [ok] decoy stays alive until timeout
+  [ok] timeout restores original aggro and applies radius panic
+  [ok] enemy damage destroys the physical decoy exactly once
+  [ok] successful parry retains original reflected projectile and attaches homing
+  [ok] swept reflected projectile reaches a flaw and detonates another enemy
+  [ok] detonation consumes every exposed remote facet
+  [ok] cleanup restores aggro, removes panic and reverses blade speed
+ALL PASSED (0 failed, finished=true)

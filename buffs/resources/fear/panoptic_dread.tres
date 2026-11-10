@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_panoptic_dread"
+name = "全景惊惧"
+sin = 1
+slot = 3
+rarity = 3
+core = false
+description = "新生敌人永久惊悸，前后同时暴露破绽；碎面发射必暴击追踪紫晶。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"crystal_damage": 35.0, "crystal_speed": 36.0}
+required_trait_sin = 1
+required_trait_count = 2

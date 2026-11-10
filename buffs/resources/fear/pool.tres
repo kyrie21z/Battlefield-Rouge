@@ -1,12 +1,20 @@
-[gd_resource type="Resource" script_class="BoonPool" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="BoonPool" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://buffs/boon_pool.gd" id="1_pool"]
-[ext_resource type="Resource" path="res://buffs/resources/fear/gaze_pierce.tres" id="2"]
-[ext_resource type="Resource" path="res://buffs/resources/fear/flash_backstab.tres" id="3"]
-[ext_resource type="Resource" path="res://buffs/resources/fear/tremor_decoy.tres" id="4"]
-
-[ext_resource type="Script" path="res://buffs/boon_data.gd" id="6_data"]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="2_data"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/gaze_pierce.tres" id="3"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/flash_backstab.tres" id="4"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/tremor_decoy.tres" id="5"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/distant_terror.tres" id="6"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/paranoia.tres" id="7"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/sixth_sense.tres" id="8"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/fracture_spread.tres" id="9"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/every_shadow.tres" id="10"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/exposed_terror.tres" id="11"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/final_execution.tres" id="12"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/abyssal_blindness.tres" id="13"]
+[ext_resource type="Resource" path="res://buffs/resources/fear/panoptic_dread.tres" id="14"]
 
 [resource]
 script = ExtResource("1_pool")
-cards = Array[ExtResource("6_data")]([ExtResource("2"), ExtResource("3"), ExtResource("4")])
+cards = Array[ExtResource("2_data")]([ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("11"), ExtResource("12"), ExtResource("13"), ExtResource("14")])

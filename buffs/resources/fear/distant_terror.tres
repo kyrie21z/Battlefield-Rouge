@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_distant_terror"
+name = "远距恐慌"
+sin = 1
+slot = 3
+rarity = 1
+core = false
+description = "12米外暴击伤害线性提高，36米达最高+75%；弹速+50%。"
+stat_modifiers = {"projectile_speed": {"mul": 1.5}}
+script_hook = ExtResource("2_effect")
+parameters = {"start_distance": 12.0, "max_distance": 36.0, "max_bonus": 0.75}

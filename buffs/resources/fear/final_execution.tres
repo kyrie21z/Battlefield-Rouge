@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_final_execution"
+name = "绝命处决"
+sin = 1
+slot = 3
+rarity = 2
+core = false
+description = "对生命低于35%的惊悸敌人，击碎破绽造成5倍伤害，致命命中粉碎敌人。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"health_threshold": 0.35, "critical_multiplier": 5.0}
+prerequisite_any = Array[String](["fear_gaze_pierce", "fear_flash_backstab"])

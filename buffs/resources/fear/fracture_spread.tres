@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_fracture_spread"
+name = "碎面蔓延"
+sin = 1
+slot = 3
+rarity = 1
+core = false
+description = "击碎破绽使8米内最近两名可见敌人获得4秒惊悸。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"radius": 8.0, "panic_duration": 4.0}

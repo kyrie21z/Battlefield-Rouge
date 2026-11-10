@@ -412,3 +412,9 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `actors/player/kintsugi_flow.gd` | 本项目原创 / 随项目代码 | `ab63fb81977169ea6121b4789913c983b1b3b62880435e2953108cc3c6a23a53` |
 
 五张原生证明由 Godot 4.7.2 Forward+ 直接捕获，包括皇冠等级对照、原身体金缮全身/接缝近景和真实皇冠投影；外部相机仅用于审阅。图像与验证日志哈希见 [SHA256SUMS](proof/issue-172/SHA256SUMS)，行为验证与独立无截图性能采样见 [README](proof/issue-172/README.md)。
+
+## #178 愤怒熔炉程序音频（2026-11-10）
+
+`audio/realms/wrath_sound_bank.gd` 为项目原创数学合成源码，沿用仓库 MIT 许可，无外部采样或旧工程素材。源码 SHA-256：`ee49ff76d223e2b65cbd09f0b322dfd6dc811b2803cf24eb6c62eddb5bc3b7c6`。22050 Hz / PCM16 / 立体声；环境或持续声循环 4 秒，重撞 1.1 秒，其他瞬态 0.75 秒。私有 RNG 种子 `17800 + String(kind).hash()`，以正弦、噪声滤波、指数包络及 tanh 软限幅产生蒸汽、金属断裂、冲锋、锯刃、撞墙和尖刺声音，不消耗玩法 RNG。
+
+`docs/proof/issue-178/kiln.wav` 与 `wall-slam.wav` 为同源生成的预听证据；文件 SHA-256、PCM 峰值和低频分析见 [清单](proof/issue-178/pcm-analysis.json)。预听文件遵守既有 `docs/proof/.gdignore`，不成为运行时导入素材；自动波形与触发验证不代表人工听感验收。

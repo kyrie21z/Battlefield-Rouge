@@ -150,6 +150,8 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 恐惧声音表现由 `RealmStage` 注入演员和玩家；`FearAudioDirector` 只读取真实蓄力、预警与成功瞬移状态，使用固定 8 个持续声部。短音复用 `RealmAudioDirector` 的 16 个声部，动态音库把跨领域赐福语义事件映射到声效。`fear_flaw_audio_managed` 在同步事件分发中声明音频接管，没有接管者时保留原暴击声音，避免独立入口丢声或正式房间双播。
 
+愤怒声景复用固定演员声音池和瞬态池。`WrathRealm.set_audio_managed(true)` 公开移交环境音频，剥夺刷新不会重启旧炉鸣；独立几何默认保留原行为。`wall_slam` 的实际碰撞事件由音库映射，尖刺只在真实 `Events.projectile_registered` 且 source 为注入玩家时播放。旧 WrathBoons 回退在延迟回调读取同步接管标记，并检查玩家存活、暂停、效果归属；回退只有一个声音节点，卸卡/死亡/退出随效果 cleanup 释放。
+
 ## Epic 7：赐福图鉴（#174）
 
 `DualBoonCodex` 通过 `setup(manager, discovered)` 接收真实装备与发现快照，只读查询 `BoonManager.can_equip`。父级 `BuildInspector` 持有暂停和页面生命周期，子页面只在可见时处理肩键和内部焦点，隐藏后不截获战斗输入。

@@ -5,6 +5,23 @@ const COLORS := [Color("e6a23a"), Color("a777ed"), Color("f14237"), Color("48bdd
 const MAX_ACTIVE := 48
 static var active := 0
 static var meshes: Dictionary = {}
+static var ring_mesh: TorusMesh
+
+class EmitterPool extends Node3D:
+	var ready_for_use := false
+	var warm_frames := 0
+	func _process(_delta: float) -> void:
+		warm_frames += 1
+		if warm_frames < 4:
+			return
+		for child in get_children():
+			if child is GPUParticles3D:
+				child.emitting = false
+				child.hide()
+			else:
+				child.queue_free()
+		ready_for_use = true
+		set_process(false)
 var sin_type := 0
 var kind: StringName = &"hit"
 var particles: GPUParticles3D
@@ -19,27 +36,61 @@ var _pool: Node3D
 static func prepare(parent: Node) -> void:
 	if parent.has_meta("crystal_emitter_pool"):
 		return
-	var pool := Node3D.new()
+	var pool := EmitterPool.new()
+	pool.process_mode = Node.PROCESS_MODE_ALWAYS
 	pool.name = "CrystalEmitterPool"
 	parent.add_child(pool)
 	parent.set_meta("crystal_emitter_pool",pool)
+	if ring_mesh == null:
+		ring_mesh = TorusMesh.new()
+		ring_mesh.inner_radius = 0.94
+		ring_mesh.outer_radius = 1.0
+		ring_mesh.rings = 48
+		ring_mesh.ring_segments = 4
+	# Four transparent warm draws compile the same render pipeline as real rings.
+	for sin in 4:
+		var warm_ring := MeshInstance3D.new()
+		warm_ring.mesh = ring_mesh
+		var warm_material := ring_material(sin)
+		warm_material.albedo_color.a = 0.0
+		warm_ring.material_override = warm_material
+		pool.add_child(warm_ring)
 	for index in MAX_ACTIVE:
 		var emitter := GPUParticles3D.new()
 		emitter.emitting = false
 		emitter.use_fixed_seed = true
 		emitter.seed = 0xC1757A1+index
+		emitter.amount = 44
+		emitter.one_shot = true
+		emitter.explosiveness = 1.0
+		emitter.lifetime = 2.2
+		emitter.visibility_aabb = AABB(Vector3(-7,-5,-7),Vector3(14,12,14))
+		emitter.draw_pass_1 = shard_mesh(index%4)
+		var process := process_material(index%4)
+		process.color = Color(1,1,1,0)
+		emitter.process_material = process
+		emitter.set_meta("sin_type",index%4)
 		pool.add_child(emitter)
+		emitter.emitting = true
+		emitter.restart()
 
 
 static func spawn(parent: Node, point: Vector3, sin: int, event: StringName = &"hit", direction := Vector3.UP) -> CrystalBurst:
 	if not is_instance_valid(parent) or sin < 0 or sin >= COLORS.size() or active >= MAX_ACTIVE:
 		return null
-	var pool := parent.get_meta("crystal_emitter_pool",null) as Node3D
-	if not is_instance_valid(pool) or pool.get_child_count()==0:
+	var pool := parent.get_meta("crystal_emitter_pool",null) as EmitterPool
+	if not is_instance_valid(pool) or not pool.ready_for_use:
+		return null
+	var available: GPUParticles3D
+	for child in pool.get_children():
+		if child is GPUParticles3D and int(child.get_meta("sin_type",-1))==sin:
+			available = child
+			break
+	if available == null:
 		return null
 	var burst := CrystalBurst.new()
 	burst._pool = pool
-	burst.particles = pool.get_child(0) as GPUParticles3D
+	burst.particles = available
 	pool.remove_child(burst.particles)
 	burst.sin_type = sin
 	burst.kind = event
@@ -62,22 +113,45 @@ func _ready() -> void:
 	particles.use_fixed_seed = true
 	particles.seed = 0xC1757A1 + sin_type
 	particles.name = "CrystalDebris"
-	particles.amount = 12 if kind == &"hit" else 44
+	particles.amount_ratio = 12.0/44.0 if kind == &"hit" else 1.0
 	particles.one_shot = true
 	particles.explosiveness = 1.0
 	particles.lifetime = duration
 	particles.randomness = 0.35
 	particles.visibility_aabb = AABB(Vector3(-7,-5,-7),Vector3(14,12,14))
 	particles.draw_pass_1 = shard_mesh(sin_type)
-	var process := ParticleProcessMaterial.new()
-	process.spread = 28.0 if sin_type == 1 else 100.0
-	process.initial_velocity_min = 0.8 if sin_type == 0 else 2.5
-	process.initial_velocity_max = [2.1,8.0,5.0,3.5][sin_type]
-	process.gravity = Vector3(0,-0.35 if sin_type == 0 else -6.0,0)
-	process.damping_min = 0.3
-	process.damping_max = 1.0
+	var process := particles.process_material as ParticleProcessMaterial
+	process.color = Color.WHITE
 	process.scale_min = 0.035 if kind == &"hit" else 0.06
 	process.scale_max = 0.085 if kind == &"hit" else 0.16
+	particles.show()
+	add_child(particles)
+	if kind != &"hit":
+		ring = MeshInstance3D.new()
+		ring.mesh = ring_mesh
+		ring.material_override = ring_material(sin_type)
+		add_child(ring)
+
+static func ring_material(sin: int) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = COLORS[sin]
+	material.emission_enabled = true
+	material.emission = COLORS[sin]
+	material.emission_energy_multiplier = 2.0
+	return material
+
+static func process_material(sin: int) -> ParticleProcessMaterial:
+	var process := ParticleProcessMaterial.new()
+	process.spread = 28.0 if sin == 1 else 100.0
+	process.initial_velocity_min = 0.8 if sin == 0 else 2.5
+	process.initial_velocity_max = [2.1,8.0,5.0,3.5][sin]
+	process.gravity = Vector3(0,-0.35 if sin == 0 else -6.0,0)
+	process.damping_min = 0.3
+	process.damping_max = 1.0
+	process.scale_min = 0.06
+	process.scale_max = 0.16
 	process.angular_velocity_min = -160.0
 	process.angular_velocity_max = 160.0
 	var fade := Gradient.new()
@@ -86,25 +160,8 @@ func _ready() -> void:
 	var ramp := GradientTexture1D.new()
 	ramp.gradient = fade
 	process.color_ramp = ramp
-	particles.process_material = process
-	add_child(particles)
-	if kind != &"hit":
-		ring = MeshInstance3D.new()
-		var shape := TorusMesh.new()
-		shape.inner_radius = 0.94
-		shape.outer_radius = 1.0
-		shape.rings = 48
-		shape.ring_segments = 4
-		ring.mesh = shape
-		var material := StandardMaterial3D.new()
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.albedo_color = COLORS[sin_type]
-		material.emission_enabled = true
-		material.emission = COLORS[sin_type]
-		material.emission_energy_multiplier = 2.0
-		ring.material_override = material
-		add_child(ring)
+	return process
+
 
 static func shard_mesh(sin: int) -> ArrayMesh:
 	if meshes.has(sin):
@@ -143,6 +200,7 @@ func _process(delta: float) -> void:
 		(ring.material_override as StandardMaterial3D).albedo_color.a = maxf(0.0,1.0-elapsed/duration)
 	if elapsed >= duration + 0.1:
 		particles.emitting = false
+		particles.hide()
 		remove_child(particles)
 		_pool.add_child(particles)
 		particles = null

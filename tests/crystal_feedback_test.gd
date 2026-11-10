@@ -7,6 +7,7 @@ func check(label: String, passed: bool) -> void:
 	print("%s %s" % ["PASS" if passed else "FAIL", label])
 func _ready() -> void:
 	CrystalBurst.prepare(self)
+	for i in 5: await get_tree().process_frame
 	var player := preload("res://actors/player/player.tscn").instantiate() as Player
 	add_child(player)
 	player.set_physics_process(false)

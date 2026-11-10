@@ -77,6 +77,7 @@ func _ready() -> void:
 	_root.add_child(damage_indicator)
 	damage_indicator.setup(stage.player)
 	stage.player.health.damaged.connect(_damaged)
+	BoonHitstop.attach(self, stage.player)
 	_boss_name = _label("",19)
 	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_name.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)

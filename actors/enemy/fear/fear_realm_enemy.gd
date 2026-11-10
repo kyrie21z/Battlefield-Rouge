@@ -32,6 +32,7 @@ func _enter_tree() -> void:
 	($Model as FearRealmVisual).configure(variant)
 
 func _ready() -> void:
+	enable_crystal_feedback(1)
 	visual = $Model as FearRealmVisual
 	collision_layer = CollisionLayers.ENEMIES
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS

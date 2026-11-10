@@ -171,3 +171,9 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 `LoreEntries.project(archive)` 只投影已解锁文案：访问或死亡开放该领域手记和皇冠评论，击败再开放其人性保护价值，和解开放终章。未解锁标题、正文及另一面评语不放进 UI 控件、tooltip 或 metadata。`LoreDiary.setup(archive)` 接收上层传入的快照；`MetaProgression.archive_snapshot()` 复制数组，阅读与滚动不改变真实进度。
 
 战斗入口由 `BuildInspector` 的第三页托管，继续由父级拥有暂停、鼠标及 TAB / ESC。结局菜单以 `ArchiveReader` 复用同一日记组件，打开时隐藏底层菜单以隔离手柄焦点，关闭后恢复菜单；阅读不创建新挑战，也不要求 Player。`LoreDiary` 不读写 RunDirector，不拥有暂停。进度和原生布局证据见 [#175 集成验收](docs/proof/issue-175/integration.md)。
+
+### 皇冠与终局音频（#180）
+
+`CrownVoiceDSP` 只接受真实 AudioStreamPlayer/3D 引用与发光值，为每个来源复制效果并创建独立总线。CrownVoiceSystem 注入 radiance_changed；开场只在 ENCOUNTER 安装处理；DoppelgangerSpawn 用实际皇冠材质状态更新处理，并在玩家死亡时停止语音。退出恢复原发送总线并移除自有总线。
+
+`BodyReassembly` 保持原阶段/台词事件及时间，由 `ClimaxAudio` 订阅，预热原创 PCM 后执行100ms `AudioVacuum`、爆碎、原语音声像、重组共鸣和钢琴。AudioVacuum 的静音租约支持重叠、暂停、死亡与提前退出，原 Master 静音状态可恢复且不写 Master 音量。组件不推进剧情。最终Boss组合根通过 `setup_combat(player)` 安装通用技能音频，只有有效Stage才连接领域事件和设置；音频不读取战役单例。

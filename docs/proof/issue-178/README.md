@@ -4,7 +4,7 @@
 
 熔炉背景由低频炉鸣、局部种子噪声蒸汽和左右略有不同的高压喷口组成。远处热变形金属按表现层累计delta调度，不读墙钟或消费全局玩法RNG。共享持续声音池固定8声部，瞬态沿用父基类16声部。
 
-撞墙声通过真实 `wall_slam` 事件位置触发，保留伤害、击退和破片玩法代码，删除被替代的旧 `_play_slam` / `ProceduralAudio.clock_break` 播放器，避免重复声音和无界分配。穿刺者自身的实际墙碰撞自爆按 `wall_detonations` 增量单独发出重撞。尖刺破风由父基类监听实际 `WrathSpike` 注册、核对source是当前玩家后触发，不因普通撞墙就虚构尖刺。
+撞墙声通过真实 `wall_slam` 事件位置触发，保留伤害、击退和破片玩法代码，托管场景由父框架在同一事件context确认 `wrath_wall_audio_managed=true`，不再重复旧 `_play_slam` 声音。旧入口没有director时，事件分发完成后才检查该确认并回退 `ProceduralAudio.clock_break`；每个effect最多保留1个复用声部，移除赐福时停止释放，避免无界分配。暂停、玩家死亡、失效manager/player或已移除effect均不启动延迟声音。穿刺者自身的实际墙碰撞自爆按 `wall_detonations` 增量单独发出重撞。尖刺破风由父基类监听实际 `WrathSpike` 注册、核对source是当前玩家后触发，不因普通撞墙就虚构尖刺。
 
 `WrathRealm.set_audio_managed(true)` 明确把环境音交给director：停止旧loop，后续 `set_deprivation(false)` 也不能重播；独立旧realm默认不接管，仍保留原声音。真实Boss死亡后托管熔炉停止，旧声不复活。退出场景不会恢复即将销毁的环境loop。
 
@@ -26,3 +26,9 @@ Godot 4.7.2 / Jolt：
 - `GLOSSARY.md`：熔炉声景=`WrathAudioDirector`；撞墙爆破=`WrathSoundBank`，真实wall_slam及穿刺者碰撞自毁，不是虚构音频触发器。
 - `ASSETS.md`：`audio/realms/wrath_sound_bank.gd` 是原创数学合成，无外部采样/旧工程素材。本目录WAV为证据预听，hash见json；现有 `docs/proof/.gdignore` 排除其Godot导入，因此不应生成.import。
 - 父共享base需要动态加载Wrath bank的KINDS/boon_cues，并监听 `Events.projectile_registered`；父持有的这些共享修改不在本提交内。
+
+## 无director入口回归补充
+
+根审查发现第一次删除旧声音会令旧战斗入口的真实撞墙静音。追加修复恢复条件回退，而不是假定所有Player都由RealmStage装配。`tests/wrath_audio_test.tscn` 使用直接实例化的生产Player/SlothEnemy和物理WORLD墙，测试真实碰撞后：没有音频director时播放原始clock_break；暂停、碰撞结算中玩家死亡、事件期间移除赐福时拒绝deferred发声，恢复后也不补播。正常Stage的一次真实重撞/五枚真实尖刺和无fallback断言仍保留。最新34/34检查通过，退出0且无错误或警告，完整结果见 `wrath-fallback.log`。
+
+父共享base须在实际消费wall_slam的同一context写 `wrath_wall_audio_managed=true`；本追加提交不包含借入的共享base。

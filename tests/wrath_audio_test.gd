@@ -112,7 +112,7 @@ func run_checks() -> void:
 	for child in stage.get_children():
 		if child is AudioStreamPlayer3D:
 			orphan_slam = true
-	check("old unpooled clock-break sound is removed", not orphan_slam)
+	check("managed slam is acknowledged and never starts legacy fallback", not orphan_slam and bool(slams[0].get("wrath_wall_audio_managed", false)))
 	# A floor-only impulse cannot fabricate a collision cue.
 	piercer.boon_stunned = false
 	piercer.boon_time_scale = 1.0
@@ -182,3 +182,66 @@ func run_checks() -> void:
 	check("real boss defeat silences managed kiln without legacy restart", boss_stage.boss_defeated and boss_audio.deprived and not boss_audio.ambient.playing and not boss_geometry.ambience.playing)
 	boss_stage.queue_free()
 	await frames()
+	await legacy_fallback_checks()
+
+func legacy_fallback_checks() -> void:
+	for mode in ["normal", "paused", "dead", "removed"]:
+		# Old combat benches instantiate Player and SlothEnemy without RealmStage/director.
+		var arena := Node3D.new()
+		add_child(arena)
+		for layout in [[Vector3(0, -0.5, 0), Vector3(20, 1, 20)], [Vector3(0, 2, -6), Vector3(10, 4, 0.4)]]:
+			var wall := StaticBody3D.new()
+			wall.collision_layer = CollisionLayers.WORLD
+			var collision := CollisionShape3D.new()
+			var shape := BoxShape3D.new()
+			shape.size = layout[1]
+			collision.shape = shape
+			wall.add_child(collision)
+			wall.position = layout[0]
+			arena.add_child(wall)
+		var legacy_player := preload("res://actors/player/player.tscn").instantiate() as Player
+		arena.add_child(legacy_player)
+		legacy_player.set_physics_process(false)
+		legacy_player.dash.set_physics_process(false)
+		legacy_player.boons.request_equip(load("res://buffs/resources/wrath/wrath_gun_cannon.tres"))
+		var effect := legacy_player.boons.effect_for(preload("res://buffs/effects/wrath_effect.gd")) as WrathBoons
+		var enemy := preload("res://actors/enemy/sloth/sloth_enemy.tscn").instantiate() as SlothEnemy
+		enemy.kind = SlothEnemy.Kind.RECLUSE
+		enemy.position = Vector3(0, 0.04, -3)
+		arena.add_child(enemy)
+		enemy.health.max_health = 1000
+		enemy.health.health = 1000
+		var actual_slams: Array[Dictionary] = []
+		legacy_player.boons.event_dispatched.connect(func(event: StringName, ctx: Dictionary):
+			if event != &"wall_slam":
+				return
+			actual_slams.append(ctx)
+			if mode == "paused":
+				get_tree().paused = true
+			elif mode == "dead":
+				legacy_player.health.apply_damage(99999, Hitbox.BodyPart.BODY)
+			elif mode == "removed":
+				legacy_player.boons.remove(WrathBoons.GUN))
+		await frames(3)
+		effect.knock(enemy, Vector3.FORWARD, 3.0)
+		for i in 60:
+			await frames(1)
+			if not actual_slams.is_empty():
+				break
+		enemy.set_physics_process(false)
+		await frames(1) # Drain the deferred ownership check after event consumers.
+		check("legacy %s uses actual WORLD contact without an audio director" % mode, actual_slams.size() == 1 and actual_slams[0].wall_impact and arena.find_children("*", "RealmAudioDirector", true, false).is_empty())
+		var fallback := arena.get_node_or_null("WrathWallFallback") as AudioStreamPlayer3D
+		if mode == "normal":
+			check("unmanaged legacy slam retains exactly one original clock-break voice", fallback != null and fallback.playing and (fallback.stream as AudioStreamWAV).data == ProceduralAudio.generate("clock_break").data and fallback.global_position.is_equal_approx(actual_slams[0].position))
+			var audio_ref: WeakRef = weakref(fallback)
+			legacy_player.boons.remove(WrathBoons.GUN)
+			await frames(1)
+			check("removing the legacy effect stops and frees its fallback voice", audio_ref.get_ref() == null)
+		else:
+			check("legacy %s cannot start a deferred sound" % mode, fallback == null)
+		get_tree().paused = false
+		await frames(1)
+		check("legacy %s never schedules a late replay" % mode, arena.get_node_or_null("WrathWallFallback") == null)
+		arena.queue_free()
+		await frames(1)

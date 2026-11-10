@@ -8,7 +8,7 @@ Precise small edit of this EXACT image, not a redesign. Preserve every crown sil
 
 2026-11-01，使用内置 imagegen 技能与工具生成。用户提供的《洛基》截图仅作复古卡通表演参考，原截图未上传仓库。角色设计仍供团队评审。
 
-最终文件：本目录的 `pride-concept.jpg`（概念图，仅 JPEG 重编码）以及 `ui/pride_opening/assets/pride-atlas.png`（预演实际使用的 1024×1536 RGBA 六格动作图集）。动作图经内置工具修正边界，未用脚本重绘或抠图。最终切格边缘 alpha 为 0；实际绘制面另外保留 14% 余量，六格源图与 20 个原生绘制姿态均检查外围透明。
+最终文件：本目录的 `pride-concept.jpg`（概念图，仅 JPEG 重编码）以及 本目录归档的 `pride-atlas.png`（原运行路径 `ui/pride_opening/assets/pride-atlas.png`，#147 退役但保留原件）（预演实际使用的 1024×1536 RGBA 六格动作图集）。动作图经内置工具修正边界，未用脚本重绘或抠图。最终切格边缘 alpha 为 0；实际绘制面另外保留 14% 余量，六格源图与 20 个原生绘制姿态均检查外围透明。
 
 ## 概念设计
 

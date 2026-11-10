@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvdoq78arv334"
-path="res://.godot/imported/pride-atlas.png-e2ec0be592e27d4e72c5b39a55282512.ctex"
+uid="uid://cy8dcaqx31qmp"
+path="res://.godot/imported/pride-atlas.png-5dc933477b3f032b5a34e80e95b9e6c7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ui/pride_opening/assets/pride-atlas.png"
-dest_files=["res://.godot/imported/pride-atlas.png-e2ec0be592e27d4e72c5b39a55282512.ctex"]
+source_file="res://docs/levels/sloth-opening/assets/pride-atlas.png"
+dest_files=["res://.godot/imported/pride-atlas.png-5dc933477b3f032b5a34e80e95b9e6c7.ctex"]
 
 [params]
 

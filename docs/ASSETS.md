@@ -148,7 +148,7 @@ AC-06 的流派身份图标。Low-poly / Toon 平涂，颜色和剪影锁在 [ST
 
 ## 2026-11-01：Pride 开场图集
 
-按用户要求将已完成的 Sloth 开场任务 #45 开场放在本游戏启动前。`ui/pride_opening/assets/pride-atlas.png` 为本次项目内 imagegen 生成与编辑的六格透明图集（1024×1536），不是从 `origin` 或剧集提取的素材，不标为 CC0。仅借鉴用户给出的复古卡通表演参考，没有提交剧集截图或原角色素材。来源、提示词和手绘皇冠设计见 [生成记录](levels/sloth-opening/assets/PROMPT.md)。
+按用户要求将已完成的 Sloth 开场任务 #45 开场放在本游戏启动前。`docs/levels/sloth-opening/assets/pride-atlas.png`（#147 从旧运行目录原样归档）为本次项目内 imagegen 生成与编辑的六格透明图集（1024×1536），不是从 `origin` 或剧集提取的素材，不标为 CC0。仅借鉴用户给出的复古卡通表演参考，没有提交剧集截图或原角色素材。来源、提示词和手绘皇冠设计见 [生成记录](levels/sloth-opening/assets/PROMPT.md)。
 
 SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。保留工程内导入设置；灰白几何、渐变材质和提示音由脚本生成，字体调用系统已有字体，未打包外部字体文件。开场资源全部在本仓库内，运行不依赖 Mind-Freak 文件夹。
 
@@ -304,3 +304,20 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | `assets/ui/boons/sorrow.svg` | `bc81cb3150f9e589f4651e13f25fc397fabe5d32371df1c45c0154aa2b2db0b7` |
 | `assets/ui/boons/vitality.svg` | `de7d2e9f494f6154f68250862a331bf225bfdfbdef328565d0adb9be282f1da4` |
 | `assets/ui/boons/wrath.svg` | `e2f552e6b6494e965a4352ceaac0a937bc600d76fb3a83bc94f410f4b54b3221` |
+
+## #147 原创皇冠与中文开场语音（2026-11-10）
+
+`actors/crown/crown_model.gd` 是本项目原创参数化 3D 几何：普通中空六尖象牙白冠与克制的暗金边，遵循最新用户纠偏移除眼睛、手与拟人装饰，未提取旧图集或第三方模型。原始白晶人体和手枪仍使用既有登记资源，未修改原件。
+
+六段原创项目台词使用官方 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh) 固定版本 `01e7505bd6a7a2ac4975463114c3a7650a9f7218` 离线生成；模型与推理代码均为 Apache-2.0。官方模型卡声明中文专业数据由 LongMaoData 获许可提供。皇冠使用标准女声 `zf_001`，面试声使用标准男声 `zm_010`，不克隆他人身份。只分发24kHz单声道PCM16输出，不分发模型/引擎，不标为CC0。原Windows SAPI输出已替换，旧脚本显式阻止再次生成。
+
+复现脚本、固定模型/音色哈希、原文与逐句参数见 [语音生成说明](../tools/cinematic/voice_assets.md) 和 [完整manifest](../tools/cinematic/voice_assets_manifest.json)；工具Apache许可原文已保留。当前工具没有音频听感输入；波形/真实解码播放不等于人工发音与情绪验收。心跳和耳鸣仍为本项目原创数学波形。
+
+| 文件 | 秒 | SHA-256 |
+| --- | ---: | --- |
+| `assets/audio/crown/opening/better.wav` | 5.825 | `a1b72f9e5f690364adedfd72270bdb03e7096fa5c0e62054836aab7a58e7b613` |
+| `assets/audio/crown/opening/care.wav` | 7.050 | `e3989058caa04536db048eb7b8ddf211663e2e8d61952f60087f1387e2b7576e` |
+| `assets/audio/crown/opening/interview.wav` | 7.600 | `37b0bf581011072289b12ad35869bbd1d8561f21149a76b8582e134284ea4f9a` |
+| `assets/audio/crown/opening/invitation.wav` | 7.625 | `21d9fee7f7a93687a3a704c2296295f8466981bcd0f1c3e6c27058db193ace9e` |
+| `assets/audio/crown/opening/obstacle.wav` | 6.725 | `cdc62d01f8785409a921c714b940db3429419ee003d2e8e3adf0efbdef9963d1` |
+| `assets/audio/crown/opening/wake.wav` | 4.850 | `fbe10da257756b7316ee21fe09622eebc9921e44f554d9b18ed00455864c84d0` |

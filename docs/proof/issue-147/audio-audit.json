@@ -1,0 +1,56 @@
+[
+  {
+    "path": "assets/audio/crown/opening/better.wav",
+    "duration_seconds": 5.825,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 4063.1464690678717,
+    "peak": 30147,
+    "sha256": "a1b72f9e5f690364adedfd72270bdb03e7096fa5c0e62054836aab7a58e7b613"
+  },
+  {
+    "path": "assets/audio/crown/opening/care.wav",
+    "duration_seconds": 7.05,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 3572.6838797196965,
+    "peak": 30147,
+    "sha256": "e3989058caa04536db048eb7b8ddf211663e2e8d61952f60087f1387e2b7576e"
+  },
+  {
+    "path": "assets/audio/crown/opening/interview.wav",
+    "duration_seconds": 7.6,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 3170.2606375008822,
+    "peak": 30147,
+    "sha256": "37b0bf581011072289b12ad35869bbd1d8561f21149a76b8582e134284ea4f9a"
+  },
+  {
+    "path": "assets/audio/crown/opening/invitation.wav",
+    "duration_seconds": 7.625,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 4095.461798734144,
+    "peak": 30146,
+    "sha256": "21d9fee7f7a93687a3a704c2296295f8466981bcd0f1c3e6c27058db193ace9e"
+  },
+  {
+    "path": "assets/audio/crown/opening/obstacle.wav",
+    "duration_seconds": 6.725,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 3267.388226399433,
+    "peak": 30147,
+    "sha256": "cdc62d01f8785409a921c714b940db3429419ee003d2e8e3adf0efbdef9963d1"
+  },
+  {
+    "path": "assets/audio/crown/opening/wake.wav",
+    "duration_seconds": 4.85,
+    "sample_rate": 24000,
+    "channels": 1,
+    "rms": 4610.332198437381,
+    "peak": 30147,
+    "sha256": "fbe10da257756b7316ee21fe09622eebc9921e44f554d9b18ed00455864c84d0"
+  }
+]

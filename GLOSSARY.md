@@ -9,7 +9,7 @@
 | 术语 | 代码里的名字 | 含义 |
 | --- | --- | --- |
 | 一局 | Run，`RunState` | 从第 1 个战区开始，到死亡或胜利结束。死亡后所有增益清空。 |
-| Pride 开场 | `ui/game_start.tscn`、`ui/pride_opening/opening.tscn` | 普通启动自动播放的五句引导，可逐句推进、观察和跳过；确认后进入原开局三选一。每次启动播放一次，死亡重开和 fixture 不重播。 |
+| 一镜到底开场 | `ui/cinematics/opening_sequence.tscn` / `OpeningSequence` | 首次 Run 沿用真实 Player 的同一 ViewCamera，经历声音下沉、两次眨眼、白晶身躯观察、3D 皇冠对白、加冕与武器凝聚。实际走过开启的门后才请求入战；后续死亡重开由随行皇冠历史对白承接。 |
 | 战区 | Zone | 一张场景，有一组敌人和一个据点。现在 `RunState.ZONE_SCENES` 里是三张图：两张小关和 Boss 关。 |
 | 清敌 | `Events.zone_cleared` | 战区内的守卫全部被消灭，据点建筑随之开放。 |
 | 据点 | `CapturePoint` | 占点建筑（灰盒方块）。清守卫前锁定；开放后用挥刃敲击，进度到 100% 插旗。进度只增不减。 |

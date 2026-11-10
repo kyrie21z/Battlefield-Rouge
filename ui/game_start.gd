@@ -1,6 +1,6 @@
 extends Node
 ## Entry only. The existing RunState and ZoneDirector still own the whole run.
-const OPENING := preload("res://ui/pride_opening/opening.tscn")
+const OPENING := preload("res://ui/cinematics/opening_sequence.tscn")
 const FADE := preload("res://ui/scene_fade.gd")
 ## Finish the opening and draw the loading overlay before loading the zone.
 ## Godot 4.7.2 can leave threaded scene/script loads in IN_PROGRESS forever.
@@ -21,13 +21,13 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if RunState.fixture == null and not RunDirector.active:
 		RunDirector.begin_run()
-	if RunState.fixture != null or "--skip-opening" in OS.get_cmdline_user_args():
+	if RunState.fixture != null or RunDirector.run_count > 1 or "--skip-opening" in OS.get_cmdline_user_args():
 		_enter_game.call_deferred()
 		return
 	opening = OPENING.instantiate()
 	opening.combat_entry_requested.connect(_enter_game, CONNECT_ONE_SHOT)
 	add_child(opening)
-	opening.flow.start()
+	opening.start()
 	_zone_path = _target_scene()
 
 

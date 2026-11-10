@@ -1,0 +1,51 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS imported 24 kHz mono res://assets/audio/crown/opening/interview.wav
+PASS duration res://assets/audio/crown/opening/interview.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/wake.wav
+PASS duration res://assets/audio/crown/opening/wake.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/care.wav
+PASS duration res://assets/audio/crown/opening/care.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/obstacle.wav
+PASS duration res://assets/audio/crown/opening/obstacle.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/better.wav
+PASS duration res://assets/audio/crown/opening/better.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/invitation.wav
+PASS duration res://assets/audio/crown/opening/invitation.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/first.wav
+PASS duration res://assets/audio/crown/dynamic/first.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/early.wav
+PASS duration res://assets/audio/crown/dynamic/early.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/early_abyss.wav
+PASS duration res://assets/audio/crown/dynamic/early_abyss.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/deep.wav
+PASS duration res://assets/audio/crown/dynamic/deep.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/deep_abyss.wav
+PASS duration res://assets/audio/crown/dynamic/deep_abyss.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/veteran.wav
+PASS duration res://assets/audio/crown/dynamic/veteran.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/veteran_abyss.wav
+PASS duration res://assets/audio/crown/dynamic/veteran_abyss.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/floor2.wav
+PASS duration res://assets/audio/crown/dynamic/floor2.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/floor3.wav
+PASS duration res://assets/audio/crown/dynamic/floor3.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/floor4.wav
+PASS duration res://assets/audio/crown/dynamic/floor4.wav
+PASS imported 24 kHz mono res://assets/audio/crown/dynamic/floor5.wav
+PASS duration res://assets/audio/crown/dynamic/floor5.wav
+PASS imported 24 kHz mono res://assets/audio/climax/slumber.wav
+PASS duration res://assets/audio/climax/slumber.wav
+PASS imported 24 kHz mono res://assets/audio/climax/fear.wav
+PASS duration res://assets/audio/climax/fear.wav
+PASS imported 24 kHz mono res://assets/audio/climax/spite.wav
+PASS duration res://assets/audio/climax/spite.wav
+PASS imported 24 kHz mono res://assets/audio/climax/sorrow.wav
+PASS duration res://assets/audio/climax/sorrow.wav
+PASS imported 24 kHz mono res://assets/audio/climax/acceptance.wav
+PASS duration res://assets/audio/climax/acceptance.wav
+PASS imported 24 kHz mono res://assets/audio/climax/crown_breakdown.wav
+PASS duration res://assets/audio/climax/crown_breakdown.wav
+PASS all 23 actual audio streams advance
+PASS all 23 decoded streams emit finished once
+KOKORO VOICE ASSETS: 48 checks, 0 failed

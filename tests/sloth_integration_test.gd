@@ -37,25 +37,15 @@ func _process(delta: float) -> void:
 func _run() -> void:
 	# Keep this harness as a root sibling while the real entry replaces scenes.
 	get_tree().current_scene = null
-	RunState.clear_fixture()
-	RunState.start_new_run()
+	# This regression deliberately retains the historical 3-zone fixture.
+	# The new campaign and cinematic have their own production-route tests.
+	RunDirector.active = false
+	RunState.start_fixture(RunFixture.by_id("FX-001"))
 	RunState.run_seed = 50897
 	get_tree().paused = false
-	_check(RunState.ZONE_SCENES.size()==3,"Run retains two small zones and one Boss")
+	_check(RunState.ZONE_SCENES.size()==3,"Legacy fixture retains two small zones and one Boss")
 	get_tree().change_scene_to_file(BOOT)
 	await get_tree().scene_changed
-	await get_tree().process_frame
-	var boot := get_tree().current_scene
-	var opening: Node3D = boot.opening
-	opening.proof = true
-	opening.proof_wait = -10000
-	_check(opening.flow.state==opening.Flow.State.CINEMATIC,"Normal entry starts the Pride opening")
-	_check(get_tree().get_nodes_in_group("player").is_empty(),"Combat player is absent behind the opening")
-	await _shot("01-pride-opening")
-	for index in 5:
-		await _key(KEY_ENTER)
-	_check(opening.flow.state==opening.Flow.State.DECISION,"Five real advance keys reach the departure choice")
-	(opening.panels.decision.get_child(2) as Button).pressed.emit()
 	await get_tree().scene_changed
 	await _settle()
 	_check(_director()!=null and RunState.zone_index==0,"Departure loads the actual first zone")

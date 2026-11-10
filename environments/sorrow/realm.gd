@@ -9,6 +9,7 @@ var rain: GPUParticles3D
 var platforms: Array[StaticBody3D] = []
 var columns: Array[Node3D] = []
 var player: Player
+var audio_managed := false
 var splash: AudioStreamPlayer3D
 var ripple_count := 0
 var footstep_count := 0
@@ -86,6 +87,11 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	# A realm can be inserted after actors (standalone benches / restored rooms).
 	_scan_existing(get_parent())
+
+## Room audio owns splashes in production; standalone geometry keeps fallback.
+func set_audio_managed(active: bool) -> void:
+	audio_managed = active
+	if active and is_instance_valid(splash): splash.stop()
 
 func set_player(value: Player) -> void:
 	player = value
@@ -244,8 +250,9 @@ func _physics_process(delta: float) -> void:
 		_last_step = point
 		_foot_left = 0.3
 		add_ripple(point)
-		splash.global_position = point
-		splash.play()
+		if not audio_managed:
+			splash.global_position = point
+			splash.play()
 		footstep_count += 1
 
 func _block(label: String, pos: Vector3, size_value: Vector3) -> StaticBody3D:

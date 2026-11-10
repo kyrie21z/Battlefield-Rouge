@@ -52,6 +52,8 @@ func _ready() -> void:
 	check("loop is cached stereo PCM with finite seamless window",stream==RealmSoundBank.get_sound(&"warm_pad",true) and stream.stereo and stream.data.size()==352800 and stream.data.decode_s16(0)==0)
 	stage.player.health.apply_damage(999999,Hitbox.BodyPart.BODY)
 	check("real player death stops all room audio",director.stopped and not director.ambient.playing and director.voices.all(func(v):return not v.playing))
+	director.set_deprived(false)
+	check("late state refresh cannot restart dead-room ambience",not director.ambient.playing and not director.ambient_tail.playing)
 	stage.queue_free()
 	await get_tree().process_frame
 	for i in 3: await get_tree().process_frame

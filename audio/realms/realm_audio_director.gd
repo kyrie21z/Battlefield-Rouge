@@ -53,12 +53,15 @@ func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 	return RealmSoundBank.get_sound(kind,loop)
 
 func set_ambience(kind: StringName) -> void:
+	if stopped: return
+	var next_stream := get_sound(kind,true)
+	if ambient.playing and ambient.stream == next_stream: return
 	if ambient.playing:
 		ambient_tail.stream = ambient.stream
 		ambient_tail.volume_db = ambient.volume_db
 		ambient_tail.play(ambient.get_playback_position())
 		_fade_left = 0.35
-	ambient.stream = get_sound(kind,true)
+	ambient.stream = next_stream
 	ambient.volume_db = -60 if _fade_left > 0 else -18
 	ambient.play()
 

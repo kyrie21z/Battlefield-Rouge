@@ -54,6 +54,8 @@ func _run() -> void:
 		opening.player.position.z = -13.2
 		opening.advance(0.1)
 		while get_tree().current_scene.scene_file_path != target:
+			var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
+			if is_instance_valid(forge): forge.close()
 			await get_tree().process_frame
 		for frame in 4: await get_tree().process_frame
 		var stage := get_tree().current_scene
@@ -73,6 +75,8 @@ func _run() -> void:
 		RunDirector.restart()
 		await get_tree().scene_changed
 		while not is_instance_valid(RunDirector.current_stage) or RunDirector.current_stage.get_instance_id() == stage_id:
+			var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
+			if is_instance_valid(forge): forge.close()
 			await get_tree().process_frame
 		check("death re-entry bypasses the fixed cinematic for dynamic Crown voice", RunDirector.run_count == 2 and get_tree().current_scene.get_node_or_null("OpeningSequence") == null and get_tree().current_scene.get_instance_id() != stage_id)
 		get_tree().paused = false

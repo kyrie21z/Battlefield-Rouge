@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== reinforcements behind the building find a firing position
+  [ok] the first reinforcement wave spawns four enemies
+  [ok] the first wave spawns out of the player's view
+  [ok] reinforcements pick a firing position on spawn
+  [ok] a reinforcement fires within 15 s
+  [ok] it does not fire from arm's length (closest 18.59 m)
+  [ok] the shot comes from a spot with a clear line of sight
+== several reinforcements keep their spots apart
+  [ok] four reinforcements reserved firing positions (4)
+  [ok] spots stay on the 8-20 m ring
+  [ok] spots are at least 3.5 m apart (closest 13.66 m)
+== striking wakes idle guards in hearing range only
+  [ok] the zone starts with five guards
+  [ok] the close guard starts idle
+  [ok] the far guard starts idle
+  [ok] the close guard is inside hearing range (5.0 m)
+  [ok] the far guard is outside hearing range (41.4 m)
+  [ok] striking wakes the close idle guard
+  [ok] striking leaves the far idle guard alone
+== the same input picks the same spots
+  [ok] both runs spawn four reinforcements
+  [ok] both runs pick the same positions
+ALL PASSED (0 failed)

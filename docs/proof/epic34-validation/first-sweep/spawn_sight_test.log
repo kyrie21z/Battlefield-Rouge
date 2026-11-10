@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] the zone has several spawn markers (9)
+  [ok] a wave spawns four enemies (4)
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] spawn is at least 14 m from the player
+  [ok] spawn is not visible from the player
+  [ok] all four enemies use different markers
+  [ok] the visibility fixture starts with a visible marker
+  [ok] turning around changes which markers are visible
+  [ok] every fallback marker is visible
+  [ok] every fallback marker is ineligible at less than 14 metres
+  [ok] the fallback takes the farthest marker (12.8 m)
+  [ok] the same seed and setup pick the same spawns
+ALL PASSED (0 failed)

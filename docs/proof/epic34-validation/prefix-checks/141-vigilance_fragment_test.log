@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS ordinary direction warning starts enabled
+PASS deprivation removes existing HUD warnings
+PASS deprivation blocks later HUD warnings
+PASS vigilance pickup activates once
+PASS independent vigilance raises critical perception
+PASS independent vigilance improves reaction recharge
+PASS pickup does not restore ordinary warnings
+PASS repeated restoration does not stack modifiers
+PASS restoration removes absent power
+PASS new enemy warnings inherit deprivation
+PASS fresh run can restore warning rules
+ALL PASSED (11 checks)

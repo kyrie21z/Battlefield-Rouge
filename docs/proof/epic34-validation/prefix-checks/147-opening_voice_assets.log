@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+VOICE SCOPE: issue 147, 6 clips
+PASS imported 24 kHz mono res://assets/audio/crown/opening/interview.wav
+PASS duration res://assets/audio/crown/opening/interview.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/wake.wav
+PASS duration res://assets/audio/crown/opening/wake.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/care.wav
+PASS duration res://assets/audio/crown/opening/care.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/obstacle.wav
+PASS duration res://assets/audio/crown/opening/obstacle.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/better.wav
+PASS duration res://assets/audio/crown/opening/better.wav
+PASS imported 24 kHz mono res://assets/audio/crown/opening/invitation.wav
+PASS duration res://assets/audio/crown/opening/invitation.wav
+PASS all 6 actual audio streams advance
+PASS all 6 decoded streams emit finished once
+KOKORO VOICE ASSETS: 14 checks, 0 failed

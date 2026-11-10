@@ -48,6 +48,9 @@ var boon_absorber: Callable
 ## A core fragment is a separate source, never restores those mechanisms.
 var unbuffered := false
 var fragment_absorber: Callable
+## Returns restored HP only after every absorber has resolved a lethal hit.
+## Abyss/environmental_fatal deliberately bypasses this callback.
+var lethal_guard: Callable
 var last_damage_context: Dictionary = {}
 var _damage_resolution_depth := 0
 
@@ -122,12 +125,20 @@ func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null
 	ctx.dealt = minf(dealt, health)
 	ctx.absorbed = absorbed
 	ctx.resolved_damage = ctx.dealt + absorbed
+	var restored := 0.0
+	if dealt >= health and dealt > 0.0 and lethal_guard.is_valid():
+		restored = clampf(float(lethal_guard.call(ctx)),0.0,max_health)
+		if restored > 0.0:
+			ctx.death_prevented = true
+			ctx.restored_health = restored
 	if ctx.resolved_damage > 0.0:
 		_shield_recovery_left = shield_regeneration_delay
 	last_damage_context = ctx
 	# Resolve the overflow before signals can release a counter or reenter Health.
 	if dealt > 0.0:
 		health = maxf(health - dealt, 0.0)
+		if restored > 0.0:
+			health = restored
 		damaged.emit(dealt, body_part, source)
 		if is_dead():
 			died.emit(source)

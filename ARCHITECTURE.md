@@ -138,3 +138,6 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 `autoload/RunDirector` 与旧 `RunState` 同属允许拥有对局状态的组合根；正式入口选择前者，旧 fixture 继续选择后者。`RealmStage` 不读取 RunDirector，通过 configure_run 及信号组成流程。四种 Enemy 派生、Boss、PsycheFragments 和 CrownRadiance 都只接收注入的引用与值，不寻找对局控制器。新地图由 gen_zones.py 调用 gen_realms.py 生成，旧地图逐字保持。
 
 `PsycheFragments` 管理独立碎片运行态，BoonManager 管理可替换的赐福；两者不混存。普通击退经 Enemy.apply_impact，独立脉冲经 apply_fragment_impact；普通防御受 Health.unbuffered 关闭，fragment_absorber 仍单独结算实际吸收与 HP 溢出。数值增益通过 Stats，实际位移保留物理碰撞，所有能力暂停冻结。原始黑晶素材及黑接缝保持，终局金缮由后续演出显式启用。状态边界及验证见 [ADR 0018](docs/adr/0018-realms-and-independent-fragments.md)。
+
+
+局外成长由 `MetaProgression` autoload保存，`RunDirector` 组合真实Stage信号与钱包事务：Actor只经Health/Stage上报死亡，不操作货币。`GameStart`在入战前开放Forge，关闭后一次性准备初始赐福/HP/重抽；新Player先注入Meta Stats，再恢复跨房HP和碎片。死亡/结局将收入与历史同次提交，历史再注入CrownVoiceSystem。测试入口在autoload初始化时使用独立档；存档格式、去重与验证见[152证据](docs/proof/issue-152/README.md)。

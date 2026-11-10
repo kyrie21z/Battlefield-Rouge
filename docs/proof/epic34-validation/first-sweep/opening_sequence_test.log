@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production Player retains authored 24-bone full crystal body
+PASS all six speech clips contain recorded speech-length audio
+PASS start enters reality blackout with real speech and no controls
+PASS pause preserves the cinematic phase clock
+PASS all five cinematic phases advance in order
+PASS two blinks reveal a sharp view
+PASS continuous body inspection never jumps the camera pitch
+PASS no camera was replaced during the sequence
+PASS interviewer and all five Crown lines actually enter the audio player
+PASS crowning releases the real player and fully assembles the real pistol
+PASS both physical doors open without premature scene handoff
+PASS actual CharacterBody walks through the opened door and requests entry once
+FAIL the crowned model follows the walking player
+PASS repeated completion cannot request duplicate scene entry
+PASS reduced motion disables actual screen blur
+PASS skip reaches the same safe playable state and silences speech
+OPENING SEQUENCE: FAIL (16 checks, 1 failures)

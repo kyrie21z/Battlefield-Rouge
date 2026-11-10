@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS ordinary burst initially defers half damage
+PASS existing debt settles after buffering loss
+PASS ordinary mitigation, shield and timed immunity cannot buffer
+PASS ordinary shield cannot be activated
+PASS new damage cannot create deferred debt
+PASS unbuffered HP damage emits brittle glass feedback
+PASS tenderness activates separate 60 point barrier
+PASS independent absorption handles exact overflow
+PASS pickup does not restore ordinary defenses
+PASS actual Health context accounts for independent absorption
+PASS barrier respects four second recovery delay
+PASS barrier recovers without healing lost HP
+PASS pause freezes fragment recharge
+PASS abyss bypasses all independent defenses
+ALL PASSED (14 checks)

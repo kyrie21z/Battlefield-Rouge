@@ -6,6 +6,7 @@ const BOOT := preload("res://ui/game_start.tscn")
 const FADE := preload("res://ui/scene_fade.gd")
 const FAILING_BOOT := preload("res://tests/support/failing_game_start.gd")
 
+var _checks := 0
 var _failures := 0
 var _finished := false
 
@@ -15,13 +16,15 @@ func _ready() -> void:
 	await _run()
 	get_tree().paused = false
 	var ok := _failures == 0 and _finished
-	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures,
+	print("%s (%d checks, %d failed%s)" % ["ALL PASSED" if ok else "FAIL", _checks, _failures,
 		"" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
 
 
 func _run() -> void:
 	await get_tree().process_frame
+	_check("the registered store isolates transition tests from the real save",
+		MetaProgression.isolated_profile and MetaProgression.save_path() != MetaProgression.SAVE_PATH)
 	await _test_fade()
 	await _test_opening_entry()
 	for empty_scene in [false, true]:
@@ -64,6 +67,9 @@ func _test_fade() -> void:
 func _start_campaign() -> void:
 	RunState.clear_fixture()
 	RunState.start_new_run()
+	# Each route exercises the first-run cinematic in this process-local test profile.
+	# Real later runs still skip it and are covered by opening_boot/meta_campaign.
+	RunDirector.run_count = 0
 	RunDirector.begin_run(146001)
 	get_tree().paused = false
 
@@ -87,6 +93,7 @@ func _test_opening_entry() -> void:
 		and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
 
 	boot.opening.combat_entry_requested.emit()
+	await _close_starting_forge(boot)
 	var black := false
 	var deadline := Time.get_ticks_msec() + 30000
 	while Time.get_ticks_msec() < deadline:
@@ -137,6 +144,7 @@ func _test_loading_failure_retry(empty_scene: bool) -> void:
 	get_tree().current_scene = boot
 	boot.opening.combat_entry_requested.emit()
 	boot._enter_game()
+	await _close_starting_forge(boot)
 	var failed := await _wait_for(func() -> bool:
 		return observations["attempts"] == 1 and not boot._load_requested, 5000)
 	_check("the failed read finishes and duplicate entry does not start another load", failed)
@@ -181,6 +189,24 @@ func _test_loading_failure_retry(empty_scene: bool) -> void:
 		RunDirector.run_seed == original_seed and RunDirector.boons.is_empty()
 		and RunDirector.selections.is_empty())
 	await _close_current_scene()
+
+
+func _close_starting_forge(boot: Node) -> void:
+	var offered := await _wait_for(func() -> bool:
+		return is_instance_valid(boot.forge), 5000)
+	_check("departure offers the real Forge before loading the first room", offered)
+	if not offered:
+		return
+	var forge: CrownForge = boot.forge
+	_check("the Forge pauses the opening without starting a resource read or fade",
+		get_tree().paused and boot._packed == null and _fade_nodes().is_empty()
+		and get_tree().current_scene == boot and RunDirector.current_stage == null)
+	boot._enter_game()
+	_check("repeated departure input leaves exactly one Forge awaiting the player",
+		boot.forge == forge and boot.find_children("CrownForge", "", false, false).size() == 1)
+	forge.close()
+	_check("closing the real Forge prepares departure exactly once",
+		RunDirector.forge_visited and RunDirector._departure_prepared)
 
 
 func _test_fixture_entry() -> void:
@@ -254,6 +280,7 @@ func _frames(count: int) -> void:
 
 
 func _check(label: String, ok: bool) -> void:
+	_checks += 1
 	if not ok:
 		_failures += 1
 	print("  [%s] %s" % ["ok" if ok else "FAIL", label])

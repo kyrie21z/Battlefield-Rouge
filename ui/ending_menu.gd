@@ -20,9 +20,13 @@ func _ready()->void:
 	box.add_child(title)
 	var start:=Button.new()
 	start.text="开启新的挑战"
-	start.pressed.connect(func():RunDirector.begin_run();get_tree().change_scene_to_file("res://ui/game_start.tscn"))
+	start.pressed.connect(_start_new_challenge)
 	box.add_child(start)
 	var quit_button:=Button.new()
 	quit_button.text="退出"
 	quit_button.pressed.connect(func():get_tree().quit())
 	box.add_child(quit_button)
+
+func _start_new_challenge() -> void:
+	if RunDirector.begin_run():
+		get_tree().change_scene_to_file("res://ui/game_start.tscn")

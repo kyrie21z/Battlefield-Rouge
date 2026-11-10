@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] advanced execution requires an equipped Fear gun or blade
+  [ok] legendary requires two Fear traits
+  [ok] Fear gun unlocks execution
+  [ok] two Fear traits unlock legendary
+  [ok] distance trait changes consumed projectile-speed Stats
+  [ok] actual friendly projectile consumes speed modifier exactly once
+  [ok] distance crit grows linearly from 12 to 36m then caps
+  [ok] distance scaling also applies to a stat-rolled ordinary critical
+  [ok] distance trait also scales a native headshot without double-applying its part multiplier
+  [ok] removing distance trait restores projectile speed
+  [ok] a copied damage-over-time context cannot backstab or inherit a parent's broken facet
+  [ok] exposed area is 150 percent rather than a 150-percent width
+  [ok] enlarged physical diamond accepts the newly exposed edge
+  [ok] a splash grazing the exposed diamond edge gets the actual critical damage
+  [ok] independent area sources compose without overwriting exposure
+  [ok] removing all area modifiers restores original contact bounds
+  [ok] below-35-percent flaw gets exactly fivefold without unsupported instant kill
+  [ok] fivefold lethal request stays 100 while actual loss caps at 40 and clears physical facets
+  [ok] fracture spreads to exactly two nearest visible enemies
+  [ok] fracture blinds all enemies within eight metres
+  [ok] paused blindness timer cannot expire
+  [ok] blindness expires after two simulation seconds
+  [ok] proc fractures do not recursively spread new flaws
+  [ok] seeded successful misfire enables friendly damage and tags player immunity
+  [ok] misfired production projectile actually damages a fellow enemy
+  [ok] misfire cannot damage the player
+  [ok] failed deterministic probability leaves ordinary hostile shot intact
+  [ok] below half health grants speed, crit and recharge together
+  [ok] exactly half health removes conditional bonuses
+  [ok] seeded lethal evade cancels damage and moves exactly three metres back
+  [ok] lethal evade sweeps the real player collision and stops before a wall
+  [ok] shield-survivable damage neither rolls lethal evade nor moves the player
+  [ok] offscreen shot produces a visible edge cue
+  [ok] newly registered enemy immediately owns permanent front/back flaws
+  [ok] permanent panic has no lifetime expiration
+  [ok] legendary broken facet launches a real homing crystal into another enemy
+  [ok] legendary crystal is guaranteed critical and cannot recursively launch itself
+  [ok] removing legendary revokes permanent panic while other Fear cards remain
+  [ok] actual player death releases permanent flaws and owned temporary effects
+ALL PASSED (0 failed, finished=true)

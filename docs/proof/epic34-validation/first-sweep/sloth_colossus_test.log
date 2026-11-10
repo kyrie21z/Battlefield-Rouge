@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS colossus has boss Health and real crystal skeleton
+PASS five solid-looking amber dorsal plates frame its curled silhouette
+PASS slam begins with its own visible windup
+PASS slam warning cannot deal damage early
+PASS pause freezes boss attack clocks
+PASS expanding slam hits the player's actual Health
+PASS slam ends and gives a recovery window
+PASS jumping above the low shock wave avoids damage
+PASS armour barrage releases seven suspended physical shots
+PASS armour shards release after their independent delays
+PASS WORLD cover blocks the rotating gravity ray
+PASS pendulum ray activates after a long telegraph
+PASS uncovered gravity ray can hit real player Health
+PASS boss death is emitted exactly once
+PASS repeat damage cannot repeat the realm-clear event
+PASS death cancels the active ray
+PASS all Rest Zones become dark immediately
+PASS the world clock accelerates beyond 140bpm
+PASS the Colossus bursts into 56 authored rigid pieces
+PASS the running clock produces real timed ticks
+PASS boss death creates a real unconsumed Slumber pickup
+PASS walking to the dropped shard acquires its independent ability
+PASS collecting Slumber does not relight lost Rest Zones
+PASS Slumber cannot heal before five seconds out of combat
+PASS Slumber heals after the actual combat timeout
+SLOTH COLOSSUS: ALL PASSED (25 checks, 0 failed)

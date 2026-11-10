@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS registered autoload automatically uses an isolated test profile
+PASS walking through the cinematic gate opens the real starting Forge
+PASS real Forge button transactions unlock talents and deduct saved currency
+PASS talents and exactly one starting boon are prepared before first room
+PASS production pistol and dash receive capacity upgrades
+PASS first real run receives the injected historical spoken line
+PASS actual Health death grants five pending will without bank deposit
+PASS same corpse cannot pay twice
+PASS actual room clearance grants one twenty-will reward
+PASS duplicate clearance cannot pay twice
+PASS real fatal combat uses one revival without settling or recording death
+PASS room transfer retains 37 HP and spent revival without talent stacking
+PASS ordinary room transition suppresses historical voice repetition
+PASS actual Boss defeat awards exactly one pending reality anchor
+PASS duplicate Boss settlement cannot create more anchors
+PASS physical core pickup clears Boss room and grants room income
+PASS real abyss death atomically banks every earned currency and cause
+PASS repeated death settlement cannot increase wallet
+PASS death returns directly to funded Forge with old history intact
+PASS new run refreshes one revival and maximum HP without duplicate starter
+PASS re-entry uses actual persisted abyss response
+PASS ending path banks the run once before campaign completion
+PASS repeated ending cannot pay twice
+META CAMPAIGN: 23 checks, 0 failures

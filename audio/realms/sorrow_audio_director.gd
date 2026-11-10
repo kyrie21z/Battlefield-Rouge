@@ -5,6 +5,7 @@ var _previous := Vector3.INF
 var _travel := 0.0
 var _step_left := 0.0
 var _dashing := false
+var _observed_tides := 0
 
 func _ready() -> void:
 	if stage.geometry is SorrowRealm: stage.geometry.set_audio_managed(true)
@@ -32,6 +33,13 @@ func _on_boon_event(event: StringName, _context: Dictionary) -> void:
 
 func _physics_process(delta: float) -> void:
 	if stopped or deprived or not is_instance_valid(player) or player.health.is_dead(): return
+	# Production rooms have no CapturePoint. The actual radial tide release is
+	# this realm's water-bell beat; windup/cancellation never advances this count.
+	if stage.boss is SorrowMonolith:
+		var monolith := stage.boss as SorrowMonolith
+		if monolith.tides_released > _observed_tides:
+			_observed_tides = monolith.tides_released
+			if not monolith.health.is_dead(): play_cue(&"water_bell",monolith.global_position)
 	var point := player.global_position
 	var distance := 0.0 if _previous == Vector3.INF else Vector2(point.x-_previous.x, point.z-_previous.z).length()
 	_previous = point

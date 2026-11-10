@@ -45,9 +45,22 @@ func _ready() -> void:
 	for i in 3: await get_tree().physics_frame
 	var sound := room.get_node("RealmAudio") as SorrowAudioDirector
 	check("actual Sorrow boss room has only managed rain and no legacy splash",sound.ambient.playing and room.geometry.audio_managed and not room.geometry.splash.playing)
+	var monolith := room.boss as SorrowMonolith
+	monolith.begin_move(SorrowMonolith.Move.TIDE)
+	sound._physics_process(0.016)
+	check("real tidal windup does not ring the water bell",sound.cue_counts.get(&"water_bell",0)==0 and monolith.tides_released == 0)
+	monolith._physics_process(monolith.action_left+0.001)
+	sound._physics_process(0.016)
+	var waves := room.get_children().filter(func(c):return c is SorrowTide)
+	check("real radial tide release rings one positional water bell",monolith.tides_released == 1 and waves.size() == 1 and sound.cue_counts.get(&"water_bell",0)==1)
+	sound._physics_process(0.016)
+	check("observing the same released tide cannot replay the bell",sound.cue_counts.get(&"water_bell",0)==1)
+	monolith.begin_move(SorrowMonolith.Move.TIDE)
 	room.boss.health.apply_damage(999999,Hitbox.BodyPart.BODY,room.player)
 	for i in 3: await get_tree().process_frame
 	check("actual boss defeat evaporates environmental rain",room.boss_defeated and sound.deprived and not sound.ambient.playing and not sound.ambient_tail.playing)
+	sound._physics_process(2.0)
+	check("boss death cancels pending tidal bell with no tail or catch-up",monolith.tides_released==1 and sound.cue_counts.get(&"water_bell",0)==1 and sound.voices.all(func(v):return not v.playing))
 	room.queue_free()
 	await get_tree().process_frame
 	await get_tree().create_timer(0.15).timeout

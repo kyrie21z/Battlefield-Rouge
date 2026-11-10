@@ -18,7 +18,7 @@ var targets: Array[Transform3D] = []
 var rebuild_origins: Array[Transform3D] = []
 var spoken: Array[int] = []
 var seam_materials: Array[ShaderMaterial] = []
-var _audio: AudioStreamPlayer
+var soundscape: ClimaxAudio
 var _subtitle: Label
 var _camera_start: Transform3D
 var _camera_low: Transform3D
@@ -34,9 +34,9 @@ func setup(value: Player)->void:
 	player=value
 
 func _ready()->void:
-	_audio=AudioStreamPlayer.new()
-	_audio.volume_db=-6
-	add_child(_audio)
+	soundscape=ClimaxAudio.new()
+	soundscape.setup(self,player)
+	add_child(soundscape)
 	var layer:=CanvasLayer.new()
 	layer.layer=40
 	add_child(layer)
@@ -105,9 +105,6 @@ func begin()->bool:
 	if crown!=null:
 		crown.set_cinematic_hidden(true)
 		for sound in crown.find_children("*","AudioStreamPlayer",true,false):sound.stop()
-	_audio.stream=ProceduralAudio.generate("brittle_glass")
-	_audio.volume_db=-2
-	_audio.play()
 	_set_phase(Phase.SHATTER)
 	return true
 
@@ -184,12 +181,7 @@ func _next_line()->void:
 			_lights.append(light)
 		_set_phase(Phase.REBUILD)
 		return
-	var path:="res://assets/audio/climax/%s.wav" % CLIPS[_line_index]
-	_audio.stream=load(path) as AudioStream
-	_audio.volume_db=-5
-	_audio.pitch_scale=[0.88,1.08,0.94,0.91,1.0][_line_index]
-	_audio.play()
-	_line_left=_audio.stream.get_length()/_audio.pitch_scale+0.4
+	_line_left=soundscape.line_duration(_line_index)
 	_subtitle.text=LINES[_line_index]
 	spoken.append(_line_index)
 	line_started.emit(_line_index,LINES[_line_index])

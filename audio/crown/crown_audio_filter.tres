@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="CrownAudioFilterProfile" load_steps=7 format=3]
+[ext_resource type="Script" path="res://audio/crown/crown_audio_filter_profile.gd" id="1"]
+[sub_resource type="AudioEffectHighPassFilter" id="HP"]
+cutoff_hz = 300.0
+resonance = 0.35
+[sub_resource type="AudioEffectLowPassFilter" id="LP"]
+cutoff_hz = 3500.0
+resonance = 0.2
+[sub_resource type="AudioEffectDistortion" id="Harmonics"]
+mode = 1
+pre_gain = -4.0
+drive = 0.04
+post_gain = 0.0
+[sub_resource type="AudioEffectHighShelfFilter" id="Presence"]
+cutoff_hz = 2200.0
+gain = 1.0
+[sub_resource type="AudioEffectReverb" id="Plate"]
+predelay_msec = 24.0
+room_size = 0.58
+damping = 0.25
+spread = 0.95
+hipass = 0.18
+dry = 1.0
+wet = 0.12
+[resource]
+script = ExtResource("1")
+high_pass = SubResource("HP")
+low_pass = SubResource("LP")
+harmonics = SubResource("Harmonics")
+presence = SubResource("Presence")
+plate = SubResource("Plate")

@@ -1,0 +1,29 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (11 steps)
+[   0% ] update_scripts_classes | CrownVoiceSystem
+[   8% ] update_scripts_classes | AudioVacuum
+[  16% ] update_scripts_classes | ClimaxAudio
+[  25% ] update_scripts_classes | CrownVoiceDSP
+[  33% ] update_scripts_classes | RealmAudioDirector
+[  41% ] update_scripts_classes | RealmSoundBank
+[  50% ] update_scripts_classes | SorrowSoundBank
+[  58% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  83% ] update_scripts_classes | RealmStage
+[ DONE ] update_scripts_classes
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout

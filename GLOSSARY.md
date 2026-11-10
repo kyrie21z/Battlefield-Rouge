@@ -192,3 +192,12 @@
 | --- | --- | --- |
 | 晶屑发射池 | `CrystalBurst` | 播种前预建、预热的四系 GPU 粒子池；真实受击、死亡和技能结算借用，战斗时不构造 GPU 节点或消费玩法 RNG。 |
 | 技能顿帧 | `BoonHitstop` | HUD 对延爆、破绽和撞墙结算请求 0.04 秒反馈；fixture、暂停与死亡时禁用，场景退出不遗留慢速。 |
+
+## 镜潭与白雨（#169）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 墨蓝镜潭 | `water_mirror.gdshader` | 留在不透明通道的 SSR 水面，倒映屏幕内建筑和角色；法线扰动形成扩散同心波。 |
+| 白色细雨 | `rain_particles.tscn` / `rain_layout.gdshaderinc` | 750 条垂直 GPU 雨丝，共用确定性落点与时钟，使雨滴落水和水面圆环同步。 |
+| 水波包 | `SorrowRealm._ripples` | 固定 32 槽视觉环池，由真实涉水、冲刺、成功射击和泪晶交互驱动，不参与伤害或物理结算。 |
+| 镜潭相机环境 | `SorrowRealm.mirror_environment` | 显式赋给 ViewCamera 的悲伤领域环境，确保 SSR 不受同场 WorldEnvironment 创建顺序影响。 |

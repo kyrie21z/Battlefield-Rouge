@@ -78,7 +78,9 @@ static func prepare(parent: Node) -> void:
 static func spawn(parent: Node, point: Vector3, sin: int, event: StringName = &"hit", direction := Vector3.UP) -> CrystalBurst:
 	if not is_instance_valid(parent) or sin < 0 or sin >= COLORS.size() or active >= MAX_ACTIVE:
 		return null
-	var pool := parent.get_meta("crystal_emitter_pool",null) as EmitterPool
+	if not parent.has_meta("crystal_emitter_pool"):
+		return null
+	var pool := parent.get_meta("crystal_emitter_pool") as EmitterPool
 	if not is_instance_valid(pool) or not pool.ready_for_use:
 		return null
 	var available: GPUParticles3D

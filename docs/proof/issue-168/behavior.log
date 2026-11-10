@@ -1,5 +1,7 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+PASS unprepared parent silently skips cosmetic burst
+PASS unprepared parent preserves gameplay RNG
 PASS realm 0 owns correct identity
 PASS resolved hit uses exact contact 0
 PASS friendly fire creates no debris 0
@@ -28,4 +30,4 @@ PASS pause freezes cosmetic lifetime
 PASS expired bursts return all emitter leases
 PASS recycled emitter can fire without gameplay random draws
 PASS scene teardown releases emitter budget
-CRYSTAL FEEDBACK: 28 checks, 0 failures
+CRYSTAL FEEDBACK: 30 checks, 0 failures

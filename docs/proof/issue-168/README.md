@@ -6,7 +6,8 @@
 
 ## 验证
 
-- Godot 4.7.2，`crystal_feedback_test.tscn`：28 项通过、0 失败、无引擎错误；四系真实受击/死亡、友伤、重复死伤、真实接触、全局随机序列、池上限、暂停、场景退出与复用。
+- Godot 4.7.2，`crystal_feedback_test.tscn`：30 项通过、0 失败、无引擎错误；四系真实受击/死亡、友伤、重复死伤、真实接触、全局随机序列、池上限、暂停、场景退出与复用。
+- 根完整回归曾发现未预建池的旧场景会让 `get_meta(..., null)` 报缺失 metadata；新增 `has_meta` 守卫，未准备的父节点静默返回 null 且不消费 RNG。`boon_damage_scaling_test.tscn` 复验 34 项通过，两个最终日志均无引擎错误。
 - `crystal_feedback_bench.tscn`：Windows NVIDIA RTX 4060 Laptop、Vulkan Forward+，1280×720，固定模拟步长60；性能默认不截图，`-- --capture`是独立截图模式。
 - 最终无截图采样：12 emitter / 528 GPU碎片，121帧 p50 5.556 ms、p95 6.265 ms、最大9.954 ms；首爆同为9.954 ms，12次spawn合计CPU8.083 ms。原始逐帧值在 `performance.json`；前一次无截图独立进程为p95 6.387 ms、最大11.645 ms。
 - 加载预热58帧单列：p95 11.506 ms、最大22.910 ms。这些是新引擎进程实测，不声称已清空驱动shader cache。

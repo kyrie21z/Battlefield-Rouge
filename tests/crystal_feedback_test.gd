@@ -6,6 +6,11 @@ func check(label: String, passed: bool) -> void:
 	if not passed: failures += 1
 	print("%s %s" % ["PASS" if passed else "FAIL", label])
 func _ready() -> void:
+	seed(168)
+	var expected_unprepared := randf()
+	seed(168)
+	check("unprepared parent silently skips cosmetic burst",CrystalBurst.spawn(self,Vector3.ZERO,0)==null)
+	check("unprepared parent preserves gameplay RNG",randf()==expected_unprepared)
 	CrystalBurst.prepare(self)
 	for i in 5: await get_tree().process_frame
 	var player := preload("res://actors/player/player.tscn").instantiate() as Player

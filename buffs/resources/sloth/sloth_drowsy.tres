@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_drowsy"
+name = "睡意浸染"
+sin = 0
+slot = 3
+rarity = 0
+core = false
+description = "带滞后敌人射出的飞弹速度降低50%。"
+parameters = {"projectile_scale": 0.5}
+script_hook = ExtResource("2")

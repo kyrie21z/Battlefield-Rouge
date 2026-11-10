@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_inertia"
+name = "惯性累积"
+sin = 0
+slot = 3
+rarity = 0
+core = false
+description = "滞后期间实际扣血蓄压的结算倍率+50%。"
+parameters = {"pressure_multiplier": 1.5}
+script_hook = ExtResource("2")

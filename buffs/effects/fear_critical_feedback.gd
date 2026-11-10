@@ -5,10 +5,12 @@ extends Node3D
 var _elapsed := 0.0
 var _label: Label3D
 static var _sound: AudioStreamWAV
+var play_sound := true
 
 
-static func spawn(parent: Node, point: Vector3, damage: float) -> FearCriticalFeedback:
+static func spawn(parent: Node, point: Vector3, damage: float, with_sound := true) -> FearCriticalFeedback:
 	var effect := FearCriticalFeedback.new()
+	effect.play_sound = with_sound
 	parent.add_child(effect)
 	effect.global_position = point + Vector3.UP * 0.2
 	effect._label.text = "%d!" % roundi(damage)
@@ -25,6 +27,8 @@ func _ready() -> void:
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.no_depth_test = false
 	add_child(_label)
+	if not play_sound:
+		return
 	var player := AudioStreamPlayer3D.new()
 	player.stream = _crystal_sound()
 	player.volume_db = -8.0

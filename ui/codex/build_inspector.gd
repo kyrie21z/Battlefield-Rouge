@@ -17,6 +17,7 @@ var _page_index := 0
 var _pages: VBoxContainer
 var _build_scroll: ScrollContainer
 var _codex: Control
+var _diary: Control
 var _page_buttons: Array[Button] = []
 var _save_hint: Label
 
@@ -63,9 +64,9 @@ func _ready() -> void:
 	var page_row := HBoxContainer.new()
 	page_row.add_theme_constant_override("separation",12)
 	column.add_child(page_row)
-	for index in 2:
+	for index in 3:
 		var button := Button.new()
-		button.text = ["当前构筑","赐福图鉴"][index]
+		button.text = ["当前构筑","赐福图鉴","心象日记"][index]
 		button.add_theme_font_size_override("font_size",20)
 		button.custom_minimum_size = Vector2(160,42)
 		button.toggle_mode = true
@@ -198,6 +199,10 @@ func refresh() -> void:
 		if is_instance_valid(_codex):
 			_codex.call("setup",player.boons,MetaProgression.discovered_boons)
 		return
+	if _page_index == 2:
+		if is_instance_valid(_diary):
+			_diary.call("setup",MetaProgression.archive_snapshot())
+		return
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -278,15 +283,22 @@ static func add_card(parent: Control,card: BoonData,trait_card := false) -> void
 
 
 func show_page(index: int) -> void:
-	_page_index = clampi(index,0,1)
+	_page_index = clampi(index,0,2)
 	if _page_index == 1 and not is_instance_valid(_codex):
 		_codex = load("res://ui/codex/dual_boon_codex.tscn").instantiate() as Control
 		_codex.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		_codex.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_pages.add_child(_codex)
+	if _page_index == 2 and not is_instance_valid(_diary):
+		_diary = load("res://ui/codex/lore_diary.tscn").instantiate() as Control
+		_diary.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_diary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_pages.add_child(_diary)
 	_build_scroll.visible = _page_index == 0
 	if is_instance_valid(_codex):
 		_codex.visible = _page_index == 1
+	if is_instance_valid(_diary):
+		_diary.visible = _page_index == 2
 	for i in _page_buttons.size():
 		_page_buttons[i].set_pressed_no_signal(i==_page_index)
 	refresh()

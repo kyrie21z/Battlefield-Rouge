@@ -1,8 +1,8 @@
-# 静滞之门：Pride 首次引导与玩家确认
+# 静滞之门：Pride 首次引导与玩家确认（历史归档）
 
 > 对应 [Issue #45](https://github.com/kyrie21z/Battlefield-Rouge/issues/45)；设计与交互预演交付 v0.2 · 2026-11-01。
 > 依据：[Sloth LDD](../SLOTH_LEVEL_DESIGN.md) §1、§2.1、§3、§6.2。
-> 当前是供团队评审的制作方案；不替代整层开发范围与代码迁移决策。
+> 这是保留原稿的历史方案，已由 #147 一镜到底开场替代。用户最新纠偏明确取消眼睛、手与拟人表情，当前普通六尖皇冠见 `actors/crown/crown_model.gd` 和 [叙事基准](../../NARRATIVE_FOUNDATION.md)。下文的卡通眼/手套/逐句点击仅记录旧设计，不再作为实施要求。
 
 ## 1. 本段要让玩家知道什么
 
@@ -30,7 +30,7 @@
 | S04 / 第 4 句 | 镜头降低到连续地面和门洞，明确下一步方向 | 入口就在巨环下面。我们马上就到。 | 飞到右上方，交替两个手绘挥手姿势 | 皇冠避开右上角控制按钮和字幕 |
 | S05 / 第 5 句 | 保留入口构图，准备交还选择权 | 我会陪着你。什么时候出发，由你决定。 | 飞回左侧，手搭冠沿，安静等待 | 点“准备出发”后进入门前确认画面 |
 
-对白唯一运行源为 [dialogue.json](../../../ui/pride_opening/dialogue.json)。修改脚本中的镜头与台词时同步本表。
+本页是 #45/#48 历史预演记录。旧对白保存在 [dialogue-legacy.json](dialogue-legacy.json)，图集原件保存在 `assets/pride-atlas.png`；#147 已将运行开场替换为 `ui/cinematics/opening_sequence.tscn`，不再使用点击推进弹窗。
 
 ## 4. Pride 的形象与表演规范
 

@@ -1,0 +1,163 @@
+[
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/interview.wav",
+    "text": "请用一分钟解释，为什么我们应该选你？你的方案有什么不可替代的价值？",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/wake.wav",
+    "text": "醒了吗？感觉好点了吗？别怕，我在这里。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/care.wav",
+    "text": "别去想刚才的意外。那不是你的水平。你比任何人以为的，都要优秀。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/obstacle.wav",
+    "text": "只是那些潜伏在深处的老毛病，又在关键时刻绊了我们一跤。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/better.wav",
+    "text": "听我说，你可以做到更好。你生来就是属于顶峰的。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 147,
+    "path": "assets/audio/crown/opening/invitation.wav",
+    "text": "来，我们一起把那些拖慢脚步的心魔清理干净。下一次，让他们心服口服。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/first.wav",
+    "text": "别怕。刚才的意外不是你的全部。你可以做到更好，跟着我往前走。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/early.wav",
+    "text": "没关系，站起来。刚才只是节奏乱了一点。看清它的动作，再快一点。",
+    "voice": "zf_001",
+    "speed": 1.0
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/early_abyss.wav",
+    "text": "先站稳。刚才是桥面翻转了，不是你不够优秀。下一次，把边缘记牢。",
+    "voice": "zf_001",
+    "speed": 1.0
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/deep.wav",
+    "text": "只差一点点了！别让那些软弱，把好不容易夺回的阵地抢回去。继续！",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/deep_abyss.wav",
+    "text": "已经走到这里，怎么还能掉下去？看住脚下。我们不能再浪费这次机会。",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/veteran.wav",
+    "text": "深呼吸。路线记住了。行动。",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/veteran_abyss.wav",
+    "text": "远离边缘。不要重复失误。行动。",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/floor2.wav",
+    "text": "安静下来了，对吗？现在，不必再被恐惧拖慢。",
+    "voice": "zf_001",
+    "speed": 0.92
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/floor3.wav",
+    "text": "你已经不再犹豫。继续，把那些愤怒也清理干净。",
+    "voice": "zf_001",
+    "speed": 1.0
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/floor4.wav",
+    "text": "不要停。悲伤只会让你回头。顶峰就在前面。",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 148,
+    "path": "assets/audio/crown/dynamic/floor5.wav",
+    "text": "终于，没有什么能拖住你了。抬头，看看完美的自己。",
+    "voice": "zf_001",
+    "speed": 1.08
+  },
+  {
+    "issue": 149,
+    "path": "assets/audio/climax/slumber.wav",
+    "text": "我想睡觉……我已经很累了。",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "issue": 149,
+    "path": "assets/audio/climax/fear.wav",
+    "text": "我好害怕……我也需要被保护。",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "issue": 149,
+    "path": "assets/audio/climax/spite.wav",
+    "text": "我好生气！我不想再被推着走！",
+    "voice": "zm_010",
+    "speed": 1.04
+  },
+  {
+    "issue": 149,
+    "path": "assets/audio/climax/sorrow.wav",
+    "text": "我好难过……让我哭一次吧。",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "issue": 149,
+    "path": "assets/audio/climax/acceptance.wav",
+    "text": "我不想再变得完美了。我只想做我自己！",
+    "voice": "zm_010",
+    "speed": 1.04
+  },
+  {
+    "issue": 150,
+    "path": "assets/audio/climax/crown_breakdown.wav",
+    "text": "你简直无药可救了！！",
+    "voice": "zf_001",
+    "speed": 1.12
+  }
+]

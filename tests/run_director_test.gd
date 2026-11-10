@@ -62,7 +62,8 @@ func _ready()->void:
 	check("room change cannot reset fragment cooldowns",player.fragments._barrier_recovery==2.5 and is_equal_approx(player.fragments._counter_left,0.7) and player.fragments.spite_charge==2)
 	check("new player retains all deprivation rules",player.health.unbuffered and not player.realm_effects.warnings_enabled and player.fragments.deprivations.size()==4)
 	check("new body restores actual fracture level four",player.get_node("ShadowBody").fracture_level==4)
-	check("physical crown restores exponential emission",player.get_node("CrownRadiance").strength>15.0)
+	check("physical crown restores exponential emission",player.get_node("CrownVoiceSystem").strength>15.0)
+	check("actual return-corridor Player speaks the fifth-floor line",player.get_node("CrownVoiceSystem").floor_depth==5 and player.get_node("CrownVoiceSystem").current_key=="floor5")
 	var death_count: Array[int] = [0]
 	var on_failure:=func(_depth,_cause):death_count[0]+=1
 	RunDirector.run_failed.connect(on_failure)

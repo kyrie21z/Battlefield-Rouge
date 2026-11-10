@@ -321,3 +321,21 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | `assets/audio/crown/opening/invitation.wav` | 7.625 | `21d9fee7f7a93687a3a704c2296295f8466981bcd0f1c3e6c27058db193ace9e` |
 | `assets/audio/crown/opening/obstacle.wav` | 6.725 | `cdc62d01f8785409a921c714b940db3429419ee003d2e8e3adf0efbdef9963d1` |
 | `assets/audio/crown/opening/wake.wav` | 4.850 | `fbe10da257756b7316ee21fe09622eebc9921e44f554d9b18ed00455864c84d0` |
+
+## #148 随行皇冠动态语音（2026-11-10）
+
+11段原创项目台词使用#147登记的官方 Apache-2.0 Kokoro-82M-v1.1-zh，同一标准女声 `zf_001`，本机离线生成24kHz单声道PCM16；按句使用0.92/1.00/1.08语速表达叙事节奏，精确参数/哈希见 [manifest](../tools/cinematic/voice_assets_manifest.json)。仅分发输出，不分发模型/引擎，不标为CC0。旧SAPI生成脚本已显式阻止执行。3D冠及发光Shader仍为本项目原创。波形、时长、实际解码播放已验证，未完成人工听感验收。
+
+| 文件 | 秒 | SHA-256 |
+| --- | ---: | --- |
+| `assets/audio/crown/dynamic/deep.wav` | 6.550 | `ec543a6c12c52fe1d1165b8e3a74a5e3d4c92e964a4617287e7a5d3c34eaefc0` |
+| `assets/audio/crown/dynamic/deep_abyss.wav` | 6.875 | `23205e802fdd388eac97e7b24629a17fea3bb1beafe977e81d37c7534fd208c3` |
+| `assets/audio/crown/dynamic/early.wav` | 6.850 | `3ccf151100439726c992094ee27c8de72e87442ffaba7a3cf71f14288bd38dac` |
+| `assets/audio/crown/dynamic/early_abyss.wav` | 6.750 | `231f5ac88c951add9ec231a9b3ddeecc9b102eafbdaba6d593820ebad1b4a211` |
+| `assets/audio/crown/dynamic/first.wav` | 6.950 | `a2f5a2d57260723adadb4e61d5228aebba9d185be97df352f1f43678c6c6fed6` |
+| `assets/audio/crown/dynamic/floor2.wav` | 5.375 | `75c94d291eda59dd50656021a05ce149177379a4fb04e5574c3fb90b368e784c` |
+| `assets/audio/crown/dynamic/floor3.wav` | 5.425 | `e978951ea4d2afe5b23e03a749f62017d8118c1322097dc5c404dabf352c2f59` |
+| `assets/audio/crown/dynamic/floor4.wav` | 4.925 | `80296081db08becde9a986bffdb3ff74afc59f4cffc898428676cc7320eb1b2f` |
+| `assets/audio/crown/dynamic/floor5.wav` | 5.300 | `60ff0c0aaad859c4c9b476709c292e00db1ccf2a8807e58ce7ccf0e6a9a67d47` |
+| `assets/audio/crown/dynamic/veteran.wav` | 3.425 | `20eee70b053d282f6afa92c897ecf16b02b352cb90b194e0cf3e904e15ba8d61` |
+| `assets/audio/crown/dynamic/veteran_abyss.wav` | 3.800 | `f865e7d60479368200bdfe28fb32c2a4fd9669f39fe3b0fc0907b352252d99b9` |

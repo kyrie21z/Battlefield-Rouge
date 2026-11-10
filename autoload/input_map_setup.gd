@@ -21,6 +21,7 @@ var _bindings := {
 	"interact": [_key(KEY_F)],
 	"toggle_debug": [_key(KEY_F3)],
 	"pause": [_key(KEY_ESCAPE)],
+	"inspect_build": [_key(KEY_TAB), _joy(JOY_BUTTON_BACK)],
 }
 
 
@@ -47,5 +48,11 @@ static func _key(keycode: Key) -> InputEventKey:
 
 static func _mouse(button: MouseButton) -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
+	event.button_index = button
+	return event
+
+
+static func _joy(button: JoyButton) -> InputEventJoypadButton:
+	var event := InputEventJoypadButton.new()
 	event.button_index = button
 	return event

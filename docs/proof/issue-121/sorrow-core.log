@@ -1,0 +1,29 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] equip sorrow_gun_needles
+[ok] equip sorrow_blade_tide
+[ok] equip sorrow_dash_ribbon
+[ok] five real pistol hits saturate at five erosion layers
+[ok] each layer amplifies actual incoming gun damage by ten percent
+[ok] first saturation drops one real crystal
+[ok] additional full-stack hit does not duplicate saturation crystal
+[ok] DoT waits for half-second cadence
+[ok] five-layer DoT deals amplified real HP damage
+[ok] pause keeps erosion timer unchanged
+[ok] walking to crystal consumes it exactly once
+[ok] real pickup grants 25 over-shield
+[ok] picked shield absorbs actual incoming damage
+[ok] real blade active frame clears only front hostile bullets
+[ok] blade wave applies one erosion layer across fan
+[ok] blade consumes ground tear and fires three owned projectiles
+[ok] production dash starts water ribbon
+[ok] water ribbon samples actual start-to-end route
+[ok] water slows actual enemy movement and adds one layer
+[ok] overlapping water samples cannot multiply layer cadence
+[ok] player water contact gives reversible move speed
+[ok] leaving water removes player move modifier
+[ok] three-second ribbon expires and restores enemy speed
+[ok] eroded enemy death drops a tear once
+[ok] loadout cleanup removes all water and erosion
+[ok] core scenario reaches final boundary
+SORROW CORE: ALL PASSED (0 failed)

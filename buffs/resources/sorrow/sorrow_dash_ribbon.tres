@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_dash_ribbon"
+name = "冲刺·苍蓝水带"
+sin = 3
+slot = 2
+rarity = 0
+core = true
+description = "冲刺留下3秒水迹；站在其中移速+30%，敌人减速40%且每0.5秒叠加溶蚀。"
+parameters = {"erosion_duration": 5.0, "interval": 0.5, "damage_per_layer": 4.0, "tear_shield": 25.0, "pickup_radius": 3.0, "pickup_damage": 10.0, "duration": 3.0, "radius": 1.15}
+stat_modifiers = {}
+script_hook = ExtResource("2")

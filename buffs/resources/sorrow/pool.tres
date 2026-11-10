@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BoonPool" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_pool.gd" id="1"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_gun_needles.tres" id="2"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_blade_tide.tres" id="3"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_dash_ribbon.tres" id="4"]
+
+[resource]
+script = ExtResource("1")
+cards = Array[BoonData]([ExtResource("2"), ExtResource("3"), ExtResource("4")])

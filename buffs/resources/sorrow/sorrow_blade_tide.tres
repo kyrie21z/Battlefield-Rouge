@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_blade_tide"
+name = "刀·潮涌怒斩"
+sin = 3
+slot = 1
+rarity = 0
+core = true
+description = "苍蓝水幕清除前方敌弹并施加溶蚀；斩过泪晶向前爆射三束水晶。"
+parameters = {"erosion_duration": 5.0, "interval": 0.5, "damage_per_layer": 4.0, "tear_shield": 25.0, "pickup_radius": 3.0, "pickup_damage": 10.0, "wave_reach": 4.5, "tear_damage": 18.0, "tear_speed": 24.0, "tear_launch_height": 0.35}
+stat_modifiers = {"clock_theme": {"add": 4.0}}
+script_hook = ExtResource("2")

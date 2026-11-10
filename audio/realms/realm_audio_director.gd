@@ -1,6 +1,6 @@
 class_name RealmAudioDirector
 extends Node
-## The composition root injects the room. Audio never reads campaign singletons.
+## The composition root injects a room or combat player; no campaign singleton reads.
 const MAX_VOICES := 16
 var stage: RealmStage
 var player: Player
@@ -18,6 +18,9 @@ func setup(room: RealmStage) -> void:
 	stage = room
 	player = room.player
 	deprived = room.deprivations.has(room.realm)
+
+func setup_combat(owner_player: Player) -> void:
+	player = owner_player
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -41,11 +44,13 @@ func _ready() -> void:
 	player.boons.event_dispatched.connect(_on_boon_event)
 	if ResourceLoader.exists("res://audio/realms/wrath_sound_bank.gd"):
 		Events.projectile_registered.connect(_on_projectile)
-	stage.realm_defeated.connect(_on_realm_defeated)
-	stage.player_fallen.connect(_on_fallen)
+	player.health.died.connect(_on_player_died)
+	if is_instance_valid(stage):
+		stage.realm_defeated.connect(_on_realm_defeated)
+		stage.player_fallen.connect(_on_fallen)
 	_install_boon_audio()
 	set_deprived(deprived)
-	if is_instance_valid(stage.hud):
+	if is_instance_valid(stage) and is_instance_valid(stage.hud):
 		stage.hud.settings.changed.connect(_apply_audio_settings)
 		_apply_audio_settings()
 
@@ -54,7 +59,7 @@ func _install_boon_audio() -> void:
 	if ResourceLoader.exists(path):
 		var feedback := load(path).new() as Node
 		feedback.name = "SorrowBoonAudio"
-		feedback.call("setup",player,stage.realm)
+		feedback.call("setup",player,stage.realm if is_instance_valid(stage) else -1)
 		add_child(feedback)
 
 func _apply_audio_settings() -> void:
@@ -116,6 +121,9 @@ func _on_projectile(projectile: Node3D) -> void:
 
 func _on_realm_defeated(_room: RealmStage) -> void:
 	set_deprived(true)
+
+func _on_player_died(_source: Node) -> void:
+	stop_all()
 
 func _on_fallen(_room: RealmStage, _cause: StringName) -> void:
 	stop_all()

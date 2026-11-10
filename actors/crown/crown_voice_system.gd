@@ -10,6 +10,7 @@ const GLARE := preload("res://ui/shaders/blinding_glare.gdshader")
 var player: Player
 var model: CrownModel
 var audio: AudioStreamPlayer
+var voice_dsp: CrownVoiceDSP
 var subtitle: Label
 var layer: CanvasLayer
 var glow: OmniLight3D
@@ -60,6 +61,10 @@ func _ready() -> void:
 	audio.volume_db = -5
 	audio.finished.connect(_on_audio_finished)
 	add_child(audio)
+	voice_dsp = CrownVoiceDSP.new()
+	voice_dsp.setup(audio, strength)
+	add_child(voice_dsp)
+	radiance_changed.connect(voice_dsp.set_radiance)
 	layer = CanvasLayer.new()
 	add_child(layer)
 	var light_overlay := ColorRect.new()
@@ -127,6 +132,7 @@ func play_line(key: String) -> bool:
 	return true
 
 func stop_voice() -> void:
+	if is_instance_valid(voice_dsp): voice_dsp.flush_tail()
 	if is_instance_valid(audio):
 		audio.stop()
 	if is_instance_valid(subtitle):

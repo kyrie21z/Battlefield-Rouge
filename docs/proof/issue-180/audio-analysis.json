@@ -1,0 +1,61 @@
+{
+  "method": "16-bit PCM measurements; real engine DSP renders for crown files, direct deterministic synthesis for others; not listening acceptance",
+  "files": [
+    {
+      "file": "crown_blazing.wav",
+      "sha256": "048e5115e5489e90f477437cf62aaa6ddd600ea45504d20a2a80b3fdc3b6fcc8",
+      "sample_rate": 48000,
+      "channels": 2,
+      "duration_s": 3.509333333333333,
+      "peak": 0.065460205078125,
+      "rms": 0.006843034330071222,
+      "stereo_difference_rms": 0.005626836509405057,
+      "full_scale_samples": 0
+    },
+    {
+      "file": "crown_soft.wav",
+      "sha256": "5278fdfb394db5cd2d869630a9a09e2a3eadbfad1d5fd6a283fdb237a0218b95",
+      "sample_rate": 48000,
+      "channels": 2,
+      "duration_s": 3.4346666666666668,
+      "peak": 0.09185791015625,
+      "rms": 0.009938868377770927,
+      "stereo_difference_rms": 0.0022999094229819526,
+      "full_scale_samples": 0
+    },
+    {
+      "file": "gold_flow.wav",
+      "sha256": "7bc1dd42d462390cdf3a04d7f32e7dca094a3e6d6889bef9945821d36079734c",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_s": 3.2,
+      "peak": 0.28314208984375,
+      "rms": 0.07533580061434665,
+      "stereo_difference_rms": 0.022060587296137926,
+      "full_scale_samples": 0
+    },
+    {
+      "file": "piano.wav",
+      "sha256": "53580077224b23211e0e4475b5d84d1752dc6b063034cbbc4fe032a909ef3593",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_s": 3.2,
+      "peak": 0.531402587890625,
+      "rms": 0.09673638493103494,
+      "stereo_difference_rms": 0.09460065997135021,
+      "full_scale_samples": 0,
+      "dominant_fundamental_neighborhood_hz": 293.5
+    },
+    {
+      "file": "shatter.wav",
+      "sha256": "56e03fc3e4d5e32110647d4c916484c97eb9ec2ccf6f221aa31fbc83b9900703",
+      "sample_rate": 22050,
+      "channels": 2,
+      "duration_s": 1.8,
+      "peak": 0.74139404296875,
+      "rms": 0.07354736614866675,
+      "stereo_difference_rms": 0.04059498807388459,
+      "full_scale_samples": 0
+    }
+  ]
+}

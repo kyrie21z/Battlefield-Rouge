@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS cinematic locks actual player subtree and starts a physical crown drop
+PASS cinematic hides combat HUD but owns a high pause layer
+PASS Esc opens the real settings menu during cinematic lock
+PASS cinematic and physical drop stop while paused
+PASS Esc resumes cinematic without releasing its player lock
+PASS original spoken Chinese line is real nonempty audio
+PASS crown physically falls under gravity
+PASS WORLD floor contact starts actual angry voice
+PASS body prints progressively from top down
+PASS printing body cannot be shot or attack prematurely
+PASS pause freezes printed fraction and choreography
+PASS crown seals onto actual animated head anchor
+PASS seal removes reparent rotation and aligns the actual head axes
+HEAD BOUNDS [P: (-0.096452, -0.099449, -0.158318), S: (0.191506, 0.295371, 0.231961)] CROWN BOUNDS [P: (-0.11753, -0.031625, -0.132261), S: (0.23506, 0.135125, 0.264522)] FIT (1.082674, 1.0, 1.013495)
+PASS worn crown matches actual head width and keeps its true height
+PASS white crystal head renders normally below the crown
+PASS combat begins once after complete print and controls restore
+PASS combat shows real crosshair vitals and eight-round ammunition
+PASS actual shot immediately updates displayed ammunition
+PASS actual pistol reassembly has visible reload feedback
+PASS Esc pauses live boss combat and weapon reassembly
+PASS pause settings bind actual crosshair and player look
+PASS ADS tightens the reused production crosshair
+PASS death enters actual white supernova and preserves crown
+PASS supernova has rendered white flash and expanding sphere
+PASS death emits one ending event with surviving physical crown
+PASS completion cleans boss and returns live player control
+PASS completion removes pause input and all battle overlays before ending
+PASS early scene removal restores controls audio and owned pause
+DOPPELGANGER SPAWN: 28 checks, 0 failed

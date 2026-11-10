@@ -1,0 +1,121 @@
+{
+  "base": "b9457c7",
+  "count": 23,
+  "files": [
+    {
+      "path": "assets/audio/climax/acceptance.wav",
+      "sha256": "1eae27b6d41e20875e97c7127ee49e19e87611ac616873b5d2540321ed5e1487",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/climax/crown_breakdown.wav",
+      "sha256": "6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/climax/fear.wav",
+      "sha256": "0c29e5a2a67241401922a83417e98af77d4da2fb9b1224eb6318cc3b89cd42fd",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/climax/slumber.wav",
+      "sha256": "b9a21c2ceccd7e0f8e4b5fe4465e9a7642e28b1a026e45195ca17e07e17e3ef6",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/climax/sorrow.wav",
+      "sha256": "8b9ba389106621f512d9f3c53f988a69ffb0a06fd5a5002ffeab091bf509f3df",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/climax/spite.wav",
+      "sha256": "a8df488d0d9dc479a7ad532e8f43753a878edc1fa81cedc1478366ab05b0d3c2",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/deep.wav",
+      "sha256": "ec543a6c12c52fe1d1165b8e3a74a5e3d4c92e964a4617287e7a5d3c34eaefc0",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/deep_abyss.wav",
+      "sha256": "23205e802fdd388eac97e7b24629a17fea3bb1beafe977e81d37c7534fd208c3",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/early.wav",
+      "sha256": "3ccf151100439726c992094ee27c8de72e87442ffaba7a3cf71f14288bd38dac",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/early_abyss.wav",
+      "sha256": "231f5ac88c951add9ec231a9b3ddeecc9b102eafbdaba6d593820ebad1b4a211",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/first.wav",
+      "sha256": "a2f5a2d57260723adadb4e61d5228aebba9d185be97df352f1f43678c6c6fed6",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/floor2.wav",
+      "sha256": "75c94d291eda59dd50656021a05ce149177379a4fb04e5574c3fb90b368e784c",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/floor3.wav",
+      "sha256": "e978951ea4d2afe5b23e03a749f62017d8118c1322097dc5c404dabf352c2f59",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/floor4.wav",
+      "sha256": "80296081db08becde9a986bffdb3ff74afc59f4cffc898428676cc7320eb1b2f",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/floor5.wav",
+      "sha256": "60ff0c0aaad859c4c9b476709c292e00db1ccf2a8807e58ce7ccf0e6a9a67d47",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/veteran.wav",
+      "sha256": "20eee70b053d282f6afa92c897ecf16b02b352cb90b194e0cf3e904e15ba8d61",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/dynamic/veteran_abyss.wav",
+      "sha256": "f865e7d60479368200bdfe28fb32c2a4fd9669f39fe3b0fc0907b352252d99b9",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/better.wav",
+      "sha256": "a1b72f9e5f690364adedfd72270bdb03e7096fa5c0e62054836aab7a58e7b613",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/care.wav",
+      "sha256": "e3989058caa04536db048eb7b8ddf211663e2e8d61952f60087f1387e2b7576e",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/interview.wav",
+      "sha256": "37b0bf581011072289b12ad35869bbd1d8561f21149a76b8582e134284ea4f9a",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/invitation.wav",
+      "sha256": "21d9fee7f7a93687a3a704c2296295f8466981bcd0f1c3e6c27058db193ace9e",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/obstacle.wav",
+      "sha256": "cdc62d01f8785409a921c714b940db3429419ee003d2e8e3adf0efbdef9963d1",
+      "base_equal": true
+    },
+    {
+      "path": "assets/audio/crown/opening/wake.wav",
+      "sha256": "fbe10da257756b7316ee21fe09622eebc9921e44f554d9b18ed00455864c84d0",
+      "base_equal": true
+    }
+  ]
+}

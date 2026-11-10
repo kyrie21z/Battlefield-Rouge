@@ -213,6 +213,7 @@ func defeat_realm(realm: int) -> bool:
 	if not active or _dead or room_index != 2 or realm != current_realm() or defeated.has(realm):
 		return false
 	defeated.append(realm)
+	MetaProgression.record_archive(realm,true)
 	deprivations.append(realm)
 	crown_strength = 0.5 * pow(2.4,defeated.size())
 	Events.sin_defeated.emit(defeated.size())
@@ -291,6 +292,8 @@ func install_stage(packed: PackedScene) -> Error:
 		previous.queue_free()
 	if "player" in next and next.get("player") is Player:
 		restore_player(next.get("player"))
+	if active and next is RealmStage and current_realm() >= 0:
+		MetaProgression.record_archive(current_realm())
 	if floor_index >= 4:
 		threshold_reached.emit()
 	elif not _starter_given and next.has_method("offer_entry_reward"):
@@ -381,6 +384,8 @@ func record_death(cause: StringName) -> void:
 	_transitioning = false
 	last_death_depth = mini(floor_index+1,4)
 	last_death_cause = cause
+	if current_realm() >= 0:
+		MetaProgression.record_archive(current_realm())
 	settle_rewards()
 	run_failed.emit(last_death_depth,cause)
 	changed.emit()
@@ -399,6 +404,8 @@ func restart() -> void:
 	get_tree().change_scene_to_file("res://ui/game_start.tscn")
 
 func finish_campaign() -> void:
+	if active and not run_id.is_empty():
+		MetaProgression.record_archive(-1,false,true)
 	settle_rewards()
 	completed = true
 	active = false

@@ -39,7 +39,7 @@ func _ready() -> void:
 			var cover := _block("BrokenCover", pos, Vector3(3, 1.4, 3), true)
 			cover.rotation.z = 0.12
 	var world := WorldEnvironment.new()
-	world.environment = Environment.new()
+	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	world.environment.background_mode = Environment.BG_COLOR
 	world.environment.background_color = Color(0.16, 0.095, 0.085)
 	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

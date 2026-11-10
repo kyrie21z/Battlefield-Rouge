@@ -157,3 +157,17 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 `DualBoonCodex` 通过 `setup(manager, discovered)` 接收真实装备与发现快照，只读查询 `BoonManager.can_equip`。父级 `BuildInspector` 持有暂停和页面生命周期，子页面只在可见时处理肩键和内部焦点，隐藏后不截获战斗输入。
 
 `MetaProgression` 在成功选卡事件上记录发现，`RunDirector` 在恢复装备时补录；新增 `discovered_boons` 是兼容 v1 旧档的可选字段，随原校验和及原子写盘保存。失败时保留待写知识，下次打开检视或成功存档重试；UI 不发放赐福、不修改战斗装备。
+
+## Epic 6：接触光照与瞄准景深（#171）
+
+`environments/default_env.tres` 是共享 SSAO/SSIL 参数资源。RealmStage、四领域环境与演出组合根复制此资源后保留各自氛围，不共享可变 Environment 实例。Forward+ 高质量屏幕空间接触光照用于增强白色建筑的尺度和交界可读性。
+
+`ADSFocus` 是 Player 的呈现组件，仅给渲染用 ViewCamera 注入私有 `CameraAttributesPractical`；瞄准和伤害仍由原逻辑相机完成。它以至多 20 Hz 的物理查询获取焦点并平滑收敛，瞄准时使用轻度前后景模糊；死亡、禁用和退出释放或恢复相机状态，不修改武器、命中或移动数值。
+
+### 心象日记与双面档案（#175）
+
+`RunDirector` 在实际安装领域房间、收到玩家死亡或领域 Boss 击败信号时记录 `MetaProgression` 的 `visited_realms` / `defeated_realms`，最终 `ReconciliationSequence.finished` 才记录 `reconciled`。领域索引取当前编排，不从挑战次数或死亡深度猜测。`archive` 是 v1 存档新增的可选字段；旧档缺字段默认全部锁定，读档验证领域范围、去重与 defeated ⊆ visited，失败写盘保留内存并随后续成功保存重试。
+
+`LoreEntries.project(archive)` 只投影已解锁文案：访问或死亡开放该领域手记和皇冠评论，击败再开放其人性保护价值，和解开放终章。未解锁标题、正文及另一面评语不放进 UI 控件、tooltip 或 metadata。`LoreDiary.setup(archive)` 接收上层传入的快照；`MetaProgression.archive_snapshot()` 复制数组，阅读与滚动不改变真实进度。
+
+战斗入口由 `BuildInspector` 的第三页托管，继续由父级拥有暂停、鼠标及 TAB / ESC。结局菜单以 `ArchiveReader` 复用同一日记组件，打开时隐藏底层菜单以隔离手柄焦点，关闭后恢复菜单；阅读不创建新挑战，也不要求 Player。`LoreDiary` 不读写 RunDirector，不拥有暂停。进度和原生布局证据见 [#175 集成验收](docs/proof/issue-175/integration.md)。

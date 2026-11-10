@@ -49,6 +49,7 @@ func _ready()->void:
 	if ending==null:get_tree().quit(1);return
 	check("actual final Boss defeat grants kill and clear income once",RunDirector.earned_will==25 and RunDirector.earned_anchors==0)
 	check("the same final corpse cannot pay again",duplicate_ok[0] and RunDirector.earned_will==25)
+	check("defeating the final opponent does not reveal reconciliation diary",not MetaProgression.reconciled)
 	player.position=ending.fallen_crown.global_position+Vector3(0,0,1.35)
 	check("actual crown pickup starts after final fight",ending.try_pickup())
 	count=0
@@ -57,6 +58,7 @@ func _ready()->void:
 		count+=1
 	check("single camera survives all three sequences",player.view_camera.get_instance_id()==camera_id)
 	check("terminal credits bank the final fight exactly once",MetaProgression.will_shards==wallet_before+25 and MetaProgression.settled_runs.has(RunDirector.run_id))
+	check("real reconciliation sequence reveals final diary",MetaProgression.reconciled and LoreEntries.project(MetaProgression.archive_snapshot())[4].unlocked)
 	RunDirector.finish_campaign()
 	check("repeated ending cannot duplicate final fight income",MetaProgression.will_shards==wallet_before+25)
 	check("terminal credits clear active death loop",RunDirector.completed and not RunDirector.active and ending.phase==ReconciliationSequence.Phase.CREDITS)

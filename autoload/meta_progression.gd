@@ -23,6 +23,9 @@ var _bound_player: WeakRef
 var _read_only := false
 var history := {"run_count":0,"last_depth":0,"death_cause":""}
 var discovered_boons: Array[String] = []
+var visited_realms: Array[int] = []
+var defeated_realms: Array[int] = []
+var reconciled := false
 var codex_save_pending := false
 var isolated_profile := false
 var _cleanup_profile := false
@@ -194,7 +197,7 @@ func describe(id: String) -> String:
 	return ""
 
 func _payload() -> Dictionary:
-	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate(),"discovered_boons":discovered_boons.duplicate()}
+	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate(),"discovered_boons":discovered_boons.duplicate(),"archive":archive_snapshot()}
 
 func _restore(payload: Dictionary) -> void:
 	will_shards = int(payload.will_shards)
@@ -203,6 +206,10 @@ func _restore(payload: Dictionary) -> void:
 	settled_runs.assign(payload.settled_runs)
 	history = payload.get("history",{"run_count":0,"last_depth":0,"death_cause":""}).duplicate()
 	discovered_boons.assign(payload.get("discovered_boons",[]))
+	var archive: Dictionary = payload.get("archive",{})
+	visited_realms.assign(archive.get("visited_realms",[]))
+	defeated_realms.assign(archive.get("defeated_realms",[]))
+	reconciled = archive.get("reconciled",false)
 
 func _checksum(payload: Dictionary) -> String:
 	var normalized: Variant = JSON.parse_string(JSON.stringify(payload,"",true))
@@ -247,6 +254,21 @@ func _read_payload(path: String) -> Dictionary:
 			if not id is String or id.is_empty() or id.length()>128 or known.has(id):
 				return {}
 			known[id] = true
+	if data.has("archive"):
+		if not data.archive is Dictionary or not data.archive.get("reconciled") is bool:
+			return {}
+		for field in ["visited_realms","defeated_realms"]:
+			var values: Variant = data.archive.get(field)
+			if not values is Array or values.size()>4:
+				return {}
+			var seen_realms := {}
+			for realm in values:
+				if not _valid_integer(realm,0,3) or seen_realms.has(realm):
+					return {}
+				seen_realms[realm] = true
+		for realm in data.archive.defeated_realms:
+			if not data.archive.visited_realms.has(realm):
+				return {}
 	var seen := {}
 	for id in data.settled_runs:
 		if not id is String or id.is_empty() or id.length()>128 or seen.has(id):
@@ -319,6 +341,29 @@ func record_discoveries(cards: Array) -> bool:
 		if card is BoonData and known.has(card.id) and not discovered_boons.has(card.id):
 			discovered_boons.append(card.id)
 			added = true
+	if added:
+		codex_save_pending = true
+		changed.emit()
+	return save() if codex_save_pending else true
+
+
+func archive_snapshot() -> Dictionary:
+	return {"visited_realms":visited_realms.duplicate(),"defeated_realms":defeated_realms.duplicate(),"reconciled":reconciled}
+
+## Only the campaign composition root calls this after real progression events.
+func record_archive(realm: int = -1,was_defeated := false,was_reconciled := false) -> bool:
+	if realm < -1 or realm > 3 or (realm == -1 and not was_reconciled):
+		return false
+	var added := false
+	if realm >= 0 and not visited_realms.has(realm):
+		visited_realms.append(realm)
+		added = true
+	if realm >= 0 and was_defeated and not defeated_realms.has(realm):
+		defeated_realms.append(realm)
+		added = true
+	if was_reconciled and not reconciled:
+		reconciled = true
+		added = true
 	if added:
 		codex_save_pending = true
 		changed.emit()

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_reload"
+name = "从容装填"
+sin = 0
+slot = 3
+rarity = 0
+core = false
+description = "空匣绽放期间没有实际受伤，重组补弹帧获得35过载护盾。"
+parameters = {"shield": 35.0}
+script_hook = ExtResource("2")

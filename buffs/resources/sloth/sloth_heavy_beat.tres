@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_heavy_beat"
+name = "沉重节拍"
+sin = 0
+slot = 3
+rarity = 0
+core = false
+description = "每隔1.5秒准备下一击，命中植入减速70%的深度滞后。"
+parameters = {"interval": 1.5, "latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0}
+script_hook = ExtResource("2")

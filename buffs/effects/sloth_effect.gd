@@ -11,6 +11,7 @@ var clocks: Dictionary = {}
 var auras: Array[Dictionary] = []
 var _burst_depth := 0
 var _waves: Array[Node3D] = []
+var _traits: SlothTraits
 var _dash_settling := false
 var _still_elapsed := 0.0
 var _last_position := Vector3.ZERO
@@ -21,6 +22,8 @@ var _blade_boost := false
 func setup(value: BoonManager) -> void:
 	super.setup(value)
 	_last_position = manager.player.global_position
+	_traits = SlothTraits.new()
+	_traits.setup(self)
 
 
 func parameter(id: String, key: String, fallback: float) -> float:
@@ -29,6 +32,8 @@ func parameter(id: String, key: String, fallback: float) -> float:
 
 
 func on_event(event: StringName, ctx: Dictionary) -> void:
+	if event != &"hit_after":
+		_traits.on_event(event, ctx)
 	match event:
 		&"enemy_damage":
 			var victim := ctx.get("target") as Node3D
@@ -54,6 +59,7 @@ func on_event(event: StringName, ctx: Dictionary) -> void:
 					(clocks[victim.get_instance_id()] as LatencyStatus).detonate(parameter(BLADE, "detonation_multiplier", 1.5))
 				else:
 					apply_latency(victim, BLADE)
+			_traits.on_event(event, ctx)
 		&"hit_before":
 			if ctx.get("kind") == &"blade" and int(ctx.get("proc_depth", 0)) == 0 and _blade_boost:
 				ctx.damage = float(ctx.damage) * parameter(DASH, "next_attack_multiplier", 1.5)
@@ -83,6 +89,7 @@ func on_event(event: StringName, ctx: Dictionary) -> void:
 
 
 func tick(delta: float) -> void:
+	_traits.tick(delta)
 	_waves = _waves.filter(func(wave): return is_instance_valid(wave))
 	for key: int in clocks.keys():
 		var clock = clocks[key]
@@ -138,6 +145,7 @@ func apply_latency(victim: Node3D, card := GUN, deep := false) -> LatencyStatus:
 	clocks[key] = clock
 	victim.add_child(clock)
 	clock.detonated.connect(_on_detonated)
+	_traits.prepare_clock(clock)
 	manager.set_status(victim, STATUS, 0.0, clock.slow_factor)
 	return clock
 
@@ -154,7 +162,10 @@ func _on_detonated(clock: LatencyStatus, origin: Vector3, damage: float) -> void
 	_remove_clock(key, false)
 	_burst_depth += 1
 	manager.dispatch(&"sloth_burst", {"target": clock.target, "position": origin, "damage": damage, "proc_depth": 1, "tag": &"sloth_burst", "damage_scaled": true})
-	manager.aoe(origin, _burst_radius(), damage, {"tag": &"sloth_burst", "proc_depth": 1, "damage_scaled": true})
+	var radius := _burst_radius()
+	var victims := manager.targets_in_radius(origin, radius)
+	manager.aoe(origin, radius, damage, {"tag": &"sloth_burst", "proc_depth": 1, "damage_scaled": true})
+	_traits.after_burst(origin, damage, radius, victims)
 	_burst_depth -= 1
 	_waves.append(SlothWave.spawn(manager.player.get_parent(), origin - Vector3.UP * 0.8, _burst_radius()))
 
@@ -162,8 +173,8 @@ func _on_detonated(clock: LatencyStatus, origin: Vector3, damage: float) -> void
 func _burst_radius() -> float:
 	for id: String in [GUN, BLADE, DASH]:
 		if manager.has(id):
-			return parameter(id, "burst_radius", 3.0)
-	return 3.0
+			return parameter(id, "burst_radius", 3.0) * _traits.radius_multiplier()
+	return parameter(SlothTraits.HEAVY, "burst_radius", 3.0) * _traits.radius_multiplier()
 
 
 func _remove_clock(key: int, cancel := true) -> void:
@@ -185,6 +196,8 @@ func _spawn_aura(origin: Vector3) -> void:
 
 func cleanup() -> void:
 	_waves = _waves.filter(func(wave): return is_instance_valid(wave))
+	_traits.cleanup()
+	_traits = null
 	for wave: Node3D in _waves:
 		if is_instance_valid(wave):
 			wave.queue_free()

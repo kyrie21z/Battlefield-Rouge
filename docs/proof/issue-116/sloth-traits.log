@@ -1,0 +1,61 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] equip sloth_gun_pulse
+[ok] equip sloth_blade_cleave
+[ok] equip sloth_dash_ripple
+[ok] actual pistol hit applies Latency
+[ok] implanting shot is not retroactively accumulated
+[ok] repeated gun shot keeps separate 35 damage and 25 shot ledgers
+[ok] no early detonation
+[ok] pause cannot advance countdown
+[ok] 1.5 seconds delivers 60 + 35 + 25 actual burst
+[ok] burst uses unique health and visible neighbours
+[ok] WORLD cover and allies reject AoE
+[ok] detonation cleans clock and slow
+[ok] production blade forces clock detonation
+[ok] blade burst includes slash then multiplies by 1.5
+[ok] blade clock stat doubles
+[ok] production Dash starts
+[ok] dash start makes one aura
+[ok] dash finish records the actual position
+[ok] touching the landing aura roots and marks target
+[ok] settled dash boosts one attack by 50 percent
+[ok] boost is consumed exactly once
+[ok] freed transient waves and departing enemies are pruned safely
+[ok] loadout cleanup restores target slow and clock stat
+[ok] unmet gun-or-blade prerequisite excludes descent
+[ok] unmet dash-or-passive prerequisite excludes time field
+[ok] no traits excludes legendary
+[ok] one gun satisfies OR prerequisite
+[ok] one trait cannot unlock legendary
+[ok] one passive satisfies time-field alternative
+[ok] two sloth traits unlock legendary
+[ok] inertia multiplies actual pressure by 1.5
+[ok] radius grows from 3 to 4.8m and one equal rebound follows lethal burst
+[ok] stationary status reduces actual incoming HP loss by 40 percent
+[ok] rest doubles actual empty recharge rate
+[ok] movement removes damage reduction source immediately
+[ok] clean empty refill grants 35 actual barrier
+[ok] over-shield absorbs real incoming damage
+[ok] damaged bloom does not grant shield
+[ok] tactical refill does not grant empty-magazine bonus
+[ok] heavy beat changes actual enemy movement to 30 percent
+[ok] drowsy emitted projectile travels half actual distance
+[ok] removing drowsy restores existing projectiles while core remains
+[ok] descent adds exactly 25 percent to shared critical roll
+[ok] descent chance combines with shared stats to double actual damage
+[ok] real burst sleeps nearby survivors
+[ok] two active clocks slow enemy world to 80 percent
+[ok] active field accelerates dash recharge
+[ok] threshold loss removes world and recharge modifiers
+[ok] latency elite kill freezes enemies and existing hostile bullet
+[ok] production SlothEnemy is physically frozen
+[ok] projectile remains exactly suspended
+[ok] absolute freeze never stops global engine time
+[ok] freeze remains before two-second boundary
+[ok] player manager clock restores freeze at two seconds
+[ok] removing legendary restores freeze source
+[ok] a kill older than three seconds is excluded
+[ok] three kills within the sliding window trigger actual freeze
+[ok] full cleanup restores all enemy and projectile time sources
+SLOTH TRAITS: ALL PASSED (0 failed)

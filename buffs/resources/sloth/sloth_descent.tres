@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_descent"
+name = "深度沉沦"
+sin = 0
+slot = 3
+rarity = 2
+core = false
+description = "对滞后目标暴击率+25%；爆发使范围内幸存敌人昏睡1秒。"
+parameters = {"crit_chance": 0.25, "sleep_duration": 1.0}
+prerequisite_any = Array[String](["sloth_gun_pulse", "sloth_blade_cleave"])
+script_hook = ExtResource("2")

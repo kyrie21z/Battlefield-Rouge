@@ -18,8 +18,10 @@ func _ready() -> void:
 	check("production room entry records its realm",MetaProgression.visited_realms==[0])
 	check("entry does not unlock protective dossier",MetaProgression.defeated_realms.is_empty())
 	RunDirector.floor_index = 1
-	RunDirector.record_death(&"fear_test")
-	check("death in another realm unlocks only that diary",MetaProgression.visited_realms.has(1) and MetaProgression.defeated_realms.is_empty())
+	RunDirector.install_stage(load(RunDirector.scene_path()))
+	var death_stage := RunDirector.current_stage as RealmStage
+	death_stage.player.health.apply_damage(99999,Hitbox.BodyPart.BODY,death_stage)
+	check("actual player death passes through campaign archive hook",RunDirector._dead and death_stage.fallen and MetaProgression.visited_realms.has(1) and MetaProgression.defeated_realms.is_empty())
 	RunDirector.begin_run(175)
 	RunDirector.order.assign([0,1,2,3])
 	RunDirector.floor_index = 2

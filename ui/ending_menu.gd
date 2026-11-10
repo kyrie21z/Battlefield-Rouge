@@ -1,4 +1,7 @@
 extends Control
+var _archive_reader: Control
+var _archive_button: Button
+var _menu_box: VBoxContainer
 func _ready()->void:
 	get_tree().paused=false
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
@@ -10,6 +13,7 @@ func _ready()->void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	var box:=VBoxContainer.new()
+	_menu_box = box
 	box.add_theme_constant_override("separation",30)
 	center.add_child(box)
 	var title:=Label.new()
@@ -22,6 +26,10 @@ func _ready()->void:
 	start.text="开启新的挑战"
 	start.pressed.connect(_start_new_challenge)
 	box.add_child(start)
+	_archive_button = Button.new()
+	_archive_button.text = "心象日记"
+	_archive_button.pressed.connect(_open_archive)
+	box.add_child(_archive_button)
 	var quit_button:=Button.new()
 	quit_button.text="退出"
 	quit_button.pressed.connect(func():get_tree().quit())
@@ -30,3 +38,20 @@ func _ready()->void:
 func _start_new_challenge() -> void:
 	if RunDirector.begin_run():
 		get_tree().change_scene_to_file("res://ui/game_start.tscn")
+
+func _open_archive() -> void:
+	if is_instance_valid(_archive_reader):
+		return
+	var reader := load("res://ui/codex/archive_reader.gd").new() as Control
+	reader.set("archive",MetaProgression.archive_snapshot())
+	reader.connect("closed",_close_archive)
+	_archive_reader = reader
+	_menu_box.hide()
+	add_child(reader)
+
+func _close_archive() -> void:
+	if is_instance_valid(_archive_reader):
+		_archive_reader.queue_free()
+	_archive_reader = null
+	_menu_box.show()
+	_archive_button.grab_focus()

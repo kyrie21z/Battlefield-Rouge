@@ -1,6 +1,6 @@
-# #175 心象档案：独立 UI 与内容
+# #175 心象档案：UI、内容与生产接入
 
-基线：`b9457c7`。本交付只包含 LoreDiary、LoreEntries、隔离测试与本目录证据；不修改 MetaProgression、RunDirector、HUD 或 BuildInspector。
+基线：`b9457c7`。独立组件包括 LoreDiary、LoreEntries 与隔离测试；整合提交另含 MetaProgression/RunDirector 的进度记录、战斗 BuildInspector 日记页和结局菜单阅读入口。真实事件与最终验收见 [integration.md](integration.md) 和 [persistence.md](persistence.md)。下文的只读接口与独立组件证据保留。
 
 ## 接入接口
 
@@ -64,4 +64,4 @@ flock /tmp/epic675-native.lock /tmp/epic34-plan/godot-wsl \
 | `04-dual-dossier` / `04b-dual-dossier-end` | 愤怒双面档案顶部/底部，含保护边界与不认可伤害的正文 |
 | `05-reconciled` / `06-final-line` | 终局手记顶部/底部，最后一行可达 |
 
-限制：本 worktree 不含主管的正式 BuildInspector/事件存档集成，测试证明的是注入 archive 后的 UI 门槛和交互；真实进入、死亡、Boss 击败、重启读取和最终和解的端到端验收由主管集成后完成。手柄输入为原生 InputEventJoypadButton 注入，未声称实体手柄人工实玩。未改动战斗系统，未跑全库战斗/fixture 回归。
+独立组件测试证明注入 archive 后的 UI 门槛和交互；主管已整合生产 BuildInspector、结局菜单及真实事件存档，端到端结果见 [integration.md](integration.md)。手柄输入为原生 InputEventJoypadButton 注入，未声称实体手柄人工实玩。全库回归与最终 PR 合并由集成负责人执行。

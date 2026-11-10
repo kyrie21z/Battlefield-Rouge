@@ -1,0 +1,52 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://ui/codex/lore_diary.gd:45)
+ERROR: Failed to load script "res://ui/codex/lore_diary.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "LoreDiary" in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:4)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:17)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:17)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:23)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "diaries" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:23)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:24)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "dossiers" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:24)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:25)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:25)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:29)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:29)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:31)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:37)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:43)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:63)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:63)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:63)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:66)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:66)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:68)
+SCRIPT ERROR: Parse Error: Identifier "LoreEntries" not declared in the current scope.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:68)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://tests/lore_diary_test.gd:117)
+ERROR: Failed to load script "res://tests/lore_diary_test.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

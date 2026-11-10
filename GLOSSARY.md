@@ -166,3 +166,9 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 构筑检视（#173）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 心智矩阵 | `BuildInspector` | TAB / 手柄 View 打开的只读构筑面板，展示真实四槽、次级特质、独立碎片与属性；只拥有自己取得的暂停，选卡和演出期间拒绝打开。 |

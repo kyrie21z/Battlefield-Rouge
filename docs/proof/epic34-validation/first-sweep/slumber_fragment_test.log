@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS distant shard cannot be collected
+PASS WORLD wall blocks pickup
+PASS walking into range collects actual shard once
+PASS duplicate pickup does not stack
+PASS independent power retains deprivation
+PASS no healing during five second combat grace
+PASS slumber restores HP outside combat
+PASS pause freezes healing
+PASS nearby visible live foe prevents rest healing
+PASS healing resumes after foe is dead and combat ends
+PASS restoration deduplicates persistent shards
+PASS fragment cannot revive dead player
+ALL PASSED (12 checks)

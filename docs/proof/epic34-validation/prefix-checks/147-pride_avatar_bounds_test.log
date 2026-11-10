@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS physical crown fits authored human head dimensions
+PASS ordinary crown contains only band, rims and six points
+PASS crown has no face or appendage nodes
+PASS complete simple crown fits camera at angle 0
+PASS complete simple crown fits camera at angle 1
+PASS complete simple crown fits camera at angle 2
+PASS complete simple crown fits camera at angle 3
+PASS complete simple crown fits camera at angle 4
+PASS complete simple crown fits camera at angle 5
+PASS complete simple crown fits camera at angle 6
+PASS complete simple crown fits camera at angle 7
+PASS complete simple crown fits camera at angle 8
+PASS complete simple crown fits camera at angle 9
+PASS complete simple crown fits camera at angle 10
+PASS complete simple crown fits camera at angle 11
+PASS complete simple crown fits camera at angle 12
+PASS complete simple crown fits camera at angle 13
+PASS complete simple crown fits camera at angle 14
+PASS complete simple crown fits camera at angle 15
+PASS complete simple crown fits camera at angle 16
+PASS complete simple crown fits camera at angle 17
+PASS complete simple crown fits camera at angle 18
+PASS complete simple crown fits camera at angle 19
+PASS worn crown retains the same simple silhouette
+CROWN BOUNDS: ALL PASSED (24 checks)

@@ -1,0 +1,138 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] complete catalog contains 48 family cards and six dual cards
+  [ok] stable card ID is unique: sloth_gun_pulse
+  [ok] stable card ID is unique: sloth_blade_cleave
+  [ok] stable card ID is unique: sloth_dash_ripple
+  [ok] stable card ID is unique: sloth_descent
+  [ok] stable card ID is unique: sloth_drowsy
+  [ok] stable card ID is unique: sloth_eternal
+  [ok] stable card ID is unique: sloth_heavy_beat
+  [ok] stable card ID is unique: sloth_inertia
+  [ok] stable card ID is unique: sloth_reload
+  [ok] stable card ID is unique: sloth_resonance
+  [ok] stable card ID is unique: sloth_stillness
+  [ok] stable card ID is unique: sloth_time_field
+  [ok] stable card ID is unique: fear_gaze_pierce
+  [ok] stable card ID is unique: fear_flash_backstab
+  [ok] stable card ID is unique: fear_tremor_decoy
+  [ok] stable card ID is unique: fear_distant_terror
+  [ok] stable card ID is unique: fear_paranoia
+  [ok] stable card ID is unique: fear_sixth_sense
+  [ok] stable card ID is unique: fear_fracture_spread
+  [ok] stable card ID is unique: fear_every_shadow
+  [ok] stable card ID is unique: fear_exposed_terror
+  [ok] stable card ID is unique: fear_final_execution
+  [ok] stable card ID is unique: fear_abyssal_blindness
+  [ok] stable card ID is unique: fear_panoptic_dread
+  [ok] stable card ID is unique: wrath_gun_cannon
+  [ok] stable card ID is unique: wrath_blade_sweep
+  [ok] stable card ID is unique: wrath_dash_ram
+  [ok] stable card ID is unique: wrath_shrapnel
+  [ok] stable card ID is unique: wrath_retaliation
+  [ok] stable card ID is unique: wrath_desperation
+  [ok] stable card ID is unique: wrath_reload
+  [ok] stable card ID is unique: wrath_crusher
+  [ok] stable card ID is unique: wrath_chain
+  [ok] stable card ID is unique: wrath_breaker
+  [ok] stable card ID is unique: wrath_frenzy
+  [ok] stable card ID is unique: wrath_cataclysm
+  [ok] stable card ID is unique: sorrow_gun_needles
+  [ok] stable card ID is unique: sorrow_blade_tide
+  [ok] stable card ID is unique: sorrow_dash_ribbon
+  [ok] stable card ID is unique: sorrow_abyss
+  [ok] stable card ID is unique: sorrow_buffer
+  [ok] stable card ID is unique: sorrow_echo
+  [ok] stable card ID is unique: sorrow_flood
+  [ok] stable card ID is unique: sorrow_gravity
+  [ok] stable card ID is unique: sorrow_mercy
+  [ok] stable card ID is unique: sorrow_pressure
+  [ok] stable card ID is unique: sorrow_shards
+  [ok] stable card ID is unique: sorrow_suffocation
+  [ok] stable card ID is unique: dual_slumber_magma
+  [ok] stable card ID is unique: dual_tearful_panic
+  [ok] stable card ID is unique: dual_spiteful_deluge
+  [ok] stable card ID is unique: dual_frozen_paranoia
+  [ok] stable card ID is unique: dual_suffocating_mire
+  [ok] stable card ID is unique: dual_hysterical_rampage
+  [ok] dual_slumber_magma is excluded without its cores
+  [ok] dual_slumber_magma is excluded with only its first core
+  [ok] dual_slumber_magma cannot substitute a trait for its missing core
+  [ok] dual_slumber_magma cannot retain a replaced core in the same slot
+  [ok] dual_slumber_magma enters the real eligible pool with two different core slots
+  [ok] dual_slumber_magma equips through prerequisite validation
+  [ok] dual_slumber_magma becomes active after equip
+  [ok] slumber attack-speed cost is applied to real Stats
+  [ok] dual_slumber_magma immediately loses synergy after a prerequisite core is replaced
+  [ok] slumber penalty is removed with the missing core
+  [ok] dual_tearful_panic is excluded without its cores
+  [ok] dual_tearful_panic is excluded with only its first core
+  [ok] dual_tearful_panic cannot substitute a trait for its missing core
+  [ok] dual_tearful_panic cannot retain a replaced core in the same slot
+  [ok] dual_tearful_panic enters the real eligible pool with two different core slots
+  [ok] dual_tearful_panic equips through prerequisite validation
+  [ok] dual_tearful_panic becomes active after equip
+  [ok] dual_tearful_panic immediately loses synergy after a prerequisite core is replaced
+  [ok] dual_spiteful_deluge is excluded without its cores
+  [ok] dual_spiteful_deluge is excluded with only its first core
+  [ok] dual_spiteful_deluge cannot substitute a trait for its missing core
+  [ok] dual_spiteful_deluge cannot retain a replaced core in the same slot
+  [ok] dual_spiteful_deluge enters the real eligible pool with two different core slots
+  [ok] dual_spiteful_deluge equips through prerequisite validation
+  [ok] dual_spiteful_deluge becomes active after equip
+  [ok] dual_spiteful_deluge immediately loses synergy after a prerequisite core is replaced
+  [ok] dual_frozen_paranoia is excluded without its cores
+  [ok] dual_frozen_paranoia is excluded with only its first core
+  [ok] dual_frozen_paranoia cannot substitute a trait for its missing core
+  [ok] dual_frozen_paranoia cannot retain a replaced core in the same slot
+  [ok] dual_frozen_paranoia enters the real eligible pool with two different core slots
+  [ok] dual_frozen_paranoia equips through prerequisite validation
+  [ok] dual_frozen_paranoia becomes active after equip
+  [ok] dual_frozen_paranoia immediately loses synergy after a prerequisite core is replaced
+  [ok] dual_suffocating_mire is excluded without its cores
+  [ok] dual_suffocating_mire is excluded with only its first core
+  [ok] dual_suffocating_mire cannot substitute a trait for its missing core
+  [ok] dual_suffocating_mire cannot retain a replaced core in the same slot
+  [ok] dual_suffocating_mire enters the real eligible pool with two different core slots
+  [ok] dual_suffocating_mire equips through prerequisite validation
+  [ok] dual_suffocating_mire becomes active after equip
+  [ok] dual_suffocating_mire immediately loses synergy after a prerequisite core is replaced
+  [ok] dual_hysterical_rampage is excluded without its cores
+  [ok] dual_hysterical_rampage is excluded with only its first core
+  [ok] dual_hysterical_rampage cannot substitute a trait for its missing core
+  [ok] dual_hysterical_rampage cannot retain a replaced core in the same slot
+  [ok] dual_hysterical_rampage enters the real eligible pool with two different core slots
+  [ok] dual_hysterical_rampage equips through prerequisite validation
+  [ok] dual_hysterical_rampage becomes active after equip
+  [ok] dual_hysterical_rampage immediately loses synergy after a prerequisite core is replaced
+  [ok] two independent statuses give 10-to-14 damage even without a dual card
+  [ok] legacy physical blast receives the same dual-status bonus through Health
+  [ok] environmental damage cannot inherit the player's status bonus
+  [ok] one remaining status removes the global forty-percent bonus
+  [ok] sloth detonation physically launches both latent enemies into a real wall
+  [ok] real wall contacts cause damage, stun, and spawned magma spikes
+  [ok] a real pistol ray hitting a physical flaw creates the tearful pool
+  [ok] tearful pool rests on the physical ground below the chest facet
+  [ok] tearful pool gives five actual erosion layers inside its radius only
+  [ok] tearful pull moves the enemy through CharacterBody physics toward the break
+  [ok] real sorrow buffer defers half an incoming hit
+  [ok] settled five-point debt sends ten damage back to the enemy with player ownership
+  [ok] retaliation records the player as source and a fresh proc context
+  [ok] real blade active window breaks the physical tear and adds exactly ninety radial damage
+  [ok] standing still and aiming at an enemy applies eighty-percent slow and triple physical area
+  [ok] moving without ADS restores both gaze modifiers immediately
+  [ok] real weapon ADS retains gaze while moving
+  [ok] turning away restores the same enemy's area and speed
+  [ok] Sloth dash starts through the production action entry
+  [ok] Sorrow dash starts after landing and replacing the dash slot
+  [ok] mire uses the union of real water regions and the dash aura
+  [ok] mire halves attack timing without applying an extra movement or time slow
+  [ok] mire halves the production reaction timer while retaining normal strafe velocity
+  [ok] hostile projectile advances only ten centimetres in a tenth-second at five percent speed
+  [ok] an eroded enemy dying inside mire emits two real tears
+  [ok] physical flaw break launches target into a real WORLD contact
+  [ok] real wall contact detonates the distant remaining physical flaw
+  [ok] wall-to-flaw chain cannot recursively generate another cascade
+  [ok] open-air motion without a wall cannot detonate distant flaws
+  [ok] enemy-body contact is not promoted to a WORLD wall cascade
+ALL PASSED (0 failed, finished=true)

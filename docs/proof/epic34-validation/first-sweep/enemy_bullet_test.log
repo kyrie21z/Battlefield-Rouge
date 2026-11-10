@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] enemy bullets default to 22 m/s
+  [ok] the projectile class default stays 30 m/s (enemies pass their own)
+  [ok] a 30 m/s tracer is 1.05 m long
+  [ok] a slow projectile keeps the 0.7 m minimum
+  [ok] the tracer grows with speed
+  [ok] 30 m/s does not tunnel through a 0.2 m wall
+ENEMY BULLETS: ALL PASSED (0 failed)

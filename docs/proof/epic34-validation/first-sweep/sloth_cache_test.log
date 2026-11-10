@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] cached variant 0 reuses meshes but owns nodes
+  [ok] variant 0 charge materials are independent
+  [ok] variant 0 bone followers belong to the right actor
+  [ok] cached variant 0 preserves all 56 posed shards
+  [ok] killing cached variant 0 leaves its peer visible and alive
+  [ok] cached variant 1 reuses meshes but owns nodes
+  [ok] variant 1 charge materials are independent
+  [ok] variant 1 bone followers belong to the right actor
+  [ok] cached variant 1 preserves all 56 posed shards
+  [ok] killing cached variant 1 leaves its peer visible and alive
+  [ok] cached variant 2 reuses meshes but owns nodes
+  [ok] variant 2 charge materials are independent
+  [ok] variant 2 bone followers belong to the right actor
+  [ok] cached cocoon hinges move independently
+  [ok] cached variant 2 preserves all 56 posed shards
+  [ok] killing cached variant 2 leaves its peer visible and alive
+SLOTH_CACHE_COMPLETE checks=16 failures=0

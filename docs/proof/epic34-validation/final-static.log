@@ -1,0 +1,16 @@
+== review checks: 7d47060 against origin/main (5d8b290)
+      608 files changed, 18398 added text lines
+== tier: docs
+WARN  needs Kyrie (protected paths): ARCHITECTURE.md,autoload/input_map_setup.gd,autoload/meta_progression.gd,autoload/meta_progression.gd.uid,autoload/run_director.gd,autoload/run_director.gd.uid,docs/adr/0009-pride-opening-bootstrap.md,docs/adr/0018-realms-and-independent-fragments.md,project.godot
+WARN  needs Kyrie (deleted files): ui/pride_opening/crown_avatar.gd,ui/pride_opening/crown_avatar.gd.uid,ui/pride_opening/gray_gradient.gdshader,ui/pride_opening/gray_gradient.gdshader.uid,ui/pride_opening/opening.gd,ui/pride_opening/opening.gd.uid,ui/pride_opening/opening.tscn,ui/pride_opening/opening_flow.gd,ui/pride_opening/opening_flow.gd.uid
+== R1 merge with origin/main
+ok    merges cleanly
+== R6 file hygiene
+ok    no hygiene problems
+WARN  collision layer as a number, use CollisionLayers:
+      actors/boss/fear_oculus/fear_oculus.gd:	collision_layer = 0
+      actors/boss/fear_oculus/fear_oculus.gd:		(box as Hitbox).collision_layer = 0
+      actors/boss/fear_oculus/oculus_visual.gd:		piece.collision_layer = 0
+      actors/boss/flawless_doppelganger/flawless_doppelganger.gd:	collision_layer = 0
+      actors/boss/flawless_doppelganger/flawless_doppelganger.gd:		(box as Hitbox).collision_layer = 0
+== summary: tier docs, 0 FAIL, 3 WARN, logs in /tmp/epic34-final-static

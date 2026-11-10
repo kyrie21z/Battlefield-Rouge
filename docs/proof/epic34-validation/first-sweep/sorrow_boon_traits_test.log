@@ -1,0 +1,61 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] equip sorrow_gun_needles
+[ok] equip sorrow_blade_tide
+[ok] equip sorrow_dash_ribbon
+[ok] five real pistol hits saturate at five erosion layers
+[ok] each layer amplifies actual incoming gun damage by ten percent
+[ok] first saturation drops one real crystal
+[ok] additional full-stack hit does not duplicate saturation crystal
+[ok] DoT waits for half-second cadence
+[ok] five-layer DoT deals amplified real HP damage
+[ok] pause keeps erosion timer unchanged
+[ok] walking to crystal consumes it exactly once
+[ok] real pickup grants 25 over-shield
+[ok] picked shield absorbs actual incoming damage
+[ok] real blade active frame clears only front hostile bullets
+[ok] blade wave applies one erosion layer across fan
+[ok] blade consumes ground tear and fires three owned projectiles
+[ok] production dash starts water ribbon
+[ok] water ribbon samples actual start-to-end route
+[ok] water slows actual enemy movement and adds one layer
+[ok] overlapping water samples cannot multiply layer cadence
+[ok] player water contact gives reversible move speed
+[ok] leaving water removes player move modifier
+[ok] three-second ribbon expires and restores enemy speed
+[ok] eroded enemy death drops a tear once
+[ok] loadout cleanup removes all water and erosion
+[ok] flood requires gun or blade
+[ok] mercy requires dash or passive
+[ok] abyss requires two sorrow traits
+[ok] one passive satisfies mercy OR requirement
+[ok] one passive still excludes legendary
+[ok] two passives satisfy legendary
+[ok] real burst is split into 20 HP now and 20 debt
+[ok] immunity neither pays debt nor emits false reflected damage
+[ok] half-duration pays exactly ten fixed debt without double reduction
+[ok] real pickup cancels all remaining debt
+[ok] echo pickup applies erosion to nearby enemies
+[ok] gravity moves actual crystal toward player
+[ok] pickup radius is enlarged by 150 percent
+[ok] full erosion extends real SlothAttack warning to 2.6 seconds
+[ok] launched ground crystals damage a production SlothEnemy
+[ok] full-stack caster emits projectile travelling 60 percent distance
+[ok] erosion blocks actual shield regeneration
+[ok] status removal restores real shield regeneration
+[ok] critical damage gains forty percent after shared crit roll
+[ok] natural hit on saturated victim spreads erosion to nearby enemy
+[ok] real gun hit shatters tear into AoE damage
+[ok] tear shatter applies two erosion layers
+[ok] ten ground tears cap damage reduction at thirty-six percent
+[ok] mercy modifier reduces real incoming HP damage
+[ok] taking damage does not interrupt real shield regeneration
+[ok] legendary transforms real ground tears into flying blades
+[ok] real enemy kill creates a fountain
+[ok] homing blade deals real damage while piercing two enemies
+[ok] fountain periodically launches additional real blades
+[ok] piercing water blade stops at WORLD cover
+[ok] airborne drop projects crystal onto real WORLD floor
+[ok] cleanup clears debt, fountains, blades and shield blockers
+[ok] all scenarios reach final boundary
+SORROW TRAITS: ALL PASSED (0 failed)

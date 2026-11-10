@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS generated boss map creates one actual Colossus and arena
+PASS boss HP and actual attack damage use injected difficulty
+PASS boss retains inherited warning deprivation
+PASS hidden tells also suppress boss warning audio
+PASS HUD renders the actual boss bar
+PASS boss gate starts locked
+PASS actual boss death emits immediate realm defeat only once
+PASS new deprivation is cumulative and immediate
+PASS death blackens Rest and accelerates the world clock
+PASS death creates a real unconsumed world shard
+PASS room completion and gate wait for pickup
+PASS boss cannot incorrectly open a BoonPicker
+PASS dropped shard is on the baked walkable floor
+PASS walking onto shard grants independent Slumber
+PASS real pickup marks completion and unlocks the exit
+PASS Slumber pickup leaves cumulative deprivation intact
+PASS repeat damage cannot duplicate defeat or completion
+PASS only collected shard allows nearby boss exit
+REALM BOSS STAGE: 18 checks, 0 failed

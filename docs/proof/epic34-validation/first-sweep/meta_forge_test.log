@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS new test store never loads the real profile
+PASS controller settlement returns all earned currency
+META WRITE STATUS: 
+PASS same run cannot settle twice
+PASS negative rewards cannot mutate the wallet
+PASS high talent cannot be bought without a visible slot
+PASS successful purchase charges once and persists
+PASS restart loads balances, talent ranks and settlement ledger
+PASS Resolve caps at 150 base HP
+PASS advanced talent consumes one unlocked slot
+PASS second advanced talent refuses full slots
+PASS second slot unlocks the actual starter ability
+PASS rerolls cap at three
+PASS real Player Stats receive all numeric meta talents
+PASS dash capacity upgrade grants a real third charge
+PASS repeated room binding neither stacks stats nor heals
+PASS fully absorbed hit cannot consume the revival
+PASS final lethal damage restores 40 percent without emitting death
+PASS revival context reports actual life loss before restoration
+PASS rebinding cannot replenish a spent once-per-run revival
+PASS new unique run resets the revival allowance
+PASS abyss boundary remains fatal without consuming unsafe revival
+PASS starter boon is seeded and actually equippable
+PASS forge shows real wallet and occupied slots
+PASS forge closes once and restores pause state
+PASS tampered main profile falls back to a verified backup
+PASS invalid profile without backup is preserved and locked
+PASS failed disk transaction rolls back currency and run ledger
+PASS failed upgrade rolls back both payment and talent rank
+PASS pre-history valid profile retains talents and defaults safe run history
+PASS old profile upgrades history atomically without losing wallet
+PASS valid checksum cannot bypass run history type validation
+META FORGE: 31 checks, 0 failed

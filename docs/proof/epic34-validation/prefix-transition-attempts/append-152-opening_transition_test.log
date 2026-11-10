@@ -1,0 +1,66 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] the registered store isolates transition tests from the real save
+== scene fade
+  [ok] the overlay sits on layer 100 and runs while paused
+  [ok] it starts transparent and never takes input
+  [ok] it covers the whole viewport
+  [ok] it fades to black
+  [ok] the loading label is centred, readable and says 加载中…
+  [ok] it stays black and keeps the hint up while loading
+  [ok] a paused tree still fades out and frees the overlay
+== opening path
+  [ok] the opening records its destination without loading the zone
+  [ok] the opening starts no background request for the zone
+  [ok] only the opening owns the screen before departure
+  [ok] reading the opening leaves the zone unloaded and starts no threaded work
+  [ok] departure offers the real Forge before loading the first room
+  [ok] the Forge pauses the opening without starting a resource read or fade
+  [ok] repeated departure input leaves exactly one Forge awaiting the player
+  [ok] closing the real Forge prepares departure exactly once
+  [ok] entering from the opening fades to black first
+  [ok] the loading hint is presented before synchronous scene loading
+  [ok] the campaign stage becomes the current scene
+  [ok] the fade survives the scene change and covers its first frames
+  [ok] the overlay fades out on its own and frees itself
+  [ok] the zone is still current after the fade
+== loading missing resource failure and retry
+  [ok] departure offers the real Forge before loading the first room
+  [ok] the Forge pauses the opening without starting a resource read or fade
+  [ok] repeated departure input leaves exactly one Forge awaiting the player
+  [ok] closing the real Forge prepares departure exactly once
+  [ok] the failed read finishes and duplicate entry does not start another load
+  [ok] failure keeps a single black overlay over the opening
+  [ok] failure replaces the loading hint with an available retry button
+  [ok] failure also offers a visible exit button
+  [ok] the actual resource read follows the loading hint
+  [ok] failed entry leaves run state intact and releases its guard
+  [ok] failure waits for the player without automatically retrying
+  [ok] the retry button successfully enters the intended zone
+  [ok] repeated retry input starts just one further read
+  [ok] every read presents the loading hint first
+  [ok] successful retry removes the error and fade overlays
+  [ok] successful retry preserves the seed and initial selection state
+== loading empty scene failure and retry
+  [ok] departure offers the real Forge before loading the first room
+  [ok] the Forge pauses the opening without starting a resource read or fade
+  [ok] repeated departure input leaves exactly one Forge awaiting the player
+  [ok] closing the real Forge prepares departure exactly once
+  [ok] the failed read finishes and duplicate entry does not start another load
+  [ok] failure keeps a single black overlay over the opening
+  [ok] failure replaces the loading hint with an available retry button
+  [ok] failure also offers a visible exit button
+  [ok] the actual resource read follows the loading hint
+  [ok] failed entry leaves run state intact and releases its guard
+  [ok] failure waits for the player without automatically retrying
+  [ok] the retry button successfully enters the intended zone
+  [ok] repeated retry input starts just one further read
+  [ok] every read presents the loading hint first
+  [FAIL] successful retry removes the error and fade overlays
+  [ok] successful retry preserves the seed and initial selection state
+== fixture path
+  [ok] the fixture path starts no background load
+  [FAIL] and creates no fade overlay
+  [ok] the fixture path still enters the zone synchronously
+  [FAIL] it never creates a fade overlay
+FAIL (58 checks, 3 failed)

@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS Wrath pool has 12 distinct ids
+PASS high tier breaker is unavailable without a gun/blade
+PASS owning a gun satisfies breaker OR prerequisite
+PASS legendary requires two Wrath traits
+PASS two family traits unlock legendary
+PASS 30 percent HP grants maximum 60 percent all damage
+PASS healing removes low-health damage bonus
+PASS real incoming hit grants 40 percent offense for three seconds
+PASS retaliation uses real physical enemy impulse
+PASS retaliation boost expires
+PASS empty magazine is actually reassembling
+PASS being hit instantly refills through normal weapon path
+PASS all eight bullets in empowered magazine receive double damage
+PASS next empty reassembly clears magazine empowerment
+PASS following magazine returns to ordinary damage
+PASS crusher adds 80 percent to actual wall slam
+PASS wall scar deals actual repeated burn damage
+PASS burn patch has a real three-second lifetime
+PASS removing crusher cleans persistent ember sources
+PASS burn timer resolves exactly six ticks even across a long frame
+PASS one physical wall contact launches five piercing spikes
+PASS local projectile freeze preserves spike position and health
+PASS one real spike pierces two enemies exactly once each
+PASS actual enemy-to-enemy contact deals full slam to both
+PASS both bodies are stunned by chain collision
+PASS breaker weakens actual elite knockback resistance
+PASS wall slam destroys full real Health barrier
+PASS shield break adds 250 percent true damage before ordinary slam
+PASS successive credited kills cap movement and blade speed at 50 percent
+PASS frenzy armor blocks actual hurt flinch while HP still falls
+PASS four-second kill chain expires and restores stats
+PASS legendary creates real moving-air ruptures without a wall
+PASS both physically knocked enemies receive rupture damage
+PASS legendary raises visible ground crystals
+PASS dead enemies cannot trigger a later legendary rupture
+PASS cleanup restores masks and temporary modifiers
+WRATH TRAITS: 36 checks, 0 failed, completed=true

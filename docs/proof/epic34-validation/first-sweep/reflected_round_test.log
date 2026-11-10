@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] shot with stored round is accepted
+  [ok] blocked shot consumes and releases its stored round
+  [ok] nearby thin wall blocks the collected round
+  [ok] unobstructed shot is accepted
+  [ok] unobstructed collected round keeps its damage
+  [ok] collected rounds do not damage their owner
+REFLECTED ROUND: ALL PASSED (0 failed)

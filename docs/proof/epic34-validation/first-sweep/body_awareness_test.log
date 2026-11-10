@@ -1,0 +1,157 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] full body has eleven fracture regions
+  [ok] all 56 authored shards retained
+  [ok] SHARD_m_forearm_L_0 shares original shard geometry
+  [ok] SHARD_m_forearm_L_1 shares original shard geometry
+  [ok] SHARD_m_forearm_L_2 shares original shard geometry
+  [ok] SHARD_m_forearm_L_3 shares original shard geometry
+  [ok] SHARD_m_forearm_L_4 shares original shard geometry
+  [ok] SHARD_m_forearm_R_0 shares original shard geometry
+  [ok] SHARD_m_forearm_R_1 shares original shard geometry
+  [ok] SHARD_m_forearm_R_2 shares original shard geometry
+  [ok] SHARD_m_forearm_R_3 shares original shard geometry
+  [ok] SHARD_m_forearm_R_4 shares original shard geometry
+  [ok] SHARD_m_head_0 shares original shard geometry
+  [ok] SHARD_m_head_1 shares original shard geometry
+  [ok] SHARD_m_head_2 shares original shard geometry
+  [ok] SHARD_m_head_3 shares original shard geometry
+  [ok] SHARD_m_head_4 shares original shard geometry
+  [ok] SHARD_m_head_5 shares original shard geometry
+  [ok] SHARD_m_head_6 shares original shard geometry
+  [ok] SHARD_m_head_7 shares original shard geometry
+  [ok] SHARD_m_head_8 shares original shard geometry
+  [ok] SHARD_m_head_9 shares original shard geometry
+  [ok] SHARD_m_hips_0 shares original shard geometry
+  [ok] SHARD_m_hips_1 shares original shard geometry
+  [ok] SHARD_m_hips_2 shares original shard geometry
+  [ok] SHARD_m_shin_L_0 shares original shard geometry
+  [ok] SHARD_m_shin_L_1 shares original shard geometry
+  [ok] SHARD_m_shin_L_2 shares original shard geometry
+  [ok] SHARD_m_shin_L_3 shares original shard geometry
+  [ok] SHARD_m_shin_R_0 shares original shard geometry
+  [ok] SHARD_m_shin_R_1 shares original shard geometry
+  [ok] SHARD_m_shin_R_2 shares original shard geometry
+  [ok] SHARD_m_shin_R_3 shares original shard geometry
+  [ok] SHARD_m_shin_R_4 shares original shard geometry
+  [ok] SHARD_m_shin_R_5 shares original shard geometry
+  [ok] SHARD_m_thigh_L_0 shares original shard geometry
+  [ok] SHARD_m_thigh_L_1 shares original shard geometry
+  [ok] SHARD_m_thigh_L_2 shares original shard geometry
+  [ok] SHARD_m_thigh_L_3 shares original shard geometry
+  [ok] SHARD_m_thigh_L_4 shares original shard geometry
+  [ok] SHARD_m_thigh_L_5 shares original shard geometry
+  [ok] SHARD_m_thigh_L_6 shares original shard geometry
+  [ok] SHARD_m_thigh_R_0 shares original shard geometry
+  [ok] SHARD_m_thigh_R_1 shares original shard geometry
+  [ok] SHARD_m_thigh_R_2 shares original shard geometry
+  [ok] SHARD_m_thigh_R_3 shares original shard geometry
+  [ok] SHARD_m_thigh_R_4 shares original shard geometry
+  [ok] SHARD_m_thigh_R_5 shares original shard geometry
+  [ok] SHARD_m_thigh_R_6 shares original shard geometry
+  [ok] SHARD_m_thigh_R_7 shares original shard geometry
+  [ok] SHARD_m_thigh_R_8 shares original shard geometry
+  [ok] SHARD_m_upper_arm_L_0 shares original shard geometry
+  [ok] SHARD_m_upper_arm_L_1 shares original shard geometry
+  [ok] SHARD_m_upper_arm_L_2 shares original shard geometry
+  [ok] SHARD_m_upper_arm_R_0 shares original shard geometry
+  [ok] SHARD_m_upper_arm_R_1 shares original shard geometry
+  [ok] SHARD_m_upper_arm_R_2 shares original shard geometry
+  [ok] SHARD_m_torso_0 shares original shard geometry
+  [ok] materials are isolated per player
+  [ok] level 0 reaches full body uniform
+  [ok] level 0 only peels late
+  [ok] head remains shadow-only at level 0
+  [ok] level 1 reaches full body uniform
+  [ok] level 1 only peels late
+  [ok] head remains shadow-only at level 1
+  [ok] level 2 reaches full body uniform
+  [ok] level 2 only peels late
+  [ok] head remains shadow-only at level 2
+  [ok] level 3 reaches full body uniform
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] level 3 only peels late
+  [ok] head remains shadow-only at level 3
+  [ok] level 4 reaches full body uniform
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] source and fragments never overlap
+  [ok] level 4 only peels late
+  [ok] head remains shadow-only at level 4
+  [ok] original shared crystal material is unchanged
+  [ok] other player state is unchanged
+  [ok] forearm_L restores original pristine material
+  [ok] forearm_R restores original pristine material
+  [ok] head restores original pristine material
+  [ok] hips restores original pristine material
+  [ok] shin_L restores original pristine material
+  [ok] shin_R restores original pristine material
+  [ok] thigh_L restores original pristine material
+  [ok] thigh_R restores original pristine material
+  [ok] torso restores original pristine material
+  [ok] upper_arm_L restores original pristine material
+  [ok] upper_arm_R restores original pristine material
+  [ok] level clamps to four
+  [ok] level clamps to zero
+  [ok] number keys disabled in production
+  [ok] bench opt-in permits number keys
+  [ok] narrative event controls every body
+  [ok] destroyed bodies disconnect from event
+BODY AWARENESS: ALL PASSED (0 failed)

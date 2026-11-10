@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sorrow_gun_needles
+PASS natural pistol consumes low-health 60 percent offense once
+PASS raw Sorrow erosion receives offense then one-layer vulnerability
+PASS equip cross-family dependency wrath_desperation
+PASS natural blade consumes low-health offense once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency wrath_gun_cannon
+PASS Wrath real crystal projectile preserves launch-time offense once
+PASS Wrath fixed wall slam receives the same full damage bonus
+PASS equip cross-family dependency wrath_desperation
+PASS player-owned raw projectile gets the shared hit pipeline
+PASS raw spawned projectile deals scaled real damage exactly once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sloth_gun_pulse
+PASS equip cross-family dependency sloth_inertia
+PASS Sloth pressure records actual scaled HP loss
+PASS Sloth burst scales base and shot only, retaining actual pressure
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sloth_gun_pulse
+PASS equip cross-family dependency sloth_resonance
+PASS Sloth rebound reuses scaled burst without a second offense multiplier
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency fear_flash_backstab
+PASS Fear detonation resets copied scaling and scales new base once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sorrow_gun_needles
+PASS equip cross-family dependency sorrow_blade_tide
+PASS equip cross-family dependency sorrow_buffer
+PASS equip cross-family dependency wrath_dash_ram
+PASS equip cross-family dependency dual_spiteful_deluge
+PASS Sorrow initially defers exactly half the incoming hit
+PASS settled Sorrow debt stays fixed despite changed player offense
+PASS two-hundred-percent debt retaliation does not reapply offense
+DAMAGE SCALING: 34 checks, 0 failed, completed=true

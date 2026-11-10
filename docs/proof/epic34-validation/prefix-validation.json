@@ -1,0 +1,976 @@
+{
+  "scope": "Fixed issue-prefix evidence before this documentation-only report commit. Post-test source equivalence and explicit follow-ups are recorded, not a claim that every log ran on the latest commit.",
+  "source_manifest_sha256": "2d9babba4c234b65aad3ed8a3e2c141a60ff1672facd98c95dab9c9a35c670fa",
+  "integration_source": "7d47060",
+  "identical_stack_head": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+  "identical_tree": "d2f8f54d7210c948d152f8fa07b349b8a50a279b",
+  "issues": [
+    {
+      "issue": 138,
+      "branch": "feat/epic3-138-sloth-realm",
+      "base_branch": "main",
+      "commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+      "tested_commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+          "log": "prefix-checks/138-import.log",
+          "source_sha256": "afb77741b5081762965a8d219358e54f0312d51eb32f060bd3339e542eaa7a5f",
+          "sha256": "c1a274f23aa50104ceaf271bb1067fa8e35ae323a13f7590b7b81f38479317de"
+        },
+        {
+          "name": "realm_player_effects_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (15 checks)",
+          "tested_commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+          "log": "prefix-checks/138-realm_player_effects_test.log",
+          "source_sha256": "7a9b002a558c4b931c74e97b4c66c8e3b09191995e94453621970db1dc494dbf",
+          "sha256": "8b83717d2fff5101a7acb3e0bec015eb93d12dc48bf92fd97fc7002ed70c9624"
+        },
+        {
+          "name": "sloth_realm_test",
+          "exit_code": 0,
+          "summary": "SLOTH REALM: ALL PASSED (25 checks, 0 failed)",
+          "tested_commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+          "log": "prefix-checks/138-sloth_realm_test.log",
+          "source_sha256": "0338f0a6e9d1915a5b79b1e34f8293c8c62c252beaa978e6df5796f66420b078",
+          "sha256": "e976ba29ef3e77c2713cd87d1a7adf16c8319c85ded0b0f8df313160e2b68aa0"
+        },
+        {
+          "name": "realm_stage_test",
+          "exit_code": 0,
+          "summary": "REALM STAGE: 27 checks, 0 failed",
+          "tested_commit": "69742e006e42f7e83861ae9a5fe5e32e5c4f50fb",
+          "log": "prefix-checks/138-realm_stage_test.log",
+          "source_sha256": "7233766e01d6c48a5e591bca45e360e2de459f307e79f2a14c88b22cff8a732b",
+          "sha256": "46b5ef6192351c23af0861183a9c872932d606cd4ce65b3f16d2a7b95e636c31"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 139,
+      "branch": "feat/epic3-139-sloth-colossus",
+      "base_branch": "feat/epic3-138-sloth-realm",
+      "commit": "88d067c16a3d275bf44429e9635870fd718a91ed",
+      "tested_commit": "079274dedc83c7ff1a1d2f87ee4efe2b0067b7b2",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "079274dedc83c7ff1a1d2f87ee4efe2b0067b7b2",
+          "log": "prefix-checks/139-import.log",
+          "source_sha256": "fd14a0ddb3e91b00b9731fc6bf94d4bef467e3a45344af0db42d5e3c4282e36e",
+          "sha256": "fe810d0ef1ad45dc9047e2eda0522f32b4a8391265a265e182877ad62316d049"
+        },
+        {
+          "name": "slumber_fragment_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (12 checks)",
+          "tested_commit": "079274dedc83c7ff1a1d2f87ee4efe2b0067b7b2",
+          "log": "prefix-checks/139-slumber_fragment_test.log",
+          "source_sha256": "5da445cfa6d704e75381e03efc27e29838caeaa941788d13eeffdfd57303ad94",
+          "sha256": "492532d2edf68a3331367bd93f91acc2232bea7bb12f6be6895ae519362c1ae4"
+        },
+        {
+          "name": "sloth_colossus_test",
+          "exit_code": 0,
+          "summary": "SLOTH COLOSSUS: ALL PASSED (25 checks, 0 failed)",
+          "tested_commit": "079274dedc83c7ff1a1d2f87ee4efe2b0067b7b2",
+          "log": "prefix-checks/139-sloth_colossus_test.log",
+          "source_sha256": "df8b100130b20a63dbe01de59e8057b4fadf85223a80f78a6ce8b71e7483f98e",
+          "sha256": "3a21de56476ffc3674070b6d7e14efc96a9b0ec3207e5ec358152b081982ed00"
+        },
+        {
+          "name": "realm_boss_stage_test",
+          "exit_code": 0,
+          "summary": "REALM BOSS STAGE: 18 checks, 0 failed",
+          "tested_commit": "079274dedc83c7ff1a1d2f87ee4efe2b0067b7b2",
+          "log": "prefix-checks/139-realm_boss_stage_test.log",
+          "source_sha256": "41e4d1b5af7176aee617eec1b1596fed9b372facc9366cdaf09cd5e60333709c",
+          "sha256": "5260c1c08e09906c3c33586b34aabbd773a4728ff171b555e6dbbb1bf1c71766"
+        }
+      ],
+      "append_checks": [
+        {
+          "name": "hud-139-unfixed-fps-after",
+          "exit_code": 0,
+          "summary": "20 checks, 0 failed",
+          "tested_commit": "88d067c16a3d275bf44429e9635870fd718a91ed",
+          "log": "prefix-checks/139-hud-139-unfixed-fps-after.log",
+          "source_sha256": "9ee451d27849ad3cbbd9e82896e9f8aeaf345776e9501d40cd875afe9280e8db",
+          "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+        },
+        {
+          "name": "hud-139-fixed-fps-after",
+          "exit_code": 0,
+          "summary": "20 checks, 0 failed",
+          "tested_commit": "88d067c16a3d275bf44429e9635870fd718a91ed",
+          "log": "prefix-checks/139-hud-139-fixed-fps-after.log",
+          "source_sha256": "9ee451d27849ad3cbbd9e82896e9f8aeaf345776e9501d40cd875afe9280e8db",
+          "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+        }
+      ]
+    },
+    {
+      "issue": 140,
+      "branch": "feat/epic3-140-fear-realm",
+      "base_branch": "feat/epic3-139-sloth-colossus",
+      "commit": "6b43aecba628ac77139aae29937c8e5ddacd1eb4",
+      "tested_commit": "b1367f4af4a301650b660668dd82d37e8923cc98",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "b1367f4af4a301650b660668dd82d37e8923cc98",
+          "log": "prefix-checks/140-import.log",
+          "source_sha256": "19b9a2c125def5af0eb3a08cc64cc0e386ccaa4c9c838d5c6b19047ad9b9132e",
+          "sha256": "f0932c9fbb8db9527e603c73dd71a6a9c2e91fd74bf6261d5035ac366f58c314"
+        },
+        {
+          "name": "fear_realm_test",
+          "exit_code": 0,
+          "summary": "FEAR REALM: ALL PASSED (29 checks, 0 failures)",
+          "tested_commit": "b1367f4af4a301650b660668dd82d37e8923cc98",
+          "log": "prefix-checks/140-fear_realm_test.log",
+          "source_sha256": "561b95f1de2200b385e19c03780d6791c8e50aa7520f3229c62902903bd673f5",
+          "sha256": "29c4352d329406ac8bcbae995d683db0987ff30495ad876f388431a180f2e43f"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 141,
+      "branch": "feat/epic3-141-fear-oculus",
+      "base_branch": "feat/epic3-140-fear-realm",
+      "commit": "2a13807a868523320558d9cee973252d8cad4d9d",
+      "tested_commit": "562bb62a6a7683a6dd94fed8b8c85149d7824a96",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "562bb62a6a7683a6dd94fed8b8c85149d7824a96",
+          "log": "prefix-checks/141-import.log",
+          "source_sha256": "398ca5a9aeab9582d98a3c20ee03747630b16536b6791183efa370debbd6f94d",
+          "sha256": "c34824cebfd9f70e142e602cf3ee4cd0a490dd86ffdd55ca8dfe80a7f0899558"
+        },
+        {
+          "name": "vigilance_fragment_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (11 checks)",
+          "tested_commit": "562bb62a6a7683a6dd94fed8b8c85149d7824a96",
+          "log": "prefix-checks/141-vigilance_fragment_test.log",
+          "source_sha256": "85b480ffba392ec9485f0060d9bbf402cf5365bc6fccf3bed360c2f18b38fd9c",
+          "sha256": "e6e70d260aa2edd0f50c52bd48e5c0e8c9893049ebf53b14d563342015ddf172"
+        },
+        {
+          "name": "fear_oculus_test",
+          "exit_code": 0,
+          "summary": "FEAR OCULUS: ALL PASSED (27 checks, 0 failures)",
+          "tested_commit": "562bb62a6a7683a6dd94fed8b8c85149d7824a96",
+          "log": "prefix-checks/141-fear_oculus_test.log",
+          "source_sha256": "48d865da3303fa0b4296f7d70eeaa4536c63577240a7d582c44a7daf5bab6a17",
+          "sha256": "297a9106f5c7ed53a6d7f2c64cf8af3c7bcd4e81ce9eec12a1cb160b9c28bbd8"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 142,
+      "branch": "feat/epic3-142-wrath-realm",
+      "base_branch": "feat/epic3-141-fear-oculus",
+      "commit": "4c81643a66acc73d7c02cb4cb269ae6bb520c3c0",
+      "tested_commit": "60da318480f1e7a7bce36603818282a4f260464f",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "60da318480f1e7a7bce36603818282a4f260464f",
+          "log": "prefix-checks/142-import.log",
+          "source_sha256": "527874c6b2a481a15431ce0febcafb0c31e9a036e6741f486ca3820f7c73b6b9",
+          "sha256": "de2fdc72e24e6de5f2804b9cc406a0e1088d5938bc9dcdcaa41dae622baafa11"
+        },
+        {
+          "name": "wrath_realm_test",
+          "exit_code": 0,
+          "summary": "WRATH REALM: 28 checks, 0 failed",
+          "tested_commit": "60da318480f1e7a7bce36603818282a4f260464f",
+          "log": "prefix-checks/142-wrath_realm_test.log",
+          "source_sha256": "59158417db0918d68b789d84b29e4c5e17e1794cc48669d2497735858db19e69",
+          "sha256": "43a1d71eb826cd448fb3d29fa392932ca91e3021a409598c7faf1ef7deef03df"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 143,
+      "branch": "feat/epic3-143-wrath-spire",
+      "base_branch": "feat/epic3-142-wrath-realm",
+      "commit": "08e8f86d87b02da79b93985e7e7920cee000590c",
+      "tested_commit": "1ebfe82a8d1a14084a17203d8f1c32f13cc1e660",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "1ebfe82a8d1a14084a17203d8f1c32f13cc1e660",
+          "log": "prefix-checks/143-import.log",
+          "source_sha256": "36f9125ffa38bef0e96ad84c243de7cb43c5b03483250e11803c1dcad6beb7a9",
+          "sha256": "201d8a869ff1fef607a1a39b68f4f5dbf1f908bea9087fb6b9510758734d44ee"
+        },
+        {
+          "name": "spite_fragment_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (13 checks)",
+          "tested_commit": "1ebfe82a8d1a14084a17203d8f1c32f13cc1e660",
+          "log": "prefix-checks/143-spite_fragment_test.log",
+          "source_sha256": "06add4b76a8f0bcd68b78a7da2624831548fb59622664ec4e62c22d6a7e1f965",
+          "sha256": "80d437ae161d970bf5109c3bce32fe917fdf68d2a25b7cbd74691927f33295c0"
+        },
+        {
+          "name": "wrath_spire_test",
+          "exit_code": 0,
+          "summary": "WRATH SPIRE: 23 checks, 0 failed",
+          "tested_commit": "1ebfe82a8d1a14084a17203d8f1c32f13cc1e660",
+          "log": "prefix-checks/143-wrath_spire_test.log",
+          "source_sha256": "080830b33dcd65ccdfada893db5e09adb40fa4ada1f473a0437c370e0ee0158c",
+          "sha256": "48645dc699b371c42fb46c6e1758eeb1098712a39fe4b1aa50426deb3860f1d6"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 144,
+      "branch": "feat/epic3-144-sorrow-realm",
+      "base_branch": "feat/epic3-143-wrath-spire",
+      "commit": "cccd1fc7a54ceb3004e373a0d88578919c8b3d0d",
+      "tested_commit": "fed7d77022da58cffc7a7c28af0abd78d9482b4c",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "fed7d77022da58cffc7a7c28af0abd78d9482b4c",
+          "log": "prefix-checks/144-import.log",
+          "source_sha256": "0fa67280c6ae60f07608c80915307a91d00b729df71dde5fc976c7d88e60a3ce",
+          "sha256": "0c956552373804fd209428ac09b0db8744f781588844ae4b3f8ef1609f0ea2b0"
+        },
+        {
+          "name": "sorrow_realm_test",
+          "exit_code": 0,
+          "summary": "SORROW REALM: 22 checks, 0 failed",
+          "tested_commit": "fed7d77022da58cffc7a7c28af0abd78d9482b4c",
+          "log": "prefix-checks/144-sorrow_realm_test.log",
+          "source_sha256": "b17c517c1ad549e6db746937e6da8950671354881e848a5381ad622ace641b6f",
+          "sha256": "e2fe4ae74be3756b15db0b5f4481e60791ffcbbec841d318975807335ecf095c"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 145,
+      "branch": "feat/epic3-145-sorrow-monolith",
+      "base_branch": "feat/epic3-144-sorrow-realm",
+      "commit": "21f5baebe4514884d43cf43268fc30631c41e9ba",
+      "tested_commit": "788a449d6ffffafede63f5327215074b3b9d7087",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "788a449d6ffffafede63f5327215074b3b9d7087",
+          "log": "prefix-checks/145-import.log",
+          "source_sha256": "cfb3adb8c518baf9c6ab45fa2a857413b512665c630f065e24d3820beeff21e5",
+          "sha256": "51d56ec5e9cc7f1ea81d5eb46389ad6179a4c960f02398959cb28e593dc64e23"
+        },
+        {
+          "name": "tenderness_fragment_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (14 checks)",
+          "tested_commit": "788a449d6ffffafede63f5327215074b3b9d7087",
+          "log": "prefix-checks/145-tenderness_fragment_test.log",
+          "source_sha256": "4842403354510b081283ac4c2e0d665600e5a591fe5331c13f8e5b64924468d8",
+          "sha256": "ab8b3d2efea49d684540b05458ea6833c993794507a8eaca952bcc5ee81c681d"
+        },
+        {
+          "name": "sorrow_monolith_test",
+          "exit_code": 0,
+          "summary": "SORROW MONOLITH: 22 checks, 0 failed",
+          "tested_commit": "788a449d6ffffafede63f5327215074b3b9d7087",
+          "log": "prefix-checks/145-sorrow_monolith_test.log",
+          "source_sha256": "993176f2b9536760af3d4075580bc9e820d4f8e0c4ece48fb15cfb89cd141834",
+          "sha256": "3c18a952a74467cb17d3c999cd1bbbbac43101eb7fb0a68983a33843e877f6a0"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 146,
+      "branch": "feat/epic3-146-run-director",
+      "base_branch": "feat/epic3-145-sorrow-monolith",
+      "commit": "0984b6b38084e1853e33bfddbf7648f9a51fe55d",
+      "tested_commit": "1e951ced5e7d1e0a39dea75308415476e66fa7cb",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "tests/opening_transition_test.gd",
+          "tests/realm_boss_stage_test.gd"
+        ],
+        "description": "Published history preserved. Only inherited 139 test timing evidence and 146 transition test adaptation were appended; gameplay unchanged. Added tests have separate append_checks."
+      },
+      "transient_failure_note": {
+        "first_attempt": "prefix-transition-attempts/append-146-opening_transition_test.log",
+        "instrumented_retry": "prefix-transition-attempts/append-146-transition-probe.log",
+        "final_unmodified_retry": "prefix-transition-attempts/append-146-transition-final.log",
+        "detail": "First cold process timed out waiting for a retry fade; two subsequent no-fixed-FPS runs passed unchanged assertions/timeouts. Cause not established; failure retained."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "tested_commit": "1e951ced5e7d1e0a39dea75308415476e66fa7cb",
+          "log": "prefix-checks/146-import.log",
+          "source_sha256": "2e8f77ee0ba1fcaf74f64305e664c4ace25a56c5ab894a9c763f7c2bf19904f3",
+          "sha256": "ce508ce7806853353b4c7f4a0b66f0f54db8014d5203d6ca573d796f5e409ec9"
+        },
+        {
+          "name": "run_director_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (50 checks)",
+          "tested_commit": "1e951ced5e7d1e0a39dea75308415476e66fa7cb",
+          "log": "prefix-checks/146-run_director_test.log",
+          "source_sha256": "abdce059479f757a94ac3010ae796556cdb22c1dd0febf552efca1538107dcd3",
+          "sha256": "9ea68aa9a54084abde632fe2958f7d2aeb67287e0a3796b59b7280b6f40856e5"
+        },
+        {
+          "name": "campaign_realms_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (98 checks)",
+          "tested_commit": "1e951ced5e7d1e0a39dea75308415476e66fa7cb",
+          "log": "prefix-checks/146-campaign_realms_test.log",
+          "source_sha256": "448c075e3f80f76dbac17e566a138dffa35ff503f1b68c2939887cbf4563074b",
+          "sha256": "3e95998413a1a11a13755b9bddbc664f22da7baa04eb06cb75b7a06ab3aee62a"
+        }
+      ],
+      "append_checks": [
+        {
+          "name": "opening_transition_test",
+          "tested_commit": "0984b6b38084e1853e33bfddbf7648f9a51fe55d",
+          "exit_code": 0,
+          "checks": 45,
+          "summary": "45 checks, 0 failed, no fixed FPS",
+          "log": "prefix-checks/146-opening_transition_test.log",
+          "source_sha256": "6e2ad46e73721c011449ccc35b8695b5d9078728aebb62a8d2160ea816ff1b43",
+          "sha256": "c96f874d97340d47d56d79b7ab4e7e69196702333298f96af5cba28e964a5307"
+        }
+      ]
+    },
+    {
+      "issue": 147,
+      "branch": "feat/epic4-147-opening-sequence",
+      "base_branch": "feat/epic3-146-run-director",
+      "commit": "e5672c547c0f0251e38736abdbbe828c6e4a9fa0",
+      "tested_commit": "73ac6639c33d803c72b7748c9b5cd280d30a1c2c",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/NARRATIVE_FOUNDATION.md",
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "docs/proof/issue-147/03-simple-crown.png",
+          "docs/proof/issue-147/04-crowning-and-assembly.png",
+          "docs/proof/issue-147/05-control-at-open-gate.png",
+          "docs/proof/issue-147/README.md",
+          "docs/proof/issue-147/SHA256SUMS",
+          "docs/proof/issue-147/crown-bounds.log",
+          "docs/proof/issue-147/sequence.log",
+          "docs/proof/voice-assets/README.md",
+          "docs/proof/voice-assets/issue-147-playback.log",
+          "tests/opening_transition_test.gd",
+          "tests/pride_avatar_bounds_test.gd",
+          "tests/realm_boss_stage_test.gd",
+          "tools/cinematic/verify_voice_assets.gd",
+          "tools/cinematic/voice_assets.md"
+        ],
+        "description": "Production code and the original three test assertions are unchanged from tested_commit. The crown bounds test adds a diagnostic PHYSICAL CROWN AABB print only. Added per-issue voice verification was independently run on final 147; remaining deltas are inherited test adaptations and final native evidence."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 final prefix import completed without errors",
+          "tested_commit": "e5672c547c0f0251e38736abdbbe828c6e4a9fa0",
+          "log": "prefix-checks/147-import.log",
+          "source_sha256": "5c6a01df630258d96cd33ebe9155c1a48c39944be62f99d98308f869728ab735",
+          "sha256": "b94a3d9a25c22a189ccccdc1b514d6d4362eb00330e5ba4eb6f43b5daa34f069"
+        },
+        {
+          "name": "opening_sequence_test",
+          "exit_code": 0,
+          "summary": "OPENING SEQUENCE: ALL PASSED (16 checks, 0 failures)",
+          "passed": true,
+          "seconds": 10.25,
+          "tested_commit": "73ac6639c33d803c72b7748c9b5cd280d30a1c2c",
+          "log": "prefix-checks/147-opening_sequence_test.log",
+          "source_sha256": "a24f253e345a05deb2e83b82f59cb59debca872128d196614631f460817c385e",
+          "sha256": "30d7124524b89b046a66557f85e905e2cd5f8d552c8e1ce94a1f02c2769ad97c"
+        },
+        {
+          "name": "pride_avatar_bounds_test",
+          "exit_code": 0,
+          "summary": "CROWN BOUNDS: ALL PASSED (24 checks)",
+          "passed": true,
+          "seconds": 6.59,
+          "tested_commit": "73ac6639c33d803c72b7748c9b5cd280d30a1c2c",
+          "log": "prefix-checks/147-pride_avatar_bounds_test.log",
+          "source_sha256": "646052ac2a04ef1c458d3eae16852a392f4619a651801fe136fde75d8d69a7bb",
+          "sha256": "aa257cf41d00d99f2f8d158ff677eab4b2102bcfab4f97fde9b3f2e43f7ee4bf"
+        },
+        {
+          "name": "opening_boot_test",
+          "exit_code": 0,
+          "summary": "OPENING BOOT: ALL PASSED (22 checks, longest frame 16072 ms)",
+          "passed": true,
+          "seconds": 49.34,
+          "tested_commit": "73ac6639c33d803c72b7748c9b5cd280d30a1c2c",
+          "log": "prefix-checks/147-opening_boot_test.log",
+          "source_sha256": "0f781f8dc29f5374494ee5210254d1147cc6850e88118036275b75549ea4eff2",
+          "sha256": "cba97f1726e2ea7f594b8a756480a261683b84be7ea33adf1bebd6bdfc295131"
+        },
+        {
+          "name": "opening_voice_assets",
+          "exit_code": 0,
+          "summary": "KOKORO VOICE ASSETS: 14 checks, 0 failed",
+          "tested_commit": "e5672c547c0f0251e38736abdbbe828c6e4a9fa0",
+          "log": "prefix-checks/147-opening_voice_assets.log",
+          "source_sha256": "c13c8f1d86aa1fdea9c20298483e25ed9b58432b05855e8874d1108dd15679a3",
+          "sha256": "8bdea1c9be438d42d9a61f744ab8f386bb3bce56532b3167fbe28881a53b845d"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 148,
+      "branch": "feat/epic4-148-crown-voice",
+      "base_branch": "feat/epic4-147-opening-sequence",
+      "commit": "48f63c567dcf66aae1b12a554a886da5abf4e8f2",
+      "tested_commit": "2a13f57ef07e46fc4c6d5c997d7b7a90bc01ed89",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/NARRATIVE_FOUNDATION.md",
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "docs/proof/issue-147/03-simple-crown.png",
+          "docs/proof/issue-147/04-crowning-and-assembly.png",
+          "docs/proof/issue-147/05-control-at-open-gate.png",
+          "docs/proof/issue-147/README.md",
+          "docs/proof/issue-147/SHA256SUMS",
+          "docs/proof/issue-147/crown-bounds.log",
+          "docs/proof/issue-147/sequence.log",
+          "docs/proof/issue-148/01-first-run-faint-crown.png",
+          "docs/proof/issue-148/02-deep-failure-blinding-crown.png",
+          "docs/proof/issue-148/README.md",
+          "docs/proof/issue-148/SHA256SUMS",
+          "docs/proof/issue-148/opening-regression.log",
+          "docs/proof/voice-assets/README.md",
+          "docs/proof/voice-assets/issue-147-playback.log",
+          "tests/opening_sequence_test.gd",
+          "tests/opening_transition_test.gd",
+          "tests/pride_avatar_bounds_test.gd",
+          "tests/realm_boss_stage_test.gd",
+          "tools/cinematic/verify_voice_assets.gd",
+          "tools/cinematic/voice_assets.md"
+        ],
+        "description": "Only inherited test adaptations and final native proofs after the 29+51 checks; own production and test code unchanged."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "passed": true,
+          "seconds": 57.83,
+          "tested_commit": "2a13f57ef07e46fc4c6d5c997d7b7a90bc01ed89",
+          "log": "prefix-checks/148-import.log",
+          "source_sha256": "cdc7e95aed52e15d3935237c8cca69bb7d615a92a667de240718a183fc786dbb",
+          "sha256": "0e60acae743311d2d494d5a62ac38cfe9df8fd89cb5f036ff584bab085e732c4"
+        },
+        {
+          "name": "crown_voice_test",
+          "exit_code": 0,
+          "summary": "CROWN VOICE: ALL PASSED (29 checks, 0 failures)",
+          "passed": true,
+          "seconds": 14.69,
+          "tested_commit": "2a13f57ef07e46fc4c6d5c997d7b7a90bc01ed89",
+          "log": "prefix-checks/148-crown_voice_test.log",
+          "source_sha256": "c985d6fb931c88297762203525a67e855f20740cca453361f06c1daaf441dec9",
+          "sha256": "94f4b68e6d070ab6840237f16b8c1dab8b7254b2fab3206cd5c9ed6c03fc944c"
+        },
+        {
+          "name": "run_director_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (51 checks)",
+          "passed": true,
+          "seconds": 20.69,
+          "tested_commit": "2a13f57ef07e46fc4c6d5c997d7b7a90bc01ed89",
+          "log": "prefix-checks/148-run_director_test.log",
+          "source_sha256": "16df2eb8de1aed0066d52d9e083da876e4ff2cc050243da93505ed9369b4345b",
+          "sha256": "aec7b5c81901bcc18657a9e412ebdac84a316ded45220fb93a1ddf50078b8ec7"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 149,
+      "branch": "feat/epic4-149-body-reassembly",
+      "base_branch": "feat/epic4-148-crown-voice",
+      "commit": "a5826851102c0ae129b4a4dd08269a2f22e23b67",
+      "tested_commit": "7c6a678aa7680a7a534074f14f142d7bee48b6f3",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/NARRATIVE_FOUNDATION.md",
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "docs/proof/issue-147/03-simple-crown.png",
+          "docs/proof/issue-147/04-crowning-and-assembly.png",
+          "docs/proof/issue-147/05-control-at-open-gate.png",
+          "docs/proof/issue-147/README.md",
+          "docs/proof/issue-147/SHA256SUMS",
+          "docs/proof/issue-147/crown-bounds.log",
+          "docs/proof/issue-147/sequence.log",
+          "docs/proof/issue-148/01-first-run-faint-crown.png",
+          "docs/proof/issue-148/02-deep-failure-blinding-crown.png",
+          "docs/proof/issue-148/README.md",
+          "docs/proof/issue-148/SHA256SUMS",
+          "docs/proof/issue-148/opening-regression.log",
+          "docs/proof/issue-149/01-fractured-body.png",
+          "docs/proof/issue-149/02-four-cries.png",
+          "docs/proof/issue-149/03-kintsugi-reassembly.png",
+          "docs/proof/issue-149/04-restored-first-person.png",
+          "docs/proof/issue-149/README.md",
+          "docs/proof/issue-149/SHA256SUMS",
+          "docs/proof/voice-assets/README.md",
+          "docs/proof/voice-assets/issue-147-playback.log",
+          "tests/opening_transition_test.gd",
+          "tests/pride_avatar_bounds_test.gd",
+          "tests/realm_boss_stage_test.gd",
+          "tools/cinematic/verify_voice_assets.gd",
+          "tools/cinematic/voice_assets.md"
+        ],
+        "description": "Only inherited test adaptations, standalone voice verification tooling and final native proof; BodyReassembly and its 14-check test unchanged."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "passed": true,
+          "seconds": 43.51,
+          "tested_commit": "7c6a678aa7680a7a534074f14f142d7bee48b6f3",
+          "log": "prefix-checks/149-import.log",
+          "source_sha256": "39fd5fb11fe2486d3c11e79a5e3b9f561131be0a8c5381a44731f0ddde573761",
+          "sha256": "c170ea56d8c816f980be64d0adce3e245b3046f001494b92f788e10b6a2996c1"
+        },
+        {
+          "name": "body_reassembly_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (14 checks)",
+          "passed": true,
+          "seconds": 12.31,
+          "tested_commit": "7c6a678aa7680a7a534074f14f142d7bee48b6f3",
+          "log": "prefix-checks/149-body_reassembly_test.log",
+          "source_sha256": "3288a090f9fe0f531857751bb5fd2a64f4711caa8e82e0e21282e5e4cdbbf8ff",
+          "sha256": "1021b54c71c331765d72027e403a57cf40b0b8de932700f5ff36c0332a697be1"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 150,
+      "branch": "feat/epic4-150-flawless-doppelganger",
+      "base_branch": "feat/epic4-149-body-reassembly",
+      "commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+      "tested_commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [],
+        "description": "Final 8+28+21 checks include real head-bone alignment, HUD and actual Esc input. No production change afterward."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "passed": true,
+          "seconds": 72.11,
+          "tested_commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+          "log": "prefix-checks/150-import.log",
+          "source_sha256": "83e638dd5e46b5f2a2b17cfb0edf39c6a0c9f2c5bd1b8213386e195a71ea0618",
+          "sha256": "2a07514af189b6c2b383655e62cb1a285204f3f3b5b6f0a892534230a65213ac"
+        },
+        {
+          "name": "slumber_resonance_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (8 checks)",
+          "passed": true,
+          "seconds": 16.74,
+          "tested_commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+          "log": "prefix-checks/150-slumber_resonance_test.log",
+          "source_sha256": "7bdbc30f9cc5451080418a5cf8c33297154dfc1533d43748be51f87af9beae92",
+          "sha256": "d06efea016ad59bb8f2724965f129a15cf32b9103204f67603d49daeb253d35a"
+        },
+        {
+          "name": "doppelganger_spawn_test",
+          "exit_code": 0,
+          "summary": "DOPPELGANGER SPAWN: 28 checks, 0 failed",
+          "passed": true,
+          "seconds": 29.25,
+          "tested_commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+          "log": "prefix-checks/150-doppelganger_spawn_test.log",
+          "source_sha256": "cf4984c4b3879d45b61e15a724b70c9ab701af2e89ffba47d1b293973f8aa8d2",
+          "sha256": "97297dbe98a47d4507790da52d2fdaa0a9749730bfefd2ed1f3ca664a9f85926"
+        },
+        {
+          "name": "flawless_combat_test",
+          "exit_code": 0,
+          "summary": "FLAWLESS COMBAT: 21 checks, 0 failed",
+          "passed": true,
+          "seconds": 44.25,
+          "tested_commit": "b986f570453f4ecd78f048119a2e64a9315d5bb3",
+          "log": "prefix-checks/150-flawless_combat_test.log",
+          "source_sha256": "1e6b785d680c7bf56b72a6638a0177ec82af4d67ddcc69f7cdcc204e948f521e",
+          "sha256": "90386f956f707a5142ce58d68e5208e343992c5fa72be15d78aacae1f9bb6762"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 151,
+      "branch": "feat/epic4-151-reconciliation",
+      "base_branch": "feat/epic4-150-flawless-doppelganger",
+      "commit": "d20a75c9c126ef053eb4a1a2d2bb08b60557059c",
+      "tested_commit": "aa4c8269273a526382fea7f76cee3cae115be34d",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/proof/issue-151/01-fallen-crown.png",
+          "docs/proof/issue-151/02-two-handed-coronation.png",
+          "docs/proof/issue-151/03-reality-awakening.png",
+          "docs/proof/issue-151/04-credits.png",
+          "docs/proof/issue-151/README.md",
+          "docs/proof/issue-151/SHA256SUMS",
+          "docs/proof/issue-151/reconciliation-test.log",
+          "levels/climax/reconciliation_sequence.gd"
+        ],
+        "description": "20+9 checks include real wrist targets and modifier restoration. Later delta only updates the explicit three-person credits text and native evidence; no motion logic change."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 import completed, no error markers",
+          "passed": true,
+          "seconds": 69.92,
+          "tested_commit": "aa4c8269273a526382fea7f76cee3cae115be34d",
+          "log": "prefix-checks/151-import.log",
+          "source_sha256": "041ae313c79fbb50a71e0ee54d0bbf5a7dafb4b7d82608f90eee4f3f241bef33",
+          "sha256": "427e90cac21a93b924bbdad5ca7938c9c2cb66c1c04dbe4f4f44b83094991724"
+        },
+        {
+          "name": "reconciliation_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (20 checks)",
+          "passed": true,
+          "seconds": 12.68,
+          "tested_commit": "aa4c8269273a526382fea7f76cee3cae115be34d",
+          "log": "prefix-checks/151-reconciliation_test.log",
+          "source_sha256": "f7f3b20505615ef87d4f8759ee4b20d0fa6700ce3cb5ccc37a1370911392fae9",
+          "sha256": "f14947aa470aa3567ed025ff93453e5f63b9729242613849f6e7f24b9a1ae615"
+        },
+        {
+          "name": "climax_flow_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (9 checks)",
+          "passed": true,
+          "seconds": 23.95,
+          "tested_commit": "aa4c8269273a526382fea7f76cee3cae115be34d",
+          "log": "prefix-checks/151-climax_flow_test.log",
+          "source_sha256": "824a6c5e9e623fd739fd67891ae807b12878e43da15f6d30adcc058bc2aae8fb",
+          "sha256": "b8bb60dbcaa5bd4e5cd1b3225be670a4630355ee6e9301c97ab6a6dd63de8bd6"
+        }
+      ],
+      "append_checks": []
+    },
+    {
+      "issue": 152,
+      "branch": "feat/epic4-152-crown-forge",
+      "base_branch": "feat/epic4-151-reconciliation",
+      "commit": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+      "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
+      "status": "verified",
+      "post_test_changes": {
+        "paths": [
+          "docs/NARRATIVE_FOUNDATION.md",
+          "docs/proof/issue-139/README.md",
+          "docs/proof/issue-139/SHA256SUMS",
+          "docs/proof/issue-139/hud-before-fix.log",
+          "docs/proof/issue-139/hud-fixed-fps.log",
+          "docs/proof/issue-139/hud-unfixed-fps.log",
+          "docs/proof/issue-147/03-simple-crown.png",
+          "docs/proof/issue-147/04-crowning-and-assembly.png",
+          "docs/proof/issue-147/05-control-at-open-gate.png",
+          "docs/proof/issue-147/README.md",
+          "docs/proof/issue-147/SHA256SUMS",
+          "docs/proof/issue-147/crown-bounds.log",
+          "docs/proof/issue-147/sequence.log",
+          "docs/proof/issue-148/01-first-run-faint-crown.png",
+          "docs/proof/issue-148/02-deep-failure-blinding-crown.png",
+          "docs/proof/issue-148/README.md",
+          "docs/proof/issue-148/SHA256SUMS",
+          "docs/proof/issue-148/opening-regression.log",
+          "docs/proof/issue-149/01-fractured-body.png",
+          "docs/proof/issue-149/02-four-cries.png",
+          "docs/proof/issue-149/03-kintsugi-reassembly.png",
+          "docs/proof/issue-149/04-restored-first-person.png",
+          "docs/proof/issue-149/README.md",
+          "docs/proof/issue-149/SHA256SUMS",
+          "docs/proof/issue-150/01-print.png",
+          "docs/proof/issue-150/02-white-double.png",
+          "docs/proof/issue-150/03-annihilation.png",
+          "docs/proof/issue-150/04-crown-aftermath.png",
+          "docs/proof/issue-150/05-combat-hud.png",
+          "docs/proof/issue-150/06-pause.png",
+          "docs/proof/issue-150/07-head-fit.png",
+          "docs/proof/issue-150/README.md",
+          "docs/proof/issue-150/SHA256SUMS",
+          "docs/proof/issue-150/doppelganger-spawn-test.log",
+          "docs/proof/issue-150/hud-native.log",
+          "docs/proof/issue-151/01-fallen-crown.png",
+          "docs/proof/issue-151/02-two-handed-coronation.png",
+          "docs/proof/issue-151/03-reality-awakening.png",
+          "docs/proof/issue-151/04-credits.png",
+          "docs/proof/issue-151/README.md",
+          "docs/proof/issue-151/SHA256SUMS",
+          "docs/proof/issue-151/reconciliation-test.log",
+          "docs/proof/issue-152/README.md",
+          "docs/proof/issue-152/SHA256SUMS",
+          "docs/proof/issue-152/opening-transition.log",
+          "docs/proof/voice-assets/README.md",
+          "docs/proof/voice-assets/issue-147-playback.log",
+          "levels/climax/doppelganger_spawn.gd",
+          "levels/climax/reconciliation_sequence.gd",
+          "tests/climax_hud_proof.gd",
+          "tests/climax_hud_proof.gd.uid",
+          "tests/climax_hud_proof.tscn",
+          "tests/doppelganger_spawn_test.gd",
+          "tests/opening_transition_test.gd",
+          "tests/pride_avatar_bounds_test.gd",
+          "tests/realm_boss_stage_test.gd",
+          "tests/reconciliation_test.gd",
+          "tools/cinematic/verify_voice_assets.gd",
+          "tools/cinematic/voice_assets.md"
+        ],
+        "description": "Core 31+23+16 tests have exact code equivalence above. Final 13-check ending and 58-check transition were rerun uninstrumented on the final commit, together with final import."
+      },
+      "core_test_equivalence": {
+        "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
+        "final_commit": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+        "identical_paths": [
+          "autoload/meta_progression.gd",
+          "autoload/run_director.gd",
+          "components/health.gd",
+          "actors/player/dash.gd",
+          "ui/meta_forge/crown_forge.gd",
+          "ui/game_start.gd",
+          "zone/realm_stage.gd",
+          "ui/ending_menu.gd",
+          "tests/meta_forge_test.gd",
+          "tests/meta_campaign_session.gd",
+          "tests/meta_settlement_guard_test.gd"
+        ]
+      },
+      "transient_failure_note": {
+        "first_attempt": "prefix-transition-attempts/append-152-opening_transition_test.log",
+        "instrumented_retry": "prefix-transition-attempts/append-152-transition-probe.log",
+        "final_unmodified_retry": "prefix-transition-attempts/final-152-transition.log",
+        "detail": "First cold process had 3 cascade failures after a retry fade timeout. Instrumented and final unmodified no-fixed-FPS attempts passed all 58 without changing assertions/timeouts. Cause is not established; retain cold-load timing limitation."
+      },
+      "checks": [
+        {
+          "name": "import",
+          "exit_code": 0,
+          "summary": "Godot 4.7.2 final prefix import completed without errors",
+          "tested_commit": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+          "log": "prefix-checks/152-import.log",
+          "source_sha256": "b326d7041adeca6d9032c5200066f8576cfc7c38c53530b6dc79334cf62816fb",
+          "sha256": "b938e914f30bacf56e9f6fa8e69d8fc5feb9e04f93d24dad8e896f3eb168091b"
+        },
+        {
+          "name": "meta_forge_test",
+          "exit_code": 0,
+          "summary": "META FORGE: 31 checks, 0 failed",
+          "passed": true,
+          "seconds": 28.94,
+          "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
+          "log": "prefix-checks/152-meta_forge_test.log",
+          "source_sha256": "872b8d3ad6d36c2b500aaaa2c71333ce023637edb87f639a147a4de20466536f",
+          "sha256": "65e8f32fc1f8eb2426d5e55189d0e009bb73a477820da3828d84441e2b75c2ba"
+        },
+        {
+          "name": "meta_campaign_test",
+          "exit_code": 0,
+          "summary": "META CAMPAIGN: 23 checks, 0 failures",
+          "passed": true,
+          "seconds": 106.3,
+          "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
+          "log": "prefix-checks/152-meta_campaign_test.log",
+          "source_sha256": "4efacd003a35299dcf48fc7a3c1b824fbb9df8530bd8aced739e8f1c5de7502e",
+          "sha256": "42bafba2914f5d7e0bc6cf6bd79d6d5097768028bcf6df94de976a0102d9ed1c"
+        },
+        {
+          "name": "meta_settlement_guard_test",
+          "exit_code": 0,
+          "summary": "META SETTLEMENT GUARD: 16 checks, 0 failures",
+          "passed": true,
+          "seconds": 21.66,
+          "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
+          "log": "prefix-checks/152-meta_settlement_guard_test.log",
+          "source_sha256": "554bc72bbdf8eb5e73098bddff2ae533dacd309d376bdbb33a7ed3f81da37b0e",
+          "sha256": "8d19add88a3beeac44a4000f80d75fff166db6a84dcab9d445a17dffd6557f4c"
+        },
+        {
+          "name": "climax_flow_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (13 checks)",
+          "tested_commit": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+          "log": "prefix-checks/152-climax_flow_test.log",
+          "source_sha256": "9853983ea4eb78b6e4147c2f8db3e872ac1b53d506a3928f3eaf9af5509cedbc",
+          "sha256": "b1fc48dbd445f66b5b61c40b5d5859f4c652332cdc17361dec294effc99c7d44"
+        },
+        {
+          "name": "opening_transition_test",
+          "exit_code": 0,
+          "summary": "ALL PASSED (58 checks, 0 failed)",
+          "tested_commit": "2003a05006ac2f33d5467e79625f5beef6cc9f21",
+          "log": "prefix-checks/152-opening_transition_test.log",
+          "source_sha256": "fd12c6ccedbde380c7be9deb75434e7e92031ac34832db6480faa209ae798f88",
+          "sha256": "09946f1a82469000e7cc037b413d6052e25f430a3f5a987043ae254a672b5d59"
+        }
+      ],
+      "append_checks": []
+    }
+  ]
+}

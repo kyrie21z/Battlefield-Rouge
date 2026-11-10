@@ -1,0 +1,53 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS 96 seeds always contain each realm exactly once
+PASS new runs distribute across many orders
+PASS same seed reproduces exact order
+PASS ordinary room cannot trigger boss deprivation
+PASS depth 1 scales without realm identity
+PASS first combat room advances to second
+PASS second combat room advances to boss
+PASS boss gate blocks before defeat
+PASS boss death records one deprivation
+PASS duplicate boss death is ignored
+PASS defeat alone cannot skip core pickup
+PASS collected core opens next realm
+PASS depth 2 scales without realm identity
+PASS first combat room advances to second
+PASS second combat room advances to boss
+PASS boss gate blocks before defeat
+PASS boss death records one deprivation
+PASS duplicate boss death is ignored
+PASS defeat alone cannot skip core pickup
+PASS collected core opens next realm
+PASS depth 3 scales without realm identity
+PASS first combat room advances to second
+PASS second combat room advances to boss
+PASS boss gate blocks before defeat
+PASS boss death records one deprivation
+PASS duplicate boss death is ignored
+PASS defeat alone cannot skip core pickup
+PASS collected core opens next realm
+PASS depth 4 scales without realm identity
+PASS first combat room advances to second
+PASS second combat room advances to boss
+PASS boss gate blocks before defeat
+PASS boss death records one deprivation
+PASS duplicate boss death is ignored
+PASS defeat alone cannot skip core pickup
+PASS collected core opens next realm
+PASS fracture signal exactly follows four unique defeats
+PASS fourth boss routes into real threshold scene
+PASS all deprivations remain cumulative
+PASS crown emission grows above fifteen
+PASS new player restores equipped boons outside RealmStage
+PASS new player preserves exact HP and fragment balance
+PASS room change cannot reset fragment cooldowns
+PASS new player retains all deprivation rules
+PASS new body restores actual fracture level four
+PASS physical crown restores exponential emission
+PASS death history records once and preserves cause
+PASS new run resets temporary powers and losses
+PASS new run keeps previous failure history
+PASS completed campaign cannot reopen death loop
+ALL PASSED (50 checks)

@@ -17,6 +17,9 @@ func _init() -> void:
 	process_physics_priority = 20
 
 func arm(body: CharacterBody3D, direction: Vector3, force: float, duration: float, details: Dictionary) -> void:
+	if "ordinary_impacts_enabled" in body and not body.ordinary_impacts_enabled:
+		cancel()
+		return
 	if actor == null:
 		actor = body
 		_previous_mask = actor.collision_mask
@@ -37,6 +40,9 @@ func is_active() -> bool:
 	return health == null or not health.is_dead()
 
 func _physics_process(delta: float) -> void:
+	if is_instance_valid(actor) and "ordinary_impacts_enabled" in actor and not actor.ordinary_impacts_enabled:
+		cancel()
+		return
 	if not is_active():
 		if remaining > 0.0:
 			cancel()

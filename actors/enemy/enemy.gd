@@ -117,6 +117,7 @@ var _sight_lost := 0.0
 ## Knockback from a melee hit. Overrides the AI's own steering while it lasts.
 var _impact_velocity := Vector3.ZERO
 var _impact_left := 0.0
+var ordinary_impacts_enabled := true
 ## Rear spawn the shockwave sent this enemy toward. Arrival removes it
 ## without a kill. FLEE is after DEAD so older state numbers stay put.
 var _flee_goal := Vector3.ZERO
@@ -219,6 +220,20 @@ func begin_retreat(goal: Vector3, timeout: float) -> void:
 ## velocity instead of its own, so a heavy swing moves it rather than being
 ## walked off.
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
+	if not ordinary_impacts_enabled:
+		return
+	apply_fragment_impact(direction, force, stagger)
+
+
+func set_ordinary_impacts_enabled(enabled: bool) -> void:
+	if ordinary_impacts_enabled and not enabled:
+		_impact_left = 0.0
+		_impact_velocity = Vector3.ZERO
+	ordinary_impacts_enabled = enabled
+
+
+## Independent shard counterforce survives the ordinary weapon deprivation.
+func apply_fragment_impact(direction: Vector3, force: float, stagger: float) -> void:
 	if state == State.DEAD or state == State.FLEE:
 		return
 	_impact_velocity = Vector3(direction.x, 0.0, direction.z).normalized() * force

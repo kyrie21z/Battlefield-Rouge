@@ -52,6 +52,8 @@ func _ready() -> void:
 
 func _run() -> void:
 	var scene: Node = load("res://maps/zone_1.tscn").instantiate()
+	# Legacy resource/API regression only; the actual Player equips MindBlade.
+	scene.get_node("Player/Head/Camera3D/Melee").blade_data = null
 	add_child(scene)
 	await get_tree().process_frame
 	# Zone 0 offers the opening buff and pauses. This scene checks the blades
@@ -98,14 +100,14 @@ func _run() -> void:
 	_check("斧 hits hardest, 匕首 least", knife.damage < tachi.damage and tachi.damage < axe.damage)
 	_check("斧 is committed longest before it cuts", axe.windup > tachi.windup and tachi.windup > knife.windup)
 
-	print("== Q cycles the loadout")
+	print("== temporary legacy loadout API")
 	_check("starts on 匕首", _melee.current().display_name == "匕首")
-	await _tap("switch_melee")
-	_check("Q moves to 斧", _melee.current().display_name == "斧")
-	await _tap("switch_melee")
-	_check("Q moves to 太刀", _melee.current().display_name == "太刀")
-	await _tap("switch_melee")
-	_check("Q wraps back to 匕首", _melee.current().display_name == "匕首")
+	_melee.select_next()
+	_check("Legacy select moves to 斧", _melee.current().display_name == "斧")
+	_melee.select_next()
+	_check("Legacy select moves to 太刀", _melee.current().display_name == "太刀")
+	_melee.select_next()
+	_check("Legacy select wraps back to 匕首", _melee.current().display_name == "匕首")
 	var hud := scene.get_node_or_null("HUD")
 	if hud != null:
 		var slot := hud.get_node("AbilityBar/Melee") as AbilitySlot

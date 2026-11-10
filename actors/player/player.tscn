@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://weapons/obsidian_pistol/obsidian_pistol.tres" id="6_pistol"]
 [ext_resource type="Script" path="res://actors/player/hammer.gd" id="7_hammer"]
 [ext_resource type="Script" path="res://weapons/melee/melee_weapon.gd" id="8_melee"]
+[ext_resource type="Resource" path="res://weapons/mind_blade/mind_blade.tres" id="17_mind_blade"]
 [ext_resource type="Script" path="res://weapons/weapon_data.gd" id="9_weapon_data"]
 [ext_resource type="Script" path="res://actors/player/player_shield.gd" id="12_shield"]
 [ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
@@ -72,6 +73,7 @@ script = ExtResource("7_hammer")
 
 [node name="Melee" type="Node3D" parent="Head/Camera3D" node_paths=PackedStringArray("stats", "camera", "shooter")]
 script = ExtResource("8_melee")
+blade_data = ExtResource("17_mind_blade")
 stats = NodePath("../../../Stats")
 camera = NodePath("..")
 shooter = NodePath("../../..")

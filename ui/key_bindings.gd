@@ -9,7 +9,7 @@ extends RefCounted
 const REBINDABLE := [
 	["move_forward", "前进"], ["move_back", "后退"], ["move_left", "左移"], ["move_right", "右移"],
 	["jump", "跳跃"], ["dash", "冲刺"], ["fire", "开火"], ["aim", "瞄准 / 开镜"],
-	["reload", "换弹"], ["hammer", "挥锤"], ["melee", "近战"], ["switch_melee", "切换近战"],
+	["reload", "换弹"], ["hammer", "挥锤"], ["melee", "近战"],
 	["shield", "护盾"], ["throw_magazine", "投掷危险弹匣"], ["interact", "交互（增益台）"],
 ]
 const RESERVED_KEYS := [KEY_ESCAPE, KEY_F3]

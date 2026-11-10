@@ -379,7 +379,7 @@ func _shot(file_name: String) -> void:
 
 func _binding_checks() -> void:
 	print("== input bindings after the melee/shield merge")
-	_check("Q cycles melee", _bound_key("switch_melee") == KEY_Q)
+	_check("Old melee cycle is removed", not InputMap.has_action("switch_melee"))
 	_check("G is the shield", _bound_key("shield") == KEY_G)
 	_check("F stays interact", _bound_key("interact") == KEY_F)
 	_check("V swings the current melee", _bound_key("melee") == KEY_V)

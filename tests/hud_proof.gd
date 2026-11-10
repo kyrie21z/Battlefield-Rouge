@@ -112,19 +112,11 @@ func _ready() -> void:
 		actor.set_process(true)
 	for slot: Control in [vitals, panel, shield_slot, melee_slot, magazine_slot]:
 		slot.set_process(true)
-	await _tap("weapon_next")
-	await _tap("switch_melee")
-	_check("wheel retains pistol and Q selects axe", panel.gun_name == player.weapon.data.display_name
-		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 1)
-	await _shot("11_pistol_axe")
-	await _tap("weapon_next")
-	await _tap("switch_melee")
-	_check("wheel retains pistol and Q selects tachi", panel.gun_name == player.weapon.data.display_name
-		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 2)
-	await _shot("12_pistol_tachi")
-	await _tap("weapon_next")
-	_check("wheel retains pistol", player.weapon.index == 0)
-
+	_check("single mind blade is shown in its slot", melee_slot.current_icon == player.melee.current().icon)
+	await _tap("melee")
+	await get_tree().create_timer(0.08).timeout
+	await _shot("11_mind_blade")
+	await get_tree().create_timer(0.3).timeout
 	player.weapon.ammo = 4
 	await _tap("reload")
 	await get_tree().create_timer(0.4).timeout
@@ -172,8 +164,7 @@ func _ready() -> void:
 	await get_tree().create_timer(0.4).timeout
 	await _shot("14_reload_1280x720")
 	await _tap("weapon_next")
-	await _tap("switch_melee")
-	await _shot("15_switch_1280x720")
+	await _shot("15_pistol_blade_1280x720")
 	await _world_proof(scene, player, hud, director)
 	print("HUD PROOF %s" % ("PASSED" if _failures == 0 else "FAILED"))
 	get_tree().quit(0 if _failures == 0 else 1)

@@ -91,6 +91,84 @@
       ],
       "muzzle_recess_depth_m": 0.01,
       "budget_policy": "quality-first; source polygons and render triangles reported separately"
+    },
+    {
+      "file": "assets/models/weapons/mind_blade.glb",
+      "source": "tools/epic1_models/mind_blade.blend",
+      "blender_version": "5.2.3 LTS",
+      "source_polygons": 45,
+      "glb_triangles": 70,
+      "objects": {
+        "blade": {
+          "polygons": 21,
+          "triangles": 22,
+          "triangles_authored": 20,
+          "quads_authored": 1,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.20000000298023224,
+            0.0
+          ]
+        },
+        "grip": {
+          "polygons": 22,
+          "triangles": 44,
+          "triangles_authored": 0,
+          "quads_authored": 22,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "spine_energy": {
+          "polygons": 2,
+          "triangles": 4,
+          "triangles_authored": 0,
+          "quads_authored": 2,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.18850000202655792,
+            0.0
+          ]
+        }
+      },
+      "bounds_game": {
+        "min": [
+          -0.007499993313103914,
+          -0.019999999552965164,
+          -0.3400000035762787
+        ],
+        "max": [
+          0.007500006817281246,
+          0.019999999552965164,
+          0.05999999865889549
+        ],
+        "size": [
+          0.01500000013038516,
+          0.03999999910593033,
+          0.4000000022351742
+        ]
+      },
+      "source_forward": "-Y",
+      "export_correction": "180 degrees about Blender Z, baked before Y-up export",
+      "game_forward": "-Z",
+      "game_up": "+Y",
+      "sha256": "dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f",
+      "blade_length_m": 0.28,
+      "grip_to_tip_m": 0.34,
+      "overall_length_m": 0.4,
+      "target_dimensions_m": [
+        0.015,
+        0.04,
+        0.4
+      ],
+      "budget_policy": "quality-first; source polygons and render triangles reported separately",
+      "game_thickness_axis": "X",
+      "game_cutting_edge": "-Y"
     }
   ]
 }

@@ -1,11 +1,9 @@
 extends Node
 ## Plays each melee weapon's swing in a real window and saves screenshots as
-## proof for AC-05 (三把近战都能用，剪影可读). Needs a display, so no --headless.
+## proof for Epic 1 (一枪一刃同屏与斩击轮廓). Needs a display, so no --headless.
 ## Run from the project root:
 ##   godot --path . res://tests/melee_proof.tscn -- --out=<dir>
-## The guards are removed first so nothing stands between the camera and the
-## weapon, and the rifle viewmodel is hidden because the melee props are what
-## this proof is about.
+## The guards are removed so the blade and the still-held pistol are visible together.
 ##
 ## The swing is played back in slow motion (`SLOW`): reading back the frame and
 ## encoding a PNG costs more than the whole active window at normal speed, so a
@@ -15,7 +13,7 @@ extends Node
 ## normalised coordinates the .tres aims are written in, so the log says whether
 ## the cut really crossed the frame and the picture shows whether it read.
 
-const WEAPONS := ["knife", "axe", "tachi"]
+const WEAPONS := ["mind_blade"]
 const SETTLE_FRAMES := 3
 ## Proof shots are downscaled: they exist to show the silhouette, and the full
 ## 1280x720 frames are megabytes each.
@@ -42,17 +40,19 @@ func _run() -> void:
 	add_child(scene)
 	await get_tree().process_frame
 	_player = scene.get_node("Player") as Player
+	get_tree().paused = false
+	var director := scene.get_node("ZoneDirector") as ZoneDirector
+	if is_instance_valid(director.selection):
+		director.selection.hide()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	for guard in get_tree().get_nodes_in_group("enemy"):
 		(guard as Node).queue_free()
 	for i in SETTLE_FRAMES:
 		await get_tree().process_frame
 	_player.global_rotation = Vector3.ZERO
-	_player.weapon.set_drawn(false)
 
 	for i in WEAPONS.size():
-		var data: MeleeData = _player.melee.weapons[i]
-		_player.melee.select(i)
+		var data: MeleeData = _player.melee.current()
 		await get_tree().process_frame
 		print("%s: %.0f dmg, %.1f m, %.0f° arc, wind-up %.2fs, cycle %.2fs, %d target(s)" % [
 			data.display_name, data.damage, data.reach, data.arc_degrees,
@@ -80,9 +80,6 @@ func _run() -> void:
 
 
 func _shot(shot_name: String) -> void:
-	# The player puts the rifle back on screen when a swing ends; this proof is
-	# about the melee props, so it is kept out of every frame.
-	_player.weapon.set_drawn(false)
 	await RenderingServer.frame_post_draw
 	var tip := _player.melee.tip_screen_position()
 	var depth := _player.melee.tip_depth()

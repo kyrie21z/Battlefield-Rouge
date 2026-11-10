@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production Player owns one real CrownVoiceSystem and no fallback crown
+PASS database contains eleven real spoken audio clips
+PASS history selects and actually plays first
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays early
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays early_abyss
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays deep
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays deep_abyss
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays veteran
+PASS replacement keeps a single active voice source
+PASS history selects and actually plays veteran_abyss
+PASS replacement keeps a single active voice source
+PASS new floor replaces deferred history without overlapping speech
+PASS duplicate floor notification does not restart a spoken line
+PASS ordinary room transition can explicitly suppress duplicate speech
+PASS fracture 0 updates actual emissive material
+PASS fracture 1 updates actual emissive material
+PASS fracture 2 updates actual emissive material
+PASS fracture 3 updates actual emissive material
+PASS fracture 4 updates actual emissive material
+PASS level four exceeds fifteen without replacing the gameplay camera
+PASS level four binds the production starburst postprocess
+PASS paused crown freezes postprocess clock
+PASS reduced motion reaches the glare shader
+PASS opening can suppress every Crown presentation including camera children
+PASS actual Player death stops speech and clears subtitles and glare
+PASS a dead Player cannot resume a deferred re-entry line
+PASS new living Player speaks the actual historical death response
+CROWN VOICE: ALL PASSED (32 checks, 0 failures)

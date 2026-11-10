@@ -394,3 +394,15 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `environments/sorrow/rain_particles.tscn` | 本项目原创 / 随项目代码 | `aec0583e9876053510e143059cd2bb25d367c61860b9535467ba98ab2def52b9` |
 
 五张证明图片是 Godot 4.7.2 Forward+ 的真实悲伤第一房原生截图，包括固定视角、固定时钟的 SSR 开关对照；来源、完整图片 SHA-256、验证与边界见 [README](proof/issue-169/README.md) 和 [manifest](proof/issue-169/manifest.json)。
+
+## #172 皇冠眩光与暗金金缮（2026-11-10）
+
+两套 Shader 与 `KintsugiFlow` 均为本项目原创代码，由 Codex 协助实现，许可随项目代码；没有外部贴图、模型或新音频，未新增第三方许可或另标 CC0。金缮复用既有原身体的 CUSTOM0 真实边掩码、56 碎片、11 蒙皮部位与 24 骨，原 GLB 不变；皇冠仍为 #147 登记的普通皇冠。
+
+| 文件 | 来源 / 许可 | SHA-256 |
+| --- | --- | --- |
+| `ui/shaders/blinding_glare.gdshader` | 本项目原创 / 随项目代码 | `e70f196bfd87109fa4093563bac9332b9ae3364eee12c412965607ff8052ffec` |
+| `actors/player/shaders/kintsugi_gold.gdshader` | 本项目原创 / 随项目代码 | `e506acf78ce7041fcd8c3f3cfacdfc5c0e21905410b5a755504e1f44f00275ed` |
+| `actors/player/kintsugi_flow.gd` | 本项目原创 / 随项目代码 | `ab63fb81977169ea6121b4789913c983b1b3b62880435e2953108cc3c6a23a53` |
+
+五张原生证明由 Godot 4.7.2 Forward+ 直接捕获，包括皇冠等级对照、原身体金缮全身/接缝近景和真实皇冠投影；外部相机仅用于审阅。图像与验证日志哈希见 [SHA256SUMS](proof/issue-172/SHA256SUMS)，行为验证与独立无截图性能采样见 [README](proof/issue-172/README.md)。

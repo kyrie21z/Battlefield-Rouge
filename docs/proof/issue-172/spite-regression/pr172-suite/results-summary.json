@@ -1,0 +1,18 @@
+{
+  "head": "03c1a360e6c57631f66bab5f0e436f1ce7a8ed61",
+  "end_head": "03c1a360e6c57631f66bab5f0e436f1ce7a8ed61",
+  "tracked_diff": "",
+  "count": 90,
+  "passed": 89,
+  "error_logs": [],
+  "failed_results": [
+    {
+      "test": "spite_fragment_test",
+      "exit": 1,
+      "seconds": 10.99,
+      "errors": [],
+      "result": "FAIL (1)",
+      "log": "spite_fragment_test.log"
+    }
+  ]
+}

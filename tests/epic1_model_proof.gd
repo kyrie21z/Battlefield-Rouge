@@ -11,6 +11,7 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 	var jobs := [
+		[PISTOL, Vector3(0.9, 0.2, 0.8), true, "黑晶手枪 · 绽放", "四独立块 · 0.35 / 0.30 / 0.20 秒"],
 		[PISTOL, Vector3(2, 0, 0), false, "黑晶手枪 · 侧面", "120 源多边形 / 180 三角面 · 220 mm"],
 		[PISTOL, Vector3(0.9, 0.5, -0.9), false, "黑晶手枪 · 四分之三", "220 × 135 × 32 mm · 内凹六角枪口"],
 	]
@@ -18,7 +19,7 @@ func _ready() -> void:
 	for i in jobs.size():
 		var panel := await _render(jobs[i])
 		strip.blit_rect(panel, Rect2i(Vector2i.ZERO, PANEL_SIZE), Vector2i(i * PANEL_SIZE.x, 0))
-	var folder := "res://docs/proof/issue-101"
+	var folder := "res://docs/proof/issue-102"
 	DirAccess.make_dir_recursive_absolute(folder)
 	var result := strip.save_png(folder + "/models.png")
 	print("MODEL PROOF: %s" % error_string(result))

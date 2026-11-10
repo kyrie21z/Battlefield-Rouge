@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS three independently rotating rings use 36 actual humanoid limb meshes
+PASS closed iris reduces actual damage to forty percent
+PASS recovery opens a full-damage vulnerability window
+PASS pause leaves windup and damage unchanged
+PASS Boon time stop freezes the actual boss state machine
+PASS charged scan enters active phase exactly once
+PASS gaze cone applies real HP damage inside the cone
+PASS outside gaze cone is safe
+PASS solid cover blocks gaze damage
+PASS cutting beam resolves a real Hitbox ray
+PASS beam terminates at cover rather than damaging through it
+PASS iris contraction releases twenty-four actual swept projectiles
+PASS ground-height ring reaches and damages the standing player
+PASS deprivation hides and silences tell without canceling attack
+PASS actual damaging beam stays visible after warning deprivation
+PASS attack ends in a readable exposed recovery
+PASS ordinary hit direction is visible before boss defeat
+PASS boss death emits one completion and disables body hitboxes
+PASS local realm warning deprivation activates immediately on defeat
+PASS defeat cancels beam and every owned ring projectile
+PASS real boss defeat clears HUD warnings and future enemy tells
+PASS real defeat drops one unclaimed Vigilance shard on the arena
+PASS walking into the real pickup awards Vigilance and removes the pickup
+PASS Vigilance independently raises critical chance and reaction recharge
+PASS pickup leaves HUD and trap warnings permanently suppressed
+PASS aggregated body explodes into 56 rigid crystalline fragments
+PASS post-boss physics fragments are fully reclaimed
+FEAR OCULUS: ALL PASSED (27 checks, 0 failures)

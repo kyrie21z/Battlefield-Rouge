@@ -38,6 +38,10 @@ func before_event(event: StringName, context: Dictionary) -> void:
 
 func on_event(event: StringName, context: Dictionary) -> void:
 	match event:
+		&"warnings_lost":
+			if is_instance_valid(_warning):
+				_warning.queue_free()
+				_warning = null
 		&"hit_before":
 			_critical_traits(context)
 		&"fear_flaw_broken":
@@ -149,7 +153,8 @@ func _enemy_shot(context: Dictionary) -> void:
 	var projectile := context.get("projectile") as Projectile
 	if enemy == null or projectile == null:
 		return
-	if manager.has(SENSE):
+	var warnings_allowed: bool = not manager.player is Player or manager.player.realm_effects.warnings_enabled
+	if manager.has(SENSE) and warnings_allowed:
 		var camera: Camera3D = manager.weapon.camera if manager.weapon != null else manager.player.get_node_or_null("Head/Camera3D") as Camera3D
 		if camera != null and not camera.is_position_in_frustum(enemy.global_position + Vector3.UP):
 			if not is_instance_valid(_warning):

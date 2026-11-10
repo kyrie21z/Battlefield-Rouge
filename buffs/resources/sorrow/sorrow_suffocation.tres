@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sorrow_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sorrow_suffocation"
+name = "深海窒息"
+sin = 3
+slot = 3
+rarity = 0
+core = false
+description = "溶蚀阻断敌人的自然护盾恢复，并使其受到的暴击伤害提升40%。"
+parameters = {"critical_multiplier": 1.4}
+script_hook = ExtResource("2")

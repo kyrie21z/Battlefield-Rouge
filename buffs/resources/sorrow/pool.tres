@@ -1,10 +1,19 @@
-[gd_resource type="Resource" script_class="BoonPool" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="BoonPool" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://buffs/boon_pool.gd" id="1"]
 [ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_gun_needles.tres" id="2"]
 [ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_blade_tide.tres" id="3"]
 [ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_dash_ribbon.tres" id="4"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_abyss.tres" id="5"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_buffer.tres" id="6"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_echo.tres" id="7"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_flood.tres" id="8"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_gravity.tres" id="9"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_mercy.tres" id="10"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_pressure.tres" id="11"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_shards.tres" id="12"]
+[ext_resource type="Resource" path="res://buffs/resources/sorrow/sorrow_suffocation.tres" id="13"]
 
 [resource]
 script = ExtResource("1")
-cards = Array[BoonData]([ExtResource("2"), ExtResource("3"), ExtResource("4")])
+cards = Array[BoonData]([ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("11"), ExtResource("12"), ExtResource("13")])

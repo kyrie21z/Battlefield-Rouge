@@ -24,3 +24,7 @@ Godot 4.7.2 / Jolt：
 - `GLOSSARY.md`：锁定蜂鸣=`FearAudioDirector`，实际蓄力进度升调；闪现相位声=`FearSoundBank`，真实瞬移计数触发。
 - `ASSETS.md`：本issue全部声音为仓库原创数学合成，无外部采样/模型/授权素材；源码 `audio/realms/fear_sound_bank.gd`。本目录WAV为可复算预听证据，SHA-256见 `pcm-analysis.json`。不从旧工程复制素材。
 - 依赖父 #176 的 `RealmAudioDirector.get_sound` 扩展接口及父 #177 动态bank事件路由；本提交不包含借用的共享基类或Stage文件。
+
+## 集中集成与旧入口兼容
+
+共享 RealmAudioDirector 在所有房间路由 FearSoundBank 的真实破绽事件；只有消费该事件的控制器写入同步 `fear_flaw_audio_managed` 标记，FearEffect 才关闭旧晶碎音。无控制器的独立/旧入口保留一个旧音源，普通非破绽暴击仍沿用原反馈。新增真实背面晶面命中回归，连同原生产路径共 **24 checks, 0 failures**，Godot 4.7.2 headless 无脚本错误或退出警告，见 `integration.log`。

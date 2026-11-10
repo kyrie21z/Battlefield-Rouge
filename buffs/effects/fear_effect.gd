@@ -141,7 +141,7 @@ func _after_hit(context: Dictionary) -> void:
 			var fracture := context.duplicate()
 			fracture["position"] = point
 			manager.dispatch(&"fear_flaw_broken", fracture)
-			fracture_played = true
+			fracture_played = bool(fracture.get("fear_flaw_audio_managed",false))
 	if bool(context.get("fear_critical", false)):
 		var point: Vector3 = context.get("position", target.global_position + Vector3.UP)
 		FearCriticalFeedback.spawn(manager.player.get_parent(), point, float(context.dealt), not fracture_played)

@@ -164,5 +164,14 @@ func cross_realm_check() -> void:
 	other.player.boons.apply_damage(target, 35.0, {"kind": &"gun", "proc_depth": 0, "position": status.facet_position(0) + Vector3(0, 0, -0.075), "direction": Vector3.BACK, "hitbox": status.facets[0], "body_part": Hitbox.BodyPart.BODY, "source": other.player})
 	var other_audio := other.get_node("RealmAudio") as RealmAudioDirector
 	check("Fear boon in production Sloth room still plays one facet shatter", other_audio.cue_counts.get(&"fear_flaw_shatter", 0) == 1 and other_audio.get_sound(&"fear_flaw_shatter") == FearSoundBank.get_sound(&"fear_flaw_shatter"))
+	# Legacy/standalone compositions still own their old critical audio source.
+	other_audio.free()
+	other.player.position = target.position + Vector3(0, 0, 4)
+	var old_facet := status.facets[1]
+	other.player.boons.apply_damage(target, 35.0, {"kind": &"gun", "proc_depth": 0, "position": status.facet_position(1) + Vector3(0, 0, 0.075), "direction": Vector3.FORWARD, "hitbox": status.facets[1], "body_part": Hitbox.BodyPart.BODY, "source": other.player})
+	var fallback_count := 0
+	for child in other.get_children():
+		if child is FearCriticalFeedback and child.play_sound: fallback_count += 1
+	check("real facet without a managed director retains exactly one legacy voice",fallback_count == 1 and status.facets[1] != old_facet)
 	other.queue_free()
 	await frames()

@@ -1,0 +1,373 @@
+WorkerThreadPool: 12 threads, 3 max low-priority.
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+Loading resource: res://default_bus_layout.tres remapped: res://default_bus_layout.tres
+Completed load for: 'res://default_bus_layout.tres' remapped 'res://default_bus_layout.tres' at thread -1
+CORE API HASH: 2004498165
+EDITOR API HASH: 1696660745
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://autoload/input_map_setup.gd remapped: res://autoload/input_map_setup.gd
+Completed load for: 'res://autoload/input_map_setup.gd' remapped 'res://autoload/input_map_setup.gd' at thread -1
+Loading resource: res://autoload/events.gd remapped: res://autoload/events.gd
+Completed load for: 'res://autoload/events.gd' remapped 'res://autoload/events.gd' at thread -1
+Loading resource: res://autoload/run_state.gd remapped: res://autoload/run_state.gd
+Loading resource: res://buffs/firearm_damage.tres remapped: res://buffs/firearm_damage.tres
+Loading resource: res://assets/ui/buffs/firearm_damage.svg remapped: res://assets/ui/buffs/firearm_damage.svg
+Loading resource: res://.godot/imported/firearm_damage.svg-cfea2b7f535c6b091b146598cc146d03.ctex remapped: res://.godot/imported/firearm_damage.svg-cfea2b7f535c6b091b146598cc146d03.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_damage.svg' remapped 'res://assets/ui/buffs/firearm_damage.svg' at thread -1
+Completed load for: 'res://buffs/firearm_damage.tres' remapped 'res://buffs/firearm_damage.tres' at thread -1
+Loading resource: res://buffs/firearm_rate.tres remapped: res://buffs/firearm_rate.tres
+Loading resource: res://assets/ui/buffs/firearm_rate.svg remapped: res://assets/ui/buffs/firearm_rate.svg
+Loading resource: res://.godot/imported/firearm_rate.svg-a060a2e88ce5a34b722b92a7218042bf.ctex remapped: res://.godot/imported/firearm_rate.svg-a060a2e88ce5a34b722b92a7218042bf.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_rate.svg' remapped 'res://assets/ui/buffs/firearm_rate.svg' at thread -1
+Completed load for: 'res://buffs/firearm_rate.tres' remapped 'res://buffs/firearm_rate.tres' at thread -1
+Loading resource: res://buffs/firearm_magazine.tres remapped: res://buffs/firearm_magazine.tres
+Loading resource: res://assets/ui/buffs/firearm_magazine.svg remapped: res://assets/ui/buffs/firearm_magazine.svg
+Loading resource: res://.godot/imported/firearm_magazine.svg-8843b699783ea987e7d6b36f81edc7fa.ctex remapped: res://.godot/imported/firearm_magazine.svg-8843b699783ea987e7d6b36f81edc7fa.ctex
+Completed load for: 'res://assets/ui/buffs/firearm_magazine.svg' remapped 'res://assets/ui/buffs/firearm_magazine.svg' at thread -1
+Completed load for: 'res://buffs/firearm_magazine.tres' remapped 'res://buffs/firearm_magazine.tres' at thread -1
+Loading resource: res://buffs/blade_damage.tres remapped: res://buffs/blade_damage.tres
+Loading resource: res://assets/ui/buffs/blade_damage.svg remapped: res://assets/ui/buffs/blade_damage.svg
+Loading resource: res://.godot/imported/blade_damage.svg-0cc79109bfcd45839d50a3b9974c176f.ctex remapped: res://.godot/imported/blade_damage.svg-0cc79109bfcd45839d50a3b9974c176f.ctex
+Completed load for: 'res://assets/ui/buffs/blade_damage.svg' remapped 'res://assets/ui/buffs/blade_damage.svg' at thread -1
+Completed load for: 'res://buffs/blade_damage.tres' remapped 'res://buffs/blade_damage.tres' at thread -1
+Loading resource: res://buffs/blade_speed.tres remapped: res://buffs/blade_speed.tres
+Loading resource: res://assets/ui/buffs/blade_speed.svg remapped: res://assets/ui/buffs/blade_speed.svg
+Loading resource: res://.godot/imported/blade_speed.svg-18b8eba14e1184f617ee14d12dab89ca.ctex remapped: res://.godot/imported/blade_speed.svg-18b8eba14e1184f617ee14d12dab89ca.ctex
+Completed load for: 'res://assets/ui/buffs/blade_speed.svg' remapped 'res://assets/ui/buffs/blade_speed.svg' at thread -1
+Completed load for: 'res://buffs/blade_speed.tres' remapped 'res://buffs/blade_speed.tres' at thread -1
+Loading resource: res://buffs/blade_range.tres remapped: res://buffs/blade_range.tres
+Loading resource: res://assets/ui/buffs/blade_range.svg remapped: res://assets/ui/buffs/blade_range.svg
+Loading resource: res://.godot/imported/blade_range.svg-5b600bfc7fff48f67922f63402c84204.ctex remapped: res://.godot/imported/blade_range.svg-5b600bfc7fff48f67922f63402c84204.ctex
+Completed load for: 'res://assets/ui/buffs/blade_range.svg' remapped 'res://assets/ui/buffs/blade_range.svg' at thread -1
+Completed load for: 'res://buffs/blade_range.tres' remapped 'res://buffs/blade_range.tres' at thread -1
+Loading resource: res://buffs/skill_unlock.tres remapped: res://buffs/skill_unlock.tres
+Loading resource: res://assets/ui/buffs/skill_unlock.svg remapped: res://assets/ui/buffs/skill_unlock.svg
+Loading resource: res://.godot/imported/skill_unlock.svg-f5f959ec7bf85827619bf79a24b2f55a.ctex remapped: res://.godot/imported/skill_unlock.svg-f5f959ec7bf85827619bf79a24b2f55a.ctex
+Completed load for: 'res://assets/ui/buffs/skill_unlock.svg' remapped 'res://assets/ui/buffs/skill_unlock.svg' at thread -1
+Completed load for: 'res://buffs/skill_unlock.tres' remapped 'res://buffs/skill_unlock.tres' at thread -1
+Loading resource: res://buffs/skill_duration.tres remapped: res://buffs/skill_duration.tres
+Loading resource: res://assets/ui/buffs/skill_duration.svg remapped: res://assets/ui/buffs/skill_duration.svg
+Loading resource: res://.godot/imported/skill_duration.svg-86e624d90355066243544f746777941c.ctex remapped: res://.godot/imported/skill_duration.svg-86e624d90355066243544f746777941c.ctex
+Completed load for: 'res://assets/ui/buffs/skill_duration.svg' remapped 'res://assets/ui/buffs/skill_duration.svg' at thread -1
+Completed load for: 'res://buffs/skill_duration.tres' remapped 'res://buffs/skill_duration.tres' at thread -1
+Loading resource: res://buffs/skill_cooldown.tres remapped: res://buffs/skill_cooldown.tres
+Loading resource: res://assets/ui/buffs/skill_cooldown.svg remapped: res://assets/ui/buffs/skill_cooldown.svg
+Loading resource: res://.godot/imported/skill_cooldown.svg-efed7978cc954a8c71507f5fa6c593ec.ctex remapped: res://.godot/imported/skill_cooldown.svg-efed7978cc954a8c71507f5fa6c593ec.ctex
+Completed load for: 'res://assets/ui/buffs/skill_cooldown.svg' remapped 'res://assets/ui/buffs/skill_cooldown.svg' at thread -1
+Completed load for: 'res://buffs/skill_cooldown.tres' remapped 'res://buffs/skill_cooldown.tres' at thread -1
+Completed load for: 'res://autoload/run_state.gd' remapped 'res://autoload/run_state.gd' at thread -1
+Loading resource: res://autoload/meta_progression.gd remapped: res://autoload/meta_progression.gd
+Loading resource: res://weapons/obsidian_pistol/obsidian_pistol.tres remapped: res://weapons/obsidian_pistol/obsidian_pistol.tres
+Loading resource: res://weapons/weapon_data.gd remapped: res://weapons/weapon_data.gd
+Completed load for: 'res://weapons/weapon_data.gd' remapped 'res://weapons/weapon_data.gd' at thread -1
+Loading resource: res://weapons/obsidian_pistol/obsidian_pistol_view.tscn remapped: res://weapons/obsidian_pistol/obsidian_pistol_view.tscn
+Loading resource: res://weapons/obsidian_pistol/obsidian_pistol_view.gd remapped: res://weapons/obsidian_pistol/obsidian_pistol_view.gd
+Completed load for: 'res://weapons/obsidian_pistol/obsidian_pistol_view.gd' remapped 'res://weapons/obsidian_pistol/obsidian_pistol_view.gd' at thread -1
+Loading resource: res://assets/models/weapons/obsidian_pistol.glb remapped: res://assets/models/weapons/obsidian_pistol.glb
+Loading resource: res://.godot/imported/obsidian_pistol.glb-b1ec2bc4c2790ae771b473b994756219.scn remapped: res://.godot/imported/obsidian_pistol.glb-b1ec2bc4c2790ae771b473b994756219.scn
+Completed load for: 'res://assets/models/weapons/obsidian_pistol.glb' remapped 'res://assets/models/weapons/obsidian_pistol.glb' at thread -1
+Completed load for: 'res://weapons/obsidian_pistol/obsidian_pistol_view.tscn' remapped 'res://weapons/obsidian_pistol/obsidian_pistol_view.tscn' at thread -1
+Loading resource: res://weapons/obsidian_pistol/pistol_icon.svg remapped: res://weapons/obsidian_pistol/pistol_icon.svg
+Loading resource: res://.godot/imported/pistol_icon.svg-a3f9ba334ae60708ac72a522fcdf24a1.ctex remapped: res://.godot/imported/pistol_icon.svg-a3f9ba334ae60708ac72a522fcdf24a1.ctex
+Completed load for: 'res://weapons/obsidian_pistol/pistol_icon.svg' remapped 'res://weapons/obsidian_pistol/pistol_icon.svg' at thread -1
+Completed load for: 'res://weapons/obsidian_pistol/obsidian_pistol.tres' remapped 'res://weapons/obsidian_pistol/obsidian_pistol.tres' at thread -1
+Loading resource: res://assets/vfx/spark.png remapped: res://assets/vfx/spark.png
+Loading resource: res://.godot/imported/spark.png-7efaed8e92f5c1c86ae4224f8d95ef7d.ctex remapped: res://.godot/imported/spark.png-7efaed8e92f5c1c86ae4224f8d95ef7d.ctex
+Completed load for: 'res://assets/vfx/spark.png' remapped 'res://assets/vfx/spark.png' at thread -1
+Loading resource: res://assets/vfx/puff.png remapped: res://assets/vfx/puff.png
+Loading resource: res://.godot/imported/puff.png-cb5f384287ad099af84cb6a967d7c6e0.ctex remapped: res://.godot/imported/puff.png-cb5f384287ad099af84cb6a967d7c6e0.ctex
+Completed load for: 'res://assets/vfx/puff.png' remapped 'res://assets/vfx/puff.png' at thread -1
+Loading resource: res://weapons/mind_blade/mind_blade.tres remapped: res://weapons/mind_blade/mind_blade.tres
+Loading resource: res://weapons/melee/melee_data.gd remapped: res://weapons/melee/melee_data.gd
+Completed load for: 'res://weapons/melee/melee_data.gd' remapped 'res://weapons/melee/melee_data.gd' at thread -1
+Loading resource: res://weapons/mind_blade/mind_blade_view.tscn remapped: res://weapons/mind_blade/mind_blade_view.tscn
+Loading resource: res://assets/models/weapons/mind_blade.glb remapped: res://assets/models/weapons/mind_blade.glb
+Loading resource: res://.godot/imported/mind_blade.glb-08e58a6b8bc36956b2e0ec7a1f5795a4.scn remapped: res://.godot/imported/mind_blade.glb-08e58a6b8bc36956b2e0ec7a1f5795a4.scn
+Completed load for: 'res://assets/models/weapons/mind_blade.glb' remapped 'res://assets/models/weapons/mind_blade.glb' at thread -1
+Completed load for: 'res://weapons/mind_blade/mind_blade_view.tscn' remapped 'res://weapons/mind_blade/mind_blade_view.tscn' at thread -1
+Loading resource: res://weapons/mind_blade/mind_blade.svg remapped: res://weapons/mind_blade/mind_blade.svg
+Loading resource: res://.godot/imported/mind_blade.svg-474273724f92c9fc1dd23d23c79ab64d.ctex remapped: res://.godot/imported/mind_blade.svg-474273724f92c9fc1dd23d23c79ab64d.ctex
+Completed load for: 'res://weapons/mind_blade/mind_blade.svg' remapped 'res://weapons/mind_blade/mind_blade.svg' at thread -1
+Completed load for: 'res://weapons/mind_blade/mind_blade.tres' remapped 'res://weapons/mind_blade/mind_blade.tres' at thread -1
+Completed load for: 'res://autoload/meta_progression.gd' remapped 'res://autoload/meta_progression.gd' at thread -1
+Loading resource: res://autoload/run_director.gd remapped: res://autoload/run_director.gd
+Completed load for: 'res://autoload/run_director.gd' remapped 'res://autoload/run_director.gd' at thread -1
+Loaded system CA certificates
+Loading resource: res://tests/sloth_audio_test.tscn remapped: res://tests/sloth_audio_test.tscn
+Loading resource: res://tests/sloth_audio_test.gd remapped: res://tests/sloth_audio_test.gd
+Loading resource: res://maps/realms/sloth_boss.tscn remapped: res://maps/realms/sloth_boss.tscn
+Loading resource: res://zone/realm_stage.gd remapped: res://zone/realm_stage.gd
+Loading resource: res://zone/psyche_shard_pickup.tscn remapped: res://zone/psyche_shard_pickup.tscn
+Loading resource: res://zone/psyche_shard_pickup.gd remapped: res://zone/psyche_shard_pickup.gd
+Loading resource: res://assets/ui/boons/sloth.svg remapped: res://assets/ui/boons/sloth.svg
+Loading resource: res://.godot/imported/sloth.svg-e3051de40c1c1006a71f8f2a2e72463d.ctex remapped: res://.godot/imported/sloth.svg-e3051de40c1c1006a71f8f2a2e72463d.ctex
+Completed load for: 'res://assets/ui/boons/sloth.svg' remapped 'res://assets/ui/boons/sloth.svg' at thread -1
+Loading resource: res://assets/ui/boons/fear.svg remapped: res://assets/ui/boons/fear.svg
+Loading resource: res://.godot/imported/fear.svg-914b5c18a018f95d7de40f5d9cf9535d.ctex remapped: res://.godot/imported/fear.svg-914b5c18a018f95d7de40f5d9cf9535d.ctex
+Completed load for: 'res://assets/ui/boons/fear.svg' remapped 'res://assets/ui/boons/fear.svg' at thread -1
+Loading resource: res://assets/ui/boons/wrath.svg remapped: res://assets/ui/boons/wrath.svg
+Loading resource: res://.godot/imported/wrath.svg-0a9840ddfd6e2d6a1f301523c614db26.ctex remapped: res://.godot/imported/wrath.svg-0a9840ddfd6e2d6a1f301523c614db26.ctex
+Completed load for: 'res://assets/ui/boons/wrath.svg' remapped 'res://assets/ui/boons/wrath.svg' at thread -1
+Loading resource: res://assets/ui/boons/sorrow.svg remapped: res://assets/ui/boons/sorrow.svg
+Loading resource: res://.godot/imported/sorrow.svg-8b80f5d9ec271a1897bcc01441e8bfaa.ctex remapped: res://.godot/imported/sorrow.svg-8b80f5d9ec271a1897bcc01441e8bfaa.ctex
+Completed load for: 'res://assets/ui/boons/sorrow.svg' remapped 'res://assets/ui/boons/sorrow.svg' at thread -1
+Loading resource: res://assets/ui/boons/dual.svg remapped: res://assets/ui/boons/dual.svg
+Loading resource: res://.godot/imported/dual.svg-08400545253ef941d7ff388f0759e872.ctex remapped: res://.godot/imported/dual.svg-08400545253ef941d7ff388f0759e872.ctex
+Completed load for: 'res://assets/ui/boons/dual.svg' remapped 'res://assets/ui/boons/dual.svg' at thread -1
+Completed load for: 'res://zone/psyche_shard_pickup.gd' remapped 'res://zone/psyche_shard_pickup.gd' at thread -1
+Completed load for: 'res://zone/psyche_shard_pickup.tscn' remapped 'res://zone/psyche_shard_pickup.tscn' at thread -1
+Loading resource: res://actors/player/player.tscn remapped: res://actors/player/player.tscn
+Loading resource: res://actors/player/shadow_body.gd remapped: res://actors/player/shadow_body.gd
+Loading resource: res://assets/materials/protagonist_crystal_material.tres remapped: res://assets/materials/protagonist_crystal_material.tres
+Loading resource: res://assets/materials/red_crystal_crystal.gdshader remapped: res://assets/materials/red_crystal_crystal.gdshader
+Completed load for: 'res://assets/materials/red_crystal_crystal.gdshader' remapped 'res://assets/materials/red_crystal_crystal.gdshader' at thread -1
+Completed load for: 'res://assets/materials/protagonist_crystal_material.tres' remapped 'res://assets/materials/protagonist_crystal_material.tres' at thread -1
+Loading resource: res://assets/models/characters/red_crystal_enemy_shards.glb remapped: res://assets/models/characters/red_crystal_enemy_shards.glb
+Loading resource: res://.godot/imported/red_crystal_enemy_shards.glb-a17e73d073413a3528be601febf97975.scn remapped: res://.godot/imported/red_crystal_enemy_shards.glb-a17e73d073413a3528be601febf97975.scn
+Completed load for: 'res://assets/models/characters/red_crystal_enemy_shards.glb' remapped 'res://assets/models/characters/red_crystal_enemy_shards.glb' at thread -1
+Loading resource: res://actors/player/body_fracture.gdshader remapped: res://actors/player/body_fracture.gdshader
+Completed load for: 'res://actors/player/body_fracture.gdshader' remapped 'res://actors/player/body_fracture.gdshader' at thread -1
+Completed load for: 'res://actors/player/shadow_body.gd' remapped 'res://actors/player/shadow_body.gd' at thread -1
+Loading resource: res://actors/player/protagonist_body.tscn remapped: res://actors/player/protagonist_body.tscn
+Loading resource: res://assets/models/characters/red_crystal_enemy_animated.glb remapped: res://assets/models/characters/red_crystal_enemy_animated.glb
+Loading resource: res://.godot/imported/red_crystal_enemy_animated.glb-c84db30df09478b6f4c3eb69bb0a21b0.scn remapped: res://.godot/imported/red_crystal_enemy_animated.glb-c84db30df09478b6f4c3eb69bb0a21b0.scn
+Completed load for: 'res://assets/models/characters/red_crystal_enemy_animated.glb' remapped 'res://assets/models/characters/red_crystal_enemy_animated.glb' at thread -1
+Completed load for: 'res://actors/player/protagonist_body.tscn' remapped 'res://actors/player/protagonist_body.tscn' at thread -1
+Loading resource: res://actors/crown/crown_voice_system.gd remapped: res://actors/crown/crown_voice_system.gd
+Loading resource: res://actors/crown/crown_dialogue_database.tres remapped: res://actors/crown/crown_dialogue_database.tres
+Loading resource: res://actors/crown/crown_dialogue_database.gd remapped: res://actors/crown/crown_dialogue_database.gd
+Completed load for: 'res://actors/crown/crown_dialogue_database.gd' remapped 'res://actors/crown/crown_dialogue_database.gd' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/first.wav remapped: res://assets/audio/crown/dynamic/first.wav
+Loading resource: res://.godot/imported/first.wav-1fc6e67e84c9af17780296d5dafc0de7.sample remapped: res://.godot/imported/first.wav-1fc6e67e84c9af17780296d5dafc0de7.sample
+Completed load for: 'res://assets/audio/crown/dynamic/first.wav' remapped 'res://assets/audio/crown/dynamic/first.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/early.wav remapped: res://assets/audio/crown/dynamic/early.wav
+Loading resource: res://.godot/imported/early.wav-12a163ad4e2d6c629857edffa88a0cf2.sample remapped: res://.godot/imported/early.wav-12a163ad4e2d6c629857edffa88a0cf2.sample
+Completed load for: 'res://assets/audio/crown/dynamic/early.wav' remapped 'res://assets/audio/crown/dynamic/early.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/early_abyss.wav remapped: res://assets/audio/crown/dynamic/early_abyss.wav
+Loading resource: res://.godot/imported/early_abyss.wav-9eec5fec5b8e89ac66aa64f5429e335b.sample remapped: res://.godot/imported/early_abyss.wav-9eec5fec5b8e89ac66aa64f5429e335b.sample
+Completed load for: 'res://assets/audio/crown/dynamic/early_abyss.wav' remapped 'res://assets/audio/crown/dynamic/early_abyss.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/deep.wav remapped: res://assets/audio/crown/dynamic/deep.wav
+Loading resource: res://.godot/imported/deep.wav-a1686bf3683ca3a6c6d7a512960197dc.sample remapped: res://.godot/imported/deep.wav-a1686bf3683ca3a6c6d7a512960197dc.sample
+Completed load for: 'res://assets/audio/crown/dynamic/deep.wav' remapped 'res://assets/audio/crown/dynamic/deep.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/deep_abyss.wav remapped: res://assets/audio/crown/dynamic/deep_abyss.wav
+Loading resource: res://.godot/imported/deep_abyss.wav-cf54451f1791f01d50878c2da016c4c1.sample remapped: res://.godot/imported/deep_abyss.wav-cf54451f1791f01d50878c2da016c4c1.sample
+Completed load for: 'res://assets/audio/crown/dynamic/deep_abyss.wav' remapped 'res://assets/audio/crown/dynamic/deep_abyss.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/veteran.wav remapped: res://assets/audio/crown/dynamic/veteran.wav
+Loading resource: res://.godot/imported/veteran.wav-a4f3e57a355b97add0bda88b25aed5b8.sample remapped: res://.godot/imported/veteran.wav-a4f3e57a355b97add0bda88b25aed5b8.sample
+Completed load for: 'res://assets/audio/crown/dynamic/veteran.wav' remapped 'res://assets/audio/crown/dynamic/veteran.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/veteran_abyss.wav remapped: res://assets/audio/crown/dynamic/veteran_abyss.wav
+Loading resource: res://.godot/imported/veteran_abyss.wav-90a134c085b37527583cca412f84b9d3.sample remapped: res://.godot/imported/veteran_abyss.wav-90a134c085b37527583cca412f84b9d3.sample
+Completed load for: 'res://assets/audio/crown/dynamic/veteran_abyss.wav' remapped 'res://assets/audio/crown/dynamic/veteran_abyss.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/floor2.wav remapped: res://assets/audio/crown/dynamic/floor2.wav
+Loading resource: res://.godot/imported/floor2.wav-0b32160386b3f4bb0f6fea50815cc4b1.sample remapped: res://.godot/imported/floor2.wav-0b32160386b3f4bb0f6fea50815cc4b1.sample
+Completed load for: 'res://assets/audio/crown/dynamic/floor2.wav' remapped 'res://assets/audio/crown/dynamic/floor2.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/floor3.wav remapped: res://assets/audio/crown/dynamic/floor3.wav
+Loading resource: res://.godot/imported/floor3.wav-bc78f80907524e6c7b882b740a0c0c05.sample remapped: res://.godot/imported/floor3.wav-bc78f80907524e6c7b882b740a0c0c05.sample
+Completed load for: 'res://assets/audio/crown/dynamic/floor3.wav' remapped 'res://assets/audio/crown/dynamic/floor3.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/floor4.wav remapped: res://assets/audio/crown/dynamic/floor4.wav
+Loading resource: res://.godot/imported/floor4.wav-f5fe13cee883b6b426fd77ad3171e273.sample remapped: res://.godot/imported/floor4.wav-f5fe13cee883b6b426fd77ad3171e273.sample
+Completed load for: 'res://assets/audio/crown/dynamic/floor4.wav' remapped 'res://assets/audio/crown/dynamic/floor4.wav' at thread -1
+Loading resource: res://assets/audio/crown/dynamic/floor5.wav remapped: res://assets/audio/crown/dynamic/floor5.wav
+Loading resource: res://.godot/imported/floor5.wav-61b05467e58adc006327f738f638fa62.sample remapped: res://.godot/imported/floor5.wav-61b05467e58adc006327f738f638fa62.sample
+Completed load for: 'res://assets/audio/crown/dynamic/floor5.wav' remapped 'res://assets/audio/crown/dynamic/floor5.wav' at thread -1
+Completed load for: 'res://actors/crown/crown_dialogue_database.tres' remapped 'res://actors/crown/crown_dialogue_database.tres' at thread -1
+Loading resource: res://actors/crown/crown_emission.gdshader remapped: res://actors/crown/crown_emission.gdshader
+Completed load for: 'res://actors/crown/crown_emission.gdshader' remapped 'res://actors/crown/crown_emission.gdshader' at thread -1
+Loading resource: res://actors/crown/crown_glare.gdshader remapped: res://actors/crown/crown_glare.gdshader
+Completed load for: 'res://actors/crown/crown_glare.gdshader' remapped 'res://actors/crown/crown_glare.gdshader' at thread -1
+Completed load for: 'res://actors/crown/crown_voice_system.gd' remapped 'res://actors/crown/crown_voice_system.gd' at thread -1
+Completed load for: 'res://actors/player/player.tscn' remapped 'res://actors/player/player.tscn' at thread -1
+Loading resource: res://ui/boon_picker/boon_picker.tscn remapped: res://ui/boon_picker/boon_picker.tscn
+Loading resource: res://ui/boon_picker/boon_picker.gd remapped: res://ui/boon_picker/boon_picker.gd
+Completed load for: 'res://ui/boon_picker/boon_picker.gd' remapped 'res://ui/boon_picker/boon_picker.gd' at thread -1
+Completed load for: 'res://ui/boon_picker/boon_picker.tscn' remapped 'res://ui/boon_picker/boon_picker.tscn' at thread -1
+Loading resource: res://zone/door/door_reward_marker.tscn remapped: res://zone/door/door_reward_marker.tscn
+Loading resource: res://zone/door/door_reward_marker.gd remapped: res://zone/door/door_reward_marker.gd
+Loading resource: res://assets/ui/boons/resonance.svg remapped: res://assets/ui/boons/resonance.svg
+Loading resource: res://.godot/imported/resonance.svg-9e4916f8accb186577badda7b4bfa8a8.ctex remapped: res://.godot/imported/resonance.svg-9e4916f8accb186577badda7b4bfa8a8.ctex
+Completed load for: 'res://assets/ui/boons/resonance.svg' remapped 'res://assets/ui/boons/resonance.svg' at thread -1
+Loading resource: res://assets/ui/boons/vitality.svg remapped: res://assets/ui/boons/vitality.svg
+Loading resource: res://.godot/imported/vitality.svg-8ab48ca91e48e3955d4897d68b424c20.ctex remapped: res://.godot/imported/vitality.svg-8ab48ca91e48e3955d4897d68b424c20.ctex
+Completed load for: 'res://assets/ui/boons/vitality.svg' remapped 'res://assets/ui/boons/vitality.svg' at thread -1
+Loading resource: res://assets/ui/boons/shop.svg remapped: res://assets/ui/boons/shop.svg
+Loading resource: res://.godot/imported/shop.svg-2d779843d065968f91cb1cc586705d5d.ctex remapped: res://.godot/imported/shop.svg-2d779843d065968f91cb1cc586705d5d.ctex
+Completed load for: 'res://assets/ui/boons/shop.svg' remapped 'res://assets/ui/boons/shop.svg' at thread -1
+Completed load for: 'res://zone/door/door_reward_marker.gd' remapped 'res://zone/door/door_reward_marker.gd' at thread -1
+Completed load for: 'res://zone/door/door_reward_marker.tscn' remapped 'res://zone/door/door_reward_marker.tscn' at thread -1
+Loading resource: res://ui/run_end.tscn remapped: res://ui/run_end.tscn
+Loading resource: res://ui/run_end.gd remapped: res://ui/run_end.gd
+Completed load for: 'res://ui/run_end.gd' remapped 'res://ui/run_end.gd' at thread -1
+Completed load for: 'res://ui/run_end.tscn' remapped 'res://ui/run_end.tscn' at thread -1
+Loading resource: res://actors/enemy/enemy.tscn remapped: res://actors/enemy/enemy.tscn
+Loading resource: res://assets/models/characters/enemy.gltf remapped: res://assets/models/characters/enemy.gltf
+Loading resource: res://.godot/imported/enemy.gltf-50702aeb1688f6739bbe142bf26f31da.scn remapped: res://.godot/imported/enemy.gltf-50702aeb1688f6739bbe142bf26f31da.scn
+Completed load for: 'res://assets/models/characters/enemy.gltf' remapped 'res://assets/models/characters/enemy.gltf' at thread -1
+Loading resource: res://components/hit_reaction.gd remapped: res://components/hit_reaction.gd
+Completed load for: 'res://components/hit_reaction.gd' remapped 'res://components/hit_reaction.gd' at thread -1
+Completed load for: 'res://actors/enemy/enemy.tscn' remapped 'res://actors/enemy/enemy.tscn' at thread -1
+Loading resource: res://zone/capture_config.tres remapped: res://zone/capture_config.tres
+Loading resource: res://zone/capture_config.gd remapped: res://zone/capture_config.gd
+Completed load for: 'res://zone/capture_config.gd' remapped 'res://zone/capture_config.gd' at thread -1
+Completed load for: 'res://zone/capture_config.tres' remapped 'res://zone/capture_config.tres' at thread -1
+Completed load for: 'res://zone/realm_stage.gd' remapped 'res://zone/realm_stage.gd' at thread -1
+Loading resource: res://environments/sloth/realm.gd remapped: res://environments/sloth/realm.gd
+Completed load for: 'res://environments/sloth/realm.gd' remapped 'res://environments/sloth/realm.gd' at thread -1
+Completed load for: 'res://maps/realms/sloth_boss.tscn' remapped 'res://maps/realms/sloth_boss.tscn' at thread -1
+Completed load for: 'res://tests/sloth_audio_test.gd' remapped 'res://tests/sloth_audio_test.gd' at thread -1
+Completed load for: 'res://tests/sloth_audio_test.tscn' remapped 'res://tests/sloth_audio_test.tscn' at thread -1
+Loading resource: res://actors/boss/sloth_colossus/sloth_colossus.tscn remapped: res://actors/boss/sloth_colossus/sloth_colossus.tscn
+Loading resource: res://actors/boss/sloth_colossus/sloth_colossus.gd remapped: res://actors/boss/sloth_colossus/sloth_colossus.gd
+Loading resource: res://assets/materials/red_crystal_material_shader.tres remapped: res://assets/materials/red_crystal_material_shader.tres
+Completed load for: 'res://assets/materials/red_crystal_material_shader.tres' remapped 'res://assets/materials/red_crystal_material_shader.tres' at thread -1
+Loading resource: res://assets/materials/sloth_cloth.gdshader remapped: res://assets/materials/sloth_cloth.gdshader
+Completed load for: 'res://assets/materials/sloth_cloth.gdshader' remapped 'res://assets/materials/sloth_cloth.gdshader' at thread -1
+Completed load for: 'res://actors/boss/sloth_colossus/sloth_colossus.gd' remapped 'res://actors/boss/sloth_colossus/sloth_colossus.gd' at thread -1
+Completed load for: 'res://actors/boss/sloth_colossus/sloth_colossus.tscn' remapped 'res://actors/boss/sloth_colossus/sloth_colossus.tscn' at thread -1
+PASS production room owns injected ambience
+PASS pre-boss pendulum is 60 bpm
+PASS clock and heartbeat layers both played
+Loading resource: res://buffs/resources/sloth/pool.tres remapped: res://buffs/resources/sloth/pool.tres
+Loading resource: res://buffs/resources/sloth/sloth_gun_pulse.tres remapped: res://buffs/resources/sloth/sloth_gun_pulse.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_gun_pulse.tres' remapped 'res://buffs/resources/sloth/sloth_gun_pulse.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_blade_cleave.tres remapped: res://buffs/resources/sloth/sloth_blade_cleave.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_blade_cleave.tres' remapped 'res://buffs/resources/sloth/sloth_blade_cleave.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_dash_ripple.tres remapped: res://buffs/resources/sloth/sloth_dash_ripple.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_dash_ripple.tres' remapped 'res://buffs/resources/sloth/sloth_dash_ripple.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_descent.tres remapped: res://buffs/resources/sloth/sloth_descent.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_descent.tres' remapped 'res://buffs/resources/sloth/sloth_descent.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_drowsy.tres remapped: res://buffs/resources/sloth/sloth_drowsy.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_drowsy.tres' remapped 'res://buffs/resources/sloth/sloth_drowsy.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_eternal.tres remapped: res://buffs/resources/sloth/sloth_eternal.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_eternal.tres' remapped 'res://buffs/resources/sloth/sloth_eternal.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_heavy_beat.tres remapped: res://buffs/resources/sloth/sloth_heavy_beat.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_heavy_beat.tres' remapped 'res://buffs/resources/sloth/sloth_heavy_beat.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_inertia.tres remapped: res://buffs/resources/sloth/sloth_inertia.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_inertia.tres' remapped 'res://buffs/resources/sloth/sloth_inertia.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_reload.tres remapped: res://buffs/resources/sloth/sloth_reload.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_reload.tres' remapped 'res://buffs/resources/sloth/sloth_reload.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_resonance.tres remapped: res://buffs/resources/sloth/sloth_resonance.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_resonance.tres' remapped 'res://buffs/resources/sloth/sloth_resonance.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_stillness.tres remapped: res://buffs/resources/sloth/sloth_stillness.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_stillness.tres' remapped 'res://buffs/resources/sloth/sloth_stillness.tres' at thread -1
+Loading resource: res://buffs/resources/sloth/sloth_time_field.tres remapped: res://buffs/resources/sloth/sloth_time_field.tres
+Completed load for: 'res://buffs/resources/sloth/sloth_time_field.tres' remapped 'res://buffs/resources/sloth/sloth_time_field.tres' at thread -1
+Completed load for: 'res://buffs/resources/sloth/pool.tres' remapped 'res://buffs/resources/sloth/pool.tres' at thread -1
+Loading resource: res://buffs/resources/fear/pool.tres remapped: res://buffs/resources/fear/pool.tres
+Loading resource: res://buffs/resources/fear/gaze_pierce.tres remapped: res://buffs/resources/fear/gaze_pierce.tres
+Loading resource: res://buffs/effects/fear_effect.gd remapped: res://buffs/effects/fear_effect.gd
+Completed load for: 'res://buffs/effects/fear_effect.gd' remapped 'res://buffs/effects/fear_effect.gd' at thread -1
+Completed load for: 'res://buffs/resources/fear/gaze_pierce.tres' remapped 'res://buffs/resources/fear/gaze_pierce.tres' at thread -1
+Loading resource: res://buffs/resources/fear/flash_backstab.tres remapped: res://buffs/resources/fear/flash_backstab.tres
+Completed load for: 'res://buffs/resources/fear/flash_backstab.tres' remapped 'res://buffs/resources/fear/flash_backstab.tres' at thread -1
+Loading resource: res://buffs/resources/fear/tremor_decoy.tres remapped: res://buffs/resources/fear/tremor_decoy.tres
+Completed load for: 'res://buffs/resources/fear/tremor_decoy.tres' remapped 'res://buffs/resources/fear/tremor_decoy.tres' at thread -1
+Loading resource: res://buffs/resources/fear/distant_terror.tres remapped: res://buffs/resources/fear/distant_terror.tres
+Completed load for: 'res://buffs/resources/fear/distant_terror.tres' remapped 'res://buffs/resources/fear/distant_terror.tres' at thread -1
+Loading resource: res://buffs/resources/fear/paranoia.tres remapped: res://buffs/resources/fear/paranoia.tres
+Completed load for: 'res://buffs/resources/fear/paranoia.tres' remapped 'res://buffs/resources/fear/paranoia.tres' at thread -1
+Loading resource: res://buffs/resources/fear/sixth_sense.tres remapped: res://buffs/resources/fear/sixth_sense.tres
+Completed load for: 'res://buffs/resources/fear/sixth_sense.tres' remapped 'res://buffs/resources/fear/sixth_sense.tres' at thread -1
+Loading resource: res://buffs/resources/fear/fracture_spread.tres remapped: res://buffs/resources/fear/fracture_spread.tres
+Completed load for: 'res://buffs/resources/fear/fracture_spread.tres' remapped 'res://buffs/resources/fear/fracture_spread.tres' at thread -1
+Loading resource: res://buffs/resources/fear/every_shadow.tres remapped: res://buffs/resources/fear/every_shadow.tres
+Completed load for: 'res://buffs/resources/fear/every_shadow.tres' remapped 'res://buffs/resources/fear/every_shadow.tres' at thread -1
+Loading resource: res://buffs/resources/fear/exposed_terror.tres remapped: res://buffs/resources/fear/exposed_terror.tres
+Completed load for: 'res://buffs/resources/fear/exposed_terror.tres' remapped 'res://buffs/resources/fear/exposed_terror.tres' at thread -1
+Loading resource: res://buffs/resources/fear/final_execution.tres remapped: res://buffs/resources/fear/final_execution.tres
+Completed load for: 'res://buffs/resources/fear/final_execution.tres' remapped 'res://buffs/resources/fear/final_execution.tres' at thread -1
+Loading resource: res://buffs/resources/fear/abyssal_blindness.tres remapped: res://buffs/resources/fear/abyssal_blindness.tres
+Completed load for: 'res://buffs/resources/fear/abyssal_blindness.tres' remapped 'res://buffs/resources/fear/abyssal_blindness.tres' at thread -1
+Loading resource: res://buffs/resources/fear/panoptic_dread.tres remapped: res://buffs/resources/fear/panoptic_dread.tres
+Completed load for: 'res://buffs/resources/fear/panoptic_dread.tres' remapped 'res://buffs/resources/fear/panoptic_dread.tres' at thread -1
+Completed load for: 'res://buffs/resources/fear/pool.tres' remapped 'res://buffs/resources/fear/pool.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/pool.tres remapped: res://buffs/resources/wrath/pool.tres
+Loading resource: res://buffs/resources/wrath/wrath_gun_cannon.tres remapped: res://buffs/resources/wrath/wrath_gun_cannon.tres
+Loading resource: res://buffs/effects/wrath_effect.gd remapped: res://buffs/effects/wrath_effect.gd
+Completed load for: 'res://buffs/effects/wrath_effect.gd' remapped 'res://buffs/effects/wrath_effect.gd' at thread -1
+Completed load for: 'res://buffs/resources/wrath/wrath_gun_cannon.tres' remapped 'res://buffs/resources/wrath/wrath_gun_cannon.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_blade_sweep.tres remapped: res://buffs/resources/wrath/wrath_blade_sweep.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_blade_sweep.tres' remapped 'res://buffs/resources/wrath/wrath_blade_sweep.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_dash_ram.tres remapped: res://buffs/resources/wrath/wrath_dash_ram.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_dash_ram.tres' remapped 'res://buffs/resources/wrath/wrath_dash_ram.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_shrapnel.tres remapped: res://buffs/resources/wrath/wrath_shrapnel.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_shrapnel.tres' remapped 'res://buffs/resources/wrath/wrath_shrapnel.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_retaliation.tres remapped: res://buffs/resources/wrath/wrath_retaliation.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_retaliation.tres' remapped 'res://buffs/resources/wrath/wrath_retaliation.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_desperation.tres remapped: res://buffs/resources/wrath/wrath_desperation.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_desperation.tres' remapped 'res://buffs/resources/wrath/wrath_desperation.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_reload.tres remapped: res://buffs/resources/wrath/wrath_reload.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_reload.tres' remapped 'res://buffs/resources/wrath/wrath_reload.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_crusher.tres remapped: res://buffs/resources/wrath/wrath_crusher.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_crusher.tres' remapped 'res://buffs/resources/wrath/wrath_crusher.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_chain.tres remapped: res://buffs/resources/wrath/wrath_chain.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_chain.tres' remapped 'res://buffs/resources/wrath/wrath_chain.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_breaker.tres remapped: res://buffs/resources/wrath/wrath_breaker.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_breaker.tres' remapped 'res://buffs/resources/wrath/wrath_breaker.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_frenzy.tres remapped: res://buffs/resources/wrath/wrath_frenzy.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_frenzy.tres' remapped 'res://buffs/resources/wrath/wrath_frenzy.tres' at thread -1
+Loading resource: res://buffs/resources/wrath/wrath_cataclysm.tres remapped: res://buffs/resources/wrath/wrath_cataclysm.tres
+Completed load for: 'res://buffs/resources/wrath/wrath_cataclysm.tres' remapped 'res://buffs/resources/wrath/wrath_cataclysm.tres' at thread -1
+Completed load for: 'res://buffs/resources/wrath/pool.tres' remapped 'res://buffs/resources/wrath/pool.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/pool.tres remapped: res://buffs/resources/sorrow/pool.tres
+Loading resource: res://buffs/resources/sorrow/sorrow_gun_needles.tres remapped: res://buffs/resources/sorrow/sorrow_gun_needles.tres
+Loading resource: res://buffs/effects/sorrow_effect.gd remapped: res://buffs/effects/sorrow_effect.gd
+Completed load for: 'res://buffs/effects/sorrow_effect.gd' remapped 'res://buffs/effects/sorrow_effect.gd' at thread -1
+Completed load for: 'res://buffs/resources/sorrow/sorrow_gun_needles.tres' remapped 'res://buffs/resources/sorrow/sorrow_gun_needles.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_blade_tide.tres remapped: res://buffs/resources/sorrow/sorrow_blade_tide.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_blade_tide.tres' remapped 'res://buffs/resources/sorrow/sorrow_blade_tide.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_dash_ribbon.tres remapped: res://buffs/resources/sorrow/sorrow_dash_ribbon.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_dash_ribbon.tres' remapped 'res://buffs/resources/sorrow/sorrow_dash_ribbon.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_abyss.tres remapped: res://buffs/resources/sorrow/sorrow_abyss.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_abyss.tres' remapped 'res://buffs/resources/sorrow/sorrow_abyss.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_buffer.tres remapped: res://buffs/resources/sorrow/sorrow_buffer.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_buffer.tres' remapped 'res://buffs/resources/sorrow/sorrow_buffer.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_echo.tres remapped: res://buffs/resources/sorrow/sorrow_echo.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_echo.tres' remapped 'res://buffs/resources/sorrow/sorrow_echo.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_flood.tres remapped: res://buffs/resources/sorrow/sorrow_flood.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_flood.tres' remapped 'res://buffs/resources/sorrow/sorrow_flood.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_gravity.tres remapped: res://buffs/resources/sorrow/sorrow_gravity.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_gravity.tres' remapped 'res://buffs/resources/sorrow/sorrow_gravity.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_mercy.tres remapped: res://buffs/resources/sorrow/sorrow_mercy.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_mercy.tres' remapped 'res://buffs/resources/sorrow/sorrow_mercy.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_pressure.tres remapped: res://buffs/resources/sorrow/sorrow_pressure.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_pressure.tres' remapped 'res://buffs/resources/sorrow/sorrow_pressure.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_shards.tres remapped: res://buffs/resources/sorrow/sorrow_shards.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_shards.tres' remapped 'res://buffs/resources/sorrow/sorrow_shards.tres' at thread -1
+Loading resource: res://buffs/resources/sorrow/sorrow_suffocation.tres remapped: res://buffs/resources/sorrow/sorrow_suffocation.tres
+Completed load for: 'res://buffs/resources/sorrow/sorrow_suffocation.tres' remapped 'res://buffs/resources/sorrow/sorrow_suffocation.tres' at thread -1
+Completed load for: 'res://buffs/resources/sorrow/pool.tres' remapped 'res://buffs/resources/sorrow/pool.tres' at thread -1
+Loading resource: res://buffs/resources/dual/pool.tres remapped: res://buffs/resources/dual/pool.tres
+Loading resource: res://buffs/resources/dual/slumber_magma.tres remapped: res://buffs/resources/dual/slumber_magma.tres
+Completed load for: 'res://buffs/resources/dual/slumber_magma.tres' remapped 'res://buffs/resources/dual/slumber_magma.tres' at thread -1
+Loading resource: res://buffs/resources/dual/tearful_panic.tres remapped: res://buffs/resources/dual/tearful_panic.tres
+Completed load for: 'res://buffs/resources/dual/tearful_panic.tres' remapped 'res://buffs/resources/dual/tearful_panic.tres' at thread -1
+Loading resource: res://buffs/resources/dual/spiteful_deluge.tres remapped: res://buffs/resources/dual/spiteful_deluge.tres
+Completed load for: 'res://buffs/resources/dual/spiteful_deluge.tres' remapped 'res://buffs/resources/dual/spiteful_deluge.tres' at thread -1
+Loading resource: res://buffs/resources/dual/frozen_paranoia.tres remapped: res://buffs/resources/dual/frozen_paranoia.tres
+Completed load for: 'res://buffs/resources/dual/frozen_paranoia.tres' remapped 'res://buffs/resources/dual/frozen_paranoia.tres' at thread -1
+Loading resource: res://buffs/resources/dual/suffocating_mire.tres remapped: res://buffs/resources/dual/suffocating_mire.tres
+Completed load for: 'res://buffs/resources/dual/suffocating_mire.tres' remapped 'res://buffs/resources/dual/suffocating_mire.tres' at thread -1
+Loading resource: res://buffs/resources/dual/hysterical_rampage.tres remapped: res://buffs/resources/dual/hysterical_rampage.tres
+Completed load for: 'res://buffs/resources/dual/hysterical_rampage.tres' remapped 'res://buffs/resources/dual/hysterical_rampage.tres' at thread -1
+Completed load for: 'res://buffs/resources/dual/pool.tres' remapped 'res://buffs/resources/dual/pool.tres' at thread -1
+LATENCY AUDIO count=1 effect_exists=true has_card=true
+PASS real latency detonation triggers delay bass
+PASS real boss death switches to 148 bpm
+PASS overclock replaces warm pad
+PASS old ambience fades out without a dangling loop
+PASS room music respects zero-volume setting
+PASS paused tree freezes the audio timeline
+PASS paused presentation rejects new cue
+PASS polyphony bounded at sixteen voices
+PASS loop is cached stereo PCM with finite seamless window
+PASS real player death stops all room audio
+PASS room exit frees the whole voice pool
+SLOTH AUDIO: 14 checks, 0 failures
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"

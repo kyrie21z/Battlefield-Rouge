@@ -26,6 +26,7 @@ func _ready() -> void:
 	camera.position = Vector3(0.4, 1.65, -6.7)
 	add_child(camera)
 	camera.look_at(Vector3(0.4, 1.0, 0))
+	var advanced := "--traits" in OS.get_cmdline_user_args()
 	for i in 2:
 		var enemy := preload("res://actors/enemy/sloth/sloth_enemy.tscn").instantiate() as Node3D
 		enemy.position = Vector3(-1.7 + i * 1.7, 0, 0)
@@ -36,10 +37,12 @@ func _ready() -> void:
 		panic.actor = enemy
 		panic.health = enemy.get_node("Health")
 		enemy.add_child(panic)
-		panic.apply(4.0, true)
-		if i == 1:
+		panic.apply(4.0, true, 2 if advanced else 1)
+		if advanced:
+			panic.set_area_modifier(&"fear_exposed", 1.5)
+		if i == 1 and not advanced:
 			panic.break_facet(0, true)
-		_label("FRONT FLAW" if i == 0 else "RELOCATED TO BACK", enemy.position + Vector3(0, 2.4, 0))
+		_label(("PERMANENT FRONT" if i == 0 else "PERMANENT BACK") if advanced else ("FRONT FLAW" if i == 0 else "RELOCATED TO BACK"), enemy.position + Vector3(0, 2.4, 0))
 	# Freeze the same pose used by the live first-person body, including its
 	# complete head and hands. The hidden source never participates in combat.
 	var source := preload("res://actors/player/player.tscn").instantiate() as Player
@@ -58,6 +61,12 @@ func _ready() -> void:
 	decoy.set_process(false)
 	camera.make_current()
 	_label("DESTRUCTIBLE DECOY / 2s", Vector3(1.9, 2.4, 0))
+	if advanced:
+		var warning := FearEdgeWarning.new()
+		add_child(warning)
+		# Keep this presentation sample visible while the native renderer warms up.
+		warning.set_process(false)
+		warning.warn(camera, camera.global_position + camera.global_basis.z * 5.0 + camera.global_basis.x * 4.0)
 	var output := "user://proof/fear-core.png"
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--out="):

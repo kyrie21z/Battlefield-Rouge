@@ -12,9 +12,17 @@ var _statuses: Dictionary = {}
 var _decoys: Array[FearDecoy] = []
 var _decoy_targets: Dictionary = {}
 var _homing: Array[FearHomingCrystal] = []
+var _traits: FearTraitsRuntime
 
 
-func tick(_delta: float) -> void:
+func setup(value: BoonManager) -> void:
+	super.setup(value)
+	_traits = FearTraitsRuntime.new()
+	_traits.setup(self)
+
+
+func tick(delta: float) -> void:
+	_traits.tick(delta)
 	for i in range(_homing.size() - 1, -1, -1):
 		if not is_instance_valid(_homing[i]):
 			_homing.remove_at(i)
@@ -24,6 +32,7 @@ func tick(_delta: float) -> void:
 
 
 func on_event(event: StringName, context: Dictionary) -> void:
+	_traits.before_event(event, context)
 	match event:
 		&"hit_before":
 			_before_hit(context)
@@ -38,6 +47,8 @@ func on_event(event: StringName, context: Dictionary) -> void:
 		&"clock_struck":
 			if manager.has(BLADE):
 				manager.feedback(context.get("position", manager.player.global_position), PanicFlawStatus.COLOR, 1.1)
+
+	_traits.on_event(event, context)
 
 
 func status_for(target: Node3D, create := false) -> PanicFlawStatus:
@@ -59,6 +70,8 @@ func apply_panic(target: Node3D, duration := 4.0, permanent := false, count := 1
 		return null
 	var status := status_for(target, true)
 	status.apply(duration, permanent, count)
+	if manager.has(FearTraitsRuntime.EXPOSE):
+		status.set_area_modifier(&"fear_exposed", _parameter(FearTraitsRuntime.EXPOSE, "area_multiplier", 1.5))
 	return status
 
 
@@ -85,7 +98,7 @@ func _before_hit(context: Dictionary) -> void:
 	var active := status != null and status.is_active()
 	var point: Vector3 = context.get("position", target.global_position + Vector3.UP)
 	var direction: Vector3 = context.get("direction", Vector3.ZERO)
-	var index := status.contact_index(point, direction) if active else -1
+	var index := status.contact_index(point, direction, float(context.get("fear_graze", 0.0))) if active else -1
 	var hitbox := context.get("hitbox") as Hitbox
 	if active and is_instance_valid(hitbox) and hitbox.has_meta("fear_flaw_index"):
 		index = int(hitbox.get_meta("fear_flaw_index"))
@@ -157,6 +170,7 @@ func _decoy_burst(point: Vector3, decoy: FearDecoy) -> void:
 	for enemy in manager.targets_in_radius(point, _parameter(DASH, "panic_radius", 6.0)):
 		apply_panic(enemy, _parameter(DASH, "panic_duration", 4.0))
 	manager.feedback(point + Vector3.UP, PanicFlawStatus.COLOR, _parameter(DASH, "panic_radius", 6.0))
+	manager.dispatch(&"fear_decoy_burst", {"position": point + Vector3.UP, "proc_depth": 1, "tag": &"fear_decoy"})
 
 
 func _restore_decoy_targets(decoy: FearDecoy) -> void:
@@ -249,6 +263,11 @@ func _parameter(id: String, key: String, fallback: float) -> float:
 
 
 func cleanup() -> void:
+	if _traits != null:
+		_traits.cleanup()
+		_traits.fear = null
+		_traits.manager = null
+		_traits = null
 	for steering in _homing:
 		if is_instance_valid(steering):
 			steering.impact_callback = Callable()

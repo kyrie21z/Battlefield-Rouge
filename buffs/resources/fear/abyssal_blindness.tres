@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_abyssal_blindness"
+name = "幽邃致盲"
+sin = 1
+slot = 3
+rarity = 2
+core = false
+description = "残影爆炸或破绽击碎释放紫光，使可见8米内敌人无法行动2秒。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"radius": 8.0, "duration": 2.0}
+prerequisite_any = Array[String](["fear_tremor_decoy", "fear_distant_terror", "fear_paranoia", "fear_sixth_sense", "fear_fracture_spread", "fear_every_shadow", "fear_exposed_terror"])

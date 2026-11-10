@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_exposed_terror"
+name = "惊惶暴露"
+sin = 1
+slot = 3
+rarity = 1
+core = false
+description = "破绽物理面积扩大50%，跳弹和溅射擦过晶面边缘也触发暴击。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"area_multiplier": 1.5, "graze_radius": 0.12}

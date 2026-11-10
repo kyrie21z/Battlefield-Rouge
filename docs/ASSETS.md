@@ -359,3 +359,7 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 “你简直无药可救了！！”使用#147登记的官方Apache-2.0 Kokoro-82M-v1.1-zh标准女声 `zf_001` 离线生成，语速1.12，24kHz单声道PCM16，2.825秒。原桌面SAPI语音已完全替换，输出不标CC0，旧生成脚本显式拒绝执行。来源、模型哈希和全部参数见 [语音说明](../tools/cinematic/voice_assets.md)。
 
 `assets/audio/climax/crown_breakdown.wav` SHA-256: `6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828`。
+
+## #168 四系晶屑（2026-11-10）
+
+`assets/particles/crystal_burst.gd` 以平面法线八面体、程序圆环与 GPU 粒子生成琥珀、幽紫、绯红、苍蓝四系反馈。全部为本项目原创代码，遵循仓库 MIT 许可，无第三方模型或贴图。生成源 SHA-256：`2e86f5ad9c172dac086af0496a8916089ae6b3acac8393d35319696113c69b6d`。预建 48 个 emitter、每色 12 个，满池跳过视觉，不改变伤害。原生性能与截图采集开销的区分见 [#168 证明](proof/issue-168/README.md)。

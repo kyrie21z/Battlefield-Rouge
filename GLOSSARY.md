@@ -166,3 +166,10 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 四系晶屑反馈（#168）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 晶屑发射池 | `CrystalBurst` | 播种前预建、预热的四系 GPU 粒子池；真实受击、死亡和技能结算借用，战斗时不构造 GPU 节点或消费玩法 RNG。 |
+| 技能顿帧 | `BoonHitstop` | HUD 对延爆、破绽和撞墙结算请求 0.04 秒反馈；fixture、暂停与死亡时禁用，场景退出不遗留慢速。 |

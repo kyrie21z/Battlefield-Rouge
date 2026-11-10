@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://actors/player/dash.gd" id="16_dash"]
 [ext_resource type="PackedScene" path="res://actors/player/protagonist_body.tscn" id="15_body"]
 
+
+[ext_resource type="Script" path="res://actors/crown/crown_voice_system.gd" id="17_crown"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -91,3 +93,6 @@ melee = NodePath("../Head/Camera3D/Melee")
 shield = NodePath("../Shield")
 camera = NodePath("../Head/Camera3D")
 shooter = NodePath("..")
+
+[node name="CrownVoiceSystem" type="Node3D" parent="."]
+script = ExtResource("17_crown")

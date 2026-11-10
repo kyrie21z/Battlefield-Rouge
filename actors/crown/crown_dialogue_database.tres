@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CrownDialogueDatabase" load_steps=13 format=3]
+[ext_resource type="Script" path="res://actors/crown/crown_dialogue_database.gd" id="1"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/first.wav" id="2"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/early.wav" id="3"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/early_abyss.wav" id="4"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/deep.wav" id="5"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/deep_abyss.wav" id="6"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/veteran.wav" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/veteran_abyss.wav" id="8"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/floor2.wav" id="9"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/floor3.wav" id="10"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/floor4.wav" id="11"]
+[ext_resource type="AudioStream" path="res://assets/audio/crown/dynamic/floor5.wav" id="12"]
+[resource]
+script = ExtResource("1")
+lines = {
+"first": {"text": "别怕。刚才的意外不是你的全部。你可以做到更好，跟着我往前走。", "clip": ExtResource("2")},
+"early": {"text": "没关系，站起来。刚才只是节奏乱了一点。看清它的动作，再快一点。", "clip": ExtResource("3")},
+"early_abyss": {"text": "先站稳。刚才是桥面翻转了，不是你不够优秀。下一次，把边缘记牢。", "clip": ExtResource("4")},
+"deep": {"text": "只差一点点了！别让那些软弱，把好不容易夺回的阵地抢回去。继续！", "clip": ExtResource("5")},
+"deep_abyss": {"text": "已经走到这里，怎么还能掉下去？看住脚下。我们不能再浪费这次机会。", "clip": ExtResource("6")},
+"veteran": {"text": "深呼吸。路线记住了。行动。", "clip": ExtResource("7")},
+"veteran_abyss": {"text": "远离边缘。不要重复失误。行动。", "clip": ExtResource("8")},
+"floor2": {"text": "安静下来了，对吗？现在，不必再被恐惧拖慢。", "clip": ExtResource("9")},
+"floor3": {"text": "你已经不再犹豫。继续，把那些愤怒也清理干净。", "clip": ExtResource("10")},
+"floor4": {"text": "不要停。悲伤只会让你回头。顶峰就在前面。", "clip": ExtResource("11")},
+"floor5": {"text": "终于，没有什么能拖住你了。抬头，看看完美的自己。", "clip": ExtResource("12")}
+}

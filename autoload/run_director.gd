@@ -116,9 +116,9 @@ func restore_player(player: Player) -> void:
 		body.set_fracture_level(defeated.size())
 	var crown := player.get_node_or_null("CrownVoiceSystem")
 	if crown != null:
-		crown.configure_history(run_count,last_death_depth,str(last_death_cause))
+		crown.configure_history(run_count,last_death_depth,str(last_death_cause),room_index == 0)
 		crown.set_fracture_level(defeated.size())
-		crown.enter_floor(mini(floor_index+1,4))
+		crown.enter_floor(mini(floor_index+1,5))
 	else:
 		var radiance := player.get_node_or_null("CrownRadiance") as CrownRadiance
 		if radiance == null:

@@ -3,6 +3,8 @@ extends Node
 ## or write run state. See ARCHITECTURE.md.
 
 signal enemy_killed(enemy: Node)
+signal enemy_registered(enemy: Node3D)
+signal projectile_registered(projectile: Node3D)
 ## Any gun fired, so enemies can hear it.
 signal gunshot(position: Vector3)
 ## A blade landed on a capture point. Enemies hear it like a gunshot.

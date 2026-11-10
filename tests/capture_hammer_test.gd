@@ -15,6 +15,11 @@ var _strikes: Array = []
 func _ready() -> void:
 	await _run()
 	var ok := _failures == 0 and _finished
+	for child in get_children():
+		child.queue_free()
+	await get_tree().process_frame
+	OS.delay_msec(250)
+	await get_tree().process_frame
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures, "" if _finished else ", run did not finish"])
 	get_tree().quit(0 if ok else 1)
 

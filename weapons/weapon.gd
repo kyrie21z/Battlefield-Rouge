@@ -157,7 +157,7 @@ func _process(delta: float) -> void:
 	_view_base = _view_base.lerp(target, minf(14.0 * delta, 1.0))
 	_apply_view_pose(delta)
 	if is_reloading():
-		_reload_left = maxf(_reload_left - delta, 0.0)
+		_reload_left = maxf(_reload_left - delta * _stat(Stats.RELOAD_SPEED) / _reload_start_speed, 0.0)
 		_update_reassembly(1.0 - _reload_left / _reload_total)
 		if _reload_left <= 0.000001:
 			_finish_reload()
@@ -202,6 +202,15 @@ func _update_reassembly(progress: float) -> void:
 		_view.set_reassembly_progress(progress)
 
 
+var boon_hook: Callable
+var _shot_context: Dictionary = {}
+var _reload_empty := false
+var _reload_start_speed := 1.0
+
+func _boon(event: StringName, context: Dictionary) -> void:
+	if boon_hook.is_valid():
+		boon_hook.call(event, context)
+
 func try_fire() -> bool:
 	if get_tree().paused or data == null or not trigger_enabled or _cooldown > 0.0 or is_reloading():
 		return false
@@ -212,13 +221,17 @@ func try_fire() -> bool:
 			_play_handling(_dry_sound, -4.0)
 		return false
 
+	_shot_context = {"weapon": self, "source": shooter, "origin": camera.global_position,
+		"direction": -camera.global_basis.z, "damage_multiplier": 1.0, "proc_depth": 0, "tag": &"gun"}
+	_boon(&"shoot_before", _shot_context)
 	ammo -= 1
 	_cooldown = data.fire_interval / _stat(Stats.FIRE_RATE)
 	var spread := spread_degrees()
 	_detail_left = 3
 	_tracers_left = data.max_tracers
-	for pellet in maxi(data.pellets, 1):
-		_shoot_ray(camera.global_position, _spread_direction(-camera.global_basis.z, spread))
+	if not _shot_context.get("cancel_primary", false):
+		for pellet in maxi(data.pellets, 1):
+			_shoot_ray(_shot_context.origin, _spread_direction(_shot_context.direction, spread))
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
 
 	_play_shot(_gunshot)
@@ -229,6 +242,7 @@ func try_fire() -> bool:
 	_kick_view()
 	recoil.emit(data.camera_kick, _feel_rng.randf_range(-data.camera_yaw, data.camera_yaw), data.recoil_manual)
 	fired.emit()
+	_boon(&"shoot_fired", _shot_context)
 	Events.gunshot.emit(global_position)
 	ammo_changed.emit(ammo, reserve)
 	if ammo == 0 and reserve != 0:
@@ -239,10 +253,13 @@ func try_fire() -> bool:
 func try_reload() -> void:
 	if get_tree().paused or data == null or not trigger_enabled or is_reloading() or reserve == 0 or ammo >= magazine_capacity():
 		return
-	_reload_total = _reload_duration(ammo == 0)
+	_reload_empty = ammo == 0
+	_reload_start_speed = maxf(_stat(Stats.RELOAD_SPEED), 0.001)
+	_reload_total = _reload_duration(_reload_empty)
 	_reload_left = _reload_total
 	_update_reassembly(0.0)
 	reload_started.emit(_reload_left)
+	_boon(&"reload_started", {"source": shooter, "weapon": self, "empty": _reload_empty, "ammo": ammo})
 
 
 func _finish_reload() -> void:
@@ -259,6 +276,7 @@ func _finish_reload() -> void:
 		_flash_left = SNAP_FLASH_TIME
 	ammo_refilled.emit()
 	reload_finished.emit()
+	_boon(&"reload_finished", {"source": shooter, "weapon": self, "empty": _reload_empty, "ammo": ammo})
 	ammo_changed.emit(ammo, reserve)
 
 
@@ -284,7 +302,18 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 	if collider is Hitbox:
 		var hitbox := collider as Hitbox
 		var distance := origin.distance_to(hit.position)
-		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction, true)
+		var damage := data.damage * _stat(Stats.DAMAGE) * _falloff(distance) * float(_shot_context.get("damage_multiplier", 1.0))
+		var ctx := {"kind": &"gun", "tag": &"gun", "proc_depth": 0, "source": shooter,
+			"target": hitbox.health.get_parent(), "health": hitbox.health, "hitbox": hitbox,
+			"position": hit.position, "direction": direction, "damage": damage, "base_damage": damage,
+			"body_part": hitbox.body_part, "critical": false, "critical_multiplier": 1.0, "cancelled": false,
+			"damage_scaled": true}
+		_boon(&"hit_before", ctx)
+		var hp_before := hitbox.health.health
+		var dealt := 0.0 if ctx.cancelled else hitbox.apply_hit_at(maxf(ctx.damage, 0.0), shooter, hit.position, direction, true, ctx)
+		ctx.dealt = minf(dealt, hp_before)
+		ctx.killed = hitbox.health.is_dead()
+		_boon(&"hit_after", ctx)
 		if not hitbox.surface_evaded:
 			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal)
 		if dealt > 0.0:

@@ -112,3 +112,13 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 `BodyFracture` 只管理表现。`Events.sin_defeated(count)` 驱动 0..4 级，0 为原白晶材质，1 从左腕开始，2 到手背/胸锁骨，3 胸臂局部剥落，4 全身深缝；全部裂缝为黑色。`CrystalSeams` 派生渲染网格，只添加原非共面晶体边的距离属性，保留原三角形、蒙皮、顶点位置和法线；0 级恢复原资源。56 个既有预切碎片随对应骨骼，替换部位隐藏原网格，材质参数逐实例隔离。退出场景时断开骨骼回调和事件。事件预留给四心魔流程，本阶段不增加尚未实现的剧情状态；数字 0..4 仅在显式开启调试的场景消费。
 
 验收与原生截图见 [#105 记录](docs/proof/issue-105/README.md)。
+
+## Epic 2：动作槽位赐福管道（#114）
+
+`Player/BoonManager` 是玩家拥有的组件。`BoonData` 资源描述 GUN / BLADE / DASH / OTHER 核心槽与不限槽的次级特质；一个槽最多一张核心卡，`request_equip` 的冲突必须经过 `replacement_requested` / `confirm_replace`。`BoonCatalog` 只加载已存在的 `buffs/resources/{sin}/pool.tres`，前置检查共用 `BoonManager.can_equip`。恢复已获得的卡不重新要求当前仍持有旧前置。
+
+数值通过 Stats 的 source modifier 层叠加到原 Buff 层；换卡精确移除 `boon:<id>` 来源，临时能力按来源到期。这里将依赖规则 3 扩展为：赐福数值仍只写 Stats；有状态技能由每 Script 唯一的 `BoonEffect` 通过组件接口处理动作事件，不直接改写玩家、武器或世界控制脚本。装备数据与技能运行态分离，不把资源 `.tres` 当可变状态。
+
+枪击、刀击与弹反飞弹使用同步可改写的 before/after 上下文，Health 在队伍、弹反及无敌检查后提供扣血前拦截，旧反击盾吸收器后接独立赐福屏障。衍生伤害带 tag/proc_depth，通过 Health/Hitbox 结算，深度上限 4；技能仍需自己的触发过滤。敌人和弹丸通过 Events 生命周期注册，Zone 为已存在敌人补注入；范围查询过滤同队、死亡与 WORLD 遮挡。敌人移动、动画、SlothAttack 和弹丸支持局部时间，恢复计时在玩家组件上运行，不修改 Engine.time_scale。暂停冻结临时计时，死亡和场景退出释放临时效果；退出不会发空装备保存事件。
+
+只有 Zone 接线 `RunState.boons` 的恢复、种子与保存；BoonManager 不读取 RunState。赐福随机使用独立并注入种子的 RNG，不装备卡时不消耗旧 fixture 的全局随机序列。旧 BuffPicker 仍用于该基础 PR 的正式发牌，完整赐福选择界面由 #124 接入。

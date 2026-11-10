@@ -178,7 +178,7 @@ func _ready() -> void:
 		marker.name = ["Capture", "Pedestal", "Boss"][kind]
 		_markers.add_child(marker)
 		marker.setup(kind, _director, _player)
-	_strike_bar.setup(_director.capture_point)
+	_strike_bar.setup(_director.capture_point, _player.stats)
 	_minimap.setup(_director, _player)
 	_pause_menu.setup(settings, _player, _director)
 	if MusicDirector.enabled():

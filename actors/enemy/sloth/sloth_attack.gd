@@ -40,7 +40,7 @@ var _ground_heights: Dictionary = {}
 
 
 func warning_time() -> float:
-	return LINGER_CHARGE_TIME if kind == 0 else 0.95
+	return (LINGER_CHARGE_TIME if kind == 0 else 0.95) * (caster.boon_windup_scale if is_instance_valid(caster) else 1.0)
 
 
 func _ready() -> void:
@@ -75,6 +75,9 @@ func _physics_process(delta: float) -> void:
 			or (target is Player and target.health.is_dead()):
 		cancel()
 		return
+	if caster.boon_stunned or caster.boon_time_scale <= 0.0:
+		return
+	delta *= caster.boon_time_scale * caster.boon_attack_scale
 	elapsed += delta
 	if elapsed < warning_time():
 		var progress := elapsed / warning_time()
@@ -147,9 +150,9 @@ func _update_stasis() -> void:
 
 
 func _test_wave(radius: float) -> void:
-	if _hit or not target is Player:
+	if _hit or not is_instance_valid(target) or not target.has_node("Health"):
 		return
-	var player := target as Player
+	var player := target
 	var offset := player.global_position - field_center
 	var flat := Vector3(offset.x, 0.0, offset.z)
 	var distance := flat.length()
@@ -165,7 +168,7 @@ func _test_wave(radius: float) -> void:
 			player.global_position + Vector3.UP * 0.45):
 		return
 	_hit = true
-	player.health.apply_damage(14.0, Hitbox.BodyPart.BODY, caster)
+	(player.get_node("Health") as Health).apply_damage(14.0, Hitbox.BodyPart.BODY, caster)
 
 
 func _clear_path(from: Vector3, to: Vector3) -> bool:
@@ -179,6 +182,9 @@ func cancel() -> void:
 	if _cancelled:
 		return
 	_cancelled = true
+	if is_instance_valid(_audio):
+		_audio.stop()
+		_audio.stream = null
 	phase = 2
 	_clear_stasis()
 	if is_instance_valid(_graphics):
@@ -200,6 +206,9 @@ func _clear_stasis() -> void:
 
 func _exit_tree() -> void:
 	_clear_stasis()
+	if is_instance_valid(_audio):
+		_audio.stop()
+		_audio.stream = null
 
 
 func _build_volley() -> void:

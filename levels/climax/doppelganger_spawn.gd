@@ -17,6 +17,9 @@ var flash: ColorRect
 var label: Label
 var print_ring: MeshInstance3D
 var print_projection: PrintProjection
+var crown_glare: ShaderMaterial
+var glare_layer: CanvasLayer
+var _glare_time := 0.0
 var nova: MeshInstance3D
 var hud: ClimaxCombatHUD
 var _player_mode := Node.PROCESS_MODE_INHERIT
@@ -91,6 +94,17 @@ func _build_walls() -> void:
 		add_child(wall)
 		walls.append(wall)
 func _build_effects() -> void:
+	glare_layer = CanvasLayer.new()
+	glare_layer.layer = 44
+	add_child(glare_layer)
+	var overlay := ColorRect.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	crown_glare = ShaderMaterial.new()
+	crown_glare.shader = preload("res://ui/shaders/blinding_glare.gdshader")
+	overlay.material = crown_glare
+	glare_layer.add_child(overlay)
+	glare_layer.hide()
 	var layer := CanvasLayer.new()
 	layer.layer = 45
 	add_child(layer)
@@ -216,6 +230,22 @@ func _physics_process(delta: float) -> void:
 			hud.finish()
 			_unlock_player()
 			defeated.emit(crown)
+	_update_crown_glare(delta)
+func _update_crown_glare(delta: float) -> void:
+	_glare_time += delta
+	var camera := get_viewport().get_camera_3d()
+	var active := phase in [Phase.PRINT,Phase.SEAL,Phase.COMBAT] and is_instance_valid(crown) and camera != null
+	if active:
+		active = not camera.is_position_behind(crown.global_position)
+	glare_layer.visible = active
+	if not active:
+		return
+	var size := get_viewport().get_visible_rect().size
+	crown_glare.set_shader_parameter("source_uv",camera.unproject_position(crown.global_position)/size)
+	crown_glare.set_shader_parameter("intensity",0.7 if phase==Phase.COMBAT else 1.0)
+	crown_glare.set_shader_parameter("fracture_level",4.0)
+	crown_glare.set_shader_parameter("visual_time",_glare_time)
+	crown_glare.set_shader_parameter("reduced_motion",(player.get_node("CrownVoiceSystem") as CrownVoiceSystem).reduced_motion)
 func _on_boss_defeated() -> void:
 	if phase != Phase.COMBAT:
 		return

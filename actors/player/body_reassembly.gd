@@ -5,13 +5,14 @@ signal phase_changed(value: int)
 signal line_started(index: int, text: String)
 signal completed
 enum Phase { IDLE, SHATTER, CRIES, REBUILD, STAND, COMPLETE }
-const KINTSUGI := preload("res://actors/player/shaders/kintsugi.gdshader")
+const KINTSUGI := preload("res://actors/player/shaders/kintsugi_gold.gdshader")
 const COLORS := [Color("e6a23a"),Color("a45cde"),Color("dc4141"),Color("3cc6d9")]
 const LINES := ["我想睡觉……我已经很累了。","我好害怕……我也需要被保护。","我好生气！我不想再被推着走！","我好难过……让我哭一次吧。","我不想再变得完美了。我只想做我自己！"]
 const CLIPS := ["slumber","fear","spite","sorrow","acceptance"]
 var player: Player
 var phase := Phase.IDLE
 var elapsed := 0.0
+var visual_time := 0.0
 var pieces: Array[RigidBody3D] = []
 var targets: Array[Transform3D] = []
 var rebuild_origins: Array[Transform3D] = []
@@ -118,6 +119,11 @@ func _set_phase(value:Phase)->void:
 func _process(delta:float)->void:
 	if phase==Phase.IDLE:return
 	elapsed+=delta
+	visual_time+=delta
+	var crown:=player.get_node_or_null("CrownVoiceSystem") as CrownVoiceSystem
+	for material in seam_materials:
+		material.set_shader_parameter("visual_time",visual_time)
+		material.set_shader_parameter("reduced_motion",is_instance_valid(crown) and crown.reduced_motion)
 	if phase==Phase.COMPLETE:
 		_subtitle.modulate.a=1.0-smoothstep(0.0,2.5,elapsed)
 		if elapsed>=2.5:_subtitle.text=""
@@ -151,6 +157,7 @@ func _process(delta:float)->void:
 			if elapsed>=1.6:
 				for piece in pieces:piece.queue_free()
 				pieces.clear()
+				seam_materials.clear()
 				for light in _lights:light.queue_free()
 				_lights.clear()
 				_subtitle.text="不再完美，但终于完整。"
@@ -191,6 +198,14 @@ static func apply_kintsugi(value: Player)->void:
 	var body:=value.get_node("ShadowBody")
 	body.set_fracture_level(0)
 	var fracture:=body.fracture as BodyFracture
+	var old_flow:=body.get_node_or_null("KintsugiFlow")
+	if old_flow!=null:
+		body.remove_child(old_flow)
+		old_flow.queue_free()
+	var flow:=KintsugiFlow.new()
+	flow.name="KintsugiFlow"
+	flow.crown=value.get_node_or_null("CrownVoiceSystem") as CrownVoiceSystem
+	body.add_child(flow)
 	var index:=0
 	for part in fracture.source_meshes:
 		var entry:Dictionary=fracture.source_meshes[part]
@@ -200,5 +215,7 @@ static func apply_kintsugi(value: Player)->void:
 		entry.node.mesh=entry.seam_mesh
 		entry.node.material_override=material
 		entry.node.material_overlay=null
+		flow.materials.append(material)
 		index+=1
+	flow._process(0.0)
 	value.set_meta("kintsugi_complete",true)

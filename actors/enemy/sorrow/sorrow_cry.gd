@@ -1,0 +1,69 @@
+class_name SorrowCry
+extends Node3D
+var source: Enemy
+var target: Player
+var effect_key: StringName
+var radius := 0.0
+var hit_player := false
+var ring: MeshInstance3D
+var audio: AudioStreamPlayer3D
+
+func _ready() -> void:
+	ring = MeshInstance3D.new()
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = 0.94
+	mesh.outer_radius = 1.0
+	mesh.rings = 48
+	mesh.ring_segments = 4
+	ring.mesh = mesh
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.12,0.52,0.68)
+	mat.emission_enabled = true
+	mat.emission = Color(0.05,0.34,0.5)
+	ring.material_override = mat
+	ring.position.y = 0.5
+	add_child(ring)
+	audio = AudioStreamPlayer3D.new()
+	audio.stream = _voice()
+	audio.volume_db = -19
+	audio.max_distance = 24
+	add_child(audio)
+	audio.play()
+
+func _physics_process(delta: float) -> void:
+	if not is_instance_valid(source) or source.health.is_dead():
+		queue_free()
+		return
+	if source.boon_stunned:
+		return
+	delta *= source.boon_time_scale
+	radius += delta*12
+	ring.scale = Vector3(maxf(radius,0.05),1,maxf(radius,0.05))
+	if is_instance_valid(target) and not hit_player:
+		var distance := global_position.distance_to(target.global_position)
+		if distance <= radius+0.6 and distance >= radius-delta*12-1:
+			var ray := PhysicsRayQueryParameters3D.create(global_position+Vector3.UP,target.global_position+Vector3.UP,CollisionLayers.WORLD)
+			if get_world_3d().direct_space_state.intersect_ray(ray).is_empty():
+				hit_player = true
+				target.set_realm_effect(effect_key,{"owner":source,"duration":3.0,"reload_multiplier":0.4,"cooldown_multiplier":2.0,"monochrome":1.0})
+	if radius > 18:
+		queue_free()
+
+func _voice() -> AudioStreamWAV:
+	var data := PackedByteArray()
+	var rate := 22050
+	data.resize(rate*2)
+	for i in rate:
+		var t := float(i)/rate
+		var value := (sin(TAU*(280*t-40*t*t))+sin(TAU*423*t)*0.35)*sin(PI*t)*0.15
+		data.encode_s16(i*2,int(value*32767))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = rate
+	wav.data = data
+	return wav
+
+func _exit_tree() -> void:
+	if is_instance_valid(audio):
+		audio.stop()
+		audio.stream = null

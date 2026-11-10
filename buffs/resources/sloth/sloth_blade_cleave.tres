@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_blade_cleave"
+name = "刀·沉眠重劈"
+sin = 0
+slot = 1
+rarity = 0
+core = true
+description = "斩击植入滞后；已有时钟立即以150%伤害引爆。挥刃霸体，敲钟进度翻倍。"
+stat_modifiers = {"clock_progress": {"mul": 2.0}, "clock_theme": {"add": 1.0}}
+parameters = {"latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0, "detonation_multiplier": 1.5}
+script_hook = ExtResource("2")

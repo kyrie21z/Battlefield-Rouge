@@ -378,6 +378,19 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 
 `assets/particles/crystal_burst.gd` 以平面法线八面体、程序圆环与 GPU 粒子生成琥珀、幽紫、绯红、苍蓝四系反馈。全部为本项目原创代码，遵循仓库 MIT 许可，无第三方模型或贴图。生成源 SHA-256：`69c5f09b2afd5e74389387380c7ad427faa8bed84c822dd4bc8b8740bd761ab1`。预建 48 个 emitter、每色 12 个，满池跳过视觉，不改变伤害。原生性能与截图采集开销的区分见 [#168 证明](proof/issue-168/README.md)。
 
+## #169 镜潭与白色细雨（2026-11-10）
+
+水面着色器、雨丝粒子场景、共享雨滴布局与运动着色器均为本项目原创代码和程序几何，由 Codex 协助实现；许可随项目代码，不新增第三方素材许可，也不另行标为 CC0。未从旧工程或其他游戏复制模型、纹理、音频；既有角色、普通皇冠及建筑资源保持原件。
+
+| 文件 | 来源 / 许可 | SHA-256 |
+| --- | --- | --- |
+| `environments/sorrow/water_mirror.gdshader` | 本项目原创 / 随项目代码 | `80b0d3299f3c3ec6d3e432472bb69753148c65ddfbffeabd22ab9c0093c2312d` |
+| `environments/sorrow/rain_motion.gdshader` | 本项目原创 / 随项目代码 | `ee29297909b03199b7e02a0dfedc949237849579be4d6cd14ca2b439a912dc90` |
+| `environments/sorrow/rain_layout.gdshaderinc` | 本项目原创 / 随项目代码 | `0c2c8b8fd7f60e9f656a0c50ad0ee74afa0f643d324713b9ea68e80b08dbaecb` |
+| `environments/sorrow/rain_particles.tscn` | 本项目原创 / 随项目代码 | `aec0583e9876053510e143059cd2bb25d367c61860b9535467ba98ab2def52b9` |
+
+五张证明图片是 Godot 4.7.2 Forward+ 的真实悲伤第一房原生截图，包括固定视角、固定时钟的 SSR 开关对照；来源、完整图片 SHA-256、验证与边界见 [README](proof/issue-169/README.md) 和 [manifest](proof/issue-169/manifest.json)。
+
 ## #171 接触光照与 ADS 景深（2026-11-10）
 
 `environments/default_env.tres` 与 `actors/player/visuals/ads_focus.gd` 是本项目原创配置和代码，使用 Godot 内置 SSAO、SSIL 与 CameraAttributesPractical，不新增外部模型、纹理或音频素材。原始角色及普通皇冠素材保持原样。

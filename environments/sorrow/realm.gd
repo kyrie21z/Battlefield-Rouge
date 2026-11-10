@@ -5,7 +5,7 @@ var deprived := false
 var water_level := 0.14
 var water: MeshInstance3D
 var water_material: ShaderMaterial
-var rain: CPUParticles3D
+var rain: GPUParticles3D
 var platforms: Array[StaticBody3D] = []
 var columns: Array[Node3D] = []
 var player: Player
@@ -15,8 +15,16 @@ var footstep_count := 0
 var clock := 0.0
 var _foot_left := 0.0
 var _last_step := Vector3.INF
-var _ripples := PackedVector3Array()
+const RIPPLE_CAPACITY := 32
+var _ripples := PackedVector4Array()
+var _rain_motion: ShaderMaterial
+var _walkers: Dictionary = {}
+var _tears: Dictionary = {}
+var movement_ripple_count := 0
+var shot_ripple_count := 0
+var tear_ripple_count := 0
 var _white: StandardMaterial3D
+var mirror_environment: Environment
 
 func _ready() -> void:
 	_white = StandardMaterial3D.new()
@@ -38,9 +46,9 @@ func _ready() -> void:
 	plane.size = Vector2(39.6,47.6)
 	water.mesh = plane
 	water_material = ShaderMaterial.new()
-	water_material.shader = preload("res://environments/sorrow/water.gdshader")
-	for i in 8:
-		_ripples.append(Vector3(0,0,-10))
+	water_material.shader = preload("res://environments/sorrow/water_mirror.gdshader")
+	for i in RIPPLE_CAPACITY:
+		_ripples.append(Vector4(0,0,-100,0))
 	water_material.set_shader_parameter("ripples",_ripples)
 	water.material_override = water_material
 	add_child(water)
@@ -53,6 +61,7 @@ func _ready() -> void:
 	add_child(splash)
 	var world := WorldEnvironment.new()
 	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
+	mirror_environment = world.environment
 	world.environment.background_mode = Environment.BG_COLOR
 	world.environment.background_color = Color(0.035,0.075,0.105)
 	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
@@ -61,6 +70,10 @@ func _ready() -> void:
 	world.environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment.glow_enabled = true
 	world.environment.ssr_enabled = true
+	world.environment.ssr_max_steps = 128
+	world.environment.ssr_fade_in = 0.1
+	world.environment.ssr_fade_out = 4.0
+	world.environment.ssr_depth_tolerance = 0.25
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-60,-25,0)
@@ -68,38 +81,157 @@ func _ready() -> void:
 	sun.light_energy = 1.5
 	sun.shadow_enabled = true
 	add_child(sun)
+	Events.enemy_registered.connect(_register_walker)
+	Events.gunshot.connect(_on_gunshot)
+	get_tree().node_added.connect(_on_node_added)
+	# A realm can be inserted after actors (standalone benches / restored rooms).
+	_scan_existing(get_parent())
 
 func set_player(value: Player) -> void:
 	player = value
+	_register_walker(value)
+	# RealmStage also owns a generic WorldEnvironment; use an explicit camera
+	# override so sorrow SSR cannot depend on world-environment ready order.
+	player.view_camera.environment = mirror_environment
 
 func set_water_level(value: float) -> void:
 	water_level = clampf(value,0.0,1.7)
 	if is_instance_valid(water):
 		water.position.y = water_level
+	if _rain_motion != null:
+		_rain_motion.set_shader_parameter("water_level",water_level)
 
 func set_deprivation(active: bool) -> void:
 	deprived = active
+	_walkers.clear()
+	_last_step = Vector3.INF
+	if water_material != null:
+		for i in RIPPLE_CAPACITY:
+			_ripples[i] = Vector4(0,0,-100,0)
+		water_material.set_shader_parameter("ripples",_ripples)
+		water_material.set_shader_parameter("rain_enabled",not active)
+	if not active:
+		_scan_existing(get_parent())
 	if is_instance_valid(water):
 		water.visible = not active
 	if is_instance_valid(rain):
 		rain.emitting = not active
+		rain.visible = not active
 	if active and is_instance_valid(splash):
 		splash.stop()
 	if _white != null:
 		_white.albedo_color = Color(0.72,0.69,0.66) if active else Color(0.75,0.82,0.84)
 
-func add_ripple(point: Vector3) -> void:
-	if deprived:
+## Presentation only. Existing dive/resurface callers and splash audio keep
+## their interface. Positions are checked against this basin before allocation.
+func add_ripple(point: Vector3, strength := 1.0) -> void:
+	if deprived or not is_inside_tree() or get_tree().paused or not _over_water(point,0.42):
 		return
-	_ripples[ripple_count % 8] = Vector3(point.x,point.z,clock)
+	var local := to_local(point)
+	_ripples[ripple_count % RIPPLE_CAPACITY] = Vector4(local.x,local.z,clock,clampf(strength,0.1,2.0))
 	ripple_count += 1
 	water_material.set_shader_parameter("ripples",_ripples)
+
+func _over_water(point: Vector3, allowance := 0.04) -> bool:
+	var local := to_local(point)
+	return absf(local.x) < 19.75 and absf(local.z) < 23.7 and local.y >= -0.15 and local.y <= water_level + allowance
+
+func _belongs(node: Node) -> bool:
+	return is_instance_valid(node) and is_instance_valid(get_parent()) and get_parent().is_ancestor_of(node)
+
+func _register_walker(node: Node3D) -> void:
+	if not _belongs(node) or not node is CharacterBody3D:
+		return
+	_walkers[node.get_instance_id()] = {"ref":weakref(node),"point":node.global_position,"side":1.0}
+
+func _on_node_added(node: Node) -> void:
+	if node is TearCrystal and _belongs(node):
+		# spawn_tear sets position after add_child; observe it on the next tick.
+		if not _tears.has(node.get_instance_id()):
+			_tears[node.get_instance_id()] = {"ref":weakref(node),"landed":false}
+			node.tree_exiting.connect(_on_tear_exiting.bind(node),CONNECT_ONE_SHOT)
+
+func _scan_existing(root: Node) -> void:
+	for child in root.get_children():
+		if child is Enemy or child is Player:
+			_register_walker(child)
+		elif child is TearCrystal:
+			_on_node_added(child)
+		_scan_existing(child)
+
+func _tick_visuals() -> void:
+	for key: int in _walkers.keys():
+		var entry: Dictionary = _walkers[key]
+		var body := entry.ref.get_ref() as CharacterBody3D
+		if not is_instance_valid(body) or body.is_queued_for_deletion():
+			_walkers.erase(key)
+			continue
+		var point := body.global_position
+		var health := body.get("health") as Health
+		if health == null or health.is_dead() or not _over_water(point) or not body.is_on_floor():
+			entry.point = point
+			continue
+		var distance := point.distance_to(entry.point)
+		# Teleports/resurfacing must not draw a wake across the whole room.
+		if distance > 5.5:
+			entry.point = point
+			continue
+		var fast := Vector2(body.velocity.x,body.velocity.z).length() > 10.0
+		var spacing := 0.32 if fast else 0.6
+		if distance < spacing:
+			continue
+		var origin: Vector3 = entry.point
+		var count := mini(6,int(distance / spacing))
+		for i in count:
+			var foot: Vector3 = origin.move_toward(point,(i+1)*spacing) + body.global_basis.x * entry.side * 0.11
+			add_ripple(foot,1.6 if fast else 0.8)
+			movement_ripple_count += 1
+			entry.side *= -1.0
+		entry.point = origin.move_toward(point,count*spacing)
+	for key: int in _tears.keys():
+		var entry: Dictionary = _tears[key]
+		var tear := entry.ref.get_ref() as TearCrystal
+		if not is_instance_valid(tear):
+			_tears.erase(key)
+			continue
+		if tear.consumed:
+			_tear_ring(tear.global_position,1.8)
+			_tears.erase(key)
+		elif not entry.landed:
+			_tear_ring(tear.global_position,0.8)
+			entry.landed = true
+
+func _on_tear_exiting(tear: TearCrystal) -> void:
+	if _tears.has(tear.get_instance_id()) and tear.consumed and not is_queued_for_deletion():
+		_tear_ring(tear.global_position,1.8)
+	_tears.erase(tear.get_instance_id())
+
+func _tear_ring(point: Vector3, strength: float) -> void:
+	var before := ripple_count
+	add_ripple(point,strength)
+	if ripple_count > before:
+		tear_ripple_count += 1
+
+func _on_gunshot(point: Vector3) -> void:
+	if deprived or get_tree().paused or not _belongs(player):
+		return
+	# A successful shot transmits its recoil to the shooter's wet feet.
+	# Do not re-raycast an approximate aim direction: the weapon owns spread
+	# and hit resolution. Real tear firing/pickup is observed independently.
+	if player.health.is_dead() or point.distance_to(player.weapon.global_position) > 0.1:
+		return
+	var before := ripple_count
+	if _over_water(player.global_position):
+		add_ripple(player.global_position,0.65)
+	shot_ripple_count += ripple_count - before
 
 func _physics_process(delta: float) -> void:
 	if deprived:
 		return
 	clock += delta
 	water_material.set_shader_parameter("clock",clock)
+	_rain_motion.set_shader_parameter("clock",clock)
+	_tick_visuals()
 	_foot_left -= delta
 	if not is_instance_valid(player) or player.health.is_dead():
 		return
@@ -167,25 +299,9 @@ func _column(pos: Vector3) -> void:
 		root.add_child(melt)
 
 func _rain() -> void:
-	rain = CPUParticles3D.new()
-	rain.amount = 450
-	rain.lifetime = 1.8
-	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	rain.emission_box_extents = Vector3(19,0.2,23)
-	rain.position.y = 13
-	rain.direction = Vector3.DOWN
-	rain.spread = 1
-	rain.initial_velocity_min = 8
-	rain.initial_velocity_max = 11
-	rain.gravity = Vector3.ZERO
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.012,0.38,0.012)
-	rain.mesh = mesh
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = Color(0.67,0.82,0.9,0.35)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	rain.material_override = material
+	rain = preload("res://environments/sorrow/rain_particles.tscn").instantiate() as GPUParticles3D
+	_rain_motion = rain.process_material as ShaderMaterial
+	_rain_motion.set_shader_parameter("water_level",water_level)
 	add_child(rain)
 
 func _splash_sound() -> AudioStreamWAV:
@@ -203,6 +319,14 @@ func _splash_sound() -> AudioStreamWAV:
 	return sound
 
 func _exit_tree() -> void:
+	if Events.enemy_registered.is_connected(_register_walker):
+		Events.enemy_registered.disconnect(_register_walker)
+	if Events.gunshot.is_connected(_on_gunshot):
+		Events.gunshot.disconnect(_on_gunshot)
+	if get_tree().node_added.is_connected(_on_node_added):
+		get_tree().node_added.disconnect(_on_node_added)
+	_walkers.clear()
+	_tears.clear()
 	if is_instance_valid(splash):
 		splash.stop()
 		splash.stream = null

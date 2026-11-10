@@ -1,0 +1,81 @@
+[
+  {
+    "scene": "editor_import",
+    "exit_code": 0,
+    "passed": true,
+    "errors": [],
+    "summary": [
+      "Godot 4.7.2 editor import completed without errors or warnings."
+    ]
+  },
+  {
+    "scene": "protagonist_body_test",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 3.7,
+    "errors": [],
+    "summary": [
+      "PROTAGONIST BODY: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "scene": "body_awareness_test",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 4.4,
+    "errors": [],
+    "summary": [
+      "BODY AWARENESS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "scene": "crystal_seams_test",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 1.6,
+    "errors": [],
+    "summary": [
+      "CRYSTAL SEAMS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "scene": "dash_test",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 20.5,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "scene": "buff_run_test",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 15.7,
+    "errors": [],
+    "summary": [
+      "buff-two-small-zones-and-boss-20261027-seed-40408: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "scene": "protagonist_body_proof",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 12.8,
+    "errors": [],
+    "summary": [
+      "BODY AWARENESS PROOF: complete"
+    ]
+  },
+  {
+    "scene": "body_fracture_proof",
+    "exit_code": 0,
+    "passed": true,
+    "seconds": 4.5,
+    "errors": [],
+    "summary": [
+      "BODY FRACTURE MATERIAL PROOF: complete"
+    ]
+  }
+]

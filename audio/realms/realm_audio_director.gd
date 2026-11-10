@@ -12,6 +12,7 @@ var _fade_left := 0.0
 var voices: Array[AudioStreamPlayer3D] = []
 var cue_counts: Dictionary = {}
 var elapsed := 0.0
+var _cue_banks: Array[Script] = []
 
 func setup(room: RealmStage) -> void:
 	stage = room
@@ -20,6 +21,8 @@ func setup(room: RealmStage) -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
+	for path in ["res://audio/realms/fear_sound_bank.gd"]:
+		if ResourceLoader.exists(path): _cue_banks.append(load(path) as Script)
 	ambient = AudioStreamPlayer.new()
 	ambient.name = "RealmAmbience"
 	ambient.bus = &"Music" if AudioServer.get_bus_index(&"Music") >= 0 else &"Master"
@@ -59,6 +62,9 @@ func _apply_audio_settings() -> void:
 		AudioServer.set_bus_volume_db(index,linear_to_db(maxf(stage.hud.settings.music_volume,0.001)))
 
 func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
+	for bank in _cue_banks:
+		var kinds: Array = bank.get_script_constant_map().get("KINDS",[])
+		if kinds.has(kind): return bank.call("get_sound",kind,loop) as AudioStreamWAV
 	return RealmSoundBank.get_sound(kind,loop)
 
 func set_ambience(kind: StringName) -> void:
@@ -96,6 +102,10 @@ func play_cue(kind: StringName, point: Vector3, pitch := 1.0, volume := -12.0) -
 func _on_boon_event(event: StringName, context: Dictionary) -> void:
 	if event == &"sloth_burst":
 		play_cue(&"delayed_burst",context.get("position",player.global_position),1.0,-7.0)
+	for bank in _cue_banks:
+		for cue in bank.call("boon_cues",event,context):
+			if event == &"fear_flaw_broken": context["fear_flaw_audio_managed"] = true
+			play_cue(cue.kind,cue.position,float(cue.get("pitch",1.0)),float(cue.get("volume",-12.0)))
 
 func _on_realm_defeated(_room: RealmStage) -> void:
 	set_deprived(true)

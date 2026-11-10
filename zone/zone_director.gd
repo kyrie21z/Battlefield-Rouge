@@ -112,6 +112,9 @@ func _ready() -> void:
 		if get_parent().is_ancestor_of(node):
 			_player = node as Player
 			break
+	_player.boons.rng.seed = RunState.zone_seed() ^ 0xB001
+	_player.boons.restore(RunState.boons)
+	_player.boons.loadout_changed.connect(_save_boons)
 	for buff: Buff in RunState.buffs:
 		_player.stats.apply_buff(buff)
 
@@ -130,6 +133,7 @@ func _ready() -> void:
 	for node in _nodes_in_zone("enemy"):
 		var enemy := node as Enemy
 		_guards.append(enemy)
+		_player.boons.register_enemy(enemy)
 		_watch_departure(enemy)
 		if enemy.is_boss:
 			boss = enemy
@@ -538,3 +542,8 @@ func _set_phase(new_phase: Phase, text: String) -> void:
 func _set_objective(text: String) -> void:
 	objective = text
 	objective_changed.emit(text)
+
+
+func _save_boons(cards: Array[BoonData]) -> void:
+	RunState.boons.assign(cards)
+	RunState.changed.emit()

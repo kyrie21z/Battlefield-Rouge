@@ -14,6 +14,7 @@ const ZONE_SCENES: Array[String] = [
 
 var zone_index := 0
 var buffs: Array[Resource] = []
+var boons: Array[Resource] = []
 ## Accepted choices in order, including the zone and entry/clear context (AC-04).
 var selection_history: Array[Dictionary] = []
 ## Every random choice in a zone is drawn after the zone director seeds the
@@ -41,6 +42,7 @@ func start_new_run() -> void:
 		return
 	zone_index = 0
 	buffs.clear()
+	boons.clear()
 	selection_history.clear()
 	run_seed = randi()
 	BuffPool.reset()
@@ -99,6 +101,7 @@ func zone_seed() -> int:
 func _apply(start: RunFixture) -> void:
 	zone_index = start.start_zone
 	buffs.assign(start.buffs)
+	boons.clear()
 	run_seed = start.run_seed
 	selection_history.clear()
 	BuffPool.reset()

@@ -27,6 +27,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	Events.enemy_registered.emit(self)
 	visual = $Model as SlothVisual
 	visual.configure(kind)
 	visual.play_motion("CowerIdle" if kind == Kind.RECLUSE else "idle")
@@ -73,6 +74,9 @@ func begin_retreat(goal: Vector3, timeout: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if boon_time_scale <= 0.0 or boon_stunned:
+		return
+	delta *= boon_time_scale
 	if state == State.DEAD:
 		return
 	evade_cooldown_left = maxf(0.0, evade_cooldown_left - delta)
@@ -81,7 +85,7 @@ func _physics_process(delta: float) -> void:
 	if state == State.FLEE:
 		_process_flee(delta)
 		if not _departed:
-			move_and_slide()
+			_boon_move_and_slide()
 			visual.play_motion("run")
 		return
 	if _impact_left > 0.0:
@@ -89,12 +93,12 @@ func _physics_process(delta: float) -> void:
 		velocity.x = _impact_velocity.x
 		velocity.z = _impact_velocity.z
 		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO, IMPACT_DECAY * delta)
-		move_and_slide()
+		_boon_move_and_slide()
 		return
 	_stop()
 	if not is_instance_valid(target) or (target is Player and target.health.is_dead()):
 		_cancel_attack()
-		move_and_slide()
+		_boon_move_and_slide()
 		return
 	_sight_timer -= delta
 	if _sight_timer <= 0.0:
@@ -103,16 +107,16 @@ func _physics_process(delta: float) -> void:
 	if state == State.IDLE and _sees_target:
 		_alert(target.global_position)
 	if state == State.IDLE:
-		move_and_slide()
+		_boon_move_and_slide()
 		return
-	cooldown_left = maxf(0.0, cooldown_left - delta)
+	cooldown_left = maxf(0.0, cooldown_left - delta * boon_attack_scale)
 	cloak_recover_left = maxf(0.0, cloak_recover_left - delta)
 	_seek_retry = maxf(0.0, _seek_retry - delta)
 	_exposed_left = maxf(0.0, _exposed_left - delta)
 	_face(_target_point() - global_position, delta)
 	if is_instance_valid(active_attack):
 		visual.set_cast(clampf(active_attack.elapsed / active_attack.warning_time(), 0.0, 1.0))
-		move_and_slide()
+		_boon_move_and_slide()
 		return
 	visual.set_cast(0.0)
 	visual.set_mantle_open(0.0 if cloak_recover_left <= 0.0 else 1.0)
@@ -140,7 +144,7 @@ func _physics_process(delta: float) -> void:
 			_move_to(_last_known, run_speed)
 	visual.play_motion("walk" if Vector2(velocity.x, velocity.z).length() > 0.2 else
 		("CowerIdle" if kind == Kind.RECLUSE and _exposed_left <= 0.0 else "idle"))
-	move_and_slide()
+	_boon_move_and_slide()
 
 
 func _can_fight_here() -> bool:
@@ -244,3 +248,8 @@ func try_cloak_evade() -> bool:
 	if state == State.IDLE:
 		_alert(global_position - contact.surface_direction * 6.0)
 	return true
+
+
+func set_boon_animation_scale(value: float) -> void:
+	if is_instance_valid(visual) and is_instance_valid(visual.animation):
+		visual.animation.speed_scale = value

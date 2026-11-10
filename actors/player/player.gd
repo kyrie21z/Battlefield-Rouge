@@ -29,6 +29,7 @@ const HURT_SHAKE_DURATION := 0.2
 
 ## Read by Health to ignore friendly fire.
 var team := 0
+var boons: BoonManager
 
 ## Independent sources take the strongest field, never multiply. Weak handles
 ## also restore walking speed if a caster disappears during a scene change.
@@ -106,6 +107,10 @@ func _ready() -> void:
 	dash.dashing.connect(_on_dash)
 	health.died.connect(_on_died)
 	health.damaged.connect(_on_hurt)
+	boons = BoonManager.new()
+	boons.name = "BoonManager"
+	add_child(boons)
+	boons.bind(self, stats, health, weapon, melee, dash)
 
 
 ## Read-only dash state for the HUD.

@@ -30,6 +30,9 @@ signal charge_changed(charges: int)
 ## Degrees the field of view widens at the start of a dash, then settles back.
 @export var fov_kick := 6.0
 
+var boon_hook: Callable
+var stats: Stats
+var _dash_context: Dictionary = {}
 var _charges := 0
 var _recharge_left := 0.0
 var _dash_left := 0.0
@@ -58,7 +61,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_tick_recharge(delta)
+	_tick_recharge(delta * (stats.get_value(Stats.DASH_RECHARGE) if stats != null else 1.0))
 	if _health == null or _health.is_dead():
 		return
 	if _player.is_on_floor():
@@ -72,12 +75,13 @@ func _physics_process(delta: float) -> void:
 		_dash_left = maxf(_dash_left - delta, 0.0)
 		if _dash_left <= 0.0:
 			dash_finished.emit()
+			_finish_boon_dash.call_deferred(_dash_context)
 
 
 ## Starts a dash if a charge is free and the air allows it. Returns whether one
 ## started, so tests do not have to read the timers back.
 func try_dash() -> bool:
-	if _health == null or _health.is_dead() or _charges <= 0:
+	if get_tree().paused or _health == null or _health.is_dead() or _charges <= 0:
 		return false
 	if not _player.is_on_floor():
 		if _air_used >= air_charges:
@@ -92,7 +96,11 @@ func try_dash() -> bool:
 	_invulnerable_left = maxf(invulnerable_time, 0.0)
 	_health.dash_invulnerable = _invulnerable_left > 0.0
 	_audio.play()
-	dashing.emit(_direction(), distance / maxf(duration, 0.01), duration)
+	_dash_context = {"source": _player, "position": _player.global_position,
+		"origin": _player.global_position, "direction": _direction(), "duration": duration, "distance": distance}
+	if boon_hook.is_valid():
+		boon_hook.call(&"dash_started", _dash_context)
+	dashing.emit(_dash_context.direction, _dash_context.distance / maxf(_dash_context.duration, 0.01), _dash_context.duration)
 	return true
 
 
@@ -155,3 +163,11 @@ func _tick_invulnerable(delta: float) -> void:
 	_invulnerable_left = maxf(_invulnerable_left - delta, 0.0)
 	if _health != null:
 		_health.dash_invulnerable = _invulnerable_left > 0.0
+
+
+func _finish_boon_dash(context: Dictionary) -> void:
+	if _health.is_dead():
+		return
+	context.position = _player.global_position
+	if boon_hook.is_valid():
+		boon_hook.call(&"dash_finished", context)

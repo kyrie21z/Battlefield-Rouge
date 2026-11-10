@@ -26,19 +26,19 @@ func _ready() -> void:
 	health = _resolve_health()
 
 
-func apply_hit(amount: float, source: Node = null) -> float:
+func apply_hit(amount: float, source: Node = null, context: Dictionary = {}) -> float:
 	if health == null:
 		return 0.0
-	return health.apply_damage(amount, body_part, source)
+	return health.apply_damage(amount, context.get("body_part", body_part), source, context)
 
 
-func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3, can_evade := false) -> float:
+func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector3, can_evade := false, context: Dictionary = {}) -> float:
 	resolving_surface_hit = true
 	surface_can_evade = can_evade
 	surface_evaded = false
 	surface_point = point
 	surface_direction = direction
-	var dealt := apply_hit(amount, source)
+	var dealt := apply_hit(amount, source, context)
 	resolving_surface_hit = false
 	return dealt
 

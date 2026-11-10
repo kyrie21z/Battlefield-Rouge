@@ -197,13 +197,13 @@ func add_capture_progress(amount: float) -> void:
 
 ## Resolves one blade swing made at `time` on the beat clock. A swing counts
 ## only while the building is open and the player is within reach.
-func resolve_swing(time: float) -> void:
+func resolve_swing(time: float, progress_multiplier: float = 1.0, window_multiplier: float = 1.0, theme: int = 0) -> void:
 	if locked or is_captured() or not player_in_reach:
 		return
 	var offset_ms := beat_offset(time) * 1000.0
-	var perfect := absf(offset_ms) <= config.perfect_window_ms
-	var worth := config.progress_for_swing(perfect)
-	_play_feedback(perfect)
+	var perfect := absf(offset_ms) <= config.perfect_window_ms * maxf(window_multiplier, 0.0)
+	var worth := config.progress_for_swing(perfect) * progress_multiplier
+	_play_feedback(perfect, theme)
 	struck.emit(perfect, offset_ms, worth)
 	Events.clock_struck.emit(global_position)
 	add_capture_progress(worth)
@@ -246,12 +246,13 @@ func _on_swung(player: Player) -> void:
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and not is_ancestor_of(hit.collider):
 		return
-	resolve_swing(beat_time())
+	resolve_swing(beat_time(), player.stats.get_value(Stats.CLOCK_PROGRESS),
+		player.stats.get_value(Stats.CLOCK_WINDOW), roundi(player.stats.get_value(Stats.CLOCK_THEME)))
 
 
 ## A perfect strike and an ordinary one differ in sound, flash colour, flash
 ## strength and a light burst, so the player can tell them apart without the HUD.
-func _play_feedback(perfect: bool) -> void:
+func _play_feedback(perfect: bool, theme: int = 0) -> void:
 	_audio.stream = _perfect_sound if perfect else _hit_sound
 	_audio.play()
 	if perfect:
@@ -259,8 +260,8 @@ func _play_feedback(perfect: bool) -> void:
 	if _flash_tween != null:
 		_flash_tween.kill()
 	_material.emission_enabled = true
-	_material.emission = FLASH_PERFECT if perfect else FLASH_HIT
-	_light.light_color = FLASH_PERFECT
+	_material.emission = BoonPalette.clock_color(theme, FLASH_PERFECT if perfect else FLASH_HIT)
+	_light.light_color = BoonPalette.clock_color(theme, FLASH_PERFECT)
 	_flash_tween = create_tween().set_parallel()
 	_flash_tween.tween_property(_material, "emission_energy_multiplier", 0.0, 0.4 if perfect else 0.12) \
 		.from(4.0 if perfect else 0.8)

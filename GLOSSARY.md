@@ -106,3 +106,14 @@
 | 头骨眼位 | `BodyPose` / `Head` | 头骨位置加固定眼睛偏移，随确定性的低头上身姿态调整；跑动动画不使逻辑射线晃动。 |
 | 黑色晶体接缝 | `BodyFracture` / `CrystalSeams` | 0..4 级沿原非共面晶面边扩展的黑缝，配合原预切碎片剥离；不使用手画彩纹，也不改原 GLB。 |
 | 心魔击败表现事件 | `Events.sin_defeated(count)` | 接收累计数量更新身体裂缝的表现接口；四心魔剧情计数与跨关持久化尚不在本阶段实现。 |
+
+## Epic 2 赐福基础（#114）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 核心动作槽 | `BoonSlot` / `BoonData.Slot` | 枪、刀、冲刺、其他各一张核心；冲突须显式确认。 |
+| 次级特质 | `BoonData.core = false` | 不占核心槽，按稳定 id 去重，受共同前置规则约束。 |
+| 数值来源 | `Stats.set_modifier(source, modifiers)` | 独立可撤销的 add/mul 集合，换卡不清除旧 Buff。 |
+| 动作上下文 | `BoonManager.dispatch` | 同步 Dictionary 拦截，before 改写，after 提供实际伤害。 |
+| 衍生深度 | `proc_depth` | 天然动作 0，技能派生递增，超过 4 的公共伤害请求被拒绝。 |
+| 局部时停 | `BoonManager.freeze_world` | 暂停敌人的移动、AI、动画、特技和敌弹；玩家计时继续并自动恢复。 |

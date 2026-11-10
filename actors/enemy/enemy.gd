@@ -140,7 +140,14 @@ const ENEMY_GUNSHOT_DB := -5.0
 @onready var _audio: AudioStreamPlayer3D = $GunAudio
 
 
+var boon_movement_scale := 1.0
+var boon_time_scale := 1.0
+var boon_stunned := false
+var boon_windup_scale := 1.0
+var boon_attack_scale := 1.0
+
 func _ready() -> void:
+	Events.enemy_registered.emit(self)
 	if model_scene != null:
 		_swap_model()
 	for anim in ["Idle", "Run_Gun", "Walk_Shoot", "Idle_Shoot", "Duck"]:
@@ -219,6 +226,9 @@ func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if boon_time_scale <= 0.0 or boon_stunned:
+		return
+	delta *= boon_time_scale
 	if state == State.DEAD:
 		return
 	if not is_on_floor():
@@ -227,7 +237,7 @@ func _physics_process(delta: float) -> void:
 		_process_flee(delta)
 		if _departed:
 			return
-		move_and_slide()
+		_boon_move_and_slide()
 		_update_animation()
 		return
 	if _impact_left > 0.0:
@@ -235,10 +245,10 @@ func _physics_process(delta: float) -> void:
 		velocity.x = _impact_velocity.x
 		velocity.z = _impact_velocity.z
 		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO, IMPACT_DECAY * delta)
-		move_and_slide()
+		_boon_move_and_slide()
 		return
 	if target == null:
-		move_and_slide()
+		_boon_move_and_slide()
 		return
 
 	_seek_retry = maxf(_seek_retry - delta, 0.0)
@@ -266,7 +276,7 @@ func _physics_process(delta: float) -> void:
 		State.COVER:
 			_process_cover(delta)
 
-	move_and_slide()
+	_boon_move_and_slide()
 	_update_animation()
 
 
@@ -339,10 +349,10 @@ func _process_engage(delta: float) -> void:
 	velocity.x = side.x
 	velocity.z = side.z
 
-	_react_left -= delta
+	_react_left -= delta * boon_attack_scale / boon_windup_scale
 	if _react_left > 0.0 or not sees:
 		return
-	_shot_timer -= delta
+	_shot_timer -= delta * boon_attack_scale / (boon_windup_scale if _shots_left <= 0 else 1.0)
 	if _shot_timer > 0.0:
 		return
 	if _shots_left <= 0:
@@ -576,6 +586,20 @@ func _on_died(_source: Node) -> void:
 	_anim.play("Death")
 	Events.enemy_killed.emit(self)
 
+
+func set_boon_animation_scale(value: float) -> void:
+	if is_instance_valid(_anim):
+		_anim.speed_scale = value
+
+func _boon_move_and_slide() -> void:
+	var scale_value := boon_time_scale * boon_movement_scale
+	if is_equal_approx(scale_value, 1.0):
+		move_and_slide()
+		return
+	velocity *= scale_value
+	move_and_slide()
+	if scale_value > 0.00001:
+		velocity /= scale_value
 
 func _move_to(position: Vector3, speed: float) -> void:
 	if _agent.target_position.distance_to(position) > 0.5:

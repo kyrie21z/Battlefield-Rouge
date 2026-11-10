@@ -147,12 +147,19 @@ func blade_length() -> float:
 
 ## Starts a swing if the weapon is ready. Returns whether it started, so tests
 ## do not have to guess at the cooldown.
+var boon_hook: Callable
+
+func _boon(event: StringName, context: Dictionary) -> void:
+	if boon_hook.is_valid():
+		boon_hook.call(event, context)
+
 func swing_now() -> bool:
 	if not is_inside_tree() or get_tree().paused or not _active_enabled:
 		return false
 	var data := current()
 	if data == null or _phase != Phase.IDLE or _cooldown > 0.0:
 		return false
+	_boon(&"blade_started", {"source": shooter, "blade": self})
 	_swing_count += 1
 	_struck.clear()
 	_struck_this_swing = false
@@ -340,6 +347,7 @@ func _advance_phase() -> void:
 			_pivot.transform = _pose_of(_rest)
 			_hide_views()
 			swing_finished.emit()
+			_boon(&"blade_finished", {"source": shooter, "blade": self})
 
 
 ## Every hitbox inside `radius` of the swing origin and the frontal cone, sorted
@@ -397,6 +405,7 @@ func _strike() -> void:
 	if data == null:
 		return
 	if not _struck_this_swing:
+		_boon(&"blade_struck", {"source": shooter, "blade": self, "position": _swing_origin, "direction": _swing_forward})
 		struck.emit()
 	_struck_this_swing = true
 	var budget := 0
@@ -406,7 +415,7 @@ func _strike() -> void:
 			return
 	var origin := _swing_origin
 	var forward := _swing_forward
-	var found := _candidates(data.reach * _stat(Stats.MELEE_RANGE), data.arc_degrees)
+	var found := _candidates(data.reach * _stat(Stats.MELEE_RANGE), data.arc_degrees * _stat(Stats.MELEE_ARC))
 	# A body has several hitboxes (head, torso); one swing may damage each body
 	# once, so pick the nearest hitbox per body and stop at the target budget.
 	var limit := found.size() if data.max_targets <= 0 else budget
@@ -459,7 +468,18 @@ func _step_toward(data: MeleeData, target: Hitbox) -> void:
 func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vector3) -> bool:
 	var health := hitbox.health
 	_struck.append(health)
-	var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE), shooter, hitbox.global_position, forward)
+	var damage := data.damage * _stat(Stats.DAMAGE) * _stat(Stats.MELEE_DAMAGE)
+	var ctx := {"kind": &"blade", "tag": &"blade", "proc_depth": 0, "source": shooter,
+		"target": health.get_parent(), "health": health, "hitbox": hitbox,
+		"position": hitbox.global_position, "direction": forward, "damage": damage, "base_damage": damage,
+		"body_part": hitbox.body_part, "critical": false, "critical_multiplier": 1.0, "cancelled": false,
+		"damage_scaled": true}
+	_boon(&"hit_before", ctx)
+	var hp_before := health.health
+	var dealt := 0.0 if ctx.cancelled else hitbox.apply_hit_at(maxf(ctx.damage, 0.0), shooter, hitbox.global_position, forward, false, ctx)
+	ctx.dealt = minf(dealt, hp_before)
+	ctx.killed = health.is_dead()
+	_boon(&"hit_after", ctx)
 	if dealt <= 0.0:
 		return false
 
@@ -470,7 +490,7 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 	push = push.normalized()
 
 	var body := _body_of(health)
-	if body != null and body.has_method("apply_impact"):
+	if body != null and body.has_method("apply_impact") and not ctx.get("skip_impact", false):
 		body.apply_impact(push, data.impact_force, data.impact_stagger)
 
 	hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, health.is_dead())
@@ -548,6 +568,14 @@ func try_parry(projectile: Projectile, point: Vector3) -> bool:
 	if not _line_of_sight(get_world_3d().direct_space_state, _eye(), point):
 		return false
 	projectile.reflect(shooter, point)
+	projectile.boon_hook = boon_hook
+	var ctx := {"source": shooter, "projectile": projectile, "position": point,
+		"direction": -projectile.global_basis.z, "damage": projectile.damage}
+	_boon(&"parry", ctx)
+	projectile.damage = ctx.damage
+	if ctx.direction.length_squared() > 0.0001:
+		projectile.look_at(projectile.global_position + ctx.direction,
+			Vector3.UP if absf(ctx.direction.normalized().y) < 0.99 else Vector3.FORWARD)
 	_play(_hit_sound, -1.0, 1.6)
 	Events.blade_parried.emit(point)
 	return true

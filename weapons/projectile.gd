@@ -17,6 +17,11 @@ var source: Node
 var exclude: Array[RID] = []
 var tint := Color(1.0, 0.55, 0.2)
 
+signal impacted(target: Node, point: Vector3)
+var boon_time_scale := 1.0
+var allow_friendly_fire := false
+var boon_context: Dictionary = {}
+var boon_hook: Callable
 var reflected := false
 
 var _travelled := 0.0
@@ -34,6 +39,7 @@ static func spawn(parent: Node, from: Vector3, direction: Vector3, p_source: Nod
 	parent.add_child(projectile)
 	projectile.global_position = from
 	projectile.look_at(from + direction, Vector3.UP if absf(direction.y) < 0.99 else Vector3.FORWARD)
+	Events.projectile_registered.emit(projectile)
 	return projectile
 
 
@@ -90,6 +96,9 @@ func tracer_length() -> float:
 
 
 func _physics_process(delta: float) -> void:
+	delta *= boon_time_scale
+	if delta <= 0.0:
+		return
 	var from := global_position
 	var to := from - global_basis.z * speed * delta
 	var query := PhysicsRayQueryParameters3D.create(from, to, MASK, exclude)
@@ -113,7 +122,23 @@ func _physics_process(delta: float) -> void:
 		if not hit.collider is Hitbox:
 			Impact.spawn(get_parent(), hit.position, hit.normal, false)
 		else:
-			(hit.collider as Hitbox).apply_hit_at(damage, source, hit.position, -global_basis.z, true)
+			var ctx := boon_context.duplicate()
+			var box := hit.collider as Hitbox
+			ctx.merge({"kind": &"proc", "tag": &"projectile", "proc_depth": 1,
+				"source": source, "target": box.health.get_parent(), "health": box.health, "hitbox": box,
+				"position": hit.position, "direction": -global_basis.z, "damage": damage,
+				"base_damage": damage, "body_part": box.body_part, "critical": false,
+				"critical_multiplier": 1.0, "cancelled": false}, false)
+			ctx.allow_friendly_fire = allow_friendly_fire
+			if boon_hook.is_valid():
+				boon_hook.call(&"hit_before", ctx)
+			var hp_before := box.health.health
+			ctx.dealt = 0.0 if ctx.cancelled else box.apply_hit_at(maxf(ctx.damage, 0.0), source, hit.position, -global_basis.z, true, ctx)
+			ctx.dealt = minf(ctx.dealt, hp_before)
+			ctx.killed = box.health.is_dead()
+			if boon_hook.is_valid():
+				boon_hook.call(&"hit_after", ctx)
+		impacted.emit(hit.collider as Node, hit.position)
 		queue_free()
 		return
 	global_position = to

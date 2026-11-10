@@ -2,7 +2,7 @@ extends Node
 ## Native-window proof frames for the stronger hit / kill feedback:
 ##   godot --path . res://tests/hit_feel_proof.tscn -- --out=docs/proof/hit-feel
 ## Frames: 01 body kill burst + 击杀, 02 headshot kill burst + 爆头击杀,
-## 03 双杀, 04 the shotgun's stronger kick. Needs a real display.
+## 03 双杀, 04 the pistol's crisp kick. Needs a real display.
 
 const ZONE := "res://maps/zone_1.tscn"
 
@@ -48,18 +48,18 @@ func _ready() -> void:
 	_player.global_position = Vector3(0, 0, 8)
 	_player.global_rotation = Vector3.ZERO
 	await _frames(5)
-	# 4. The shotgun's stronger kick, on a clean scene before the kills. The
+	# 4. The pistol's crisp kick, on a clean scene before the kills. The
 	# target stands at 8 m and takes the blast without dying.
 	_place(_guards[0], Vector3(0, 0, 0), 100000.0)
 	await _aim(_hitbox(_guards[0], Hitbox.BodyPart.BODY))
-	_weapon.select(1)
+
 	_weapon.ammo = _weapon.magazine_capacity()
 	await _frames(12)
 	_fire()
 	await _frames(2)
-	_shot("04_shotgun_kick")
+	_shot("04_pistol_kick")
 	_guards[0].global_position = Vector3(15, 0, 15)
-	_weapon.select(0)
+
 	await _frames(6)
 
 	# 1. Body kill: chunks at the chest, 击杀 under the crosshair.

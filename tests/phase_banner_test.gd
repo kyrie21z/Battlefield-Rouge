@@ -14,6 +14,15 @@ var _director: ZoneDirector
 
 func _ready() -> void:
 	await _run()
+	for voice in find_children("*", "AudioStreamPlayer", true, false):
+		voice.stop()
+		voice.stream = null
+	for child in get_children():
+		child.queue_free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d failed%s)" % ["ALL PASSED" if ok else "FAIL", _failures,
 		"" if _finished else ", run did not finish"])
@@ -55,7 +64,7 @@ func _run() -> void:
 	_check("the reinforcement warning is once per zone", _banner.title_text() == warn
 		and _banner.queued_title().is_empty())
 
-	await _test_scope_hide()
+	await _test_ads_visible()
 	await _test_replace()
 	await _test_flag(scene)
 	await _close(scene)
@@ -63,18 +72,17 @@ func _run() -> void:
 	_finished = true
 
 
-func _test_scope_hide() -> void:
+func _test_ads_visible() -> void:
 	print("== hiding the banner")
 	_director.phase_changed.emit(ZoneDirector.Phase.CLEAR_GUARDS)
 	await _frames(2)
-	_player.weapon.select(2)
 	Input.action_press("aim")
 	await _seconds(0.7)
-	_check("scoped", _player.weapon.is_scoped())
-	_check("the banner hides behind the scope", not _banner.visible and _banner.is_showing())
+	_check("pistol aims", _player.weapon.aiming)
+	_check("ADS keeps the current phase banner visible", _banner.visible and _banner.is_showing())
 	Input.action_release("aim")
 	await _seconds(0.3)
-	_check("and comes back with the scope down", _banner.visible)
+	_check("banner remains after ADS", _banner.visible)
 
 
 func _test_replace() -> void:

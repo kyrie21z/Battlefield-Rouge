@@ -231,6 +231,7 @@ func _process(delta: float) -> void:
 	# anyway). Scoped: the scope reticle takes over, so nothing.
 	_crosshair.visible = not _player.weapon.is_scoped()
 	_crosshair.show_lines = not _player.is_aiming()
+	_crosshair.focused = _player.is_aiming()
 	_crosshair.queue_redraw()
 
 	# Sniper scope: the gun hides itself behind the glass, the overlay takes over

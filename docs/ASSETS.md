@@ -259,3 +259,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ### 同日波次微调取证
 
 [波次微调的2张JPEG](proof/wave-tuning/README.md)为本轮Godot4.7.2 Windows Forward+原生PNG缩放/JPEG重编码，分别为开场5名守卫和据点开放后4名增援小地图；无新美术资产或生成式重绘。来源与当前生成器/地图/增援代码哈希见[SHA256SUMS](proof/wave-tuning/SHA256SUMS.txt)。前轮`counter-pressure`目录的源码哈希和7/11/11波次对应`8a6fa90`历史提交，不能替代当前5/9/9、4人增援结果。
+
+## #101 原创黑晶手枪
+
+`assets/models/weapons/obsidian_pistol.glb` 与图标由本项目原创制作，未复制 origin 素材。真实 Blender 源与生成脚本见 `tools/epic1_models/`；SHA-256 为 `db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401`。用户提供的造型参考见 `docs/assets/obsidian_pistol_turnaround.jpg`；源面数、尺寸、Flat 状态与导出三角数见 manifest。

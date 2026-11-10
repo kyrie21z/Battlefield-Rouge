@@ -1,0 +1,96 @@
+{
+  "models": [
+    {
+      "file": "assets/models/weapons/obsidian_pistol.glb",
+      "source": "tools/epic1_models/obsidian_pistol.blend",
+      "blender_version": "5.2.3 LTS",
+      "source_polygons": 120,
+      "glb_triangles": 180,
+      "objects": {
+        "barrel_block": {
+          "polygons": 46,
+          "triangles": 76,
+          "triangles_authored": 16,
+          "quads_authored": 30,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.113599993288517,
+            0.06650000065565109
+          ]
+        },
+        "core_crystal": {
+          "polygons": 4,
+          "triangles": 4,
+          "triangles_authored": 4,
+          "quads_authored": 0,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.05849999934434891,
+            0.057500001043081284
+          ]
+        },
+        "grip_block": {
+          "polygons": 36,
+          "triangles": 56,
+          "triangles_authored": 16,
+          "quads_authored": 20,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "slide_block": {
+          "polygons": 34,
+          "triangles": 44,
+          "triangles_authored": 24,
+          "quads_authored": 10,
+          "flat_faces": true,
+          "pivot_source": [
+            0.0,
+            -0.00910000130534172,
+            0.06800000369548798
+          ]
+        }
+      },
+      "bounds_game": {
+        "min": [
+          -0.01599999889731407,
+          -0.05000000074505806,
+          -0.17649999260902405
+        ],
+        "max": [
+          0.016000010073184967,
+          0.08500000834465027,
+          0.04349999874830246
+        ],
+        "size": [
+          0.03200000897049904,
+          0.13500000908970833,
+          0.2199999913573265
+        ]
+      },
+      "source_forward": "-Y",
+      "export_correction": "180 degrees about Blender Z, baked before Y-up export",
+      "game_forward": "-Z",
+      "game_up": "+Y",
+      "sha256": "db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401",
+      "muzzle_game": [
+        -0.0,
+        0.06599999964237213,
+        -0.17650000751018524
+      ],
+      "grip_height_m": 0.1,
+      "target_dimensions_m": [
+        0.032,
+        0.135,
+        0.22
+      ],
+      "muzzle_recess_depth_m": 0.01,
+      "budget_policy": "quality-first; source polygons and render triangles reported separately"
+    }
+  ]
+}

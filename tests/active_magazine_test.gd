@@ -14,6 +14,15 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	await get_tree().process_frame
 	await _run()
+	for voice in find_children("*", "AudioStreamPlayer", true, false):
+		voice.stop()
+		voice.stream = null
+	for child in get_children():
+		child.queue_free()
+	get_tree().paused = false
+	await get_tree().process_frame
+	OS.delay_msec(100)
+	await get_tree().process_frame
 	_finished = true
 	print("ACTIVE MAGAZINE: %d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(0 if _failures == 0 else 1)
@@ -102,7 +111,7 @@ func _run() -> void:
 	_check("switching guns and cancelling reload preserve inventory", traits.has_reload_charge())
 	weapon.aiming = true
 	traits._process(0.0)
-	_check("scope hides held model without spending inventory", not held.visible and traits.has_reload_charge())
+	_check("ADS keeps held model without spending inventory", held.visible and traits.has_reload_charge())
 	weapon.aiming = false
 	traits._process(0.0)
 	_check("leaving scope restores held model", held.visible)

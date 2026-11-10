@@ -1,0 +1,56 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] no charge can be thrown before the buff
+  [ok] ordinary last shot fires without the perk
+  [ok] last shot without perk cannot store a charge
+  [ok] fixture is finishing a real accepted reload
+  [ok] ordinary empty reload cannot grant a charge
+  [ok] first stack has 120 explosive damage
+  [ok] fixture is finishing a real accepted reload
+  [ok] completed tactical reload cannot store a charge
+  [ok] starting and repeating R on empty cannot grant a charge
+  [ok] cancelled or completed empty reload cannot grant a charge
+  [ok] penultimate shot fires
+  [ok] penultimate shot does not grant a charge
+  [ok] final shot fires
+  [ok] last round stores one charge in the same frame
+  [ok] storage precedes automatic reload
+  [ok] storage does not automatically throw or explode
+  [ok] stored magazine is immediately visible
+  [ok] can throw immediately while the original reload runs
+  [ok] throw uses 6m radius
+  [ok] fuse starts at release
+  [ok] fixture is finishing a real accepted reload
+  [ok] finishing the original reload cannot refill spent charge
+  [ok] a later final shot stores a fresh charge
+  [ok] switching guns and cancelling reload preserve inventory
+  [ok] ADS keeps held model without spending inventory
+  [ok] leaving scope restores held model
+  [ok] holding past fuse time neither throws nor explodes
+  [ok] another final shot does not duplicate or replace held inventory
+  [ok] fixture is finishing a real accepted reload
+  [ok] another completed reload cannot duplicate inventory
+  [ok] public throw path cannot spend inventory while paused
+  [ok] gun 0 final shot fires without reserve
+  [ok] gun 0 immediately stores exactly one charge
+  [ok] gun 0 dry fire cannot grant another charge
+  [ok] gun 0 empty reload without reserve grants nothing
+  [ok] gun 0 empty selection and Stats refresh grant nothing
+  [ok] held charge can be thrown while another reload runs
+  [ok] one launch consumes the sole inventory
+  [ok] throw samples current stacked damage
+  [ok] fixture is finishing a real accepted reload
+  [ok] reload completion after throwing grants nothing
+  [ok] paused final-shot calls cannot grant inventory
+  [ok] fresh last shot restores an inventory for input checks
+  [ok] death discards held magazine and denies throwing
+  [ok] dead final-shot calls cannot restore inventory
+  [ok] horizontal throw remains live after travelling at least 18 metres
+  [ok] flat-ground throw impacts once more than 20 metres away
+THROW DISTANCE 24.15 m
+  [ok] no absorbed attack still means no free counterattack
+  [ok] counter reaches a multi-hitbox enemy at 6m once for forty absorbed BODY damage
+  [ok] 7m boundary receives unchanged uniform damage
+  [ok] hitbox overlap past 7m receives no damage
+  [ok] a wall still blocks the larger pulse
+ACTIVE MAGAZINE: 52 checks, 0 failed

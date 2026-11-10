@@ -60,6 +60,8 @@ func stasis_multiplier() -> float:
 
 var _pitch := 0.0
 var _visual_kick := Vector2.ZERO
+var _kick_origin := Vector2.ZERO
+var _kick_left := 0.0
 ## Leftover forward push from a melee swing, drained over `_lunge_left`.
 var _lunge := Vector3.ZERO
 var _lunge_left := 0.0
@@ -159,11 +161,10 @@ func _apply_look() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		# Look speed follows the magnification, or 8x is just a wobbly picture:
-		# the same mouse travel has to move the same number of *targets*.
-		var look := mouse_sensitivity / maxf(weapon.zoom_level(), 1.0)
+		# Sensitivity tracks the actual interpolated ADS field of view.
+		var look := mouse_sensitivity
 		if weapon.aiming:
-			look *= ads_sensitivity
+			look *= ads_sensitivity * _camera.fov / base_fov
 		rotate_y(-event.relative.x * look)
 		_pitch = clampf(_pitch - event.relative.y * look, deg_to_rad(-89.0), deg_to_rad(89.0))
 	elif event.is_action_pressed("pause"):
@@ -223,12 +224,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	# The gun decides: base field of view, its own ADS value, or base/magnification
-	# behind a scope. See Weapon.fov_for(). The dash adds a short widening on top
-	# without touching that decision.
+	# ADS is owned by Weapon; dash adds only a temporary widening.
 	var target_fov := weapon.fov_for(base_fov) + dash.fov_offset()
 	_camera.fov = lerpf(_camera.fov, target_fov, minf(fov_lerp_speed * delta, 1.0))
-	_visual_kick = _visual_kick.lerp(Vector2.ZERO, minf(recoil_recovery * delta, 1.0))
+	_kick_left = maxf(_kick_left - delta, 0.0)
+	var recovery := _kick_left / maxf(weapon.data.camera_return_time, 0.001)
+	_visual_kick = _kick_origin * recovery * recovery
 	_apply_look()
 	_update_view_camera(delta)
 
@@ -239,6 +240,8 @@ func _on_weapon_recoil(pitch: float, yaw: float, manual: float) -> void:
 	_pitch = clampf(_pitch + deg_to_rad(pitch * manual), deg_to_rad(-89.0), deg_to_rad(89.0))
 	rotate_y(deg_to_rad(-yaw * manual))
 	_visual_kick += Vector2(pitch, -yaw) * (1.0 - manual)
+	_kick_origin = _visual_kick
+	_kick_left = weapon.data.camera_return_time
 
 
 ## One camera shake and FOV punch (both already scaled by the caller). A new
@@ -310,7 +313,7 @@ func _on_died(_source: Node) -> void:
 	shield.set_process(false)
 	combat_traits.clear()
 	combat_traits.set_process(false)
-	weapon.set_process(false)
+	weapon.deactivate()
 	Events.player_died.emit()
 
 

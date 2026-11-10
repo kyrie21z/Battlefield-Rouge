@@ -39,6 +39,13 @@ static func generate(kind: String) -> AudioStreamWAV:
 				"crack_decay": 80.0, "crack_amp": 0.56,
 				"body_decay": 12.0, "body_amp": 0.9, "body_lp": 0.13,
 				"tail_decay": 4.2, "tail_amp": 0.3, "tail_lp": 0.035})
+		"gun_pistol":
+			return _layered_gunshot({
+				"duration": 0.20, "seed": 14,
+				"thump_from": 150.0, "thump_to": 65.0, "thump_decay": 35.0, "thump_amp": 0.6,
+				"crack_decay": 130.0, "crack_amp": 0.4,
+				"body_decay": 28.0, "body_amp": 0.65, "body_lp": 0.24,
+				"tail_decay": 15.0, "tail_amp": 0.1, "tail_lp": 0.07})
 		"hit_kill":
 			return _kill_confirm(false)
 		"hit_kill_head":

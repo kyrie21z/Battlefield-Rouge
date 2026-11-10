@@ -1,8 +1,8 @@
 extends Node
 ## Proof frames for the grey-white crystal protagonist body: front / three-quarter
-## / side views with normal shadow casting while it holds the rifle in the aim
+## / side views with normal shadow casting while it holds the pistol in the aim
 ## pose, the same body SHADOWS_ONLY running and standing with the gun, and
-## close-up side / top strips of the upper body with each of the three guns.
+## close-up side / top strips of the upper body with the equipped pistol.
 ## Needs a real display:
 ##   godot --path . res://tests/protagonist_body_proof.tscn -- --out=<dir>
 ## Default output is docs/proof/protagonist-body. Quits 0 after the seven JPGs.
@@ -14,9 +14,8 @@ const STILLS := [
 	{"file": "03_side.jpg", "from": Vector3(-4.2, 0.9, 0.0)},
 ]
 const LOOK_AT := Vector3(0.0, 0.88, 0.0)
-## The gun panels are laid out rifle | shotgun | sniper, in `Weapon.data_set`
-## order; `GUN_SLOTS` is how many to render.
-const GUN_SLOTS := 3
+## The stage equips one pistol; keep the old shadow-only rig until #105.
+const GUN_SLOTS := 1
 const PANEL_WIDTH := 800
 
 

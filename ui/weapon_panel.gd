@@ -1,17 +1,11 @@
 class_name WeaponPanel
 extends Control
-## Bottom-right gun block: big current / reserve numbers, the gun name and one
-## slot per gun in `data_set`, all in one row. Reloading swaps a progress bar in.
-## Reads the weapon only.
+## One pistol: current/capacity, name and reload progress.
 
 const AMMO_POS := Vector2(18.0, 44.0)
 const AMMO_FONT := 36
 const AMMO_WIDTH := 178.0
 const RELOAD_BAR := Rect2(18.0, 80.0, 178.0, 8.0)
-const SLOT_SIZE := Vector2(84.0, 80.0)
-const SLOT_START := 212.0
-const SLOT_STEP := 94.0
-const SLOT_TOP := 10.0
 const LOW_AMMO_SHARE := 0.25
 
 var weapon: Weapon
@@ -19,7 +13,6 @@ var ammo_text := ""
 var ammo_low := false
 var ammo_color := HudStyle.TEXT
 var gun_name := ""
-var selected_index := 0
 var reload_visible := false
 var reload_fraction := 0.0
 
@@ -54,18 +47,13 @@ func advance(_delta: float) -> void:
 	queue_redraw()
 
 
-func slot_rect(index: int) -> Rect2:
-	return Rect2(Vector2(SLOT_START + float(index) * SLOT_STEP, SLOT_TOP), SLOT_SIZE)
-
-
 func _sync() -> void:
 	if weapon == null or weapon.data == null:
 		return
-	ammo_text = "%d / %d" % [weapon.ammo, weapon.reserve]
+	ammo_text = "%d / %d" % [weapon.ammo, weapon.magazine_capacity()]
 	ammo_low = weapon.ammo <= int(weapon.magazine_capacity() * LOW_AMMO_SHARE)
 	ammo_color = HudStyle.WARNING if ammo_low else HudStyle.TEXT
 	gun_name = weapon.data.display_name
-	selected_index = weapon.index
 	reload_visible = weapon.is_reloading()
 	reload_fraction = weapon.reload_progress()
 	_name_label.text = gun_name
@@ -82,17 +70,3 @@ func _draw() -> void:
 			Vector2(RELOAD_BAR.size.x * clampf(reload_fraction, 0.0, 1.0), RELOAD_BAR.size.y)),
 			HudStyle.ACCENT)
 		draw_rect(RELOAD_BAR, Color(HudStyle.ACCENT, 0.45), false, 1.0)
-
-	if weapon == null or weapon.data_set.is_empty():
-		return
-	for i in weapon.data_set.size():
-		var slot := slot_rect(i)
-		var current := i == selected_index
-		draw_rect(slot, Color(0.0, 0.0, 0.0, 0.45))
-		if current:
-			draw_rect(slot, Color(HudStyle.ACCENT, 0.16))
-			draw_rect(slot, HudStyle.ACCENT, false, 2.0)
-		else:
-			draw_rect(slot, Color(HudStyle.MUTED, 0.35), false, 1.0)
-		var tint := HudStyle.TEXT if current else Color(0.68, 0.78, 0.82, 0.55)
-		HudStyle.draw_icon(self, weapon.data_set[i].icon, slot.grow(-8.0), tint)

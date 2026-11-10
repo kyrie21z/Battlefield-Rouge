@@ -28,6 +28,8 @@ signal shake(degrees: float, fov_punch: float, duration: float)
 ## The scope magnification changed. The HUD redraws its readout.
 signal zoom_changed(level: float)
 
+const CRYSTAL_IMPACT := preload("res://weapons/effects/crystal_impact.gd")
+
 const SHOOT_MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
 ## Voices for gunshots. A shot rings on its own voice, so a burst cannot cut the
 ## tail of the one before it (assigning a new stream to a playing
@@ -123,6 +125,30 @@ func _ready() -> void:
 	select(0)
 	if stats != null:
 		stats.changed.connect(func(): ammo_changed.emit(ammo, reserve))
+
+
+func _exit_tree() -> void:
+	for voice in _shot_voices:
+		voice.stop()
+		voice.stream = null
+	if _handling_voice != null:
+		_handling_voice.stop()
+		_handling_voice.stream = null
+
+
+## World-space grip frame for the owning player's hand rig. The imported
+## pistol root is centred on the grip; each mineral piece keeps its own local origin.
+func grip_transform() -> Transform3D:
+	return _view.global_transform if is_instance_valid(_view) else global_transform
+
+func deactivate() -> void:
+	trigger_enabled = false
+	_reload_left = 0.0
+	_spring.reset()
+	if _flash != null:
+		_flash.hide()
+	set_process(false)
+
 
 
 ## Puts the gun at `new_index` in hand (wraps). Cancels a reload in progress, since
@@ -221,7 +247,7 @@ func spread_degrees() -> float:
 
 
 func _process(delta: float) -> void:
-	if data == null:
+	if get_tree().paused or data == null:
 		return
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	if _flash != null and _flash_left > 0.0:
@@ -281,6 +307,8 @@ func _apply_view_visibility() -> void:
 ## The wheel has two jobs: change magnification behind a scope, and change guns
 ## everywhere else.
 func _cycle_wheel(step: int) -> void:
+	if data_set.size() <= 1 and not is_scoped():
+		return
 	if is_scoped():
 		cycle_zoom(step)
 	else:
@@ -288,7 +316,7 @@ func _cycle_wheel(step: int) -> void:
 
 
 func try_fire() -> bool:
-	if data == null or _cooldown > 0.0 or is_reloading():
+	if get_tree().paused or data == null or not trigger_enabled or _cooldown > 0.0 or is_reloading():
 		return false
 	if ammo <= 0:
 		if reserve > 0:
@@ -312,7 +340,8 @@ func try_fire() -> bool:
 		_flash.visible = true
 		_flash_left = 0.04
 	_kick_view()
-	recoil.emit(data.camera_kick, data.camera_kick * _next_pattern_value(), data.recoil_manual)
+	var yaw := _feel_rng.randf_range(-data.camera_yaw, data.camera_yaw) if data.camera_yaw > 0.0 else data.camera_kick * _next_pattern_value()
+	recoil.emit(data.camera_kick, yaw, data.recoil_manual)
 	fired.emit()
 	Events.gunshot.emit(global_position)
 	ammo_changed.emit(ammo, reserve)
@@ -322,7 +351,7 @@ func try_fire() -> bool:
 
 
 func try_reload() -> void:
-	if data == null or is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
+	if get_tree().paused or data == null or not trigger_enabled or is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
 		return
 	_reload_left = _reload_duration(ammo == 0)
 	_play_handling(_reload_sound, -2.0)
@@ -362,7 +391,10 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		var distance := origin.distance_to(hit.position)
 		var dealt := hitbox.apply_hit_at(data.damage * _stat(Stats.DAMAGE) * _falloff(distance), shooter, hit.position, direction, true)
 		if not hitbox.surface_evaded:
-			Impact.spawn(effects_parent, hit.position, hit.normal, true, _detail_left > 0)
+			if data.gunshot_sound == "gun_pistol":
+				CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal)
+			else:
+				Impact.spawn(effects_parent, hit.position, hit.normal, true, _detail_left > 0)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
 	else:

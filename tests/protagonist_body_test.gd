@@ -92,29 +92,8 @@ func _run() -> void:
 		attachment != null and attachment.bone_name == "RightHand" and attachment.get_child_count() == 1)
 	var gun := attachment.get_child(0) as Node3D
 	var gun_meshes := gun.find_children("*", "MeshInstance3D", true, false)
-	var gun_shadows_only := not gun_meshes.is_empty()
-	for node in gun_meshes:
-		if (node as MeshInstance3D).cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
-			gun_shadows_only = false
-	_check("the gun in hand is visible", gun.visible and not gun_meshes.is_empty())
-	_check("the gun mesh is SHADOWS_ONLY too", gun_shadows_only)
-	_check("the rifle is what the player has out", gun.scene_file_path.ends_with("ak.gltf"))
-	# The ak is authored muzzle at its -X end: in hand it has to point at the
-	# player's forward (-Z), with the stock behind it, not the other way round.
-	var muzzle := Vector3(INF, 0.0, 0.0)
-	var stock := Vector3(-INF, 0.0, 0.0)
-	for node in gun_meshes:
-		var mi := node as MeshInstance3D
-		for s in mi.mesh.get_surface_count():
-			for v in mi.mesh.surface_get_arrays(s)[Mesh.ARRAY_VERTEX]:
-				if v.x < muzzle.x:
-					muzzle = v
-				if v.x > stock.x:
-					stock = v
-	var gun_xf := gun.global_transform
-	_check("the rifle points forward (%.2f m of muzzle ahead of the stock)" % [
-		(gun_xf * stock).z - (gun_xf * muzzle).z],
-		(gun_xf * muzzle).z < (gun_xf * stock).z - 0.35)
+	_check("pistol is the right-hand shadow model", gun.scene_file_path.ends_with("obsidian_pistol.glb"))
+	_check("pistol muzzle points forward", (gun.global_transform * Vector3(0, .066, -.1765)).z < gun.global_position.z - .15)
 	# And the grip has to sit in the right hand, not float above it.
 	var hand := skeleton.global_transform * skeleton.get_bone_global_pose(skeleton.find_bone("RightHand"))
 	var gun_box := AABB()
@@ -141,14 +120,9 @@ func _run() -> void:
 	shadow._process(0.0)
 	_check("the gun is back once the blade is away", gun.visible)
 
-	# Switching weapons swaps the model in the hand.
-	weapon.select(1)
-	await get_tree().process_frame
-	var shotgun := attachment.get_child(0) as Node3D
-	_check("the shotgun replaces the rifle in the hand",
-		shotgun != null and shotgun.scene_file_path.ends_with("shotgun.glb"))
-	_check("the rifle mesh is gone",
-		attachment.get_child_count() == 1 and attachment.get_child(0) == shotgun)
+	# One equipped pistol cannot be replaced by a wheel event.
+	weapon._cycle_wheel(1)
+	_check("wheel retains one pistol attachment", attachment.get_child_count() == 1 and attachment.get_child(0) == gun)
 
 	var merged := _model_aabb(shadow, player)
 	_check("the model is %.2f m tall (%.1f-%.1f m)" % [

@@ -114,16 +114,16 @@ func _ready() -> void:
 		slot.set_process(true)
 	await _tap("weapon_next")
 	await _tap("switch_melee")
-	_check("wheel selects shotgun and Q selects axe", panel.selected_index == 1
+	_check("wheel retains pistol and Q selects axe", panel.gun_name == player.weapon.data.display_name
 		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 1)
-	await _shot("11_shotgun_axe")
+	await _shot("11_pistol_axe")
 	await _tap("weapon_next")
 	await _tap("switch_melee")
-	_check("wheel selects sniper and Q selects tachi", panel.selected_index == 2
+	_check("wheel retains pistol and Q selects tachi", panel.gun_name == player.weapon.data.display_name
 		and melee_slot.current_icon == player.melee.current().icon and player.melee.index == 2)
-	await _shot("12_sniper_tachi")
+	await _shot("12_pistol_tachi")
 	await _tap("weapon_next")
-	_check("wheel wraps to rifle", panel.selected_index == 0)
+	_check("wheel retains pistol", player.weapon.index == 0)
 
 	player.weapon.ammo = 4
 	await _tap("reload")
@@ -131,9 +131,9 @@ func _ready() -> void:
 	_check("R advances the live reload bar", panel.reload_visible and panel.reload_fraction > 0.0)
 	await _shot("13_live_reload")
 	await _tap("weapon_next")
-	_check("switching during reload removes the progress bar", not panel.reload_visible)
+	_check("wheel cannot cancel the single pistol reload", panel.reload_visible)
 	await _tap("weapon_prev")
-	_check("interrupted rifle still has four rounds", player.weapon.ammo == 4)
+	_check("reloading pistol still has four rounds", player.weapon.ammo == 4)
 	await _tap("reload")
 	await get_tree().create_timer(3.0).timeout
 	_check("live reload completes", not panel.reload_visible

@@ -1,0 +1,104 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== the loadout (AC-05)
+  [ok] three melee weapons
+  [ok] they are 匕首, 斧, 太刀
+  [ok] every weapon has a first-person model
+  [ok] the three viewmodels are built
+  [ok] each viewmodel carries a mesh
+== 快 / 慢 and 近 / 中 / 远 are real differences
+  [ok] 匕首 is the fastest, 斧 the slowest
+  [ok] 匕首 is the shortest, 太刀 the longest
+  [ok] 斧 hits hardest, 匕首 least
+  [ok] 斧 is committed longest before it cuts
+== Q cycles the loadout
+  [ok] starts on 匕首
+  [ok] Q moves to 斧
+  [ok] Q moves to 太刀
+  [ok] Q wraps back to 匕首
+  [ok] the HUD shows the selected weapon
+== each cut travels the screen the way its style promises
+  [ok] selected 匕首
+  [ok] 匕首 starts within 0.18 of its aim (-1.00, -0.98)
+  [ok] 匕首 ends within 0.18 of its aim (1.00, 0.98)
+  [ok] 匕首 covers the screen in its style (-1.00,-0.98 -> 1.00,0.98)
+  [ok] 匕首 keeps its tip in front of the eye (0.68 m / 0.50 m)
+  [ok] 匕首 shows its face where it reads (0.95)
+  [ok] 匕首 cuts edge first (0.98)
+  [ok] selected 斧
+  [ok] 斧 starts within 0.18 of its aim (0.00, 0.79)
+  [ok] 斧 ends within 0.18 of its aim (0.00, -0.95)
+  [ok] 斧 covers the screen in its style (0.00,0.79 -> 0.00,-0.95)
+  [ok] 斧 keeps its tip in front of the eye (0.71 m / 1.27 m)
+  [ok] 斧 falls edge first, not flat (face 0.26 / 0.17)
+  [ok] selected 太刀
+  [ok] 太刀 starts within 0.18 of its aim (-0.95, 0.92)
+  [ok] 太刀 ends within 0.18 of its aim (0.95, -0.92)
+  [ok] 太刀 covers the screen in its style (-0.95,0.92 -> 0.95,-0.92)
+  [ok] 太刀 keeps its tip in front of the eye (0.98 m / 1.19 m)
+  [ok] 太刀 shows its face where it reads (0.82)
+  [ok] 太刀 cuts edge first (0.97)
+== V swings and damages a guard (real input path)
+  [ok] selected 匕首
+  [ok] pressing V starts exactly one swing
+  [ok] the guard in front lost health
+  [ok] the player did not hit itself
+== the swing has to finish before the next one
+  [ok] a swing during the recovery is refused
+== 近 / 中 / 远 measured on a real guard
+  [ok] selected 太刀
+  [ok] 3.4 m is out of reach for the longest weapon
+  [ok] 2.8 m: 太刀 reaches
+  [ok] selected 斧
+  [ok] 2.8 m: 斧 does not reach
+  [ok] 2.2 m: 斧 reaches
+  [ok] selected 匕首
+  [ok] 2.2 m: 匕首 does not reach
+  [ok] 1.3 m: 匕首 reaches
+== the arc is in front of the player, not around them
+  [ok] a guard at the player's back is untouched
+== 斧 clears a group, 匕首 picks one body
+  [ok] 匕首 hits exactly one body (1 hits, false / true)
+  [ok] selected 斧
+  [ok] 斧 hits both bodies in the arc (2 hits, 300 / 300 lost)
+== the swing animation actually moves the viewmodel
+  [ok] selected 匕首
+  [ok] the viewmodel leaves its rest pose while swinging
+  [ok] it returns to rest and hides
+== 高 damage: the 斧 drops a 100 HP guard in one swing
+  [ok] selected 斧
+  [ok] the guard starts at full health
+  [ok] one 斧 swing kills
+== every melee dashes into a body that is already close
+  [ok] selected 匕首
+  [ok] 匕首 at empty air does not move the player (0 lunge)
+  [ok] selected 斧
+  [ok] 斧 at empty air does not move the player (0 lunge)
+  [ok] selected 太刀
+  [ok] 太刀 at empty air does not move the player (0 lunge)
+  [ok] selected 匕首
+  [ok] 匕首 dashes into a body (1 lunge, 0.48 m)
+  [ok] 匕首 dashes toward the body, not the aim
+  [ok] 匕首 dash is a dash, not a teleport (0.48 m, at most 0.55)
+  [ok] 匕首 lands after the dash
+  [ok] selected 斧
+  [ok] 斧 dashes into a body (1 lunge, 0.58 m)
+  [ok] 斧 dashes toward the body, not the aim
+  [ok] 斧 dash is a dash, not a teleport (0.58 m, at most 0.65)
+  [ok] 斧 lands after the dash
+  [ok] selected 太刀
+  [ok] 太刀 dashes into a body (1 lunge, 0.71 m)
+  [ok] 太刀 dashes toward the body, not the aim
+  [ok] 太刀 dash is a dash, not a teleport (0.71 m, at most 0.75)
+  [ok] 太刀 lands after the dash
+  [ok] selected 匕首
+  [ok] the arc snaps onto a body outside the swing cone (68 dmg)
+  [ok] selected 太刀
+  [ok] 2.9 m: 太刀 cuts without dashing (0 lunge, 0.00 m moved, 124 dmg)
+== a swing at empty air moves nobody
+  [ok] selected 太刀
+  [ok] no target, no dash
+== 斧 shoves the body it hits
+  [ok] selected 斧
+  [ok] the struck guard is pushed away from the player
+ALL PASSED (0 failed)

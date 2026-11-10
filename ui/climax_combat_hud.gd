@@ -15,6 +15,7 @@ var vitals: Vitals
 var ammo: Label
 var combat_root: Control
 var pause_layer: CanvasLayer
+var inspector: BuildInspector
 var pause_menu: PauseMenu
 var combat_visible := false
 var _finished := false
@@ -71,6 +72,10 @@ func _ready() -> void:
 	pause_menu = ScopedPauseMenu.new()
 	pause_layer.add_child(pause_menu)
 	pause_menu.setup(settings,player,null)
+	inspector = preload("res://ui/codex/build_inspector.tscn").instantiate() as BuildInspector
+	inspector.player = player
+	inspector.can_open = func(): return combat_visible and not _finished
+	pause_layer.add_child(inspector)
 	set_combat_visible(false)
 
 func set_combat_visible(value: bool) -> void:
@@ -103,6 +108,9 @@ func _apply_settings() -> void:
 		AudioServer.set_bus_volume_db(bus,linear_to_db(maxf(settings.music_volume,0.001)))
 
 func finish() -> void:
+	if is_instance_valid(inspector):
+		inspector.close(true)
+		inspector.queue_free()
 	_finished = true
 	combat_visible = false
 	combat_root.hide()

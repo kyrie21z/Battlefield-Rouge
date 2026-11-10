@@ -6,6 +6,7 @@ extends Node3D
 const INTERACT_RANGE := 2.4
 
 var _label: Label3D
+var _material: StandardMaterial3D
 
 
 func _ready() -> void:
@@ -16,6 +17,7 @@ func _ready() -> void:
 	body.mesh = box
 	body.position.y = 0.575
 	var material := StandardMaterial3D.new()
+	_material = material
 	material.albedo_color = Color(0.32, 0.72, 0.48)
 	body.material_override = material
 	add_child(body)
@@ -32,3 +34,11 @@ func _ready() -> void:
 
 func in_range(body: Node3D) -> bool:
 	return global_position.distance_to(body.global_position) <= INTERACT_RANGE
+
+
+func show_reward_theme(accent: Color) -> void:
+	_label.hide()
+	_material.albedo_color = Color("151821")
+	_material.emission_enabled = true
+	_material.emission = accent
+	_material.emission_energy_multiplier = 0.16

@@ -32,6 +32,7 @@ func _ready() -> void:
 	RunState.clear_fixture()
 	RunState.zone_index = 0
 	RunState.buffs.clear()
+	RunState.boons.clear()
 	RunState.selection_history.clear()
 	RunState.run_seed = 1001
 	BuffPool.reset(1001)

@@ -1,7 +1,6 @@
 class_name BuffBar
 extends Control
-## One icon per owned buff: the buff's own icon, a border in its school accent
-## and a ×N stack badge. Empty runs hide the whole bar. Reads RunState only.
+## Current boon slots/traits and any restored legacy fixture buffs. Read-only.
 
 const ICON_SIZE := 56.0
 const GAP := 10.0
@@ -24,6 +23,8 @@ func refresh() -> void:
 		else:
 			index[key] = entries.size()
 			entries.append({"buff": buff, "count": 1, "accent": _accent(buff)})
+	for boon: BoonData in RunState.boons:
+		entries.append({"buff": boon, "count": 1, "accent": BoonIdentity.accent(boon)})
 	var count := entries.size()
 	visible = count > 0
 	offset_right = offset_left + (float(count) * (ICON_SIZE + GAP) - GAP if count > 0 else 0.0)
@@ -33,7 +34,7 @@ func refresh() -> void:
 
 func stack_count(id: StringName) -> int:
 	for entry: Dictionary in entries:
-		var buff: Buff = entry["buff"]
+		var buff: Resource = entry["buff"]
 		if buff.id == id:
 			return int(entry["count"])
 	return 0
@@ -47,11 +48,15 @@ func accent_for(id: StringName) -> Color:
 
 
 func count_label(index: int) -> String:
+	var card: Resource = entries[index]["buff"]
+	if card is BoonData:
+		return ["枪", "刃", "步", "·"][card.slot]
 	return "×%d" % int(entries[index]["count"])
 
 
 func icon_at(index: int) -> Texture2D:
-	return entries[index]["buff"].icon
+	var card: Resource = entries[index]["buff"]
+	return BoonIdentity.icon(card) if card is BoonData else card.icon
 
 
 func icon_rect(index: int) -> Rect2:
@@ -78,7 +83,7 @@ func _draw() -> void:
 		var outline := points.duplicate()
 		outline.append(points[0])
 		draw_polyline(outline, accent, 2.0, true)
-		HudStyle.draw_icon(self, entry["buff"].icon, box.grow(-8.0), Color.WHITE)
+		HudStyle.draw_icon(self, icon_at(i), box.grow(-8.0), Color.WHITE)
 
 		var text := count_label(i)
 		var text_width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x

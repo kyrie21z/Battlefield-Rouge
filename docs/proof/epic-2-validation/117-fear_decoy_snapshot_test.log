@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] production pose copies all 24 crystal body bones
+  [ok] all local bone positions rotations and scales match snapshot
+  [ok] snapshot retains current protagonist facing
+  [ok] complete head torso arms hands and legs render in ghost
+  [ok] ghost uses pure scene without player script or animation tree
+  [ok] snapshot animation is frozen
+  [ok] later player animation cannot alter captured pose
+  [ok] missing source falls back to frozen authored idle pose
+  [ok] each decoy owns a separate translucent reflective material
+  [ok] editing one ghost material leaves others and protagonist unchanged
+  [ok] frozen pose retains spatial tremor
+  [ok] pause freezes jitter and two second expiration
+  [ok] ghost keeps one hit point and real capsule hitbox
+  [ok] destruction still emits one burst and removes ghost
+  [ok] fallback ghost still expires at two seconds
+ALL PASSED (0 failed, finished=true)

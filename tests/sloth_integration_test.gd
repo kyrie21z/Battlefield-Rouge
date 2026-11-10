@@ -409,16 +409,21 @@ func _blade_strike(player: Player) -> void:
 
 func _choose_card(index: int) -> void:
 	var director := _director()
-	var count := RunState.buffs.size()
+	var picker := director.selection as BoonPicker
+	var chosen_id := picker._offered[index].id
+	var count := RunState.selection_history.size()
 	await _key(KEY_1+index)
-	_check(RunState.buffs.size()==count+1,"Physical card key commits exactly one buff")
+	if is_instance_valid(picker) and picker._pending != null:
+		(picker._confirmation.find_child("Confirm", true, false) as Button).pressed.emit()
+		await get_tree().process_frame
+	_check(RunState.selection_history.size()==count+1 and RunState.boons.any(func(card): return card.id == chosen_id),"Physical card key and explicit replacement commit exactly one boon choice")
 	if is_instance_valid(director) and director.selection!=null:
 		_check(false,"Card UI unexpectedly remains after selection")
 
 func _restart_and_die() -> void:
 	await _key(KEY_R)
 	await _wait_zone(0)
-	_check(_director().selection_context=="enter" and RunState.buffs.is_empty() and RunState.selection_history.is_empty(),"Victory restart resets the run and opens one entry choice")
+	_check(_director().selection_context=="enter" and RunState.buffs.is_empty() and RunState.boons.is_empty() and RunState.selection_history.is_empty(),"Victory restart resets the run and opens one entry choice")
 	_check(get_tree().current_scene.scene_file_path==RunState.ZONE_SCENES[0],"Restart goes directly to zone one, not the opening")
 	await _choose_card(0)
 	var player := _director().get("_player") as Player
@@ -426,7 +431,7 @@ func _restart_and_die() -> void:
 	player.health.dash_invulnerable = false
 	player.health.apply_damage(99999,Hitbox.BodyPart.BODY)
 	await get_tree().process_frame
-	_check(_end_screen(_director())!=null and RunState.buffs.is_empty() and RunState.selection_history.is_empty(),"Real player death opens defeat and clears the build")
+	_check(_end_screen(_director())!=null and RunState.buffs.is_empty() and RunState.boons.is_empty() and RunState.selection_history.is_empty(),"Real player death opens defeat and clears the build")
 	await _key(KEY_R)
 	await _wait_zone(0)
 	_check(_director().selection_context=="enter" and _director().selection_count==1,"Defeat restart creates one fresh entry choice")

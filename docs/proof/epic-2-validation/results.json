@@ -1,0 +1,1184 @@
+{
+  "engine": "Godot 4.7.2 stable Windows console; headless; Jolt",
+  "base_commit": "3696ed12bb4c7ba3b746e5b29620f8ab41b2281b",
+  "source_fingerprint_sha256": "1cb855133b7234473071369e168148d7aef0d5a2cd49b6e576851ce99200d81b",
+  "fingerprint_method": "sorted tracked files excluding docs/ and *.md: path+NUL+bytes+NUL",
+  "test_scene_count": 58,
+  "final_passed": 58,
+  "final_errors": 0,
+  "final_warnings": 0,
+  "initial_runs": [
+    {
+      "name": "active_magazine_test",
+      "exit": 0,
+      "seconds": 10.5,
+      "problems": [],
+      "result": [
+        "ACTIVE MAGAZINE: 50 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "boon_combat_bench_test",
+      "exit": 0,
+      "seconds": 29.0,
+      "problems": [],
+      "result": [
+        "BOON BENCH: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_offers_test",
+      "exit": 0,
+      "seconds": 27.5,
+      "problems": [],
+      "result": [
+        "BOON OFFERS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_pipeline_test",
+      "exit": 0,
+      "seconds": 12.8,
+      "problems": [],
+      "result": [
+        "BOON PIPELINE: 64 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "buff_run_test",
+      "exit": 0,
+      "seconds": 35.0,
+      "problems": [],
+      "result": [
+        "boon-two-small-zones-and-boss-epic2-seed-40408: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "cloak_defense_test",
+      "exit": 0,
+      "seconds": 14.9,
+      "problems": [],
+      "result": [
+        "CLOAK DEFENSE: 21 checks, 0 failed, finished=true"
+      ]
+    },
+    {
+      "name": "combat_traits_test",
+      "exit": 0,
+      "seconds": 10.6,
+      "problems": [],
+      "result": [
+        "COMBAT TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "crystal_seams_test",
+      "exit": 0,
+      "seconds": 2.6,
+      "problems": [],
+      "result": [
+        "CRYSTAL SEAMS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "dual_boons_test",
+      "exit": 0,
+      "seconds": 22.6,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "enemy_layout_test",
+      "exit": 0,
+      "seconds": 33.6,
+      "problems": [],
+      "result": [
+        "ALL PASSED (55 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "fear_boon_traits_test",
+      "exit": 1,
+      "seconds": 8.6,
+      "problems": [
+        "  [FAIL] fivefold lethal hit resolves normal death and clears physical facets",
+        "FAIL (1 failed, finished=true)"
+      ],
+      "result": [
+        "FAIL (1 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "firing_position_test",
+      "exit": 0,
+      "seconds": 54.6,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "gun_feel_test",
+      "exit": 0,
+      "seconds": 54.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hit_feel_test",
+      "exit": 0,
+      "seconds": 33.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hurt_feedback_test",
+      "exit": 0,
+      "seconds": 30.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "melee_test",
+      "exit": 0,
+      "seconds": 9.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "minimap_test",
+      "exit": 0,
+      "seconds": 31.5,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "obsidian_pistol_test",
+      "exit": 0,
+      "seconds": 5.5,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "opening_transition_test",
+      "exit": 0,
+      "seconds": 56.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "protagonist_body_test",
+      "exit": 0,
+      "seconds": 8.3,
+      "problems": [],
+      "result": [
+        "PROTAGONIST BODY: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "reinforcement_test",
+      "exit": 0,
+      "seconds": 102.0,
+      "problems": [],
+      "result": [
+        "ALL PASSED (77 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "school_icons_test",
+      "exit": 0,
+      "seconds": 2.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "shield_visual_test",
+      "exit": 0,
+      "seconds": 8.7,
+      "problems": [],
+      "result": [
+        "SHIELD FEEDBACK: 25 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "sloth_boon_traits_test",
+      "exit": 0,
+      "seconds": 14.8,
+      "problems": [],
+      "result": [
+        "SLOTH TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_enemy_test",
+      "exit": 0,
+      "seconds": 61.0,
+      "problems": [],
+      "result": [
+        "SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_pursuit_test",
+      "exit": 0,
+      "seconds": 21.2,
+      "problems": [],
+      "result": [
+        "SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "sorrow_boon_core_test",
+      "exit": 0,
+      "seconds": 10.4,
+      "problems": [],
+      "result": [
+        "SORROW CORE: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "spawn_sight_test",
+      "exit": 0,
+      "seconds": 29.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "wrath_core_test",
+      "exit": 0,
+      "seconds": 15.0,
+      "problems": [],
+      "result": [
+        "WRATH CORE: 21 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "body_awareness_test",
+      "exit": 0,
+      "seconds": 8.2,
+      "problems": [],
+      "result": [
+        "BODY AWARENESS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_damage_scaling_test",
+      "exit": 0,
+      "seconds": 63.4,
+      "problems": [],
+      "result": [
+        "DAMAGE SCALING: 34 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "boon_picker_test",
+      "exit": 0,
+      "seconds": 18.6,
+      "problems": [],
+      "result": [
+        "BOON PICKER: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boss_test",
+      "exit": 0,
+      "seconds": 38.9,
+      "problems": [
+        "WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details)."
+      ],
+      "result": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "capture_hammer_test",
+      "exit": 1,
+      "seconds": 36.3,
+      "problems": [
+        "  [FAIL] pressing V resolves one swing against the building",
+        "  [FAIL] a second press inside the swing cooldown is ignored",
+        "  [FAIL] after the cooldown the next press swings again",
+        "  [FAIL] 25% drops the first pair",
+        "  [FAIL] 50% drops the next pair",
+        "  [FAIL] 75% leaves one pair standing",
+        "  [FAIL] 100% collapses the rest and plants the flag",
+        "ERROR: Node not found: \"Flag\" (relative to \"/root/CaptureHammerTest/Zone1/CapturePoint\").",
+        "SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'null instance'.",
+        "FAIL (7 failed, run did not finish)"
+      ],
+      "result": [
+        "FAIL (7 failed, run did not finish)"
+      ]
+    },
+    {
+      "name": "combat_bench_test",
+      "exit": 0,
+      "seconds": 15.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "counter_shield_test",
+      "exit": 0,
+      "seconds": 8.5,
+      "problems": [],
+      "result": [
+        "COUNTER SHIELD: 28 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "dash_test",
+      "exit": 0,
+      "seconds": 24.0,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "enemy_bullet_test",
+      "exit": 0,
+      "seconds": 4.0,
+      "problems": [],
+      "result": [
+        "ENEMY BULLETS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "fear_boon_core_test",
+      "exit": 0,
+      "seconds": 6.7,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "fear_decoy_snapshot_test",
+      "exit": 0,
+      "seconds": 8.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "fixture_test",
+      "exit": 0,
+      "seconds": 153.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hammer_feel_test",
+      "exit": 0,
+      "seconds": 31.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hud_test",
+      "exit": 0,
+      "seconds": 29.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (282 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "keybinding_test",
+      "exit": 0,
+      "seconds": 27.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "mind_blade_test",
+      "exit": 0,
+      "seconds": 7.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "music_test",
+      "exit": 0,
+      "seconds": 169.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "opening_boot_test",
+      "exit": 0,
+      "seconds": 45.7,
+      "problems": [],
+      "result": [
+        "",
+        "OPENING BOOT: 30 checks, 0 failures"
+      ]
+    },
+    {
+      "name": "phase_banner_test",
+      "exit": 0,
+      "seconds": 40.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "reflected_round_test",
+      "exit": 0,
+      "seconds": 8.1,
+      "problems": [],
+      "result": [
+        "REFLECTED ROUND: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "reload_blast_test",
+      "exit": 0,
+      "seconds": 14.6,
+      "problems": [],
+      "result": [
+        "RELOAD BLAST: 43 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "settings_test",
+      "exit": 0,
+      "seconds": 24.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_boon_core_test",
+      "exit": 0,
+      "seconds": 10.0,
+      "problems": [],
+      "result": [
+        "SLOTH CORE: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_cache_test",
+      "exit": 0,
+      "seconds": 8.0,
+      "problems": [],
+      "result": [
+        "  [ok] killing cached variant 2 leaves its peer visible and alive",
+        "SLOTH_CACHE_COMPLETE checks=16 failures=0"
+      ]
+    },
+    {
+      "name": "sloth_integration_test",
+      "exit": 0,
+      "seconds": 86.4,
+      "problems": [],
+      "result": [
+        "PASS | Defeat restart creates one fresh entry choice",
+        "SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures"
+      ]
+    },
+    {
+      "name": "sloth_revision_test",
+      "exit": 0,
+      "seconds": 17.5,
+      "problems": [],
+      "result": [
+        "NAVY REVISION: 27 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "sorrow_boon_traits_test",
+      "exit": 0,
+      "seconds": 14.2,
+      "problems": [],
+      "result": [
+        "SORROW TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "weapons_test",
+      "exit": 0,
+      "seconds": 3.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "wrath_traits_test",
+      "exit": 0,
+      "seconds": 21.0,
+      "problems": [],
+      "result": [
+        "WRATH TRAITS: 36 checks, 0 failed, completed=true"
+      ]
+    }
+  ],
+  "targeted_reruns": [
+    {
+      "name": "boss_test",
+      "exit": 0,
+      "seconds": 28.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "capture_hammer_test",
+      "exit": 0,
+      "seconds": 32.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "fear_boon_traits_test",
+      "exit": 0,
+      "seconds": 6.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "dual_boons_test",
+      "exit": 0,
+      "seconds": 20.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "boon_picker_test",
+      "exit": 0,
+      "seconds": 17.1,
+      "problems": [],
+      "result": [
+        "BOON PICKER: ALL PASSED (0 failed)"
+      ]
+    }
+  ],
+  "final_results": [
+    {
+      "name": "active_magazine_test",
+      "exit": 0,
+      "seconds": 10.5,
+      "problems": [],
+      "result": [
+        "ACTIVE MAGAZINE: 50 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "body_awareness_test",
+      "exit": 0,
+      "seconds": 8.2,
+      "problems": [],
+      "result": [
+        "BODY AWARENESS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_combat_bench_test",
+      "exit": 0,
+      "seconds": 29.0,
+      "problems": [],
+      "result": [
+        "BOON BENCH: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_damage_scaling_test",
+      "exit": 0,
+      "seconds": 63.4,
+      "problems": [],
+      "result": [
+        "DAMAGE SCALING: 34 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "boon_offers_test",
+      "exit": 0,
+      "seconds": 27.5,
+      "problems": [],
+      "result": [
+        "BOON OFFERS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_picker_test",
+      "exit": 0,
+      "seconds": 17.1,
+      "problems": [],
+      "result": [
+        "BOON PICKER: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "boon_pipeline_test",
+      "exit": 0,
+      "seconds": 12.8,
+      "problems": [],
+      "result": [
+        "BOON PIPELINE: 64 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "boss_test",
+      "exit": 0,
+      "seconds": 28.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (63 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "buff_run_test",
+      "exit": 0,
+      "seconds": 35.0,
+      "problems": [],
+      "result": [
+        "boon-two-small-zones-and-boss-epic2-seed-40408: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "capture_hammer_test",
+      "exit": 0,
+      "seconds": 32.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "cloak_defense_test",
+      "exit": 0,
+      "seconds": 14.9,
+      "problems": [],
+      "result": [
+        "CLOAK DEFENSE: 21 checks, 0 failed, finished=true"
+      ]
+    },
+    {
+      "name": "combat_bench_test",
+      "exit": 0,
+      "seconds": 15.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "combat_traits_test",
+      "exit": 0,
+      "seconds": 10.6,
+      "problems": [],
+      "result": [
+        "COMBAT TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "counter_shield_test",
+      "exit": 0,
+      "seconds": 8.5,
+      "problems": [],
+      "result": [
+        "COUNTER SHIELD: 28 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "crystal_seams_test",
+      "exit": 0,
+      "seconds": 2.6,
+      "problems": [],
+      "result": [
+        "CRYSTAL SEAMS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "dash_test",
+      "exit": 0,
+      "seconds": 24.0,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "dual_boons_test",
+      "exit": 0,
+      "seconds": 20.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "enemy_bullet_test",
+      "exit": 0,
+      "seconds": 4.0,
+      "problems": [],
+      "result": [
+        "ENEMY BULLETS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "enemy_layout_test",
+      "exit": 0,
+      "seconds": 33.6,
+      "problems": [],
+      "result": [
+        "ALL PASSED (55 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "fear_boon_core_test",
+      "exit": 0,
+      "seconds": 6.7,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "fear_boon_traits_test",
+      "exit": 0,
+      "seconds": 6.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "fear_decoy_snapshot_test",
+      "exit": 0,
+      "seconds": 8.8,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed, finished=true)"
+      ]
+    },
+    {
+      "name": "firing_position_test",
+      "exit": 0,
+      "seconds": 54.6,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "fixture_test",
+      "exit": 0,
+      "seconds": 153.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "gun_feel_test",
+      "exit": 0,
+      "seconds": 54.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hammer_feel_test",
+      "exit": 0,
+      "seconds": 31.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hit_feel_test",
+      "exit": 0,
+      "seconds": 33.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "hud_test",
+      "exit": 0,
+      "seconds": 29.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (282 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "hurt_feedback_test",
+      "exit": 0,
+      "seconds": 30.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "keybinding_test",
+      "exit": 0,
+      "seconds": 27.3,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "melee_test",
+      "exit": 0,
+      "seconds": 9.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "mind_blade_test",
+      "exit": 0,
+      "seconds": 7.1,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "minimap_test",
+      "exit": 0,
+      "seconds": 31.5,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "music_test",
+      "exit": 0,
+      "seconds": 169.2,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "obsidian_pistol_test",
+      "exit": 0,
+      "seconds": 5.5,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "opening_boot_test",
+      "exit": 0,
+      "seconds": 45.7,
+      "problems": [],
+      "result": [
+        "",
+        "OPENING BOOT: 30 checks, 0 failures"
+      ]
+    },
+    {
+      "name": "opening_transition_test",
+      "exit": 0,
+      "seconds": 56.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "phase_banner_test",
+      "exit": 0,
+      "seconds": 40.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "protagonist_body_test",
+      "exit": 0,
+      "seconds": 8.3,
+      "problems": [],
+      "result": [
+        "PROTAGONIST BODY: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "reflected_round_test",
+      "exit": 0,
+      "seconds": 8.1,
+      "problems": [],
+      "result": [
+        "REFLECTED ROUND: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "reinforcement_test",
+      "exit": 0,
+      "seconds": 102.0,
+      "problems": [],
+      "result": [
+        "ALL PASSED (77 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "reload_blast_test",
+      "exit": 0,
+      "seconds": 14.6,
+      "problems": [],
+      "result": [
+        "RELOAD BLAST: 43 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "school_icons_test",
+      "exit": 0,
+      "seconds": 2.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "settings_test",
+      "exit": 0,
+      "seconds": 24.4,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "shield_visual_test",
+      "exit": 0,
+      "seconds": 8.7,
+      "problems": [],
+      "result": [
+        "SHIELD FEEDBACK: 25 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "sloth_boon_core_test",
+      "exit": 0,
+      "seconds": 10.0,
+      "problems": [],
+      "result": [
+        "SLOTH CORE: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_boon_traits_test",
+      "exit": 0,
+      "seconds": 14.8,
+      "problems": [],
+      "result": [
+        "SLOTH TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_cache_test",
+      "exit": 0,
+      "seconds": 8.0,
+      "problems": [],
+      "result": [
+        "  [ok] killing cached variant 2 leaves its peer visible and alive",
+        "SLOTH_CACHE_COMPLETE checks=16 failures=0"
+      ]
+    },
+    {
+      "name": "sloth_enemy_test",
+      "exit": 0,
+      "seconds": 61.0,
+      "problems": [],
+      "result": [
+        "SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_integration_test",
+      "exit": 0,
+      "seconds": 86.4,
+      "problems": [],
+      "result": [
+        "PASS | Defeat restart creates one fresh entry choice",
+        "SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures"
+      ]
+    },
+    {
+      "name": "sloth_pursuit_test",
+      "exit": 0,
+      "seconds": 21.2,
+      "problems": [],
+      "result": [
+        "SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)"
+      ]
+    },
+    {
+      "name": "sloth_revision_test",
+      "exit": 0,
+      "seconds": 17.5,
+      "problems": [],
+      "result": [
+        "NAVY REVISION: 27 checks, 0 failed"
+      ]
+    },
+    {
+      "name": "sorrow_boon_core_test",
+      "exit": 0,
+      "seconds": 10.4,
+      "problems": [],
+      "result": [
+        "SORROW CORE: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "sorrow_boon_traits_test",
+      "exit": 0,
+      "seconds": 14.2,
+      "problems": [],
+      "result": [
+        "SORROW TRAITS: ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "spawn_sight_test",
+      "exit": 0,
+      "seconds": 29.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "weapons_test",
+      "exit": 0,
+      "seconds": 3.9,
+      "problems": [],
+      "result": [
+        "ALL PASSED (0 failed)"
+      ]
+    },
+    {
+      "name": "wrath_core_test",
+      "exit": 0,
+      "seconds": 15.0,
+      "problems": [],
+      "result": [
+        "WRATH CORE: 21 checks, 0 failed, completed=true"
+      ]
+    },
+    {
+      "name": "wrath_traits_test",
+      "exit": 0,
+      "seconds": 21.0,
+      "problems": [],
+      "result": [
+        "WRATH TRAITS: 36 checks, 0 failed, completed=true"
+      ]
+    }
+  ],
+  "isolated_prefix_tests": [
+    {
+      "issue": 114,
+      "step": "pipeline",
+      "tested_source_commit": "d68c92d4b718cbe448b6de274e811683098cc0c8",
+      "exit": 0,
+      "checks": 64,
+      "errors": [],
+      "warnings": [],
+      "log": "114-boon_pipeline_test.log"
+    },
+    {
+      "issue": 115,
+      "step": "core",
+      "tested_source_commit": "e0588b539b62696e926f1a476f9ad215505c814b",
+      "exit": 0,
+      "checks": 23,
+      "errors": [],
+      "warnings": [],
+      "log": "115-sloth-core-final.log"
+    },
+    {
+      "issue": 117,
+      "step": "core",
+      "tested_source_commit": "890bffc26a487e65e3049a3b24267b3f4bc3d9ea",
+      "exit": 0,
+      "checks": 18,
+      "errors": [],
+      "warnings": [],
+      "log": "117-fear_boon_core_test.log"
+    },
+    {
+      "issue": 117,
+      "step": "snapshot",
+      "tested_source_commit": "890bffc26a487e65e3049a3b24267b3f4bc3d9ea",
+      "exit": 0,
+      "checks": 15,
+      "errors": [],
+      "warnings": [],
+      "log": "117-fear_decoy_snapshot_test.log"
+    }
+  ],
+  "fixture": {
+    "head": {
+      "FX-001": "18f02a294f3e538a",
+      "FX-002": "ad3703cd93d3073e"
+    },
+    "main": {
+      "FX-001": "fa067b58e9d95c8a",
+      "FX-002": "ad3703cd93d3073e"
+    },
+    "deterministic_within_each_version": true,
+    "changed": [
+      "FX-001"
+    ],
+    "requires_owner_review": true
+  }
+}

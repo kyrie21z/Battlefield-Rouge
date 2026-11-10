@@ -446,6 +446,7 @@ func _open_zone(path: String, zone_index: int, run_seed: int) -> Node:
 	RunState.clear_fixture()
 	RunState.zone_index = zone_index
 	RunState.buffs.clear()
+	RunState.boons.clear()
 	RunState.selection_history.clear()
 	RunState.run_seed = run_seed
 	BuffPool.reset(run_seed)

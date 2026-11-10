@@ -75,11 +75,11 @@ func _run() -> void:
 		await get_tree().process_frame
 		_check(get_tree().current_scene.scene_file_path == RunState.ZONE_SCENES[0], "Loads the original zone_1 scene")
 		_check(directors_loaded == 1, "Loads exactly one real zone")
-		_check(RunState.run_seed == original_seed and RunState.buffs.is_empty() and RunState.selection_history.is_empty(), "Opening preserves the original new-run state")
+		_check(RunState.run_seed == original_seed and RunState.buffs.is_empty() and RunState.boons.is_empty() and RunState.selection_history.is_empty(), "Opening preserves the original new-run state")
 		var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
-		_check(director.selection_context == "enter" and director.selection_count == 1 and get_tree().paused, "Original entry buff choice still opens once")
+		_check(director.selection_context == "enter" and director.selection_count == 1 and get_tree().paused, "Entry boon choice opens once")
 		await _key(KEY_1)
-		_check(not get_tree().paused and RunState.buffs.size() == 1 and RunState.selection_history.size() == 1, "Entry choice starts the original combat")
+		_check(not get_tree().paused and RunState.boons.size() == 1 and RunState.buffs.is_empty() and RunState.selection_history.size() == 1, "Entry boon choice starts combat and persists exactly once")
 		var player := get_tree().get_first_node_in_group("player") as Player
 		_check(player.weapon.data != null and is_instance_valid(player.melee) and is_instance_valid(player.shield), "Original guns, melee and shield remain available")
 		if route == "confirm": await _capture("02-existing-game-after-opening.jpg")

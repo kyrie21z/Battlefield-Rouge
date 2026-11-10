@@ -1,0 +1,5 @@
+R1: merges cleanly with main 3696ed1
+R6: no file hygiene problems
+WARN: protected architecture/autoload/ADR paths require owner review
+WARN: HUD is mentioned only in a comment, not referenced as a dependency
+WARN: collision layer/mask 0 intentionally disables collisions

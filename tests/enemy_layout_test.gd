@@ -219,6 +219,7 @@ func _open(spec: Dictionary) -> Node:
 	RunState.clear_fixture()
 	RunState.zone_index = spec.zone
 	RunState.buffs.clear()
+	RunState.boons.clear()
 	RunState.selection_history.clear()
 	RunState.run_seed = 424242
 	BuffPool.reset(RunState.run_seed)

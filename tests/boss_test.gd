@@ -21,6 +21,9 @@ func _ready() -> void:
 	Events.zone_cleared.connect(func(_zone: int): _zone_cleared += 1)
 	Events.run_won.connect(func(): _run_won += 1)
 	await _run()
+	await get_tree().process_frame
+	OS.delay_msec(250)
+	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d checks, %d failed%s)" % ["ALL PASSED" if ok else "FAIL", _checks,
 		_failures, "" if _finished else ", run did not finish"])

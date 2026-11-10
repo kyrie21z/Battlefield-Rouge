@@ -339,3 +339,15 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | `assets/audio/crown/dynamic/floor5.wav` | 5.300 | `60ff0c0aaad859c4c9b476709c292e00db1ccf2a8807e58ce7ccf0e6a9a67d47` |
 | `assets/audio/crown/dynamic/veteran.wav` | 3.425 | `20eee70b053d282f6afa92c897ecf16b02b352cb90b194e0cf3e904e15ba8d61` |
 | `assets/audio/crown/dynamic/veteran_abyss.wav` | 3.800 | `f865e7d60479368200bdfe28fb32c2a4fd9669f39fe3b0fc0907b352252d99b9` |
+
+## #149 金缮重组素材（2026-11-10）
+
+BodyReassembly复用既有原始白晶身体与56片几何，GLB不变；Shader与编排为原创。五句自我接纳台词由#147登记的官方 Apache-2.0 Kokoro-82M-v1.1-zh 标准男声 `zm_010` 离线合成24kHz单声道PCM16。只分发输出，不分发模型/引擎，不标为CC0。许可、固定revision、声线与逐句语速见 [生成说明](../tools/cinematic/voice_assets.md) / [manifest](../tools/cinematic/voice_assets_manifest.json)；旧SAPI生成入口显式阻止执行。
+
+| 文件 | 秒 | SHA-256 |
+| --- | ---: | --- |
+| `assets/audio/climax/acceptance.wav` | 4.750 | `1eae27b6d41e20875e97c7127ee49e19e87611ac616873b5d2540321ed5e1487` |
+| `assets/audio/climax/fear.wav` | 4.300 | `0c29e5a2a67241401922a83417e98af77d4da2fb9b1224eb6318cc3b89cd42fd` |
+| `assets/audio/climax/slumber.wav` | 3.925 | `b9a21c2ceccd7e0f8e4b5fe4465e9a7642e28b1a026e45195ca17e07e17e3ef6` |
+| `assets/audio/climax/sorrow.wav` | 3.875 | `8b9ba389106621f512d9f3c53f988a69ffb0a06fd5a5002ffeab091bf509f3df` |
+| `assets/audio/climax/spite.wav` | 3.925 | `a8df488d0d9dc479a7ad532e8f43753a878edc1fa81cedc1478366ab05b0d3c2` |

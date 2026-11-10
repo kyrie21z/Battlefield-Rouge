@@ -36,6 +36,8 @@ func setup(player: Player) -> void:
 func add_hit(source: Node3D, damage: float) -> void:
 	if _player == null or not is_instance_valid(source):
 		return
+	if _player.realm_effects != null and not _player.realm_effects.warnings_enabled:
+		return
 	var point := source.global_position
 	var angle := _angle_to(point)
 	for entry in _entries:
@@ -70,6 +72,10 @@ func clear() -> void:
 
 
 func _process(delta: float) -> void:
+	if _player != null and _player.realm_effects != null and not _player.realm_effects.warnings_enabled:
+		if not _entries.is_empty():
+			clear()
+		return
 	if _entries.is_empty():
 		return
 	for index in range(_entries.size() - 1, -1, -1):

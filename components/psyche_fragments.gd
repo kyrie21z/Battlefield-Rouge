@@ -11,7 +11,7 @@ const SORROW := 3
 var player: Player
 var shards: Array[int] = []
 var deprivations: Array[int] = []
-var supported: Array[int] = [SLOTH]
+var supported: Array[int] = [SLOTH, FEAR]
 var since_combat := 0.0
 var healing_total := 0.0
 
@@ -24,6 +24,11 @@ func bind(value: Player) -> void:
 
 func configure_deprivation(values: Array[int]) -> void:
 	deprivations.assign(values)
+	player.realm_effects.warnings_enabled = not deprivations.has(FEAR)
+	for enemy in player.boons.enemies():
+		_apply_enemy_rules(enemy)
+	if deprivations.has(FEAR):
+		player.boons.dispatch(&"warnings_lost", {})
 	changed.emit()
 
 func has_shard(realm: int) -> bool:
@@ -33,6 +38,7 @@ func acquire(realm: int) -> bool:
 	if not supported.has(realm) or shards.has(realm):
 		return false
 	shards.append(realm)
+	_refresh_powers()
 	acquired.emit(realm)
 	changed.emit()
 	return true
@@ -42,12 +48,25 @@ func restore(values: Array[int]) -> void:
 	for realm in values:
 		if supported.has(realm) and not shards.has(realm):
 			shards.append(realm)
+	_refresh_powers()
 	changed.emit()
+
+func _refresh_powers() -> void:
+	if shards.has(FEAR):
+		player.stats.set_modifier(&"fragment_vigilance", {Stats.CRIT_CHANCE:{"add":0.15},Stats.DASH_RECHARGE:{"mul":1.2}})
+	else:
+		player.stats.remove_modifier(&"fragment_vigilance")
+
+func _apply_enemy_rules(enemy: Node) -> void:
+	if is_instance_valid(enemy) and "warnings_enabled" in enemy:
+		enemy.set("warnings_enabled", not deprivations.has(FEAR))
 
 func mark_combat() -> void:
 	since_combat = 0.0
 
 func _on_boon_event(event: StringName, context: Dictionary) -> void:
+	if event == &"enemy_registered":
+		_apply_enemy_rules(context.get("enemy"))
 	if event == &"enemy_damage" and context.get("source") == player and float(context.get("dealt",0.0)) > 0.0:
 		mark_combat()
 

@@ -2,6 +2,7 @@ class_name RealmStage
 extends Node3D
 ## A self-contained room. The run controller injects state and handles campaign exits.
 signal stage_cleared(stage: RealmStage)
+signal enemy_defeated(stage: RealmStage, actor: Enemy)
 signal realm_defeated(stage: RealmStage)
 signal exit_requested(stage: RealmStage)
 signal reward_selected(stage: RealmStage, card: BoonData)
@@ -163,6 +164,7 @@ func _register_actor(actor: Enemy) -> void:
 
 func _on_enemy_died(_source: Node, _actor: Enemy) -> void:
 	# Health emits synchronously; finish after all death cleanup has run.
+	enemy_defeated.emit(self,_actor)
 	if _actor == boss:
 		boss_drop_position = _actor.global_position
 	_check_clear.call_deferred()

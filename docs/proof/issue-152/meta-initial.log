@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS new test store never loads the real profile
+FAIL controller settlement returns all earned currency
+FAIL same run cannot settle twice
+FAIL negative rewards cannot mutate the wallet
+PASS high talent cannot be bought without a visible slot
+FAIL successful purchase charges once and persists
+FAIL restart loads balances, talent ranks and settlement ledger
+FAIL Resolve caps at 150 base HP
+FAIL advanced talent consumes one unlocked slot
+PASS second advanced talent refuses full slots
+FAIL second slot unlocks the actual starter ability
+FAIL rerolls cap at three
+FAIL real Player Stats receive all numeric meta talents
+FAIL dash capacity upgrade grants a real third charge
+FAIL repeated room binding neither stacks stats nor heals
+PASS fully absorbed hit cannot consume the revival
+FAIL final lethal damage restores 40 percent without emitting death
+SCRIPT ERROR: Invalid access to property or key 'restored_health' on a base object of type 'Dictionary'.
+   at: _ready (res://tests/meta_forge_test.gd:61)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://tests/meta_forge_test.gd:61)

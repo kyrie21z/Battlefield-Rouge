@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS confirm: target realm starts cold
+PASS first normal entry starts reality blackout
+PASS only the cinematic Player exists before battle
+PASS confirm: sequence returns control at an open physical gate
+PASS exactly one actual realm is installed
+PASS opening preserves seed and initial shard/deprivation state
+PASS real initial reward UI is offered once
+PASS real pistol fires after the scene handoff
+PASS real death records historical depth and cause
+PASS death re-entry bypasses the fixed cinematic for dynamic Crown voice
+PASS skip: target realm starts cold
+PASS first normal entry starts reality blackout
+PASS only the cinematic Player exists before battle
+PASS skip: sequence returns control at an open physical gate
+PASS exactly one actual realm is installed
+PASS opening preserves seed and initial shard/deprivation state
+PASS real initial reward UI is offered once
+PASS real pistol fires after the scene handoff
+PASS real death records historical depth and cause
+PASS death re-entry bypasses the fixed cinematic for dynamic Crown voice
+PASS FX-001: bypasses the new cinematic and campaign
+PASS FX-002: bypasses the new cinematic and campaign
+OPENING BOOT: ALL PASSED (22 checks, longest frame 26072 ms)

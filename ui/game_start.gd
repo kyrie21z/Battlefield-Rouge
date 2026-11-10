@@ -14,13 +14,15 @@ var _load_requested := false
 var _zone_path := ""
 var _fade: SceneFade
 var _packed: PackedScene
+var forge: CrownForge
 
 
 func _ready() -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if RunState.fixture == null and not RunDirector.active:
-		RunDirector.begin_run()
+		if not RunDirector.begin_run():
+			return
 	if RunState.fixture != null or RunDirector.run_count > 1 or "--skip-opening" in OS.get_cmdline_user_args():
 		_enter_game.call_deferred()
 		return
@@ -43,6 +45,16 @@ func _enter_game() -> void:
 	if get_tree().current_scene != self:
 		return
 	_load_requested = true
+	if RunState.fixture == null and RunDirector.active and not RunDirector.forge_visited:
+		RunDirector.forge_visited = true
+		forge = preload("res://ui/meta_forge/crown_forge.tscn").instantiate() as CrownForge
+		forge.name = "CrownForge"
+		add_child(forge)
+		forge.setup(MetaProgression)
+		await forge.closed
+		if not is_inside_tree():
+			return
+		RunDirector.prepare_departure()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var target := _target_scene()

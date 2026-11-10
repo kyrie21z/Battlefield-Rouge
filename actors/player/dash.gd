@@ -116,6 +116,14 @@ func charges() -> int:
 	return _charges
 
 
+## A permanent capacity upgrade preserves the running recharge timer.
+func set_max_charges(value: int) -> void:
+	var previous := max_charges
+	max_charges = maxi(1,value)
+	_charges = clampi(_charges+maxi(0,max_charges-previous),0,max_charges)
+	charge_changed.emit(_charges)
+
+
 ## How far the next charge has come back, 0..1. 0 when every charge is full.
 func recharge_fraction() -> float:
 	if _charges >= max_charges or _recharge_left <= 0.0 or recharge_time <= 0.0:

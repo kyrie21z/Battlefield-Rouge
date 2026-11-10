@@ -9,8 +9,12 @@ func frames(count:int)->void:
 	for i in count:await get_tree().physics_frame
 func _ready()->void:
 	process_mode=Node.PROCESS_MODE_ALWAYS
+	RunDirector.begin_run(152150)
+	var wallet_before:=MetaProgression.will_shards
 	var corridor:=preload("res://levels/climax/threshold_corridor.tscn").instantiate()
 	add_child(corridor)
+	RunDirector.current_stage=corridor
+	RunDirector.floor_index=4
 	var player:Player=corridor.player
 	var camera_id:=player.view_camera.get_instance_id()
 	player.fragments.restore([0,1,2,3])
@@ -33,12 +37,18 @@ func _ready()->void:
 		count+=1
 	check("printing hands same live player into final combat",encounter.phase==DoppelgangerSpawn.Phase.COMBAT and encounter.player==player and player.health.health>0)
 	check("final opponent is registered for independent shard targeting",player.boons.enemies().has(encounter.boss) and player.fragments.try_slumber_resonance() and encounter.boss.resonance_left>0)
+	var duplicate_ok: Array[bool] = [false]
+	corridor.duel_defeated.connect(func(_crown):
+		RunDirector.final_duel_defeated(corridor,encounter.boss)
+		duplicate_ok[0]=RunDirector.earned_will==25)
 	encounter.boss.phase=FlawlessDoppelganger.Phase.RECOVER
 	encounter.boss.health.apply_damage(100000,Hitbox.BodyPart.BODY,player,{"true_damage":true})
 	await frames(145)
 	var ending:=corridor.ending_sequence as ReconciliationSequence
 	check("annihilation transfers the same crown to physical ending",is_instance_valid(ending) and ending.crown==encounter.crown and ending.player==player)
 	if ending==null:get_tree().quit(1);return
+	check("actual final Boss defeat grants kill and clear income once",RunDirector.earned_will==25 and RunDirector.earned_anchors==0)
+	check("the same final corpse cannot pay again",duplicate_ok[0] and RunDirector.earned_will==25)
 	player.position=ending.fallen_crown.global_position+Vector3(0,0,1.35)
 	check("actual crown pickup starts after final fight",ending.try_pickup())
 	count=0
@@ -46,6 +56,9 @@ func _ready()->void:
 		await frames(1)
 		count+=1
 	check("single camera survives all three sequences",player.view_camera.get_instance_id()==camera_id)
+	check("terminal credits bank the final fight exactly once",MetaProgression.will_shards==wallet_before+25 and MetaProgression.settled_runs.has(RunDirector.run_id))
+	RunDirector.finish_campaign()
+	check("repeated ending cannot duplicate final fight income",MetaProgression.will_shards==wallet_before+25)
 	check("terminal credits clear active death loop",RunDirector.completed and not RunDirector.active and ending.phase==ReconciliationSequence.Phase.CREDITS)
 	check("player retains independent shards and permanent losses through ending",player.fragments.shards.size()==4 and player.fragments.deprivations.size()==4 and player.health.unbuffered)
 	corridor.free()

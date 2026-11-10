@@ -79,6 +79,7 @@ func _start_duel()->void:
 	duel_requested.emit(player)
 
 func _duel_defeated(crown:Node3D)->void:
+	RunDirector.final_duel_defeated(self,encounter.boss)
 	duel_defeated.emit(crown)
 	var path:="res://levels/climax/reconciliation_sequence.gd"
 	if not ResourceLoader.exists(path):return

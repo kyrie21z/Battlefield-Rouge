@@ -71,7 +71,7 @@ func _ready()->void:
 	RunDirector.record_death(&"combat")
 	check("death history records once and preserves cause",death_count[0]==1 and RunDirector.last_death_depth==4 and RunDirector.last_death_cause==&"abyss")
 	RunDirector.begin_run(5)
-	check("new run resets temporary powers and losses",RunDirector.shards.is_empty() and RunDirector.deprivations.is_empty() and RunDirector.hp<0 and RunDirector.fragment_state.is_empty())
+	check("new run resets temporary powers and losses",RunDirector.shards.is_empty() and RunDirector.deprivations.is_empty() and RunDirector.hp==MetaProgression.maximum_health() and RunDirector.fragment_state.is_empty())
 	check("new run keeps previous failure history",RunDirector.last_death_depth==4 and RunDirector.last_death_cause==&"abyss")
 	RunDirector.finish_campaign()
 	RunDirector.record_death(&"combat")

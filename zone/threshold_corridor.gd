@@ -10,6 +10,7 @@ var encounter: Node3D
 var ending_sequence: Node3D
 var _end_wall: StaticBody3D
 func _ready()->void:
+	CrystalBurst.prepare(self)
 	var world:=WorldEnvironment.new()
 	var settings:=Environment.new()
 	settings.background_mode=Environment.BG_COLOR

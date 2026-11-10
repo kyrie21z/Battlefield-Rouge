@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS semantic impact requests feedback: sloth_burst
+PASS semantic impact requests feedback: fear_flaw_broken
+PASS semantic impact requests feedback: wall_slam
+PASS ordinary actions do not add a stop
+PASS pause rejects feedback
+PASS fixtures never request a stop
+PASS native path slows time
+PASS HUD teardown cannot strand time scale
+PASS freed HUD disconnects from action bus
+PASS death rejects feedback
+BOON HITSTOP: 10 checks, 0 failures

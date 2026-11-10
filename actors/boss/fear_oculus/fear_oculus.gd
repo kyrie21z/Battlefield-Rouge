@@ -25,6 +25,7 @@ var _alarm: AudioStreamPlayer3D
 var _started := false
 
 func _ready() -> void:
+	enable_crystal_feedback(1)
 	is_boss = true
 	collision_layer = CollisionLayers.ENEMIES
 	collision_mask = CollisionLayers.WORLD

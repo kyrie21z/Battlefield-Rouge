@@ -373,3 +373,7 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `levels/climax/print_projection.gd` | `5ec627e1d6c5df0c566fc2a0fe13b9527424814803e59a741e4df705888d2b1f` |
 | `levels/climax/shaders/print_slice.gdshader` | `0453a5a741adfe42593a649ce80762664f2d60015a18de73f7caf7a110adbef4` |
 | `levels/climax/shaders/print_projection.gdshader` | `000ee2fe28d125d5dd66b73cbe3da7b270fc1750501c84c55968a38aa662620c` |
+
+## #168 四系晶屑（2026-11-10）
+
+`assets/particles/crystal_burst.gd` 以平面法线八面体、程序圆环与 GPU 粒子生成琥珀、幽紫、绯红、苍蓝四系反馈。全部为本项目原创代码，遵循仓库 MIT 许可，无第三方模型或贴图。生成源 SHA-256：`69c5f09b2afd5e74389387380c7ad427faa8bed84c822dd4bc8b8740bd761ab1`。预建 48 个 emitter、每色 12 个，满池跳过视觉，不改变伤害。原生性能与截图采集开销的区分见 [#168 证明](proof/issue-168/README.md)。

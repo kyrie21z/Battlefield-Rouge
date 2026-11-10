@@ -23,6 +23,7 @@ func _enter_tree() -> void:
 	($Model as SlothRealmVisual).configure(variant)
 
 func _ready() -> void:
+	enable_crystal_feedback(0)
 	visual = $Model
 	run_speed = [2.2,0.0,2.8][variant]
 	engage_range = [22.0,8.0,16.0][variant]

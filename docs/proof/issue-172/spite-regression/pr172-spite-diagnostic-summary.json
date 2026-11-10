@@ -1,0 +1,23 @@
+{
+  "original": {
+    "samples": 16,
+    "failed": 3,
+    "failed_seeds": [
+      5,
+      13,
+      14
+    ]
+  },
+  "body_zero_spread": {
+    "samples": 16,
+    "failed": 0,
+    "failed_seeds": []
+  },
+  "evidence": {
+    "fixed_head": "03c1a360e6c57631f66bab5f0e436f1ce7a8ed61",
+    "original_full": "pr172-suite/spite_fragment_test.log",
+    "diagnostic": "pr172-spite-diagnostic.log",
+    "source": "spite_diagnostic.gd",
+    "observation": "Original rays pass above the head and hit the rear wall. After 6 physics frames failed samples retain HP1000 and impact_left0. Targeting actual torso with a duplicated zero-spread weapon hits within original 3 frames."
+  }
+}

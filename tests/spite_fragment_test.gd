@@ -16,6 +16,12 @@ func _ready()->void:
 	check("ordinary force available before deprivation",foe._impact_left>0)
 	player.fragments.configure_deprivation([2])
 	check("loss clears in-flight ordinary force",foe._impact_left==0 and not foe.ordinary_impacts_enabled)
+	# This checks deprivation, so aim at the real body and remove random misses.
+	# Duplicate the resource to leave production weapon data unchanged.
+	player.aim_at(foe.get_node("Model/CharacterArmature/Skeleton3D/TorsoAttach/TorsoHitbox").global_position)
+	player.weapon.data = player.weapon.data.duplicate() as WeaponData
+	player.weapon.data.hip_spread = 0.0
+	player.weapon.data.spread_per_shot = 0.0
 	var hp:=foe.health.health
 	check("real weapon still fires after loss",player.weapon.try_fire())
 	await frames(3)

@@ -1,0 +1,88 @@
+{
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "renderer": "Forward+",
+  "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "baseline_commit": "629bd7c89f139dea75193ff29279a2641778f696",
+  "tests": {
+    "body_reassembly": 21,
+    "crown_voice": 32,
+    "doppelganger_spawn": 40,
+    "crystal_seams": 73
+  },
+  "failures": 0,
+  "gpu_samples": {
+    "crown_level0": {
+      "frames": 60,
+      "mean_ms": 0.479,
+      "p95_ms": 0.485,
+      "max_ms": 0.493
+    },
+    "crown_level4": {
+      "frames": 60,
+      "mean_ms": 0.776,
+      "p95_ms": 0.786,
+      "max_ms": 0.791
+    },
+    "original_body": {
+      "frames": 60,
+      "mean_ms": 0.801,
+      "p95_ms": 0.815,
+      "max_ms": 0.843
+    },
+    "kintsugi_body": {
+      "frames": 60,
+      "mean_ms": 0.849,
+      "p95_ms": 0.868,
+      "max_ms": 0.871
+    },
+    "kintsugi_body_repeat": {
+      "frames": 60,
+      "mean_ms": 0.918,
+      "p95_ms": 0.932,
+      "max_ms": 0.96
+    }
+  },
+  "perf_separate_process_without_readback": true,
+  "screenshots": {
+    "01-crown-level0.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e4d09c42d294ea091f5e07648c2b9dfb3c0e5aba90c3c73435f0c483503b2c36"
+    },
+    "02-crown-level4.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "ffd8d56fc92fe282fe3dd0a7e27a94bd73013ce41941be8d19a0f05ca4aa13e4"
+    },
+    "03-kintsugi-body.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e4208484160cc00f5e434294158b479793063bed2e2688c4d05302ddee64e0e6"
+    },
+    "04-kintsugi-seams.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "da13030214660a066abe3b5d7d736404386914d09a64a45fa8e880457a623f8d"
+    },
+    "05-projected-crown-glare.png": {
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7463290dccc3e75f4300cbeaba94c78bbcdc08caf3f7005033179f4483f17015"
+    }
+  },
+  "limits": [
+    "GPU diagnostic only; other headless work may add system noise",
+    "Not a whole-game or all-hardware performance acceptance",
+    "No human gameplay, listening, or photosensitivity acceptance"
+  ]
+}

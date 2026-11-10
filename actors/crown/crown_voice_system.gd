@@ -6,7 +6,7 @@ signal line_finished(key: String)
 signal radiance_changed(level: int, strength: float)
 const DATABASE: CrownDialogueDatabase = preload("res://actors/crown/crown_dialogue_database.tres")
 const EMISSION := preload("res://actors/crown/crown_emission.gdshader")
-const GLARE := preload("res://actors/crown/crown_glare.gdshader")
+const GLARE := preload("res://ui/shaders/blinding_glare.gdshader")
 var player: Player
 var model: CrownModel
 var audio: AudioStreamPlayer

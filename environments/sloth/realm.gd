@@ -7,6 +7,7 @@ var rest_lights: Array[OmniLight3D] = []
 var rings: Array[Node3D] = []
 var rest_enabled := true
 var deprived := false
+var audio_managed := false
 var clock_bpm := 0.0
 var clock_ticks := 0
 var _clock_left := 0.0
@@ -112,6 +113,10 @@ func _build_rest(pos: Vector3,dark: Material) -> void:
 	rest_lights.append(light)
 	area.set_meta("rest_radius",1.7)
 
+func set_audio_managed(value: bool) -> void:
+	audio_managed = value
+	set_deprivation(deprived)
+
 func set_deprivation(active: bool) -> void:
 	deprived = active
 	rest_enabled = not active
@@ -122,11 +127,11 @@ func set_deprivation(active: bool) -> void:
 		mat.albedo_color = Color(0.035,0.03,0.025) if active else Color(0.92,0.59,0.22)
 		mat.emission_energy_multiplier = 0.0 if active else 0.8
 	if is_instance_valid(_industrial_audio):
-		if active:
+		if active and not audio_managed:
 			_industrial_audio.play()
 		else:
 			_industrial_audio.stop()
-	if not active and is_instance_valid(_clock_audio):
+	if (not active or audio_managed) and is_instance_valid(_clock_audio):
 		_clock_audio.stop()
 
 func _physics_process(delta: float) -> void:
@@ -136,7 +141,7 @@ func _physics_process(delta: float) -> void:
 	while _clock_left <= 0.0:
 		_clock_left += 60.0/clock_bpm
 		clock_ticks += 1
-		_clock_audio.play()
+		if not audio_managed: _clock_audio.play()
 	for i in rings.size():
 		rings[i].rotation.z += delta*(1.4 if i==0 else -1.9)
 

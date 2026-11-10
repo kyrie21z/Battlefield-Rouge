@@ -38,7 +38,10 @@ func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector
 	surface_evaded = false
 	surface_point = point
 	surface_direction = direction
-	var dealt := apply_hit(amount, source, context)
+	var contact := context.duplicate()
+	contact["position"] = point
+	contact["direction"] = direction
+	var dealt := apply_hit(amount, source, contact)
 	resolving_surface_hit = false
 	return dealt
 

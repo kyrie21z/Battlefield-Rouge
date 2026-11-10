@@ -124,6 +124,10 @@ func _ready() -> void:
 	fragments.name = "PsycheFragments"
 	add_child(fragments)
 	fragments.bind(self)
+	var crystal_feedback := CrystalCombatFeedback.new()
+	crystal_feedback.name = "CrystalFeedback"
+	add_child(crystal_feedback)
+	crystal_feedback.bind(self)
 
 
 ## Read-only dash state for the HUD.

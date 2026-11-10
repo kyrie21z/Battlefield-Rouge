@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+CAPTURE 01-print-head.png phase=3 error=0
+CAPTURE 02-print-middle.png phase=3 error=0
+CAPTURE 03-print-feet.png phase=3 error=0
+CAPTURE 04-combat-material.png phase=5 error=0
+PRINT SLICE NATIVE: 4 captures, failures=0

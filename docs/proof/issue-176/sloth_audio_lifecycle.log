@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production room owns injected ambience
+PASS pre-boss pendulum is 60 bpm
+PASS clock and heartbeat layers both played
+LATENCY AUDIO count=1 effect_exists=true has_card=true
+PASS real latency detonation triggers delay bass
+PASS real boss death switches to 148 bpm
+PASS overclock replaces warm pad
+PASS old ambience fades out without a dangling loop
+PASS room music respects zero-volume setting
+PASS paused tree freezes the audio timeline
+PASS paused presentation rejects new cue
+PASS polyphony bounded at sixteen voices
+PASS loop is cached stereo PCM with finite seamless window
+PASS real player death stops all room audio
+PASS late state refresh cannot restart dead-room ambience
+PASS room exit frees the whole voice pool
+SLOTH AUDIO: 15 checks, 0 failures

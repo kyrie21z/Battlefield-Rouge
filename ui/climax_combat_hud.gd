@@ -44,6 +44,7 @@ func _ready() -> void:
 	vitals.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	combat_root.add_child(vitals)
 	vitals.setup(player)
+	BoonHitstop.attach(self, player)
 	ammo = Label.new()
 	ammo.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	ammo.offset_left = -320

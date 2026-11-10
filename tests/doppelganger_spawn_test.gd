@@ -19,6 +19,7 @@ func _ready() -> void:
 	print("DOPPELGANGER SPAWN: %d checks, %d failed" % [checks,failed])
 	get_tree().quit(0 if failed==0 else 1)
 func _run() -> void:
+	check("autoload profile is isolated before scene initialization",MetaProgression.isolated_profile)
 	build_arena()
 	player = preload("res://actors/player/player.tscn").instantiate()
 	player.position = Vector3(0,0,12)
@@ -31,7 +32,7 @@ func _run() -> void:
 	add_child(encounter)
 	encounter.combat_started.connect(func(): starts+=1)
 	encounter.defeated.connect(func(value:Node3D): endings+=1; returned_crown=value)
-	check("cinematic locks actual player subtree and starts a physical crown drop",player.process_mode==Node.PROCESS_MODE_DISABLED and encounter.carrier is RigidBody3D)
+	check("cinematic locks actual player subtree and starts a physical crown drop",player.process_mode==Node.PROCESS_MODE_DISABLED and encounter.carrier is RigidBody3D and not encounter.boss.visual.visible)
 	check("cinematic hides combat HUD but owns a high pause layer",not encounter.hud.combat_root.visible and encounter.hud.pause_layer.layer > 45)
 	await pause_key()
 	check("Esc opens the real settings menu during cinematic lock",get_tree().paused and encounter.hud.pause_menu.is_open() and Input.mouse_mode==Input.MOUSE_MODE_VISIBLE)
@@ -47,16 +48,29 @@ func _run() -> void:
 	await until_phase(DoppelgangerSpawn.Phase.RANT)
 	check("WORLD floor contact starts actual angry voice",encounter.phase==DoppelgangerSpawn.Phase.RANT and encounter.voice.playing and encounter.carrier.freeze)
 	await until_phase(DoppelgangerSpawn.Phase.PRINT)
+	check("printing lasts precisely 2.5 simulation seconds",is_equal_approx(DoppelgangerSpawn.PRINT_DURATION,2.5))
+	check("crown projects real geometry and deterministic laser sound",encounter.print_projection.visible and encounter.print_projection.laser.playing and is_equal_approx(encounter.print_projection.laser.stream.get_length(),2.5))
 	await frames(65)
 	check("body prints progressively from top down",encounter.boss.visual.print_progress>0.3 and encounter.boss.visual.print_progress<0.6 and encounter.print_ring.visible)
 	check("printing body cannot be shot or attack prematurely",not encounter.boss.combat_active and (encounter.boss.get_node("TorsoHitbox") as Hitbox).collision_layer==0)
+	var print_visual := encounter.boss.visual
+	check("original skinned model and weapons use hologram material during print",print_visual.skeleton.get_bone_count()==24 and print_visual._print_meshes.size()>11 and print_visual._print_meshes.all(func(mesh):return mesh.material_override==print_visual.print_material))
+	check("laser ring and body share the same world scan plane",is_equal_approx(encounter.print_ring.position.y,lerpf(2.5,-0.2,print_visual.print_progress)))
+	check("sparks follow the active scan plane",encounter.print_projection.sparks.emitting and is_equal_approx(encounter.print_projection.sparks.position.y,encounter.print_ring.position.y))
+	var print_time: float = print_visual.print_material.get_shader_parameter("visual_time")
+	var projection_time := encounter.print_projection.elapsed
 	var progress := encounter.boss.visual.print_progress
 	get_tree().paused = true
 	for i in 4:
 		await get_tree().process_frame
 	check("pause freezes printed fraction and choreography",is_equal_approx(encounter.boss.visual.print_progress,progress))
+	check("pause freezes both shader clocks and the projection",is_equal_approx(print_visual.print_material.get_shader_parameter("visual_time"),print_time) and is_equal_approx(encounter.print_projection.elapsed,projection_time))
 	get_tree().paused = false
+	(player.get_node("CrownVoiceSystem") as CrownVoiceSystem).reduced_motion = true
+	await frames(2)
+	check("reduced motion freezes grid pulses and removes falling sparks",print_visual.print_material.get_shader_parameter("reduced_motion") and not encounter.print_projection.sparks.emitting and is_zero_approx(encounter.flash.color.a))
 	await until_phase(DoppelgangerSpawn.Phase.COMBAT)
+	check("printing resources retire and original opaque battle material returns",not encounter.print_projection.visible and not encounter.print_projection.laser.playing and print_visual._print_meshes.all(func(mesh):return mesh.material_override==print_visual._crystal))
 	check("crown seals onto actual animated head anchor",encounter.crown.get_parent()==encounter.boss.visual.crown_anchor and encounter.crown.get("worn"))
 	check("seal removes reparent rotation and aligns the actual head axes",encounter.crown.quaternion.is_equal_approx(Quaternion.IDENTITY) and encounter.crown.global_basis.orthonormalized().is_equal_approx(encounter.boss.visual.crown_anchor.global_basis.orthonormalized()))
 	var crown_box := crown_bounds()

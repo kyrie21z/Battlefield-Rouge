@@ -38,6 +38,7 @@ func _ready() -> void:
 	check("room music respects zero-volume setting",AudioServer.is_bus_mute(AudioServer.get_bus_index(&"Music")))
 	stage.hud.settings.music_volume = 0.7
 	stage.hud.settings.changed.emit()
+	director.set_process(true)
 	get_tree().paused = true
 	var frozen_time := director.elapsed
 	for i in 3: await get_tree().process_frame
@@ -46,6 +47,7 @@ func _ready() -> void:
 	director.play_cue(&"pendulum",Vector3.ZERO)
 	check("paused presentation rejects new cue",count == director.cue_counts)
 	get_tree().paused = false
+	director.set_process(false)
 	for i in 100: director.play_cue(&"delayed_burst",Vector3.ZERO)
 	check("polyphony bounded at sixteen voices",director.voices.size()==16)
 	var stream := RealmSoundBank.get_sound(&"warm_pad",true)
@@ -58,5 +60,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	for i in 3: await get_tree().process_frame
 	check("room exit frees the whole voice pool",not is_instance_valid(director))
+	# Let the audio mix thread retire stopped playback objects before engine exit.
+	await get_tree().create_timer(0.15).timeout
 	print("SLOTH AUDIO: %d checks, %d failures" % [checks,failures])
 	get_tree().quit(1 if failures else 0)

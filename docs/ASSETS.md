@@ -263,3 +263,13 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 ## #101 原创黑晶手枪
 
 `assets/models/weapons/obsidian_pistol.glb` 与图标由本项目原创制作，未复制 origin 素材。真实 Blender 源与生成脚本见 `tools/epic1_models/`；SHA-256 为 `db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401`。用户提供的造型参考见 `docs/assets/obsidian_pistol_turnaround.jpg`；源面数、尺寸、Flat 状态与导出三角数见 manifest。
+
+## #103 原创意志短刃
+
+建模参考 SUPERHOT，未使用其素材。尺寸和面数遵循最新设计稿及质感优先要求，统计见 `tools/epic1_models/manifest.json`。
+
+| 文件 | 来源与许可 | SHA-256 |
+| --- | --- | --- |
+| `assets/models/weapons/mind_blade.glb` | 本项目原创 Blender 模型，项目许可；源文件与生成器见 tools/epic1_models/ | `dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f` |
+| `weapons/mind_blade/mind_blade.svg` | 本项目原创图标，项目许可 | `5d4a027b1a5afcae43408ff33eb6afd18222d76839e777fe3700b010b2dac684` |
+| `docs/assets/mind_blade_turnaround.jpg` | 用户提供的本项目设计参考，原图保留 | `e3beade77687cbcb505a6342f1b6dd057001a5cd3ec902d0c92ff06d84fa698f` |

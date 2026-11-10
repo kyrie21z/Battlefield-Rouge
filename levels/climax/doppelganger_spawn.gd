@@ -3,6 +3,7 @@ extends Node3D
 signal defeated(crown: Node3D)
 signal combat_started
 const CROWN_SCRIPT := preload("res://actors/crown/crown_model.gd")
+const PRINT_DURATION := 2.5
 enum Phase { DROP, RANT, RISE, PRINT, SEAL, COMBAT, ANNIHILATE, COMPLETE }
 var player: Player
 var crown: Node3D
@@ -15,6 +16,7 @@ var voice: AudioStreamPlayer3D
 var flash: ColorRect
 var label: Label
 var print_ring: MeshInstance3D
+var print_projection: PrintProjection
 var nova: MeshInstance3D
 var hud: ClimaxCombatHUD
 var _player_mode := Node.PROCESS_MODE_INHERIT
@@ -42,6 +44,7 @@ func _ready() -> void:
 	boss.setup(player,[])
 	boss.visual.shader_origin = global_position.y
 	boss.visual.set_print_progress(0)
+	boss.visual.hide()
 	player.boons.register_enemy(boss)
 	boss.defeated.connect(_on_boss_defeated)
 	crown = CROWN_SCRIPT.new() as Node3D
@@ -105,11 +108,12 @@ func _build_effects() -> void:
 	layer.add_child(label)
 	print_ring = MeshInstance3D.new()
 	var ring := TorusMesh.new()
-	ring.inner_radius = 0.85
-	ring.outer_radius = 1.05
+	ring.inner_radius = 0.99
+	ring.outer_radius = 1.01
 	ring.rings = 64
 	ring.ring_segments = 4
 	print_ring.mesh = ring
+	print_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Color.WHITE
 	material.emission_enabled = true
@@ -118,6 +122,8 @@ func _build_effects() -> void:
 	print_ring.material_override = material
 	print_ring.hide()
 	add_child(print_ring)
+	print_projection = PrintProjection.new()
+	add_child(print_projection)
 	nova = MeshInstance3D.new()
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.5
@@ -153,16 +159,23 @@ func _physics_process(delta: float) -> void:
 		if phase_elapsed >= 0.9:
 			phase = Phase.PRINT
 			phase_elapsed = 0
+			boss.visual.show()
+			print_ring.position.y = 2.5
 			print_ring.show()
+			print_projection.begin((player.get_node("CrownVoiceSystem") as CrownVoiceSystem).reduced_motion)
 			crown.call("set_emission_strength",5.0)
 	elif phase == Phase.PRINT:
 		label.text = "完美替身"
-		var amount := clampf(phase_elapsed/2.6,0,1)
+		var amount := clampf(phase_elapsed/PRINT_DURATION,0,1)
 		boss.visual.set_print_progress(amount)
-		print_ring.position.y = lerpf(2.5,0.0,amount)
-		flash.color.a = maxf(0.0,0.85-phase_elapsed*1.4)
+		print_ring.position.y = lerpf(2.5,-0.2,amount)
+		var reduce := (player.get_node("CrownVoiceSystem") as CrownVoiceSystem).reduced_motion
+		boss.visual.set_print_clock(phase_elapsed,reduce)
+		print_projection.advance(delta,print_ring.position.y,reduce)
+		flash.color.a = 0.0 if reduce else maxf(0.0,0.85-phase_elapsed*1.4)
 		if amount >= 1:
 			print_ring.hide()
+			print_projection.finish()
 			crown.reparent(boss.visual.crown_anchor,true)
 			_seal_from = crown.position
 			_seal_rotation = crown.quaternion

@@ -1,0 +1,50 @@
+[
+  {
+    "scene": "obsidian_pistol_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "weapons_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "gun_feel_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "hud_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "active_magazine_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "dash_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "melee_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  },
+  {
+    "scene": "capture_hammer_test",
+    "exit_code": 0,
+    "passed": true,
+    "messages": []
+  }
+]

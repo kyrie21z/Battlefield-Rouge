@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/dual/dual_boon_manager.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "dual_frozen_paranoia"
+name = "凝滞注视"
+sin = 0
+slot = 3
+rarity = 4
+core = false
+required_sins = Array[int]([0, 1])
+description = "怠惰 × 恐惧：静止或开镜时，视线瞄准的敌人减速 80%，其破绽受击面积扩大至 3 倍。墙后敌人不受影响。"
+script_hook = ExtResource("2")
+parameters = {"move_scale": 0.2, "flaw_area": 3.0, "aim_half_angle_degrees": 8.0}

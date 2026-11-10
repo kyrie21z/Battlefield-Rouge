@@ -111,6 +111,7 @@ func _ready() -> void:
 	boons.name = "BoonManager"
 	add_child(boons)
 	boons.bind(self, stats, health, weapon, melee, dash)
+	DualBoonManager.install(boons)
 
 
 ## Read-only dash state for the HUD.

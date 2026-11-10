@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BoonPool" load_steps=9 format=3]
+[ext_resource type="Script" path="res://buffs/boon_pool.gd" id="pool"]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="data"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/slumber_magma.tres" id="1"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/tearful_panic.tres" id="2"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/spiteful_deluge.tres" id="3"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/frozen_paranoia.tres" id="4"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/suffocating_mire.tres" id="5"]
+[ext_resource type="Resource" path="res://buffs/resources/dual/hysterical_rampage.tres" id="6"]
+[resource]
+script = ExtResource("pool")
+cards = Array[ExtResource("data")]([ExtResource("1"), ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6")])

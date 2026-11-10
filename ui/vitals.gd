@@ -48,6 +48,8 @@ func advance(delta: float) -> void:
 	var current := health.health
 	max_health = maxf(health.max_health, 1.0)
 	_trail.advance(current, delta)
+	if health.unbuffered:
+		_trail.reset(current)
 	displayed_health = _trail.current
 	delayed_health = _trail.delayed
 	health_number = ceili(current)
@@ -63,6 +65,10 @@ func advance(delta: float) -> void:
 		else:
 			var duration := maxf(player.stats.get_value(Stats.SHIELD_DURATION), 0.01)
 			shield_fraction = clampf(shield.active_remaining / duration, 0.0, 1.0)
+	if not shield_visible and player.fragments != null and player.fragments.has_shard(PsycheFragments.SORROW):
+		shield_visible = player.fragments.barrier > 0.0
+		shield_counter_mode = false
+		shield_fraction = player.fragments.barrier / PsycheFragments.TENDERNESS_CAPACITY
 
 	dash_charges = player.dash_charges()
 	dash_max_charges = player.dash_max_charges()

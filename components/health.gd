@@ -44,6 +44,10 @@ var parrying := false
 ## Health retains team filtering, other immunities, hit points and death order.
 var damage_absorber: Callable
 var boon_absorber: Callable
+## Sorrow deprivation removes ordinary reduction, shield and damage deferral.
+## A core fragment is a separate source, never restores those mechanisms.
+var unbuffered := false
+var fragment_absorber: Callable
 var last_damage_context: Dictionary = {}
 var _damage_resolution_depth := 0
 
@@ -73,7 +77,7 @@ func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null
 	if parrying and source != null:
 		parried.emit(amount, source)
 		return 0.0
-	if invulnerable or dash_invulnerable:
+	if (invulnerable and not unbuffered) or dash_invulnerable:
 		blocked.emit(amount, source)
 		return 0.0
 
@@ -90,24 +94,29 @@ func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null
 	ctx.merge({"source": source, "target": get_parent(), "health": self, "body_part": body_part, "dealt": 0.0}, true)
 	# Damage is post-body-part at this interception boundary.
 	ctx.damage = dealt
+	ctx["unbuffered"] = unbuffered
 	var absorbed := 0.0
 	# The hook can emit feedback signals whose callbacks apply another hit.
 	# Delay completion until every nested hit and this hit's overflow resolve.
 	_damage_resolution_depth += 1
 	before_damage.emit(ctx)
 	dealt = 0.0 if ctx.cancelled else maxf(float(ctx.damage), 0.0)
-	if dealt > 0.0 and damage_absorber.is_valid() and not ctx.get("true_damage", false):
+	if dealt > 0.0 and damage_absorber.is_valid() and not unbuffered and not ctx.get("true_damage", false):
 		var remainder := clampf(float(damage_absorber.call(dealt)), 0.0, dealt)
 		absorbed = dealt - remainder
 		dealt = remainder
-	if dealt > 0.0 and shield_points > 0.0 and not ctx.get("true_damage", false):
+	if dealt > 0.0 and shield_points > 0.0 and not unbuffered and not ctx.get("true_damage", false):
 		var caught := minf(dealt, shield_points)
 		shield_points -= caught
 		dealt -= caught
 		absorbed += caught
 		shield_changed.emit(shield_points)
-	if dealt > 0.0 and boon_absorber.is_valid() and not ctx.get("true_damage", false):
+	if dealt > 0.0 and boon_absorber.is_valid() and not unbuffered and not ctx.get("true_damage", false):
 		var remainder := clampf(float(boon_absorber.call(dealt)), 0.0, dealt)
+		absorbed += dealt - remainder
+		dealt = remainder
+	if dealt > 0.0 and fragment_absorber.is_valid() and not ctx.get("true_damage", false):
+		var remainder := clampf(float(fragment_absorber.call(dealt)), 0.0, dealt)
 		absorbed += dealt - remainder
 		dealt = remainder
 	ctx.dealt = minf(dealt, health)

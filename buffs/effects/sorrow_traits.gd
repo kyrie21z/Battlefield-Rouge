@@ -31,7 +31,7 @@ func value(id: String, key: String, fallback: float) -> float:
 func on_event(event: StringName, ctx: Dictionary) -> void:
 	match event:
 		&"damage_before":
-			if ctx.get("tag") == &"sorrow_deferred":
+			if ctx.get("tag") == &"sorrow_deferred" or ctx.get("unbuffered",false):
 				return
 			if manager.has(BUFFER) and float(ctx.damage) >= value(BUFFER, "threshold", 20.0):
 				var deferred := float(ctx.damage) * value(BUFFER, "fraction", 0.5)
@@ -158,6 +158,8 @@ func _tick_debt(delta: float) -> void:
 	for index in range(debt.size() - 1, -1, -1):
 		var entry: Dictionary = debt[index]
 		var amount := minf(float(entry.remaining), float(entry.rate) * delta)
+		if manager.health.unbuffered:
+			amount = float(entry.remaining)
 		if amount <= 0.0:
 			continue
 		var attacker: Node = entry.source.get_ref() if entry.source != null else null

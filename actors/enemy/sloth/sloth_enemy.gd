@@ -181,6 +181,8 @@ func set_core_exposed(exposed: bool) -> void:
 
 
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
+	if not ordinary_impacts_enabled:
+		return
 	if is_instance_valid(active_attack) and active_attack.phase == 0:
 		_cancel_attack()
 		cooldown_left = maxf(cooldown_left, 1.6)

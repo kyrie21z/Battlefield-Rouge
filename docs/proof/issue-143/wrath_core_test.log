@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS core resource pool has gun/blade/dash
+PASS actual gun starts a shot
+PASS crystal shot has travel time, no hidden hitscan
+PASS real projectile applies gun damage and impulse
+PASS real WORLD contact triggers one slam
+PASS wall slam deals 60 after the gun body-part hit
+PASS wall hit applies 0.8 second stun
+PASS real enemy never teleports through wall
+PASS WORLD bounce uses reflected direction and +60% damage
+PASS ricochet hits a real enemy for boosted damage
+PASS blade resource expands real arc by 50 percent
+PASS expanded arc hits a target outside the original cone
+PASS basic melee impact does not overwrite Wrath impulse
+PASS blade collision creates secondary lava explosion
+PASS real Shift action starts ram
+PASS dash swept volume pushes into actual wall contact
+PASS dash cannot leave armor modifier stuck
+PASS floor contacts do not count as wall slams
+PASS near-wall enemy still receives real first-contact slam
+PASS slowed movement below 6m/s cannot fabricate high-speed contact
+PASS removing family restores enemy collision mask
+WRATH CORE: 21 checks, 0 failed, completed=true

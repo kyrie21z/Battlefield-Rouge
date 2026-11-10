@@ -1,12 +1,14 @@
 # Issue 106：战斗测试台与最终清理
 
-本 PR 基于 #105 `c7d7abe`，只交付独立战斗测试台、旧武器兼容 API/资源清理、剩余调用方和文档迁移。此前五个 issue 的实现分别位于其前序 PR；完整叠加结果保留一枪一刃、原完整角色和黑色真实晶体接缝。
+本 PR 拆分时基于 #105 `c7d7abe`，只交付独立战斗测试台、旧武器兼容 API/资源清理、剩余调用方和文档迁移。此前五个 issue 的实现分别位于其前序 PR；完整叠加结果保留一枪一刃、原完整角色和黑色真实晶体接缝。
 
 ## 验证来源与边界
 
+合并准备说明：本目录的 16 场景、两项原生验证和 fixture 记录来自 2026-11-10 UTC 的拆分阶段 `3c7eed0`；本轮在前序 PR 进入 main 后重放 #106，仅纠正 README 的旧武器表述及关联证据文档，未改运行代码、未重跑引擎。
+
 参考完整实现为 `85555908f532fa582844de1408d21318fde9f588`，该提交的 43/43 场景回归日志保持原样，见 [原始完整验证记录](../epic1/README.md) 与 [原始结果](../epic1/validation/results.json)。本次没有重新运行全部 43 场景。
 
-[production_parity.json](production_parity.json) 对 489 个运行源码、资源、配置和工具逐文件比较，并包含 `project.godot`、根资源和可玩的 `combat_bench`/target。与参考提交逐字节一致。全树差异只允许明确列出的三份测试增强、四份设计/架构文档纠正及验证证据；没有额外运行时代码漂移或未知未跟踪代码。
+[production_parity.json](production_parity.json) 对 489 个运行源码、资源、配置和工具逐文件比较，并包含 `project.godot`、根资源和可玩的 `combat_bench`/target。与参考提交逐字节一致。全树差异只允许明确列出的三份测试增强、五份设计/架构/使用文档纠正及验证证据；没有额外运行时代码漂移或未知未跟踪代码。
 
 Godot 4.7.2（`ed1daf0bf`）导入，以及本阶段新执行的 16 个 headless 场景全部通过，无 ERROR/WARNING：obsidian_pistol、weapons、mind_blade、melee、combat_bench、active_magazine、combat_traits、body_awareness、hud、keybinding、gun_feel、phase_banner、music、settings、hit_feel、fixture。完整新日志与 [results.json](results.json) 在本目录。
 

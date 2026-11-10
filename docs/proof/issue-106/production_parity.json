@@ -12,6 +12,7 @@
   "document_corrections": [
     "ARCHITECTURE.md",
     "GLOSSARY.md",
+    "README.md",
     "docs/ASSETS.md",
     "docs/NARRATIVE_FOUNDATION.md",
     "docs/proof/epic1/README.md",
@@ -1974,5 +1975,13 @@
       "path": "zone/zone_director.gd.uid",
       "sha256": "95cb1fa49b7676aaf9503931b8fc4c58badac87b4e04bba171bcfa1131ffcd56"
     }
-  ]
+  ],
+  "merge_preparation": {
+    "source_validation_head": "3c7eed05fdbbe4184d3102162c1d0221d2aced04",
+    "source_validation_date_utc": "2026-11-10",
+    "change_scope": "documentation only",
+    "runtime_changes": false,
+    "engine_rerun": false,
+    "note": "合并准备说明：本目录的 16 场景、两项原生验证和 fixture 记录来自 2026-11-10 UTC 的拆分阶段 `3c7eed0`；本轮在前序 PR 进入 main 后重放 #106，仅纠正 README 的旧武器表述及关联证据文档，未改运行代码、未重跑引擎。"
+  }
 }

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/dual/dual_boon_manager.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "dual_suffocating_mire"
+name = "沉溺泥沼"
+sin = 0
+slot = 3
+rarity = 4
+core = false
+required_sins = Array[int]([0, 3])
+description = "怠惰 × 悲伤：苍蓝水带与滞后光环化为泥沼。沼内敌人攻速减半，敌弹仅以 5% 速度飞行；敌人死亡掉落双倍泪晶。"
+script_hook = ExtResource("2")
+parameters = {"attack_scale": 0.5, "projectile_scale": 0.05}

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/dual/dual_boon_manager.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "dual_spiteful_deluge"
+name = "绝望反噬"
+sin = 2
+slot = 3
+rarity = 4
+core = false
+required_sins = Array[int]([2, 3])
+description = "暴怒 × 悲伤：潮湿缓冲实际释放的伤害以 200% 化作半径 6 米的绯红尖刺。泪晶破裂追加半径 5 米、90 点熔岩爆炸。"
+script_hook = ExtResource("2")
+parameters = {"retaliation_radius": 6.0, "retaliation_multiplier": 2.0, "tear_radius": 5.0, "tear_damage": 90.0}

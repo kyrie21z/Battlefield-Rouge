@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/dual/dual_boon_manager.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "dual_slumber_magma"
+name = "蓄压熔岩"
+sin = 0
+slot = 3
+rarity = 4
+core = false
+required_sins = Array[int]([0, 2])
+description = "怠惰 × 暴怒：射击间隔与挥刃时间增加 25%。滞后爆发时，将所有滞后敌人以强劲冲量轰向最近墙体，引发爆碎与熔岩地刺。"
+script_hook = ExtResource("2")
+parameters = {"attack_speed": 0.8, "launch_strength": 3.0, "lava_damage": 45.0, "lava_radius": 4.0}

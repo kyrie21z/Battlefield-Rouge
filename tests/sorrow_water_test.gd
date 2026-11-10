@@ -22,6 +22,8 @@ func _run() -> void:
 	add_child(stage)
 	realm = stage.geometry as SorrowRealm
 	player = stage.player
+	var audio := stage.get_node("RealmAudio") as SorrowAudioDirector
+	var tear_audio := audio.get_node("SorrowBoonAudio") as SorrowBoonAudio
 	player.health.invulnerable = true
 	for actor in stage.enemies:
 		actor.set_physics_process(false)
@@ -40,13 +42,13 @@ func _run() -> void:
 	check("idle feet emit no artificial actor rings",realm.ripple_count == idle)
 	player.apply_external_impulse(Vector3.RIGHT,4.0,0.45)
 	await frames(32)
-	check("real grounded player motion creates normal packets and original splash",realm.movement_ripple_count > 0 and realm.footstep_count > 0)
+	check("real wet movement keeps visual packets and one managed splash layer",realm.movement_ripple_count > 0 and realm.footstep_count > 0 and audio.cue_counts.get(&"water_step",0) > 0 and realm.audio_managed and not realm.splash.playing)
 	var moving := realm.movement_ripple_count
 	player.aim_at(player.global_position+Vector3.FORWARD*10+Vector3.UP*1.5)
 	var dash_from := player.position
 	check("real dash starts",player.dash.try_dash())
 	await frames(15)
-	check("dash draws denser wakes without changing distance",realm.movement_ripple_count > moving+3 and player.position.distance_to(dash_from)>4.8 and player.position.distance_to(dash_from)<5.1)
+	check("dash draws denser wakes with managed slide audio and unchanged distance",realm.movement_ripple_count > moving+3 and audio.cue_counts.get(&"water_slide",0)>0 and not realm.splash.playing and player.position.distance_to(dash_from)>4.8 and player.position.distance_to(dash_from)<5.1)
 	var actor := stage.enemies[1] as SorrowRealmEnemy
 	actor.position = Vector3(0,0,-6)
 	actor.set_physics_process(true)
@@ -77,18 +79,20 @@ func _run() -> void:
 	await frames(3)
 	check("real tear placement creates a landing ring",realm.tear_ripple_count == tears+1)
 	player.aim_at(effect.tears.back().global_position)
+	var sprays := int(tear_audio.cue_counts.get(&"tear_spray",0))
 	var launched := [0]
 	var on_shot := func(shot: Node3D):
 		if shot is Projectile and shot.source == player: launched[0] += 1
 	Events.projectile_registered.connect(on_shot)
 	check("real blade starts",player.melee.swing_now())
 	await frames(22)
-	check("real blade converts tear to owned flying projectiles and a water ring",realm.tear_ripple_count>=tears+2 and effect.tears.is_empty() and launched[0] == 3)
+	check("real blade creates owned projectiles, a water ring and one spray cue",realm.tear_ripple_count>=tears+2 and effect.tears.is_empty() and launched[0] == 3 and tear_audio.cue_counts.get(&"tear_spray",0)==sprays+1)
 	Events.projectile_registered.disconnect(on_shot)
 	tears = realm.tear_ripple_count
+	var returns := int(tear_audio.cue_counts.get(&"tear_return",0))
 	effect.spawn_tear(player.global_position)
 	await frames(20)
-	check("real pickup creates exactly landing and consumption rings",effect.tears.is_empty() and realm.tear_ripple_count == tears+2)
+	check("real pickup creates exactly two rings and one return cue",effect.tears.is_empty() and realm.tear_ripple_count == tears+2 and tear_audio.cue_counts.get(&"tear_return",0)==returns+1)
 	player.boons.equip(load("res://buffs/resources/sorrow/sorrow_shards.tres"))
 	tears = realm.tear_ripple_count
 	effect.spawn_tear(player.global_position+Vector3.FORWARD*2)
@@ -145,8 +149,11 @@ func _run() -> void:
 	check("restoring water cannot resurrect old wave packets",realm._ripples[0].z < 0 and realm.rain.visible and realm.rain.emitting)
 	var callbacks := Events.gunshot.get_connections().size()
 	stage.remove_child(realm)
-	check("realm removal disconnects global presentation listeners",Events.gunshot.get_connections().size() == callbacks-1 and realm._walkers.is_empty() and realm._tears.is_empty())
+	var removed_cleanly := Events.gunshot.get_connections().size() == callbacks-1 and realm._walkers.is_empty() and realm._tears.is_empty() and audio.stopped and not audio.ambient.playing and not audio.ambient_tail.playing and audio.voices.all(func(voice):return not voice.playing)
 	realm.free()
+	var cues_after_removal := audio.cue_counts.duplicate()
+	await frames(3)
+	check("realm removal stops audio immediately and stays silent after geometry free",removed_cleanly and audio.stopped and audio.cue_counts == cues_after_removal and not audio.ambient.playing and not audio.ambient_tail.playing and audio.voices.all(func(voice):return not voice.playing))
 
 func frames(count: int) -> void:
 	for i in count: await get_tree().physics_frame

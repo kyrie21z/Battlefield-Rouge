@@ -142,6 +142,18 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 局外成长由 `MetaProgression` autoload保存，`RunDirector` 组合真实Stage信号与钱包事务：Actor只经Health/Stage上报死亡，不操作货币。`GameStart`在入战前开放Forge，关闭后一次性准备初始赐福/HP/重抽；新Player先注入Meta Stats，再恢复跨房HP和碎片。死亡/结局将收入与历史同次提交，历史再注入CrownVoiceSystem。测试入口在autoload初始化时使用独立档；存档格式、去重与验证见[152证据](docs/proof/issue-152/README.md)。
 
+### 领域音频组合（#176 / #179）
+
+`RealmStage` 完成玩家、几何与 HUD 初始化后安装领域音频组件，并注入房间引用；没有专属声景脚本时仍安装通用 `RealmAudioDirector`。音频只消费注入状态、真实技能事件和 Stage 生命周期，不读取 RunDirector/RunState，不参与伤害或进度结算。环境交叉淡出和空间音源池随暂停、死亡、退出停止或释放。
+
+`SorrowAudioDirector` 负责本房间水声；独立 `SorrowBoonAudio` 在每个领域监听已装备赐福的真实泪晶事件。`SorrowRealm.set_audio_managed(true)` 显式关闭旧 splash 音源，保留涟漪及独立场景默认行为。玻璃反馈通过公开 `PsycheFragments.set_brittle_audio` 替换已有伤害音源，避免重复 Health 监听。`SorrowEffect` 仅在实际消费成功后派发 `sorrow_tear_collected`，视觉和音频可以分别订阅。
+
+## Epic 7：赐福图鉴（#174）
+
+`DualBoonCodex` 通过 `setup(manager, discovered)` 接收真实装备与发现快照，只读查询 `BoonManager.can_equip`。父级 `BuildInspector` 持有暂停和页面生命周期，子页面只在可见时处理肩键和内部焦点，隐藏后不截获战斗输入。
+
+`MetaProgression` 在成功选卡事件上记录发现，`RunDirector` 在恢复装备时补录；新增 `discovered_boons` 是兼容 v1 旧档的可选字段，随原校验和及原子写盘保存。失败时保留待写知识，下次打开检视或成功存档重试；UI 不发放赐福、不修改战斗装备。
+
 ## Epic 6：接触光照与瞄准景深（#171）
 
 `environments/default_env.tres` 是共享 SSAO/SSIL 参数资源。RealmStage、四领域环境与演出组合根复制此资源后保留各自氛围，不共享可变 Environment 实例。Forward+ 高质量屏幕空间接触光照用于增强白色建筑的尺度和交界可读性。

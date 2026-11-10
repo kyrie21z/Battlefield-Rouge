@@ -149,6 +149,7 @@ func _pickup(tear: TearCrystal) -> void:
 		return
 	manager.grant_shield(parameter(GUN, "tear_shield", 25.0))
 	var origin := manager.player.global_position + Vector3.UP
+	manager.dispatch(&"sorrow_tear_collected", {"position": origin})
 	_traits.pickup(origin)
 	manager.aoe(origin, parameter(GUN, "pickup_radius", 3.0), parameter(GUN, "pickup_damage", 10.0), {"tag": &"sorrow_pickup", "proc_depth": 1})
 	manager.feedback(origin, ErosionStatus.CYAN, 1.0)

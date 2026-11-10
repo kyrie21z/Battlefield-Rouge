@@ -1,0 +1,38 @@
+{
+  "01-empty-routes.png": {
+    "bytes": 200300,
+    "sha256": "2dda731512bc71b68f8647c42a24d693fe45dbec7d2d127a43a69624bb21b050"
+  },
+  "02-magma-eligible.png": {
+    "bytes": 202461,
+    "sha256": "9667e66f16a166a62cce7b6681f39bc2c72ad64c2fceda1bfb549cec07b09529"
+  },
+  "03-family-1-last-card.png": {
+    "bytes": 191800,
+    "sha256": "591b1093e1eee042fd5748459ecb9c6fe2ef29f2246ca178b4f9de953ee3cd6a"
+  },
+  "03-family-2-last-card.png": {
+    "bytes": 202473,
+    "sha256": "d2f88a98c0b8d2bdc27b7e04b6dcc92363a4e7cbe3e2bb7b901f24c20acad71f"
+  },
+  "03-family-3-last-card.png": {
+    "bytes": 200747,
+    "sha256": "872141d0a18cfb9f8a75c9a2481e3d12dbd1c5b0781c425fbd6e6578a06c5834"
+  },
+  "03-family-4-last-card.png": {
+    "bytes": 190334,
+    "sha256": "f9c989faab0c17bb14bb92f609b12930ba5622e7fe2393943434512644473b03"
+  },
+  "04-layout-1280x720.png": {
+    "bytes": 199325,
+    "sha256": "68ede6db5d4d15719c4737d1c170bffb3cc12d81fe5c0cc506cd30555b348957"
+  },
+  "04-layout-1920x1080.png": {
+    "bytes": 238095,
+    "sha256": "69e2a955083c2419c8854f978eb64462379a52e67c2e067d98f95eff84bcdcb0"
+  },
+  "05-hosted-missing-core-details.png": {
+    "bytes": 264198,
+    "sha256": "c2e51bd65bdc6cd6d4932cac0f1f1569250b6ff334c435c2fd0f6cece4c6d284"
+  }
+}

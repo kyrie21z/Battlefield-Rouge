@@ -1,0 +1,106 @@
+{
+  "head": "2479898de981c911dbc84286a0670be8da3067a1",
+  "end_head": "2479898de981c911dbc84286a0670be8da3067a1",
+  "tracked_diff": "",
+  "count": 12,
+  "passed": 11,
+  "error_logs": [],
+  "results": [
+    {
+      "test": "codex_modal_test",
+      "exit": 0,
+      "seconds": 14.3,
+      "errors": [],
+      "result": "CODEX MODAL: 8 checks, 0 failed",
+      "log": "codex_modal_test.log"
+    },
+    {
+      "test": "realm_stage_test",
+      "exit": 1,
+      "seconds": 23.48,
+      "errors": [],
+      "result": "REALM STAGE: 27 checks, 1 failed",
+      "log": "realm_stage_test.log"
+    },
+    {
+      "test": "build_inspector_test",
+      "exit": 0,
+      "seconds": 12.7,
+      "errors": [],
+      "result": "BUILD INSPECTOR: 18 checks, 0 failed",
+      "log": "build_inspector_test.log"
+    },
+    {
+      "test": "codex_progress_test",
+      "exit": 0,
+      "seconds": 9.44,
+      "errors": [],
+      "result": "CODEX PROGRESS: 10 checks, 0 failed",
+      "log": "codex_progress_test.log"
+    },
+    {
+      "test": "dual_boon_codex_test",
+      "exit": 0,
+      "seconds": 15.6,
+      "errors": [],
+      "result": "DUAL BOON CODEX: ALL PASSED (207 checks, 0 failed)",
+      "log": "dual_boon_codex_test.log"
+    },
+    {
+      "test": "meta_forge_test",
+      "exit": 0,
+      "seconds": 13.4,
+      "errors": [],
+      "result": "META FORGE: 31 checks, 0 failed",
+      "log": "meta_forge_test.log"
+    },
+    {
+      "test": "boon_hitstop_test",
+      "exit": 0,
+      "seconds": 7.73,
+      "errors": [],
+      "result": "BOON HITSTOP: 10 checks, 0 failures",
+      "log": "boon_hitstop_test.log"
+    },
+    {
+      "test": "run_director_test",
+      "exit": 0,
+      "seconds": 15.75,
+      "errors": [],
+      "result": "ALL PASSED (51 checks)",
+      "log": "run_director_test.log"
+    },
+    {
+      "test": "crystal_feedback_test",
+      "exit": 0,
+      "seconds": 13.6,
+      "errors": [],
+      "result": "CRYSTAL FEEDBACK: 30 checks, 0 failures",
+      "log": "crystal_feedback_test.log"
+    },
+    {
+      "test": "sloth_audio_test",
+      "exit": 0,
+      "seconds": 18.41,
+      "errors": [],
+      "result": "SLOTH AUDIO: 18 checks, 0 failures",
+      "log": "sloth_audio_test.log"
+    },
+    {
+      "test": "doppelganger_spawn_test",
+      "exit": 0,
+      "seconds": 26.58,
+      "errors": [],
+      "result": "DOPPELGANGER SPAWN: 37 checks, 0 failed",
+      "log": "doppelganger_spawn_test.log"
+    },
+    {
+      "test": "fixture_test",
+      "exit": 0,
+      "seconds": 111.9,
+      "errors": [],
+      "result": "ALL PASSED (0 failed)",
+      "log": "fixture_test.log"
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS autoload profile isolated before test
+PASS real catalog contains 54 unique cards
+PASS setup before tree populates six dual routes
+PASS setup does not pause the tree
+PASS discovery distinct from loadout
+PASS all six duals start ineligible
+PASS native screenshot 01-empty-routes
+PASS dual_slumber_magma missing both authored core families
+PASS dual_slumber_magma single core remains ineligible
+PASS dual_slumber_magma same-slot replacement cannot satisfy pair
+PASS dual_slumber_magma two distinct slots light the real route
+PASS dual_slumber_magma current cores highlighted
+PASS dual_slumber_magma obtains through manager request
+PASS dual_slumber_magma owned card stops availability glow
+PASS dual_slumber_magma owned card still explains lost current core
+PASS dual_tearful_panic missing both authored core families
+PASS dual_tearful_panic single core remains ineligible
+PASS dual_tearful_panic same-slot replacement cannot satisfy pair
+PASS dual_tearful_panic two distinct slots light the real route
+PASS dual_tearful_panic current cores highlighted
+PASS dual_tearful_panic obtains through manager request
+PASS dual_tearful_panic owned card stops availability glow
+PASS dual_tearful_panic owned card still explains lost current core
+PASS dual_spiteful_deluge missing both authored core families
+PASS dual_spiteful_deluge single core remains ineligible
+PASS dual_spiteful_deluge same-slot replacement cannot satisfy pair
+PASS dual_spiteful_deluge two distinct slots light the real route
+PASS dual_spiteful_deluge current cores highlighted
+PASS dual_spiteful_deluge obtains through manager request
+PASS dual_spiteful_deluge owned card stops availability glow
+PASS dual_spiteful_deluge owned card still explains lost current core
+PASS dual_frozen_paranoia missing both authored core families
+PASS dual_frozen_paranoia single core remains ineligible
+PASS dual_frozen_paranoia same-slot replacement cannot satisfy pair
+PASS dual_frozen_paranoia two distinct slots light the real route
+PASS dual_frozen_paranoia current cores highlighted
+PASS dual_frozen_paranoia obtains through manager request
+PASS dual_frozen_paranoia owned card stops availability glow
+PASS dual_frozen_paranoia owned card still explains lost current core
+PASS dual_suffocating_mire missing both authored core families
+PASS dual_suffocating_mire single core remains ineligible
+PASS dual_suffocating_mire same-slot replacement cannot satisfy pair
+PASS dual_suffocating_mire two distinct slots light the real route
+PASS dual_suffocating_mire current cores highlighted
+PASS dual_suffocating_mire obtains through manager request
+PASS dual_suffocating_mire owned card stops availability glow
+PASS dual_suffocating_mire owned card still explains lost current core
+PASS dual_hysterical_rampage missing both authored core families
+PASS dual_hysterical_rampage single core remains ineligible
+PASS dual_hysterical_rampage same-slot replacement cannot satisfy pair
+PASS dual_hysterical_rampage two distinct slots light the real route
+PASS dual_hysterical_rampage current cores highlighted
+PASS dual_hysterical_rampage obtains through manager request
+PASS dual_hysterical_rampage owned card stops availability glow
+PASS dual_hysterical_rampage owned card still explains lost current core
+PASS native screenshot 02-magma-eligible
+PASS RB switches to family 1
+PASS family page has all twelve real cards
+PASS sloth_gun_pulse focus exposes original effect even undiscovered
+PASS sloth_gun_pulse matches manager eligibility
+PASS sloth_blade_cleave focus exposes original effect even undiscovered
+PASS sloth_blade_cleave matches manager eligibility
+PASS sloth_dash_ripple focus exposes original effect even undiscovered
+PASS sloth_dash_ripple matches manager eligibility
+PASS sloth_descent focus exposes original effect even undiscovered
+PASS sloth_descent matches manager eligibility
+PASS sloth_drowsy focus exposes original effect even undiscovered
+PASS sloth_drowsy matches manager eligibility
+PASS sloth_eternal focus exposes original effect even undiscovered
+PASS sloth_eternal matches manager eligibility
+PASS sloth_heavy_beat focus exposes original effect even undiscovered
+PASS sloth_heavy_beat matches manager eligibility
+PASS sloth_inertia focus exposes original effect even undiscovered
+PASS sloth_inertia matches manager eligibility
+PASS sloth_reload focus exposes original effect even undiscovered
+PASS sloth_reload matches manager eligibility
+PASS sloth_resonance focus exposes original effect even undiscovered
+PASS sloth_resonance matches manager eligibility
+PASS sloth_stillness focus exposes original effect even undiscovered
+PASS sloth_stillness matches manager eligibility
+PASS sloth_time_field focus exposes original effect even undiscovered
+PASS sloth_time_field matches manager eligibility
+PASS focus-follow keeps last card visible
+PASS D-pad down enters card grid
+PASS D-pad follows card rows with scrolling
+PASS D-pad reaches scrollable detail
+PASS last card has detail focus route
+PASS native screenshot 03-family-1-last-card
+PASS RB switches to family 2
+PASS family page has all twelve real cards
+PASS fear_gaze_pierce focus exposes original effect even undiscovered
+PASS fear_gaze_pierce matches manager eligibility
+PASS fear_flash_backstab focus exposes original effect even undiscovered
+PASS fear_flash_backstab matches manager eligibility
+PASS fear_tremor_decoy focus exposes original effect even undiscovered
+PASS fear_tremor_decoy matches manager eligibility
+PASS fear_distant_terror focus exposes original effect even undiscovered
+PASS fear_distant_terror matches manager eligibility
+PASS fear_paranoia focus exposes original effect even undiscovered
+PASS fear_paranoia matches manager eligibility
+PASS fear_sixth_sense focus exposes original effect even undiscovered
+PASS fear_sixth_sense matches manager eligibility
+PASS fear_fracture_spread focus exposes original effect even undiscovered
+PASS fear_fracture_spread matches manager eligibility
+PASS fear_every_shadow focus exposes original effect even undiscovered
+PASS fear_every_shadow matches manager eligibility
+PASS fear_exposed_terror focus exposes original effect even undiscovered
+PASS fear_exposed_terror matches manager eligibility
+PASS fear_final_execution focus exposes original effect even undiscovered
+PASS fear_final_execution matches manager eligibility
+PASS fear_abyssal_blindness focus exposes original effect even undiscovered
+PASS fear_abyssal_blindness matches manager eligibility
+PASS fear_panoptic_dread focus exposes original effect even undiscovered
+PASS fear_panoptic_dread matches manager eligibility
+PASS focus-follow keeps last card visible
+PASS D-pad down enters card grid
+PASS D-pad follows card rows with scrolling
+PASS D-pad reaches scrollable detail
+PASS last card has detail focus route
+PASS native screenshot 03-family-2-last-card
+PASS RB switches to family 3
+PASS family page has all twelve real cards
+PASS wrath_gun_cannon focus exposes original effect even undiscovered
+PASS wrath_gun_cannon matches manager eligibility
+PASS wrath_blade_sweep focus exposes original effect even undiscovered
+PASS wrath_blade_sweep matches manager eligibility
+PASS wrath_dash_ram focus exposes original effect even undiscovered
+PASS wrath_dash_ram matches manager eligibility
+PASS wrath_shrapnel focus exposes original effect even undiscovered
+PASS wrath_shrapnel matches manager eligibility
+PASS wrath_retaliation focus exposes original effect even undiscovered
+PASS wrath_retaliation matches manager eligibility
+PASS wrath_desperation focus exposes original effect even undiscovered
+PASS wrath_desperation matches manager eligibility
+PASS wrath_reload focus exposes original effect even undiscovered
+PASS wrath_reload matches manager eligibility
+PASS wrath_crusher focus exposes original effect even undiscovered
+PASS wrath_crusher matches manager eligibility
+PASS wrath_chain focus exposes original effect even undiscovered
+PASS wrath_chain matches manager eligibility
+PASS wrath_breaker focus exposes original effect even undiscovered
+PASS wrath_breaker matches manager eligibility
+PASS wrath_frenzy focus exposes original effect even undiscovered
+PASS wrath_frenzy matches manager eligibility
+PASS wrath_cataclysm focus exposes original effect even undiscovered
+PASS wrath_cataclysm matches manager eligibility
+PASS focus-follow keeps last card visible
+PASS D-pad down enters card grid
+PASS D-pad follows card rows with scrolling
+PASS D-pad reaches scrollable detail
+PASS last card has detail focus route
+PASS native screenshot 03-family-3-last-card
+PASS RB switches to family 4
+PASS family page has all twelve real cards
+PASS sorrow_gun_needles focus exposes original effect even undiscovered
+PASS sorrow_gun_needles matches manager eligibility
+PASS sorrow_blade_tide focus exposes original effect even undiscovered
+PASS sorrow_blade_tide matches manager eligibility
+PASS sorrow_dash_ribbon focus exposes original effect even undiscovered
+PASS sorrow_dash_ribbon matches manager eligibility
+PASS sorrow_abyss focus exposes original effect even undiscovered
+PASS sorrow_abyss matches manager eligibility
+PASS sorrow_buffer focus exposes original effect even undiscovered
+PASS sorrow_buffer matches manager eligibility
+PASS sorrow_echo focus exposes original effect even undiscovered
+PASS sorrow_echo matches manager eligibility
+PASS sorrow_flood focus exposes original effect even undiscovered
+PASS sorrow_flood matches manager eligibility
+PASS sorrow_gravity focus exposes original effect even undiscovered
+PASS sorrow_gravity matches manager eligibility
+PASS sorrow_mercy focus exposes original effect even undiscovered
+PASS sorrow_mercy matches manager eligibility
+PASS sorrow_pressure focus exposes original effect even undiscovered
+PASS sorrow_pressure matches manager eligibility
+PASS sorrow_shards focus exposes original effect even undiscovered
+PASS sorrow_shards matches manager eligibility
+PASS sorrow_suffocation focus exposes original effect even undiscovered
+PASS sorrow_suffocation matches manager eligibility
+PASS focus-follow keeps last card visible
+PASS D-pad down enters card grid
+PASS D-pad follows card rows with scrolling
+PASS D-pad reaches scrollable detail
+PASS last card has detail focus route
+PASS native screenshot 03-family-4-last-card
+PASS all 48 real family cards browsed
+PASS RB wraps to dual page
+PASS LB wraps to sorrow
+PASS hidden codex ignores shoulder
+PASS map selection opens matching page and details
+PASS real OR requirement names both alternatives and current success
+PASS real legendary trait count is explained
+PASS real legendary becomes eligible with two family traits
+PASS strict AND field explains each held and missing ID
+PASS rebinding detaches old manager
+PASS repeated setup does not duplicate connection
+PASS setup after tree updates discovery
+PASS null manager remains fully browsable
+PASS host-paused codex pages while preserving pause
+PASS availability pulse advances under host pause
+PASS layout root fits (1280, 720)
+PASS map and footer fit (1280, 720)
+PASS detail fits (1280, 720)
+PASS cards do not overflow horizontally (1280, 720)
+PASS native screenshot 04-layout-1280x720
+PASS layout root fits (1920, 1080)
+PASS map and footer fit (1920, 1080)
+PASS detail fits (1920, 1080)
+PASS cards do not overflow horizontally (1920, 1080)
+PASS native screenshot 04-layout-1920x1080
+PASS hosted page fits below 88px host header
+PASS D-pad scrolls long detail while retaining focus
+PASS D-pad up returns detail to top
+PASS D-pad up at detail top returns to card
+PASS long missing-core explanation can scroll to end
+PASS native screenshot 05-hosted-missing-core-details
+PASS UI never changed equipment during browsing
+DUAL BOON CODEX: ALL PASSED (216 checks, 0 failed)

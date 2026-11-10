@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+GPU SAMPLE crown_level0 frames=60 mean_ms=2.025 p95_ms=6.463
+CAPTURE 01-crown-level0.png error=0
+GPU SAMPLE crown_level4 frames=60 mean_ms=0.474 p95_ms=0.480
+CAPTURE 02-crown-level4.png error=0
+GPU SAMPLE original_body frames=60 mean_ms=0.438 p95_ms=0.452
+GPU SAMPLE kintsugi_body frames=60 mean_ms=1.643 p95_ms=2.260
+CAPTURE 03-kintsugi-body.png error=0
+CAPTURE 04-kintsugi-seams.png error=0
+CAPTURE 05-projected-crown-glare.png error=0
+CLIMAX SHADERS NATIVE: five captures, failures=0

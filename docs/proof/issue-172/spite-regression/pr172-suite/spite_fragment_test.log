@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS ordinary force available before deprivation
+PASS loss clears in-flight ordinary force
+PASS real weapon still fires after loss
+FAIL actual cannon shot damages without ordinary knockback
+PASS deprived knockback cannot arm phantom wall-slam
+PASS spite pickup is independent
+PASS incoming HP hit activates separate counterforce
+PASS counterforce moves real enemy
+PASS counterforce stops at WORLD wall
+PASS ordinary impacts remain disabled after counterforce
+PASS two weapon hits charge separate pulse without impact
+PASS third direct weapon hit discharges independent shard
+PASS cumulative rules retain independent power
+FAIL (1)

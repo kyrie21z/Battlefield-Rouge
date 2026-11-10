@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS entry retains controllable body before trigger
+PASS walking into threshold triggers exactly 56 actual rigid bodies
+PASS sequence prevents duplicate fracture
+PASS cinematic locks player and hides actual original body
+PASS all 56 authored shards receive the flowing gold shader
+PASS shards move under actual physics
+PASS pause freezes cinematic and physics
+PASS pause also freezes shard shader time
+PASS four cries and self acceptance play in order
+PASS sequence completes and returns player movement
+PASS reassembled body is real original skinned geometry
+PASS all original body parts receive kintsugi seam shader
+PASS restored rig owns the continuing shader clock
+PASS gold flows after control and ordinary animation return
+PASS restored gold freezes with pause
+PASS restored gold obeys reduced motion
+PASS four human microglow accents are distributed over actual seams
+PASS reconstruction frees physical debris
+PASS reconstruction opens actual arena passage
+PASS ordinary deprivation remains after self acceptance
+PASS acceptance subtitle clears before subsequent duel and ending
+ALL PASSED (21 checks)

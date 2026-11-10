@@ -364,6 +364,10 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 
 `audio/realms/realm_sound_bank.gd` 为项目原创数学音频生成器，使用仓库 MIT 许可；无外部采样或旧工程素材。暖音垫、钟摆、心跳、齿轮、秒针和延爆由正弦波、指数包络和私有固定种子噪声合成，运行时缓存 22050 Hz / PCM16 / 立体声；环境循环 4 秒、单次音效 0.8 秒。只发布生成代码，不新增音频二进制。生成源 SHA-256：`a901216c0ea0b1c8bf519a9304aaf8ead69089a67382038260facd287a9f3c92`。行为与听感验收边界见 [#176 证明](proof/issue-176/README.md)。
 
+## #179 悲伤镜潭程序声景（2026-11-10）
+
+`audio/realms/sorrow_sound_bank.gd` 为项目原创数学合成器，沿用仓库 MIT 许可；没有外部采样或旧工程素材。使用正弦共鸣、指数包络与私有 RNG（固定种子 179），缓存 22050 Hz / PCM16 / 单声道。雨声循环 4 秒；水钟 2.4 秒、回流水波 1.1 秒、泪晶喷射与滑水各 0.65 秒、玻璃碎响 0.42 秒、涉水 0.6 秒。生成代码 SHA-256：`19681f0238224a6a7761edccf4999a01fcea085ade2854094cec79718498dae3`。只发布代码，不新增音频二进制；触发/生命周期证据和人工听感未验收边界见 [#179 证明](proof/issue-179/README.md)。
+
 ## #170 光固化打印（2026-11-10）
 
 打印网格、光锥、激光环、48 个 GPU 火星与 2.5 秒蜂鸣均为项目原创代码生成，遵循仓库 MIT 许可；未新增下载素材，原白晶人形、皇冠和语音原件不变。声音采用 780/1561 Hz 激光双音、118 Hz 步进振荡与 210 Hz 锁合音，复用 `ProceduralAudio` 的 PCM 输出。源文件 SHA-256：
@@ -390,6 +394,18 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `environments/sorrow/rain_particles.tscn` | 本项目原创 / 随项目代码 | `aec0583e9876053510e143059cd2bb25d367c61860b9535467ba98ab2def52b9` |
 
 五张证明图片是 Godot 4.7.2 Forward+ 的真实悲伤第一房原生截图，包括固定视角、固定时钟的 SSR 开关对照；来源、完整图片 SHA-256、验证与边界见 [README](proof/issue-169/README.md) 和 [manifest](proof/issue-169/manifest.json)。
+
+## #172 皇冠眩光与暗金金缮（2026-11-10）
+
+两套 Shader 与 `KintsugiFlow` 均为本项目原创代码，由 Codex 协助实现，许可随项目代码；没有外部贴图、模型或新音频，未新增第三方许可或另标 CC0。金缮复用既有原身体的 CUSTOM0 真实边掩码、56 碎片、11 蒙皮部位与 24 骨，原 GLB 不变；皇冠仍为 #147 登记的普通皇冠。
+
+| 文件 | 来源 / 许可 | SHA-256 |
+| --- | --- | --- |
+| `ui/shaders/blinding_glare.gdshader` | 本项目原创 / 随项目代码 | `e70f196bfd87109fa4093563bac9332b9ae3364eee12c412965607ff8052ffec` |
+| `actors/player/shaders/kintsugi_gold.gdshader` | 本项目原创 / 随项目代码 | `e506acf78ce7041fcd8c3f3cfacdfc5c0e21905410b5a755504e1f44f00275ed` |
+| `actors/player/kintsugi_flow.gd` | 本项目原创 / 随项目代码 | `ab63fb81977169ea6121b4789913c983b1b3b62880435e2953108cc3c6a23a53` |
+
+五张原生证明由 Godot 4.7.2 Forward+ 直接捕获，包括皇冠等级对照、原身体金缮全身/接缝近景和真实皇冠投影；外部相机仅用于审阅。图像与验证日志哈希见 [SHA256SUMS](proof/issue-172/SHA256SUMS)，行为验证与独立无截图性能采样见 [README](proof/issue-172/README.md)。
 
 ## #175 心象日记文案与界面证据（2026-11-10）
 

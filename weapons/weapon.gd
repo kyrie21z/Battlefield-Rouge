@@ -16,6 +16,8 @@ signal fired
 signal ammo_changed(current: int, reserve: int)
 signal reload_started(duration: float)
 signal reload_finished
+## Emitted on the frame the four-piece pistol closes and its magazine fills.
+signal ammo_refilled
 signal hit_landed(headshot: bool, killed: bool)
 ## Degrees of camera kick for this shot. `manual` is the fraction that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
@@ -30,6 +32,7 @@ signal zoom_changed(level: float)
 
 const CRYSTAL_IMPACT := preload("res://weapons/effects/crystal_impact.gd")
 
+const SNAP_FLASH_TIME := 0.06
 const SHOOT_MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
 ## Voices for gunshots. A shot rings on its own voice, so a burst cannot cut the
 ## tail of the one before it (assigning a new stream to a playing
@@ -73,6 +76,8 @@ var zoom_index := 0
 var _cooldown := 0.0
 var _spread := 0.0
 var _reload_left := 0.0
+var _reload_total := 0.85
+var _melee_active := false
 var _pattern_index := 0
 var _views: Array[Node3D] = []
 var _view: Node3D
@@ -100,7 +105,7 @@ var _slot_reserve: Array[int] = []
 
 
 func _ready() -> void:
-	_reload_sound = ProceduralAudio.generate("reload")
+	_reload_sound = ProceduralAudio.generate("hit_tink")
 	_dry_sound = ProceduralAudio.generate("dry")
 	_feel_rng.seed = FEEL_SEED
 	_handling_voice = AudioStreamPlayer.new()
@@ -144,6 +149,8 @@ func grip_transform() -> Transform3D:
 func deactivate() -> void:
 	trigger_enabled = false
 	_reload_left = 0.0
+	_melee_active = false
+	_update_reassembly(1.0)
 	_spring.reset()
 	if _flash != null:
 		_flash.hide()
@@ -170,6 +177,7 @@ func select(new_index: int) -> void:
 	ammo = _slot_ammo[index]
 	reserve = _slot_reserve[index]
 	_view = _views[index]
+	_update_reassembly(1.0)
 	_spring.reset()
 	_spring.stiffness = data.view_spring_stiffness
 	_spring.damping = data.view_spring_damping
@@ -234,7 +242,7 @@ func is_reloading() -> bool:
 func reload_progress() -> float:
 	if not is_reloading():
 		return 0.0
-	return 1.0 - _reload_left / _reload_duration(ammo == 0)
+	return clampf(1.0 - _reload_left / _reload_total, 0.0, 1.0)
 
 
 func spread_degrees() -> float:
@@ -255,6 +263,8 @@ func _process(delta: float) -> void:
 		_flash.visible = _flash_left > 0.0
 	_spread = move_toward(_spread, 0.0, data.spread_recovery * delta)
 	var target := data.ads_position if aiming else data.hip_position
+	if _melee_active:
+		target += Vector3(0.07, -0.015, 0.015)
 	_view_base = _view_base.lerp(target, minf(14.0 * delta, 1.0))
 	_apply_view_pose(delta)
 	# Behind a scope the model would fill the aperture, so it steps out of the way.
@@ -266,8 +276,9 @@ func _process(delta: float) -> void:
 		_cycle_wheel(-1)
 
 	if is_reloading():
-		_reload_left -= delta
-		if _reload_left <= 0.0:
+		_reload_left = maxf(_reload_left - delta, 0.0)
+		_update_reassembly(1.0 - _reload_left / _reload_total)
+		if _reload_left <= 0.000001:
 			_finish_reload()
 		return
 
@@ -319,7 +330,7 @@ func try_fire() -> bool:
 	if get_tree().paused or data == null or not trigger_enabled or _cooldown > 0.0 or is_reloading():
 		return false
 	if ammo <= 0:
-		if reserve > 0:
+		if reserve != 0:
 			try_reload()
 		elif Input.is_action_just_pressed("fire"):
 			_play_handling(_dry_sound, -4.0)
@@ -345,24 +356,42 @@ func try_fire() -> bool:
 	fired.emit()
 	Events.gunshot.emit(global_position)
 	ammo_changed.emit(ammo, reserve)
-	if ammo == 0 and reserve > 0:
+	if ammo == 0 and reserve != 0:
 		try_reload()
 	return true
 
 
+func set_melee_active(active: bool) -> void:
+	_melee_active = active
+
+
+func _update_reassembly(progress: float) -> void:
+	if _view.has_method("set_reassembly_progress"):
+		_view.set_reassembly_progress(progress)
+
+
 func try_reload() -> void:
-	if get_tree().paused or data == null or not trigger_enabled or is_reloading() or reserve <= 0 or ammo >= magazine_capacity():
+	if get_tree().paused or data == null or not trigger_enabled or is_reloading() or reserve == 0 or ammo >= magazine_capacity():
 		return
-	_reload_left = _reload_duration(ammo == 0)
-	_play_handling(_reload_sound, -2.0)
+	_reload_total = _reload_duration(ammo == 0)
+	_reload_left = _reload_total
+	_update_reassembly(0.0)
 	reload_started.emit(_reload_left)
 
 
 func _finish_reload() -> void:
 	_reload_left = 0.0
-	var taken := mini(magazine_capacity() - ammo, reserve)
+	_update_reassembly(1.0)
+	var taken := magazine_capacity() - ammo
+	if reserve >= 0:
+		taken = mini(taken, reserve)
+		reserve -= taken
 	ammo += taken
-	reserve -= taken
+	_play_handling(_reload_sound, -4.0)
+	if _flash != null:
+		_flash.visible = true
+		_flash_left = SNAP_FLASH_TIME
+	ammo_refilled.emit()
 	reload_finished.emit()
 	ammo_changed.emit(ammo, reserve)
 

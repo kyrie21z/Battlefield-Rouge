@@ -1,0 +1,66 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== config (AC-03)
+  [ok] config comes from res://zone/capture_config.tres
+  [ok] window is 150 ms
+  [ok] ordinary swing is 10%
+  [ok] perfect multiplier is 2.0
+  [ok] perfect swing is worth 20%
+== stage 1: clear the guards (AC-01)
+  [ok] starts in CLEAR_GUARDS
+  [ok] building starts locked
+  [ok] swinging at a locked building adds nothing
+  [ok] building still locked with 5 guards alive
+  [ok] building still locked with 4 guards alive
+  [ok] building still locked with 3 guards alive
+  [ok] building still locked with 2 guards alive
+  [ok] building still locked with 1 guards alive
+  [ok] last guard down -> HAMMER_POINT
+  [ok] building is open
+== stage 2: hammer the building (AC-01, AC-03)
+  [ok] a swing out of reach adds nothing
+  [ok] walking up to the building puts the player in reach
+  [ok] on the beat is perfect
+  [ok] progress is 20%
+  [ok] +140 ms is perfect
+  [ok] -140 ms is perfect
+  [ok] +160 ms is an ordinary swing
+  [ok] -160 ms is an ordinary swing
+  [ok] mid-way between beats is an ordinary swing
+  [ok] progress added matches the strikes
+== feedback is separate (AC-03)
+  [ok] perfect and ordinary swings play different sounds
+  [ok] perfect and ordinary swings flash different colours
+  [ok] only a perfect strike fires the light burst
+== numbers come from the config (AC-03)
+  [ok] +100 ms is ordinary once the window is 50 ms
+  [ok] +40 ms is perfect with a 50 ms window (2% x 3.0)
+== progress never drops
+  [ok] leaving the building does not lose progress
+== flag (AC-01)
+  [ok] 100% reached
+  [ok] captured fired once
+  [ok] director is in FLAG_PLANTED
+  [ok] a flag was planted on the building
+  [ok] swings after capture are ignored
+== after the flag
+  [ok] the reward does not open by itself
+  [ok] the run stays unpaused until interact
+  [ok] a buff pedestal stands beside the flag
+  [ok] the objective points at the pedestal
+  [ok] interact out of range does not open the reward
+  [ok] interact at the pedestal opens the buff choice
+== real input path: E key -> Hammer -> CapturePoint
+  [ok] pressing E resolves one swing against the building
+  [ok] a second press inside the swing cooldown is ignored
+  [ok] after the cooldown the next press swings again
+== the building breaks apart as the bar fills
+  [ok] eight blocks before the first quarter
+  [ok] 25% drops the first pair
+  [ok] an ordinary hit throws chips
+  [ok] 50% drops the next pair
+  [ok] 75% leaves one pair standing
+  [ok] 100% collapses the rest and plants the flag
+  [ok] the flag stands on the ground, not where the roof was
+  [ok] the collapsed building no longer blocks
+ALL PASSED (0 failed)

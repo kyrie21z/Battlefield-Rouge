@@ -8,6 +8,8 @@ const CRYSTAL_IMPACT := preload("res://weapons/effects/crystal_impact.gd")
 
 var _failed := 0
 var _finished := false
+var _refills := 0
+var _refill_snapshot := {}
 
 
 func _ready() -> void:
@@ -52,8 +54,8 @@ func _run() -> void:
 		await get_tree().physics_frame
 	var view := weapon._view as ObsidianPistolView
 	_check("single eight-round semi-auto pistol", weapon.ammo == 8 and weapon.data.fire_mode == WeaponData.FireMode.SEMI)
-	_check("isolated weapon accepts one pistol in the compatibility rack", weapon.data_set.size() == 1)
-	_check("ordinary reload reserves remain until #102", weapon.reserve == 120)
+	_check("isolated pistol uses one compatibility slot", weapon.data_set.size() == 1)
+	_check("unlimited crystal regeneration", weapon.reserve == -1)
 	_check("view uses imported Blender model without CSG", view.get_node("Model").scene_file_path == "res://assets/models/weapons/obsidian_pistol.glb" and view.find_children("*", "CSGShape3D", true, false).is_empty())
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/epic1_models/manifest.json"))
 	var model: Dictionary = manifest.models[0]
@@ -79,40 +81,92 @@ func _run() -> void:
 	weapon.aiming = false
 	_check("damage remains full through thirty metres", is_equal_approx(weapon._falloff(30), 1.0))
 	_check("damage falls smoothly after thirty metres", weapon._falloff(31) < 1.0 and weapon._falloff(31) > weapon._falloff(60))
-	var poses := view._pieces.map(func(part: Node3D) -> Transform3D: return part.transform)
+	weapon.ammo_refilled.connect(func():
+		_refills += 1
+		_refill_snapshot = {"ammo": weapon.ammo, "progress": view.reassembly_progress, "flash": weapon._flash.visible}
+	)
+	weapon.try_reload()
+	_check("R on full magazine is a no-op", not weapon.is_reloading() and _refills == 0)
+	weapon.ammo = 7
+	get_tree().paused = true
+	weapon.try_reload()
+	_check("pause rejects public fire/reload without spending ammo", not weapon.try_fire() and weapon.ammo == 7 and not weapon.is_reloading())
+	get_tree().paused = false
+	weapon.ammo = 8
 	var recoil_values := []
 	weapon.recoil.connect(func(pitch: float, yaw: float, manual: float): recoil_values.append([pitch, yaw, manual]))
-	get_tree().paused = true
-	_check("paused public fire spends no ammo", not weapon.try_fire() and weapon.ammo == 8)
-	get_tree().paused = false
 	var previous := health.health
 	_check("click fires immediately", weapon.try_fire())
-	_check("real Hitbox receives 35 damage", is_equal_approx(previous - health.health, 35.0))
-	var impacts := get_children().filter(func(n: Node) -> bool: return n.get_script() == CRYSTAL_IMPACT)
-	_check("pistol hit creates eight solid crystal fragments", impacts.size() == 1 and impacts[0].get_child_count() == 8 and impacts[0].get_children().all(
+	_check("first click damages real Hitbox by 35", is_equal_approx(previous - health.health, 35.0))
+	var impacts: Array[Node] = get_children().filter(func(n: Node) -> bool: return n.get_script() == CRYSTAL_IMPACT)
+	_check("a pistol hit spawns solid polyhedral shards instead of flesh particles", impacts.size() == 1 and impacts[0].get_child_count() == 8 and impacts[0].get_children().all(
 		func(n: Node) -> bool: return n is MeshInstance3D and (n as MeshInstance3D).mesh is PrismMesh))
-	_check("recoil is 1.2 pitch with bounded random yaw", recoil_values.size() == 1 and is_equal_approx(recoil_values[0][0], 1.2) and absf(recoil_values[0][1]) <= .3)
-	_check("cooldown rejects an immediate second shot", not weapon.try_fire())
-	weapon._process(.179)
-	_check("cooldown still holds at 179ms", not weapon.try_fire())
-	weapon._process(.0011)
-	_check("shot becomes ready at 180ms", weapon.try_fire())
+	_check("pistol body hit has no red particle puff", get_children().all(func(n: Node) -> bool: return not n is Impact))
+	var shard := impacts[0].get_child(0) as MeshInstance3D
+	var shard_start := shard.position
+	impacts[0].set_process(false)
+	impacts[0]._process(0.1)
+	_check("crystal fragments travel and shrink in three dimensions", shard.position.distance_to(shard_start) > 0.05 and shard.scale.x < 1.0)
+	impacts[0]._process(0.4)
+	_check("crystal impact queues cleanup at the .45 second lifetime", impacts[0].is_queued_for_deletion())
+	seed(8765)
+	var expected_rng := randi()
+	seed(8765)
+	var extra := CRYSTAL_IMPACT.spawn(self, Vector3.ZERO, Vector3.UP)
+	_check("crystal presentation does not consume simulation randomness", randi() == expected_rng)
+	extra.queue_free()
+	_check("recoil signal has 1.2 pitch and bounded random yaw", recoil_values.size() == 1 and is_equal_approx(recoil_values[0][0], 1.2) and absf(recoil_values[0][1]) <= 0.3)
+	_check("cannot fire twice inside 0.18 seconds", not weapon.try_fire())
+	weapon._process(0.179)
+	_check("cooldown still holds at 0.179 seconds", not weapon.try_fire())
+	weapon._process(0.0011)
+	_check("next click at 0.18 seconds fires", weapon.try_fire())
 	for i in 6:
-		weapon._process(.181)
+		weapon._process(0.181)
 		_check("round %d fires" % (i + 3), weapon.try_fire())
-	_check("empty magazine starts ordinary reload", weapon.ammo == 0 and weapon.is_reloading())
-	weapon._process(.35)
-	var unchanged := true
-	for i in poses.size():
-		unchanged = unchanged and view._pieces[i].transform.is_equal_approx(poses[i])
-	_check("#101 has no crystal reassembly animation", unchanged and not view.has_method("set_reassembly_progress"))
-	weapon._process(3.0)
-	_check("ordinary reload restores playable magazine", weapon.ammo == 8 and weapon.reserve == 112)
-	await _test_input_hold(camera, source)
-	weapon.ammo = 7
+	_check("eighth round immediately begins bloom", weapon.ammo == 0 and weapon.is_reloading() and is_equal_approx(view.reassembly_progress, 0.0))
+	_check("exact base reassembly duration is .85 seconds", is_equal_approx(weapon._reload_left, 0.85))
+	_check("reassembly blocks shots", not weapon.try_fire())
+	get_tree().paused = true
+	weapon._process(1.0)
 	weapon.try_reload()
+	_check("pause freezes reassembly and refuses shots", is_equal_approx(weapon._reload_left, 0.85) and not weapon.try_fire())
+	get_tree().paused = false
+	weapon._process(0.35)
+	_check("bloom opens each block by 5 to 15 cm", _pieces_open(view))
+	weapon.try_reload()
+	_check("R during bloom cannot restart it", is_equal_approx(weapon._reload_left, 0.5))
+	weapon._process(0.30)
+	_check("floating stage leaves magazine empty", weapon.ammo == 0 and _refills == 0)
+	weapon._process(0.199)
+	_check("no early ammo before the snap", weapon.ammo == 0 and _refills == 0)
+	weapon._process(0.001)
+	_check("snap and ammo_refilled agree on the exact completion frame", _refills == 1 and _refill_snapshot.get("ammo") == 8 and is_equal_approx(_refill_snapshot.get("progress", 0.0), 1.0))
+	_check("all pieces return exactly to rest", _pieces_closed(view))
+	_check("reassembly snap lights the muzzle on the ammo_refilled frame", _refill_snapshot.get("flash", false) and is_equal_approx(weapon._flash_left, 0.06))
+	weapon._process(0.061)
+	_check("the snap flash ends without firing or spending a round", not weapon._flash.visible and weapon.ammo == 8)
+	weapon._process(0.85)
+	_check("completion emits once", _refills == 1)
+	weapon.ammo = 3
+	weapon.try_reload()
+	weapon.set_melee_active(true)
+	weapon._process(0.1)
+	_check("blade makes room without hiding pistol or cancelling recharge", view.visible and weapon.trigger_enabled and weapon.is_reloading() and view.position.x > weapon.data.hip_position.x)
+	weapon.set_melee_active(false)
+	weapon._process(0.75)
+	_check("manual recharge restores 8/8", weapon.ammo == 8 and _refills == 2)
+	weapon.ammo = 2
+	weapon.try_reload()
+	weapon._process(0.35)
 	weapon.deactivate()
-	_check("death stops reload and public firing", not weapon.is_reloading() and not weapon.try_fire())
+	weapon._process(1.0)
+	_check("death cancels recharge without granting ammo", weapon.ammo == 2 and _refills == 2 and not weapon.is_reloading())
+	_check("dead weapon rejects firing and recharge", not weapon.try_fire())
+	weapon.try_reload()
+	_check("dead weapon cannot restart recharge", not weapon.is_reloading())
+	await _test_input_hold(camera, source)
+	await _test_scaled_reload(camera, source)
 	_finished = true
 
 
@@ -134,6 +188,27 @@ func _model_bounds(view: Node3D) -> AABB:
 	return bounds
 
 
+func _pieces_open(view: ObsidianPistolView) -> bool:
+	for i in view._pieces.size():
+		var distance := view._pieces[i].position.distance_to(view._rest[i].origin)
+		if distance < 0.05 or distance > 0.15:
+			return false
+	return true
+
+
+func _pieces_closed(view: ObsidianPistolView) -> bool:
+	for i in view._pieces.size():
+		if not view._pieces[i].transform.is_equal_approx(view._rest[i]):
+			return false
+	return true
+
+
+func _check(label: String, ok: bool) -> void:
+	print("  [%s] %s" % ["ok" if ok else "FAIL", label])
+	if not ok:
+		_failed += 1
+
+
 func _flat_normals(model: Node3D) -> bool:
 	for found in model.find_children("*", "MeshInstance3D", true, false):
 		var mesh := (found as MeshInstance3D).mesh
@@ -145,12 +220,6 @@ func _flat_normals(model: Node3D) -> bool:
 				if normals[indices[i]].distance_to(normals[indices[i + 1]]) > .002 or normals[indices[i]].distance_to(normals[indices[i + 2]]) > .002:
 					return false
 	return true
-
-
-func _check(label: String, ok: bool) -> void:
-	print("  [%s] %s" % ["ok" if ok else "FAIL", label])
-	if not ok:
-		_failed += 1
 
 
 func _test_input_hold(camera: Camera3D, source: Source) -> void:
@@ -176,4 +245,30 @@ func _test_input_hold(camera: Camera3D, source: Source) -> void:
 	Input.action_release("fire")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	probe.queue_free()
+	await get_tree().process_frame
+
+
+func _test_scaled_reload(camera: Camera3D, source: Source) -> void:
+	var stats := Stats.new()
+	stats.base[Stats.RELOAD_SPEED] = 2.0
+	stats.base[Stats.MAGAZINE_SIZE] = 1.5
+	add_child(stats)
+	var probe := Weapon.new()
+	probe.data_set = [preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")]
+	probe.stats = stats
+	probe.camera = camera
+	probe.shooter = source
+	add_child(probe)
+	probe.set_process(false)
+	probe.ammo = 3
+	probe.try_reload()
+	_check("reload-speed Stats scales the whole cycle to 0.425 seconds", is_equal_approx(probe._reload_total, .425))
+	probe._process(.175)
+	_check("speed-scaled bloom still opens all four blocks", _pieces_open(probe._view as ObsidianPistolView))
+	probe._process(.15)
+	_check("speed-scaled suspension keeps the partial magazine", probe.ammo == 3 and probe.is_reloading())
+	probe._process(.10)
+	_check("speed-scaled snap restores buffed 12-round capacity", probe.ammo == 12 and probe.reserve == -1 and not probe.is_reloading())
+	probe.queue_free()
+	stats.queue_free()
 	await get_tree().process_frame

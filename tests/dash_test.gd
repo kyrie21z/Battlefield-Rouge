@@ -165,7 +165,7 @@ func _run() -> void:
 	_check("the dash does not cancel the reload", _player.weapon.is_reloading())
 	await _wait_dash_end()
 	_check("the reload is still running when the dash ends", _player.weapon.is_reloading())
-	_player.weapon.select(0)
+	_player.weapon._finish_reload()
 
 	_vitals.advance(0.0)
 	_check("HUD follows the live charge count", _vitals.dash_charges == _player.dash_charges()

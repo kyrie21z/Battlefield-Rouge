@@ -364,6 +364,16 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 
 `audio/realms/realm_sound_bank.gd` 为项目原创数学音频生成器，使用仓库 MIT 许可；无外部采样或旧工程素材。暖音垫、钟摆、心跳、齿轮、秒针和延爆由正弦波、指数包络和私有固定种子噪声合成，运行时缓存 22050 Hz / PCM16 / 立体声；环境循环 4 秒、单次音效 0.8 秒。只发布生成代码，不新增音频二进制。生成源 SHA-256：`a901216c0ea0b1c8bf519a9304aaf8ead69089a67382038260facd287a9f3c92`。行为与听感验收边界见 [#176 证明](proof/issue-176/README.md)。
 
+## #170 光固化打印（2026-11-10）
+
+打印网格、光锥、激光环、48 个 GPU 火星与 2.5 秒蜂鸣均为项目原创代码生成，遵循仓库 MIT 许可；未新增下载素材，原白晶人形、皇冠和语音原件不变。声音采用 780/1561 Hz 激光双音、118 Hz 步进振荡与 210 Hz 锁合音，复用 `ProceduralAudio` 的 PCM 输出。源文件 SHA-256：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `levels/climax/print_projection.gd` | `5ec627e1d6c5df0c566fc2a0fe13b9527424814803e59a741e4df705888d2b1f` |
+| `levels/climax/shaders/print_slice.gdshader` | `0453a5a741adfe42593a649ce80762664f2d60015a18de73f7caf7a110adbef4` |
+| `levels/climax/shaders/print_projection.gdshader` | `000ee2fe28d125d5dd66b73cbe3da7b270fc1750501c84c55968a38aa662620c` |
+
 ## #168 四系晶屑（2026-11-10）
 
 `assets/particles/crystal_burst.gd` 以平面法线八面体、程序圆环与 GPU 粒子生成琥珀、幽紫、绯红、苍蓝四系反馈。全部为本项目原创代码，遵循仓库 MIT 许可，无第三方模型或贴图。生成源 SHA-256：`69c5f09b2afd5e74389387380c7ad427faa8bed84c822dd4bc8b8740bd761ab1`。预建 48 个 emitter、每色 12 个，满池跳过视觉，不改变伤害。原生性能与截图采集开销的区分见 [#168 证明](proof/issue-168/README.md)。

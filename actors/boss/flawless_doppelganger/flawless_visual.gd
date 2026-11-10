@@ -7,6 +7,8 @@ var crown_anchor: Node3D
 var print_progress := 0.0
 var shader_origin := 0.0
 var printing := true
+var print_material: ShaderMaterial
+var _print_meshes: Array[MeshInstance3D] = []
 var _crown_offset := Vector3(0,0.10,0)
 var crown_fit := Vector3.ONE
 var head_bounds := AABB()
@@ -17,6 +19,8 @@ func _build() -> void:
 	_built = true
 	_crystal = ShaderMaterial.new()
 	_crystal.shader = preload("res://actors/boss/flawless_doppelganger/flawless.gdshader")
+	print_material = ShaderMaterial.new()
+	print_material.shader = preload("res://levels/climax/shaders/print_slice.gdshader")
 	model = BODY.instantiate() as Node3D
 	add_child(model)
 	model.scale = Vector3.ONE*1.18
@@ -66,6 +70,9 @@ func _build() -> void:
 	animation.advance(0)
 	_update_bones()
 	_update_crown_anchor()
+	for root in [model,_outfit]:
+		for child in root.find_children("*","MeshInstance3D",true,false):
+			_print_meshes.append(child as MeshInstance3D)
 	set_print_progress(0)
 func _equipment(bone: String,label: String,scene: PackedScene) -> Node3D:
 	var follow := _follow(bone,label)
@@ -78,7 +85,13 @@ func _equipment(bone: String,label: String,scene: PackedScene) -> Node3D:
 func set_print_progress(value: float) -> void:
 	print_progress = clampf(value,0,1)
 	printing = print_progress < 1
-	_crystal.set_shader_parameter("print_cutoff",shader_origin+lerpf(2.5,-0.2,print_progress) if printing else -100.0)
+	print_material.set_shader_parameter("print_progress",print_progress)
+	print_material.set_shader_parameter("origin_y",shader_origin)
+	for mesh in _print_meshes:
+		mesh.material_override = print_material if printing else _crystal
+func set_print_clock(time: float, reduce: bool) -> void:
+	print_material.set_shader_parameter("visual_time",time)
+	print_material.set_shader_parameter("reduced_motion",reduce)
 func set_guard(value: bool) -> void:
 	guard_shell.visible = value and not _dead
 	_crystal.set_shader_parameter("guard",1.0 if value else 0.0)

@@ -38,6 +38,8 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _kill_confirm(true)
 		"hit_tink":
 			return _ping(0.16, [2900.0, 4300.0], 30.0)
+		"brittle_glass":
+			return _ping(0.24, [2700.0, 4250.0, 6150.0, 8310.0], 18.0)
 		# Taking a hit: a low muffled thud with a little grit. The heavy variant
 		# falls deeper and rings longer for big hits and headshots.
 		"player_hurt":

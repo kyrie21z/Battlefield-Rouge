@@ -187,7 +187,7 @@ func dispatch(event: StringName, context: Dictionary) -> void:
 	event_dispatched.emit(event, context)
 
 func _before_damage(context: Dictionary) -> void:
-	if not context.get("skip_damage_multiplier", false) and not context.get("true_damage", false):
+	if not context.get("skip_damage_multiplier", false) and not context.get("true_damage", false) and not context.get("unbuffered", false):
 		context.damage *= stats.get_value(Stats.DAMAGE_TAKEN)
 	dispatch(&"damage_before", context)
 

@@ -197,7 +197,7 @@ func cancel() -> void:
 
 
 func try_activate() -> bool:
-	if get_tree().paused or health.is_dead():
+	if get_tree().paused or health.is_dead() or health.unbuffered:
 		return false
 	if _counter_active:
 		return try_release()

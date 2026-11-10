@@ -11,12 +11,18 @@ const SORROW := 3
 var player: Player
 var shards: Array[int] = []
 var deprivations: Array[int] = []
-var supported: Array[int] = [SLOTH, FEAR, WRATH]
+var supported: Array[int] = [SLOTH, FEAR, WRATH, SORROW]
 var since_combat := 0.0
 var healing_total := 0.0
 var counterpushes := 0
 var spite_charge := 0
 var _counter_left := 0.0
+const TENDERNESS_CAPACITY := 60.0
+var barrier := 0.0
+var absorption_total := 0.0
+var brittle_hits := 0
+var _barrier_recovery := 0.0
+var _glass: AudioStreamPlayer
 
 func bind(value: Player) -> void:
 	player = value
@@ -24,10 +30,18 @@ func bind(value: Player) -> void:
 	player.melee.swing_started.connect(func(_index, _step): mark_combat())
 	player.health.damaged.connect(func(_amount, _part, _source): mark_combat())
 	player.health.after_damage.connect(_after_damage)
+	player.health.fragment_absorber = _absorb
 	player.boons.event_dispatched.connect(_on_boon_event)
+	_glass = AudioStreamPlayer.new()
+	_glass.stream = ProceduralAudio.generate("brittle_glass")
+	_glass.volume_db = -12.0
+	add_child(_glass)
 
 func configure_deprivation(values: Array[int]) -> void:
 	deprivations.assign(values)
+	player.health.unbuffered = deprivations.has(SORROW)
+	if player.health.unbuffered:
+		player.shield.cancel()
 	player.realm_effects.warnings_enabled = not deprivations.has(FEAR)
 	for enemy in player.boons.enemies():
 		_apply_enemy_rules(enemy)
@@ -42,16 +56,23 @@ func acquire(realm: int) -> bool:
 	if not supported.has(realm) or shards.has(realm):
 		return false
 	shards.append(realm)
+	if realm == SORROW:
+		barrier = TENDERNESS_CAPACITY
 	_refresh_powers()
 	acquired.emit(realm)
 	changed.emit()
 	return true
 
 func restore(values: Array[int]) -> void:
+	var had_barrier := shards.has(SORROW)
 	shards.clear()
 	for realm in values:
 		if supported.has(realm) and not shards.has(realm):
 			shards.append(realm)
+	if not shards.has(SORROW):
+		barrier = 0.0
+	elif not had_barrier:
+		barrier = TENDERNESS_CAPACITY
 	_refresh_powers()
 	changed.emit()
 
@@ -68,10 +89,24 @@ func _apply_enemy_rules(enemy: Node) -> void:
 		enemy.set_ordinary_impacts_enabled(not deprivations.has(WRATH))
 
 func _after_damage(context: Dictionary) -> void:
+	if player.health.unbuffered and float(context.get("dealt",0.0)) > 0.0:
+		brittle_hits += 1
+		_glass.play()
 	if not shards.has(WRATH) or _counter_left > 0.0 or player.health.is_dead() or float(context.get("dealt",0.0)) <= 0.0:
 		return
 	var source := context.get("source") as Node3D
 	_release_spite(source)
+
+func _absorb(amount: float) -> float:
+	if not shards.has(SORROW) or barrier <= 0.0:
+		return amount
+	var caught := minf(amount,barrier)
+	barrier -= caught
+	absorption_total += caught
+	_barrier_recovery = 4.0
+	activated.emit(SORROW)
+	changed.emit()
+	return amount - caught
 
 func _release_spite(source: Node3D) -> void:
 	if not is_instance_valid(source) or not source.has_method("apply_fragment_impact"):
@@ -106,6 +141,10 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player) or player.health.is_dead():
 		return
 	_counter_left = maxf(0.0, _counter_left - delta)
+	_barrier_recovery = maxf(0.0, _barrier_recovery - delta)
+	if shards.has(SORROW) and _barrier_recovery <= 0.0 and barrier < TENDERNESS_CAPACITY:
+		barrier = minf(TENDERNESS_CAPACITY, barrier + 6.0 * delta)
+		changed.emit()
 	since_combat += delta
 	if not shards.has(SLOTH) or since_combat < 5.0:
 		return

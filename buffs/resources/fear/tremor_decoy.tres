@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_tremor_decoy"
+name = "冲刺·战栗残影"
+sin = 1
+slot = 2
+rarity = 0
+core = true
+description = "冲刺留下2秒可被打碎的残影，吸引敌人；破碎或到时向6米内施加惊悸。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"decoy_duration": 2.0, "aggro_radius": 16.0, "panic_radius": 6.0, "panic_duration": 4.0}

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://buffs/effects/fear_effect.gd" id="2_effect"]
+
+[resource]
+script = ExtResource("1_data")
+id = "fear_gaze_pierce"
+name = "枪·凝视穿刺"
+sin = 1
+slot = 0
+rarity = 0
+core = true
+description = "手枪命中附加4秒惊悸；直击紫色晶面造成260%暴击并将破绽移至后背。"
+stat_modifiers = {}
+script_hook = ExtResource("2_effect")
+parameters = {"panic_duration": 4.0}

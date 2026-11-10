@@ -390,3 +390,10 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `environments/sorrow/rain_particles.tscn` | 本项目原创 / 随项目代码 | `aec0583e9876053510e143059cd2bb25d367c61860b9535467ba98ab2def52b9` |
 
 五张证明图片是 Godot 4.7.2 Forward+ 的真实悲伤第一房原生截图，包括固定视角、固定时钟的 SSR 开关对照；来源、完整图片 SHA-256、验证与边界见 [README](proof/issue-169/README.md) 和 [manifest](proof/issue-169/manifest.json)。
+
+## #175 心象日记文案与界面证据（2026-11-10）
+
+- 叙事源文件为 [`ui/codex/lore_entries.gd`](../ui/codex/lore_entries.gd)：本项目原创、AI 辅助撰写并审阅的虚构文案，包含五篇学术答辩手记与四组心魔双面档案。内容按 #175 和创作愿景编写，未摘录外部文章或使用第三方故事素材，不另声明 CC0。源文件 SHA-256：`08d8e808258394014a844aae8bea12cc3569673e69e380d77a5b57f8dd8c871e`。
+- `LoreDiary` / `ArchiveReader` 的布局与控件为本项目原创实现，使用现有工程的界面与字体配置；本次没有新增下载字体、模型、贴图或配音。
+- [`docs/proof/issue-175/`](proof/issue-175/) 的 16 张 PNG 来自 Godot 4.7.2 Forward+ 原生运行：14 张独立状态图由 `tests/lore_diary_proof.tscn` 生成，2 张生产入口图由 `tests/lore_modal_proof.tscn` 生成。全部使用隔离测试进度；图片用于布局/可达性验收，未伪称真实玩家的自然通关记录。
+- 14 张独立图的逐文件 SHA-256 见 [screenshots.sha256](proof/issue-175/screenshots.sha256)；2 张生产图的字节数和 SHA-256 见 [production-screenshots.json](proof/issue-175/production-screenshots.json)。场景复用本项目既有资源，没有从 `../origin/` 导入素材；生成命令和人工审阅记录见 [README](proof/issue-175/README.md) 与 [集成证据](proof/issue-175/integration.md)。

@@ -209,3 +209,12 @@
 | 赐福图鉴 | `DualBoonCodex` | 构筑检视中的只读页面，展示实际 48 张领域赐福与 6 张双重赐福。 |
 | 共鸣拓扑 | `CodexTopology` | 四领域之间的六组组合连线；资格由当前 BoonManager 的真实装备条件决定。 |
 | 发现记录 | `MetaProgression.discovered_boons` | 成功选卡和恢复已有装备时记录的持久知识，独立于当前装备；保存失败保留内存并重试。 |
+
+## 心象档案（#175）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 现实心象日记 | `LoreDiary` / `LoreEntries` | 四篇学术答辩手记和一篇和解终章；领域首次进入或死亡解锁对应手记，终章仅在实际和解后解锁。 |
+| 心魔双面档案 | `LoreEntries.project(archive, true)` | 同一心魔的皇冠“绊脚石”评论与人性保护价值；访问开放评论，击败再开放另一面。 |
+| 档案进度快照 | `MetaProgression.archive_snapshot()` | 包含 visited_realms、defeated_realms 与 reconciled 的数组副本，供只读 UI 投影；旧存档默认锁定。 |
+| 结局档案阅读器 | `ArchiveReader` | 结局菜单中的独立阅读入口，复用 LoreDiary，不开始新挑战；隔离底层菜单焦点并支持 ESC 返回。 |

@@ -96,6 +96,7 @@ func capture_player(player: Player) -> void:
 		"barrier":player.fragments.barrier,"recovery":player.fragments._barrier_recovery,
 		"counter":player.fragments._counter_left,"charge":player.fragments.spite_charge,
 		"since_combat":player.fragments.since_combat,
+		"resonance":player.fragments.resonance_cooldown,
 	}
 
 func restore_player(player: Player) -> void:
@@ -111,6 +112,7 @@ func restore_player(player: Player) -> void:
 		player.fragments._counter_left = float(fragment_state.get("counter",0.0))
 		player.fragments.spite_charge = int(fragment_state.get("charge",0))
 		player.fragments.since_combat = float(fragment_state.get("since_combat",0.0))
+		player.fragments.resonance_cooldown = float(fragment_state.get("resonance",0.0))
 	var body := player.get_node_or_null("ShadowBody")
 	if body != null and body.has_method("set_fracture_level"):
 		body.set_fracture_level(defeated.size())

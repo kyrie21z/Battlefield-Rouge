@@ -23,6 +23,31 @@ var absorption_total := 0.0
 var brittle_hits := 0
 var _barrier_recovery := 0.0
 var _glass: AudioStreamPlayer
+var resonance_cooldown := 0.0
+var resonances := 0
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("psyche_resonance") and not event.is_echo() and try_slumber_resonance():
+		get_viewport().set_input_as_handled()
+
+func try_slumber_resonance() -> bool:
+	if not is_instance_valid(player) or player.health.is_dead() or get_tree().paused or not shards.has(SLOTH) or resonance_cooldown > 0.0:
+		return false
+	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,18.0)
+	if targets.is_empty():
+		return false
+	for enemy in targets:
+		if enemy.has_method("receive_slumber_resonance"):
+			enemy.receive_slumber_resonance(3.0,0.25)
+		else:
+			player.boons.set_status(enemy,&"fragment_slumber",3.0,1.0,0.25)
+	resonance_cooldown = 10.0
+	resonances += 1
+	mark_combat()
+	activated.emit(SLOTH)
+	player.boons.feedback(player.global_position+Vector3.UP*0.2,Color("e3a23a"),2.0)
+	changed.emit()
+	return true
 
 func bind(value: Player) -> void:
 	player = value
@@ -141,6 +166,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player) or player.health.is_dead():
 		return
 	_counter_left = maxf(0.0, _counter_left - delta)
+	resonance_cooldown = maxf(0.0,resonance_cooldown-delta)
 	_barrier_recovery = maxf(0.0, _barrier_recovery - delta)
 	if shards.has(SORROW) and _barrier_recovery <= 0.0 and barrier < TENDERNESS_CAPACITY:
 		barrier = minf(TENDERNESS_CAPACITY, barrier + 6.0 * delta)

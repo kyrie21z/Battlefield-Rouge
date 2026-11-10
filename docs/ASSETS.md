@@ -351,3 +351,11 @@ BodyReassembly复用既有原始白晶身体与56片几何，GLB不变；Shader�
 | `assets/audio/climax/slumber.wav` | 3.925 | `b9a21c2ceccd7e0f8e4b5fe4465e9a7642e28b1a026e45195ca17e07e17e3ef6` |
 | `assets/audio/climax/sorrow.wav` | 3.875 | `8b9ba389106621f512d9f3c53f988a69ffb0a06fd5a5002ffeab091bf509f3df` |
 | `assets/audio/climax/spite.wav` | 3.925 | `a8df488d0d9dc479a7ad532e8f43753a878edc1fa81cedc1478366ab05b0d3c2` |
+
+## #150 无瑕镜像与失控对白（2026-11-10）
+
+Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，白晶Shader、打印环、护盾和超新星为本项目原创。皇冠复用#147简洁普通冠。原始GLB均未修改。
+
+“你简直无药可救了！！”使用#147登记的官方Apache-2.0 Kokoro-82M-v1.1-zh标准女声 `zf_001` 离线生成，语速1.12，24kHz单声道PCM16，2.825秒。原桌面SAPI语音已完全替换，输出不标CC0，旧生成脚本显式拒绝执行。来源、模型哈希和全部参数见 [语音说明](../tools/cinematic/voice_assets.md)。
+
+`assets/audio/climax/crown_breakdown.wav` SHA-256: `6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828`。

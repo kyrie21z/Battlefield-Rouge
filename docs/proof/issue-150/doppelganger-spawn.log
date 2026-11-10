@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS cinematic locks actual player subtree and starts a physical crown drop
+PASS original spoken Chinese line is real nonempty audio
+PASS crown physically falls under gravity
+PASS WORLD floor contact starts actual angry voice
+PASS body prints progressively from top down
+PASS printing body cannot be shot or attack prematurely
+PASS pause freezes printed fraction and choreography
+PASS crown seals onto actual animated head anchor
+PASS combat begins once after complete print and controls restore
+PASS death enters actual white supernova and preserves crown
+PASS supernova has rendered white flash and expanding sphere
+PASS death emits one ending event with surviving physical crown
+PASS completion cleans boss and returns live player control
+PASS early scene removal restores controls and audio ownership
+DOPPELGANGER SPAWN: 14 checks, 0 failed

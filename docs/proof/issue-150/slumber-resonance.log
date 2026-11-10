@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS Q resonance requires Slumber core
+PASS independent resonance reaches live foe
+PASS real actor simulation becomes quarter speed
+PASS repeated use cannot skip cooldown
+PASS pause freezes ability recovery
+PASS temporary slow expires on real actor
+PASS rest deprivation remains active
+PASS WORLD occlusion prevents resonance without spending cooldown
+ALL PASSED (8 checks)

@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS white humanoid retains 24 bones and real original gun/blade
+PASS final loadout preserves all four ordinary deprivations
+PASS fast gun burst launches four real swept bullets
+PASS Tenderness absorbs real burst without restoring ordinary shield
+PASS fast slide physically crosses arena
+PASS slide commits to direction and permits dodge
+PASS dash blade deals actual HP damage when not dodged
+PASS perfect guard intercepts actual pistol ray
+PASS equipped Slumber Q activates through shared live API
+PASS Slumber breaks guard and slows independent boss clock
+PASS boss exposed timer advances at slowed rate
+PASS Q has real cooldown, not a repeated free interrupt
+PASS pause preserves resonance and boss clock
+PASS real critical weapon hit exploits exposed shell
+PASS Vigilance remains the independent crit modifier
+PASS ordinary knockback cannot push the final shell
+PASS actual incoming damage starts independent Spite motion
+PASS Spite drives real WORLD collision and breaks wall
+PASS wall impact opens shield without restoring ordinary knockback
+PASS real death scatters white crystal into 56 rigid fragments
+PASS final dust and all bullets clean up
+FLAWLESS COMBAT: 21 checks, 0 failed

@@ -1,8 +1,12 @@
 extends Node3D
 ## Continuous return corridor; the same player and camera survive the climax.
+signal duel_requested(player: Player)
+signal duel_defeated(crown: Node3D)
 var player: Player
 var reassembly: BodyReassembly
 var reconstituted := false
+var duel_started := false
+var encounter: Node3D
 var _end_wall: StaticBody3D
 func _ready()->void:
 	var world:=WorldEnvironment.new()
@@ -53,15 +57,29 @@ func _physics_process(_delta:float)->void:
 	if not is_instance_valid(player) or player.health.is_dead():return
 	if player.position.z < -4 and reassembly.phase==BodyReassembly.Phase.IDLE and player.fragments.shards.size()==4:
 		reassembly.begin()
+	if reconstituted and not duel_started and player.position.z < -38:
+		_start_duel()
 
 func _reconstituted()->void:
 	reconstituted=true
 	if is_instance_valid(_end_wall):_end_wall.queue_free()
 	if RunDirector.active:RunDirector.capture_player(player)
 
+func _start_duel()->void:
+	var path:="res://levels/climax/doppelganger_spawn.gd"
+	if not ResourceLoader.exists(path):return
+	duel_started=true
+	var duel:Node3D=load(path).new()
+	encounter=duel
+	duel.position=Vector3(0,0,-50)
+	duel.setup(player)
+	duel.defeated.connect(duel_defeated.emit)
+	add_child(duel)
+	duel_requested.emit(player)
+
 func _on_player_died(_source:Node)->void:
 	if RunDirector.active:
-		RunDirector.record_death(&"threshold")
+		RunDirector.record_death(&"doppelganger")
 	var layer:=CanvasLayer.new()
 	add_child(layer)
 	var label:=Label.new()

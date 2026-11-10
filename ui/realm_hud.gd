@@ -15,6 +15,7 @@ var _boss_name: Label
 var _monochrome: ColorRect
 var _base_sensitivity := 0.0022
 var _root: Control
+var _resonance: Label
 
 func _ready() -> void:
 	layer = 10
@@ -58,6 +59,13 @@ func _ready() -> void:
 	_boons.offset_top = 28
 	_boons.offset_bottom = 160
 	_boons.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_resonance = _label("",17)
+	_resonance.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_resonance.offset_left = -180
+	_resonance.offset_right = 180
+	_resonance.offset_top = -62
+	_resonance.offset_bottom = -28
+	_resonance.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	crosshair = Crosshair.new()
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -115,6 +123,8 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(stage) or not is_instance_valid(stage.player):
 		return
 	var player := stage.player
+	_resonance.visible = player.fragments.has_shard(PsycheFragments.SLOTH)
+	_resonance.text = "%s 沉睡共鸣 · %s" % [KeyHint.of("psyche_resonance"),"就绪" if player.fragments.resonance_cooldown<=0 else "%.1f s" % player.fragments.resonance_cooldown]
 	_objective.text = stage.objective_text()
 	_ammo.text = "%d / %d\n%s" % [player.weapon.ammo,player.weapon.magazine_capacity(),"晶体重组…" if player.weapon.is_reloading() else "黑晶手枪"]
 	var camera := get_viewport().get_camera_3d()

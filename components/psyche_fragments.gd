@@ -62,6 +62,11 @@ func bind(value: Player) -> void:
 	_glass.volume_db = -12.0
 	add_child(_glass)
 
+## Replace the existing single damage voice; never add a second damage listener.
+func set_brittle_audio(stream: AudioStream) -> void:
+	if is_instance_valid(_glass) and stream != null:
+		_glass.stream = stream
+
 func configure_deprivation(values: Array[int]) -> void:
 	deprivations.assign(values)
 	player.health.unbuffered = deprivations.has(SORROW)

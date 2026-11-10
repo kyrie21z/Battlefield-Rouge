@@ -128,3 +128,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 正式进场及插旗后 F 交互使用 `ui/boon_picker/boon_picker.tscn`。初始给枪/刃/冲刺各一个核心候选，通关给与浮空心魔徽记一致的三张候选；替换需要确认。`BoonOffers` 使用 Zone 独立 RNG 和 `BoonManager.can_equip`，门扉可选到符合双系条件的双重卡。RunState 管理每局 2 次重抽与选卡历史；UI不直接扣费或推进关卡。暂停只冻结战斗，入场动画和确认交互继续；死亡界面接管暂停，空池仍可继续。
 
 `BoonIdentity` 是图标/主题数据，世界标识不依赖 UI Control。七种门扉标识均可配置，当前生产小关实际发放四系赐福；石榴/血量/商店图标为后续房间配置预留，未新增经济或房间流程。HUD显示当前赐福，历史 fixture Buff仍可恢复。当前保留每局三次选择，完整传奇成型需要后续增加房间循环；见 [ADR 0017](docs/adr/0017-boon-door-rewards.md)。
+
+## Epic 3：领域约束接口（#138）
+
+Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责；深渊致死走 Health 明确的 environmental_fatal 分支及正常死亡信号。

@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS all three actors reuse the 24-bone crystal humanoid
+PASS Laggard moves at specified 2.2m/s
+PASS Anchor has no locomotion and an eight metre radius
+PASS two warm Rest Zones and two frozen clock rings
+PASS first delayed volley starts
+PASS casting cannot duplicate another volley
+PASS formation does not damage the player
+PASS four projectiles wait visibly before any hit
+PASS hovering projectiles retain their launch position
+PASS released crystals hit real player Health
+PASS each launched crystal passes through normal Projectile pipe
+PASS Retreater starts retreating after a real hit
+PASS retreat is CharacterBody movement away from the player
+PASS retreat fires a homing backshot
+PASS Anchor activates inside eight metres with line of sight
+PASS real player cannot dash while anchored
+PASS leaving the eight metre boundary clears the field
+PASS leaving the field restores real dash access
+PASS solid WORLD cover blocks the gravity field
+PASS field resumes when cover is removed
+PASS absolute stasis releases the caster field
+PASS death cancels the gravity source immediately
+PASS death produces 56 actual WORLD-colliding rigid crystals
+FAIL scene pause freezes physical shard lifetime
+PASS all crystal rigid bodies are reclaimed
+SLOTH REALM: FAIL (25 checks, 1 failed)

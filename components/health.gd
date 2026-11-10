@@ -64,6 +64,8 @@ func is_dead() -> bool:
 func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null, context: Dictionary = {}) -> float:
 	if is_dead():
 		return 0.0
+	if context.get("environmental_fatal", false):
+		return _environmental_fatal(source, context)
 	if not is_instance_valid(source):
 		source = null
 	if source != null and "team" in source and source.team == team and not context.get("allow_friendly_fire", false):
@@ -135,6 +137,27 @@ func _on_stats_changed() -> void:
 	var new_max := stats.get_value(Stats.MAX_HEALTH)
 	health = clampf(health + new_max - max_health, 0.0, new_max)
 	max_health = new_max
+
+
+## Falling beyond an authored abyss is a lethal boundary, not an absorbable hit.
+## It still supplies the same actual-HP/death events, once, for run settlement.
+func _environmental_fatal(source: Node, context: Dictionary) -> float:
+	var dealt := health
+	var ctx := context.duplicate()
+	ctx.merge({"source": source, "target": get_parent(), "health": self,
+		"damage": dealt, "dealt": dealt, "absorbed": 0.0, "resolved_damage": dealt,
+		"body_part": Hitbox.BodyPart.BODY, "cancelled": false, "killed": true,
+		"tag": &"abyss", "proc_depth": 0}, true)
+	_damage_resolution_depth += 1
+	health = 0.0
+	last_damage_context = ctx
+	damaged.emit(dealt, Hitbox.BodyPart.BODY, source)
+	died.emit(source)
+	after_damage.emit(ctx)
+	_damage_resolution_depth -= 1
+	if _damage_resolution_depth == 0:
+		damage_resolved.emit()
+	return dealt
 
 
 func grant_shield(amount: float) -> float:

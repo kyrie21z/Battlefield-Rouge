@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] equip sloth_gun_pulse
+[ok] equip sloth_blade_cleave
+[ok] equip sloth_dash_ripple
+[ok] actual pistol hit applies Latency
+[ok] implanting shot is not retroactively accumulated
+[ok] repeated gun shot keeps separate 35 damage and 25 shot ledgers
+[ok] no early detonation
+[ok] pause cannot advance countdown
+[ok] 1.5 seconds delivers 60 + 35 + 25 actual burst
+[ok] burst uses unique health and visible neighbours
+[ok] WORLD cover and allies reject AoE
+[ok] detonation cleans clock and slow
+[ok] production blade forces clock detonation
+[ok] blade burst includes slash then multiplies by 1.5
+[ok] blade clock stat doubles
+[ok] production Dash starts
+[ok] dash start makes one aura
+[ok] dash finish records the actual position
+[ok] touching the landing aura roots and marks target
+[ok] settled dash boosts one attack by 50 percent
+[ok] boost is consumed exactly once
+[ok] freed transient waves and departing enemies are pruned safely
+[ok] loadout cleanup restores target slow and clock stat
+SLOTH CORE: ALL PASSED (0 failed)

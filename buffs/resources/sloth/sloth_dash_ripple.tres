@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_dash_ripple"
+name = "冲刺·凝固涟漪"
+sin = 0
+slot = 2
+rarity = 0
+core = true
+description = "起落留下琥珀光环，触及敌人定身1秒并植入滞后。落地静止0.5秒，下一次攻击伤害+50%。"
+stat_modifiers = {}
+parameters = {"latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0, "aura_radius": 2.5, "aura_duration": 1.25, "root_duration": 1.0, "settle_duration": 0.5, "next_attack_multiplier": 1.5}
+script_hook = ExtResource("2")

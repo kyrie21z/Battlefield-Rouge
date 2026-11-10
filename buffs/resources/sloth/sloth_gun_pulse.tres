@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/sloth_effect.gd" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "sloth_gun_pulse"
+name = "枪·延爆脉冲"
+sin = 0
+slot = 0
+rarity = 0
+core = true
+description = "命中植入1.5秒琥珀时钟。期间减速40%，到期爆发60基础伤害与蓄压；重复枪击额外蓄压25。"
+stat_modifiers = {}
+parameters = {"latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0, "repeat_pressure": 25.0}
+script_hook = ExtResource("2")

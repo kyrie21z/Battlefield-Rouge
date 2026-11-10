@@ -133,3 +133,7 @@ if __name__ == "__main__":
         target = root / path
         target.write_text(zone(**spec), encoding="utf-8", newline="\n")
         print(path, len(spec["enemies"]), "Sloth guards" + (" + boss" if spec.get("boss") else ""))
+
+    from gen_realms import generate
+    for path in generate(root):
+        print(path.relative_to(root), "realm")

@@ -83,6 +83,8 @@ func _physics_process(delta: float) -> void:
 func try_dash() -> bool:
 	if get_tree().paused or _health == null or _health.is_dead() or _charges <= 0:
 		return false
+	if _player is Player and _player.realm_effects != null and _player.realm_effects.dash_blocked:
+		return false
 	if not _player.is_on_floor():
 		if _air_used >= air_charges:
 			return false
@@ -98,6 +100,8 @@ func try_dash() -> bool:
 	_audio.play()
 	_dash_context = {"source": _player, "position": _player.global_position,
 		"origin": _player.global_position, "direction": _direction(), "duration": duration, "distance": distance}
+	if _player is Player and _player.realm_effects != null:
+		_dash_context.distance *= _player.realm_effects.dash_distance_multiplier
 	if boon_hook.is_valid():
 		boon_hook.call(&"dash_started", _dash_context)
 	dashing.emit(_dash_context.direction, _dash_context.distance / maxf(_dash_context.duration, 0.01), _dash_context.duration)

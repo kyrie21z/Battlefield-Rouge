@@ -1,0 +1,67 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS equip vacant gun directly
+PASS legacy and boon modifiers combine
+PASS same hook Script gets one state instance
+PASS occupied slot needs explicit confirmation
+PASS cancel keeps original numerical modifier
+PASS confirm swaps one core
+PASS replacement removes old source, retains legacy buff
+PASS pipeline consumes no global gameplay RNG
+PASS real pistol fires through pipeline
+PASS gun hit has actual modified damage (35*2.4+7)
+PASS successful shot has one shoot and hit event
+PASS cooldown rejected fire adds no hook
+PASS real blade starts
+PASS real blade damage uses pipeline once
+PASS blade active and end hooks fire once
+PASS real dash starts
+PASS dash lifecycle hooks
+PASS real reload hooks
+PASS pre-HP hook prevents lethal damage
+PASS cancelled damage never emits a false damaged event
+PASS legacy shield and new barrier compose
+PASS raw proc overrides copied damage and scales exactly once
+PASS already settled proc is not multiplied again
+PASS direct outgoing Health damage uses the same multiplier once
+PASS environmental damage does not inherit player offense
+PASS proc recursion depth capped
+PASS world freeze stops enemy and hostile projectile locally
+PASS frozen projectile cannot advance
+PASS paused tree does not expire timed effects
+PASS freeze expires while player clock runs, other slow remains
+PASS timed source expires and restores speed
+PASS Health overkill return equals actual ten HP loss
+PASS intrinsic Health shield absorbs before HP
+PASS resolved damage reports real absorption plus HP
+PASS raw true damage scales offense but bypasses intrinsic shield
+PASS break_shield removes full actual capacity
+PASS shield recovery is really blocked
+PASS removing one blocker preserves another source
+PASS natural regeneration resumes after all blockers clear
+PASS fixed deferred damage is not mitigated twice
+PASS slot 1 request cannot silently overwrite
+PASS slot 1 confirms exactly one replacement
+PASS slot 2 request cannot silently overwrite
+PASS slot 2 confirms exactly one replacement
+PASS slot 3 request cannot silently overwrite
+PASS slot 3 confirms exactly one replacement
+PASS OR prerequisite accepts owned alternative
+PASS dual cards do not count as family secondary traits
+PASS ordinary family trait satisfies count prerequisite
+PASS mid-reload speed boost advances existing reassembly
+PASS production Sloth starts real attack
+PASS windup status changes actual Sloth warning 2s to 2.6s
+PASS local freeze pauses derived Sloth attack and animation
+PASS new enemy projectile inherits ongoing freeze
+PASS explicit freeze cleanup resumes real attack
+PASS attack speed halves real attack clock without movement slow
+PASS attack speed source restores independently
+PASS windup cleanup restores original warning
+PASS clock widened window applies perfect verdict and progress multiplier
+PASS clock theme drives actual flash and light
+PASS timing bar reads same themed stats as clock
+PASS scene teardown never persists empty loadout
+PASS teardown removes reversible modifiers but retains legacy buff
+PASS real death removes cards, timed stats and local freeze
+BOON PIPELINE: 64 checks, 0 failed, completed=true

@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS real player grounded
+PASS anchor blocks real dash before spending charge
+PASS second anchor remains after first clears
+PASS last source restores mobility
+PASS wail reaches actual reload and dash stats
+PASS pause freezes effect duration
+PASS expiry restores stats and monochrome
+PASS freed caster automatically releases constraint
+PASS gravity permits weakened real dash
+PASS gravity shortens physical dash to 2m (2.04)
+PASS external impulse respects real WORLD wall
+PASS abyss ignores shield immunity and cancellation
+PASS abyss stores actual lethal context
+PASS death is idempotent
+PASS death releases all temporary realm effects
+ALL PASSED (15 checks)

@@ -30,6 +30,10 @@ const HURT_SHAKE_DURATION := 0.2
 ## Read by Health to ignore friendly fire.
 var team := 0
 var boons: BoonManager
+var realm_effects: RealmPlayerEffects
+var fragments: PsycheFragments
+var _external_impulse := Vector3.ZERO
+var _external_impulse_left := 0.0
 
 ## Independent sources take the strongest field, never multiply. Weak handles
 ## also restore walking speed if a caster disappears during a scene change.
@@ -112,6 +116,14 @@ func _ready() -> void:
 	add_child(boons)
 	boons.bind(self, stats, health, weapon, melee, dash)
 	DualBoonManager.install(boons)
+	realm_effects = RealmPlayerEffects.new()
+	realm_effects.name = "RealmEffects"
+	add_child(realm_effects)
+	realm_effects.bind(self)
+	fragments = PsycheFragments.new()
+	fragments.name = "PsycheFragments"
+	add_child(fragments)
+	fragments.bind(self)
 
 
 ## Read-only dash state for the HUD.
@@ -194,7 +206,7 @@ func _physics_process(delta: float) -> void:
 		if not is_on_floor():
 			velocity.y -= gravity * delta
 		elif Input.is_action_just_pressed("jump"):
-			velocity.y = jump_velocity
+			velocity.y = jump_velocity * realm_effects.jump_multiplier
 
 	# A dash drops the sights for its duration: holding aim through it does not
 	# keep the player scoped mid-dash. Reloading is left alone.
@@ -202,7 +214,7 @@ func _physics_process(delta: float) -> void:
 		and not dashing
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
-	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED) * stasis_multiplier()
+	var speed := jog_speed * stats.get_value(Stats.MOVE_SPEED) * stasis_multiplier() * realm_effects.move_multiplier
 	if aiming:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel
@@ -217,6 +229,13 @@ func _physics_process(delta: float) -> void:
 			_lunge_left = maxf(_lunge_left - delta, 0.0)
 			velocity.x = _lunge.x * fraction
 			velocity.z = _lunge.z * fraction
+	if _external_impulse_left > 0.0:
+		var impulse_fraction := minf(delta, _external_impulse_left) / maxf(delta, 0.0001)
+		_external_impulse_left = maxf(0.0, _external_impulse_left - delta)
+		velocity.x = _external_impulse.x * impulse_fraction
+		velocity.z = _external_impulse.z * impulse_fraction
+		if _external_impulse.y > 0.0:
+			velocity.y = maxf(velocity.y, _external_impulse.y * impulse_fraction)
 	move_and_slide()
 	if lunging and _lunge_left <= 0.0:
 		velocity.x = direction.x * speed
@@ -225,10 +244,34 @@ func _physics_process(delta: float) -> void:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		velocity.y = 0.0
-
 	weapon.aiming = aiming
 	weapon.moving = Vector2(velocity.x, velocity.z).length() > 0.5
 	weapon.airborne = not is_on_floor()
+
+
+func set_realm_effect(source: StringName, data: Dictionary) -> void:
+	if realm_effects != null:
+		realm_effects.set_effect(source, data)
+
+
+func clear_realm_effect(source: StringName) -> void:
+	if realm_effects != null:
+		realm_effects.clear_effect(source)
+
+
+func cancel_forced_movement() -> void:
+	_dash_left = 0.0
+	_lunge_left = 0.0
+	if is_instance_valid(dash):
+		dash.cancel()
+
+
+func apply_external_impulse(direction: Vector3, speed: float, duration: float) -> void:
+	if health.is_dead() or direction.length_squared() < 0.0001:
+		return
+	cancel_forced_movement()
+	_external_impulse = direction.normalized() * maxf(speed, 0.0)
+	_external_impulse_left = clampf(duration, 0.0, 2.0)
 
 
 func _process(delta: float) -> void:

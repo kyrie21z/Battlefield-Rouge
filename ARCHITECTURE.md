@@ -148,6 +148,8 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 `SorrowAudioDirector` 负责本房间水声；独立 `SorrowBoonAudio` 在每个领域监听已装备赐福的真实泪晶事件。`SorrowRealm.set_audio_managed(true)` 显式关闭旧 splash 音源，保留涟漪及独立场景默认行为。玻璃反馈通过公开 `PsycheFragments.set_brittle_audio` 替换已有伤害音源，避免重复 Health 监听。`SorrowEffect` 仅在实际消费成功后派发 `sorrow_tear_collected`，视觉和音频可以分别订阅。
 
+恐惧声音表现由 `RealmStage` 注入演员和玩家；`FearAudioDirector` 只读取真实蓄力、预警与成功瞬移状态，使用固定 8 个持续声部。短音复用 `RealmAudioDirector` 的 16 个声部，动态音库把跨领域赐福语义事件映射到声效。`fear_flaw_audio_managed` 在同步事件分发中声明音频接管，没有接管者时保留原暴击声音，避免独立入口丢声或正式房间双播。
+
 ## Epic 7：赐福图鉴（#174）
 
 `DualBoonCodex` 通过 `setup(manager, discovered)` 接收真实装备与发现快照，只读查询 `BoonManager.can_equip`。父级 `BuildInspector` 持有暂停和页面生命周期，子页面只在可见时处理肩键和内部焦点，隐藏后不截获战斗输入。

@@ -394,3 +394,9 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `environments/sorrow/rain_particles.tscn` | 本项目原创 / 随项目代码 | `aec0583e9876053510e143059cd2bb25d367c61860b9535467ba98ab2def52b9` |
 
 五张证明图片是 Godot 4.7.2 Forward+ 的真实悲伤第一房原生截图，包括固定视角、固定时钟的 SSR 开关对照；来源、完整图片 SHA-256、验证与边界见 [README](proof/issue-169/README.md) 和 [manifest](proof/issue-169/manifest.json)。
+
+## #177 恐惧领域原创音频（2026-11-10）
+
+`audio/realms/fear_sound_bank.gd` 为本项目原创数学合成源码，许可随项目代码，无外部采样或旧工程素材。源码 SHA-256：`95ccdfd4d5c17b3cee666d9e2d81be7b6b316bb1b03c873a5ce7228ebf1ac40b`。生成 22050 Hz、PCM16 双声道的深渊低音、锁定蜂鸣、瞬移相位声与晶面碎裂声；随机噪声使用固定局部种子。
+
+`docs/proof/issue-177/abyss.wav`（4 秒）、`flaw-shatter.wav`（0.32 秒）、`phase.wav`（0.46 秒）是同源可复算的预听证据，来源/许可同上；完整文件 SHA-256、峰值、频率与声道分析见 [PCM 清单](proof/issue-177/pcm-analysis.json)。它们受现有 `docs/proof/.gdignore` 隔离，不作为运行时素材导入。波形检查不代表人工听感验收。

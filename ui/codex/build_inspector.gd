@@ -111,7 +111,7 @@ func _finish_close() -> void:
 		get_tree().paused = false
 		Input.mouse_mode = _mouse_mode
 
-func _on_death() -> void:
+func _on_death(_source: Node = null) -> void:
 	# Death UI takes ownership of the pause and pointer.
 	close(true)
 

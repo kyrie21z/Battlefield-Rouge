@@ -63,8 +63,17 @@ func _ready() -> void:
 	inspector.queue_free()
 	await get_tree().process_frame
 	check("scene exit releases pause",not get_tree().paused)
+	var death_panel := BuildInspector.new()
+	death_panel.player = player
+	add_child(death_panel)
+	death_panel.try_open()
+	player.health.apply_damage(99999,Hitbox.BodyPart.BODY)
+	check("real lethal Health signal closes panel",player.health.is_dead() and not death_panel.opened)
+	check("death keeps pause ownership for death screen",get_tree().paused)
+	death_panel.queue_free()
 	player.queue_free()
 	await get_tree().process_frame
+	get_tree().paused = false
 	var departing := preload("res://actors/player/player.tscn").instantiate() as Player
 	add_child(departing)
 	var last_panel := BuildInspector.new()

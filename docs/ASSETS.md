@@ -273,3 +273,9 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | `assets/models/weapons/mind_blade.glb` | 本项目原创 Blender 模型，项目许可；源文件与生成器见 tools/epic1_models/ | `dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f` |
 | `weapons/mind_blade/mind_blade.svg` | 本项目原创图标，项目许可 | `5d4a027b1a5afcae43408ff33eb6afd18222d76839e777fe3700b010b2dac684` |
 | `docs/assets/mind_blade_turnaround.jpg` | 用户提供的本项目设计参考，原图保留 | `e3beade77687cbcb505a6342f1b6dd057001a5cd3ec902d0c92ff06d84fa698f` |
+
+## #105：原角色升级为第一人称完整身躯
+
+复用上文登记的 `red_crystal_enemy_animated.glb`（11 个部位、24 骨）、`red_crystal_enemy_shards.glb`（56 个预切碎片）与 `protagonist_crystal_material.tres`；没有新角色素材，原文件保持不变。此前只投影的身体现在仅头部保持 `SHADOWS_ONLY`，胸腹、双臂和双腿可见，旧独立枪影副本移除。
+
+裂缝沿原网格非共面晶体接缝，统一黑色。渲染副本保留原三角形、顶点位置、法线、UV、骨索引与权重，仅增加边距离/选择属性；0 级恢复原资源。材质与碎片姿态逐实例管理。原生取证为 Godot 4.7.2 Forward+ 直接截图，见 [#105 验收记录](proof/issue-105/README.md)。

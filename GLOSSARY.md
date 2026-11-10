@@ -166,3 +166,10 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 领域声景（#176）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 领域音频控制 | `RealmAudioDirector` | 由房间注入状态，管理环境交叉淡出与有上限的空间音源；通过真实技能事件播放，不参与伤害结算。 |
+| 怠惰秒针暴走 | `SlothAudioDirector` | Boss 死亡或已有怠惰剥夺后，从 60 BPM 钟摆切到 148 BPM 秒针与齿轮声，换房保留状态。 |

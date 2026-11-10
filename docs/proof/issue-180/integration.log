@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS reality interviewer keeps its original opening bus
+PASS actual opening Crown speech uses one radio DSP
+PASS skip stops processed Crown speech
+PASS opening removes owned radio and downstream buses
+PASS skip from reality creates no Crown processing or residual interview
+PASS production final encounter routes original 3D Crown clip
+PASS cinematic radio follows actual Crown emission
+PASS final boss owns player-only combat audio with no realm ambience
+PASS real final-boss facet plays exactly one managed shatter
+PASS final-boss real tear pickup uses cross-realm voice
+PASS death stops final cinematic speech and all combat pools
+PASS real floor contact after death cannot restart Crown rant
+PASS final encounter releases scene-owned buses
+CROWN AUDIO INTEGRATION: 13 checks, 0 failures

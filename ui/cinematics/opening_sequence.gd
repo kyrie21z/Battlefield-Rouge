@@ -18,6 +18,7 @@ var camera: Camera3D
 var crown: CrownModel
 var audio: AudioStreamPlayer
 var stress_audio: AudioStreamPlayer
+var crown_voice_dsp: CrownVoiceDSP
 var overlay: ColorRect
 var mask: ShaderMaterial
 var subtitle: Label
@@ -268,12 +269,17 @@ func _enter(value: int) -> void:
 	elif phase == Phase.BODY:
 		subtitle.text = ""
 	elif phase == Phase.ENCOUNTER:
+		if not is_instance_valid(crown_voice_dsp):
+			crown_voice_dsp = CrownVoiceDSP.new()
+			crown_voice_dsp.setup(audio,0.5)
+			add_child(crown_voice_dsp)
 		_lowpass.cutoff_hz = 16000
 		audio.pitch_scale = 1.0
 		audio.volume_db = -4
 		crown.show()
 	elif phase == Phase.CROWNING:
 		audio.stop()
+		if is_instance_valid(crown_voice_dsp): crown_voice_dsp.flush_tail()
 		subtitle.text = ""
 	_apply_frame()
 

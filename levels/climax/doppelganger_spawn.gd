@@ -13,6 +13,8 @@ var phase_elapsed := 0.0
 var carrier: RigidBody3D
 var walls: Array[FlawlessFractureWall] = []
 var voice: AudioStreamPlayer3D
+var voice_dsp: CrownVoiceDSP
+var _audio_stopped := false
 var flash: ColorRect
 var label: Label
 var print_ring: MeshInstance3D
@@ -60,6 +62,14 @@ func _ready() -> void:
 	voice.unit_size = 12
 	voice.max_distance = 45
 	add_child(voice)
+	voice_dsp = CrownVoiceDSP.new()
+	voice_dsp.setup(voice,float(crown.get("emission_strength")))
+	add_child(voice_dsp)
+	var combat_audio := RealmAudioDirector.new()
+	combat_audio.name = "CombatAudio"
+	combat_audio.setup_combat(player)
+	add_child(combat_audio)
+	player.health.died.connect(_on_player_died)
 	_build_effects()
 	hud = ClimaxCombatHUD.new()
 	hud.setup(player)
@@ -155,13 +165,14 @@ func _physics_process(delta: float) -> void:
 	phase_elapsed += delta
 	if is_instance_valid(crown):
 		voice.global_position = crown.global_position
+		voice_dsp.set_radiance(0,float(crown.get("emission_strength")))
 	if phase == Phase.DROP:
 		label.text = ""
 		if carrier.get_contact_count()>0:
 			carrier.freeze = true
 			phase = Phase.RANT
 			phase_elapsed = 0
-			voice.play()
+			if not _audio_stopped: voice.play()
 	elif phase == Phase.RANT:
 		label.text = "皇冠：你简直无药可救了！！"
 		if phase_elapsed >= voice.stream.get_length()+0.3:
@@ -270,6 +281,11 @@ func _unlock_player() -> void:
 	if _controls_locked and is_instance_valid(player):
 		player.process_mode = _player_mode
 		_controls_locked = false
+func _on_player_died(_source: Node) -> void:
+	_audio_stopped = true
+	voice.stop()
+	voice_dsp.flush_tail()
+
 func _exit_tree() -> void:
 	_unlock_player()
 	if is_instance_valid(voice):

@@ -2,7 +2,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 PASS new test store never loads the real profile
 PASS controller settlement returns all earned currency
-META WRITE STATUS: 
+META WRITE STATUS:
 PASS same run cannot settle twice
 PASS negative rewards cannot mutate the wallet
 PASS high talent cannot be bought without a visible slot

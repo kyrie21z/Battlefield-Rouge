@@ -927,7 +927,7 @@
           "tested_commit": "1da8d6981e79a7f3b0e2a6bced5aac04ca6b822e",
           "log": "prefix-checks/152-meta_forge_test.log",
           "source_sha256": "872b8d3ad6d36c2b500aaaa2c71333ce023637edb87f639a147a4de20466536f",
-          "sha256": "65e8f32fc1f8eb2426d5e55189d0e009bb73a477820da3828d84441e2b75c2ba"
+          "sha256": "a21395f8a30e5a1fdd110522f9295aeb7c5f09459287c776ea6352ce1f718b08"
         },
         {
           "name": "meta_campaign_test",

@@ -253,7 +253,7 @@
       "test": "meta_forge_test",
       "first_sweep_passed": true,
       "log": "first-sweep/meta_forge_test.log",
-      "sha256": "65e8f32fc1f8eb2426d5e55189d0e009bb73a477820da3828d84441e2b75c2ba"
+      "sha256": "a21395f8a30e5a1fdd110522f9295aeb7c5f09459287c776ea6352ce1f718b08"
     },
     {
       "test": "mind_blade_test",

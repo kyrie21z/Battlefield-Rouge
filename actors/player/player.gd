@@ -128,6 +128,10 @@ func _ready() -> void:
 	crystal_feedback.name = "CrystalFeedback"
 	add_child(crystal_feedback)
 	crystal_feedback.bind(self)
+	var focus := ADSFocus.new()
+	focus.name = "ADSFocus"
+	add_child(focus)
+	focus.bind(self)
 
 
 ## Read-only dash state for the HUD.

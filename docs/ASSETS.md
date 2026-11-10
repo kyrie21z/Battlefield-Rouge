@@ -412,3 +412,9 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `actors/player/kintsugi_flow.gd` | 本项目原创 / 随项目代码 | `ab63fb81977169ea6121b4789913c983b1b3b62880435e2953108cc3c6a23a53` |
 
 五张原生证明由 Godot 4.7.2 Forward+ 直接捕获，包括皇冠等级对照、原身体金缮全身/接缝近景和真实皇冠投影；外部相机仅用于审阅。图像与验证日志哈希见 [SHA256SUMS](proof/issue-172/SHA256SUMS)，行为验证与独立无截图性能采样见 [README](proof/issue-172/README.md)。
+
+## #171 接触光照与 ADS 景深（2026-11-10）
+
+`environments/default_env.tres` 与 `actors/player/visuals/ads_focus.gd` 是本项目原创配置和代码，使用 Godot 内置 SSAO、SSIL 与 CameraAttributesPractical，不新增外部模型、纹理或音频素材。原始角色及普通皇冠素材保持原样。
+
+[验证截图与参数](proof/issue-171/README.md) 来自本项目真实关卡的 Godot 4.7.2 Forward+ 原生运行，由测试场景保存；不是外部概念图或合成画面。

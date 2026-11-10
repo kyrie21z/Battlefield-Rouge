@@ -125,7 +125,7 @@ func _rod(a: Vector3, b: Vector3, width: float, material: String, parent: Node3D
 func _lighting() -> void:
 	var world := WorldEnvironment.new()
 	world.name = "Atmosphere"
-	environment = Environment.new()
+	environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	environment.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var sm := ShaderMaterial.new()
@@ -143,9 +143,6 @@ func _lighting() -> void:
 	environment.fog_density = 0.00085
 	environment.fog_sky_affect = 0.16
 	environment.fog_aerial_perspective = 0.32
-	environment.ssao_enabled = true
-	environment.ssao_radius = 3.0
-	environment.ssao_intensity = 1.5
 	environment.glow_enabled = true
 	environment.glow_intensity = 0.36
 	world.environment = environment

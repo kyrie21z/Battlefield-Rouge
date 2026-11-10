@@ -1,0 +1,23 @@
+{
+  "issue": 150,
+  "path": "assets/audio/climax/crown_breakdown.wav",
+  "text": "你简直无药可救了！！",
+  "voice": "zf_001",
+  "speed": 1.12,
+  "seed": 14722,
+  "sample_rate": 24000,
+  "channels": 1,
+  "sample_width_bits": 16,
+  "frames": 67800,
+  "duration_seconds": 2.825,
+  "bytes": 135644,
+  "peak": 0.920013427734375,
+  "rms": 0.12774868309497833,
+  "nonzero_samples": 54107,
+  "clipped_samples": 0,
+  "normalization_gain": 2.5125425320212043,
+  "sha256": "6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828",
+  "phonemes": [
+    "ㄋㄧ2ㄐ言3ㄓ十2/ㄨ2要4/ㄎㄜ3ㄐ又4/ㄌㄜ5! !"
+  ]
+}

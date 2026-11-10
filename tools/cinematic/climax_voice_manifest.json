@@ -1,0 +1,47 @@
+[
+  {
+    "file": "assets/audio/climax/slumber.wav",
+    "sha256": "b9a21c2ceccd7e0f8e4b5fe4465e9a7642e28b1a026e45195ca17e07e17e3ef6",
+    "seconds": 3.925,
+    "rate": 24000,
+    "engine": "Kokoro-82M-v1.1-zh",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "file": "assets/audio/climax/fear.wav",
+    "sha256": "0c29e5a2a67241401922a83417e98af77d4da2fb9b1224eb6318cc3b89cd42fd",
+    "seconds": 4.3,
+    "rate": 24000,
+    "engine": "Kokoro-82M-v1.1-zh",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "file": "assets/audio/climax/spite.wav",
+    "sha256": "a8df488d0d9dc479a7ad532e8f43753a878edc1fa81cedc1478366ab05b0d3c2",
+    "seconds": 3.925,
+    "rate": 24000,
+    "engine": "Kokoro-82M-v1.1-zh",
+    "voice": "zm_010",
+    "speed": 1.04
+  },
+  {
+    "file": "assets/audio/climax/sorrow.wav",
+    "sha256": "8b9ba389106621f512d9f3c53f988a69ffb0a06fd5a5002ffeab091bf509f3df",
+    "seconds": 3.875,
+    "rate": 24000,
+    "engine": "Kokoro-82M-v1.1-zh",
+    "voice": "zm_010",
+    "speed": 0.92
+  },
+  {
+    "file": "assets/audio/climax/acceptance.wav",
+    "sha256": "1eae27b6d41e20875e97c7127ee49e19e87611ac616873b5d2540321ed5e1487",
+    "seconds": 4.75,
+    "rate": 24000,
+    "engine": "Kokoro-82M-v1.1-zh",
+    "voice": "zm_010",
+    "speed": 1.04
+  }
+]

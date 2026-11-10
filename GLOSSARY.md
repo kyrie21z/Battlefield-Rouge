@@ -166,3 +166,12 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 镜潭与白雨（#169）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 墨蓝镜潭 | `water_mirror.gdshader` | 留在不透明通道的 SSR 水面，倒映屏幕内建筑和角色；法线扰动形成扩散同心波。 |
+| 白色细雨 | `rain_particles.tscn` / `rain_layout.gdshaderinc` | 750 条垂直 GPU 雨丝，共用确定性落点与时钟，使雨滴落水和水面圆环同步。 |
+| 水波包 | `SorrowRealm._ripples` | 固定 32 槽视觉环池，由真实涉水、冲刺、成功射击和泪晶交互驱动，不参与伤害或物理结算。 |
+| 镜潭相机环境 | `SorrowRealm.mirror_environment` | 显式赋给 ViewCamera 的悲伤领域环境，确保 SSR 不受同场 WorldEnvironment 创建顺序影响。 |

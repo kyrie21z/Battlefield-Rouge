@@ -12,7 +12,7 @@ extends Resource
 @export_range(1.0, 5.0, 0.1) var perfect_multiplier := 2.0
 ## When this is above 0, every swing that lands adds this fraction of the
 ## capture, perfect or not. 0 keeps the percent and the multiplier. The boss
-## core sets it to 1 so one hammer finishes the building; small zones leave it
+## core sets it to 1 so one blade strike finishes the building; small zones leave it
 ## at 0 and stay on +10% / ×2.0.
 @export_range(0.0, 1.0, 0.05) var progress_per_swing := 0.0
 

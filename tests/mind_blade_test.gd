@@ -1,5 +1,5 @@
 extends Node
-## Behavioral coverage of the one-blade contract, covering slash timing, geometry and magnetism.
+## Behavioral coverage of the one-blade contract, including swept parries.
 
 class Dummy extends CharacterBody3D:
 	var team := 1
@@ -14,6 +14,7 @@ var _world: Node3D
 var _shooter: Dummy
 var _blade: MeleeWeapon
 var _lunges: Array[float] = []
+var _strikes := 0
 
 
 func _ready() -> void:
@@ -30,8 +31,10 @@ func _ready() -> void:
 	camera.add_child(_blade)
 	_blade.set_process(false)
 	_blade.lunge.connect(func(_d: Vector3, speed: float, duration: float): _lunges.append(speed * duration))
+	_blade.struck.connect(func(): _strikes += 1)
 	await _settle()
 	await _test_slash()
+	await _test_parry()
 	await _test_obstruction_and_pause()
 	_test_grip_trajectory()
 	await _test_player_integration()
@@ -92,6 +95,7 @@ func _test_slash() -> void:
 	_check("slash supplies knockback and stagger", target.impact_count == 1 and target.last_force > 0.0)
 	_blade._process(0.021)
 	_check("end sample never double-damages", is_equal_approx(_health(target).health, 45.0))
+	_check("one clock strike per slash", _strikes == 1)
 	_blade._process(0.15)
 	_check("recovery returns to idle", not _blade.is_swinging() and not _blade.view_visible())
 	target.free()
@@ -130,6 +134,38 @@ func _test_slash() -> void:
 	_check("swing tip matches imported blade geometry", absf(-bounds.position.z - _blade.blade_length()) < 0.001)
 
 
+func _test_parry() -> void:
+	var enemy := _dummy(Vector3(0, 0, -5), 1)
+	await _settle()
+	_blade.swing_now()
+	_blade._process(0.08)
+	var bullet := Projectile.spawn(_world, Vector3(0, 0, -3), Vector3.BACK, enemy, 10.0, 30.0, [enemy.get_rid()])
+	bullet.set_physics_process(false)
+	bullet._physics_process(0.1)
+	_check("sweep catches bullet crossing whole parry sphere", bullet.reflected)
+	_check("reflection changes ownership and clears enemy exclusions", bullet.source == _shooter
+		and not bullet.exclude.has(enemy.get_rid()) and bullet.exclude.has(_shooter.get_rid()))
+	_check("reflected bullet flies back faster", bullet.speed >= 60.0 and (-bullet.global_basis.z).z < -0.99)
+	bullet._physics_process(0.1)
+	_check("returned projectile damages its original enemy", _health(enemy).health < 100.0)
+	await get_tree().process_frame
+	_blade.cancel()
+	var late := Projectile.spawn(_world, Vector3(0, 0, -3), Vector3.BACK, enemy, 10.0, 30.0, [])
+	late.set_physics_process(false)
+	late._physics_process(0.1)
+	_check("idle blade does not parry", not late.reflected)
+	_check("idle bullet reaches the player", _health(_shooter).health == 90.0)
+	await get_tree().process_frame
+	_blade.swing_now()
+	_blade._process(0.08)
+	var rear := Projectile.spawn(_world, Vector3(0, 0, 3), Vector3.FORWARD, enemy, 10.0, 30.0, [])
+	rear.set_physics_process(false)
+	rear._physics_process(0.1)
+	_check("active blade cannot parry behind player", not rear.reflected)
+	await get_tree().process_frame
+	enemy.free()
+
+
 func _test_obstruction_and_pause() -> void:
 	_blade.cancel()
 	var enemy := _dummy(Vector3(0, 0, -4), 1)
@@ -146,24 +182,38 @@ func _test_obstruction_and_pause() -> void:
 	var lunge_count := _lunges.size()
 	_blade.swing_now()
 	_check("wall prevents magnet acquisition", _lunges.size() == lunge_count)
-	_blade._process(0.20)
+	_blade._process(0.08)
+	var health_before := _health(_shooter).health
+	var bullet := Projectile.spawn(_world, Vector3(0, 0, -3), Vector3.BACK, enemy, 10.0, 30.0, [])
+	bullet.set_physics_process(false)
+	bullet._physics_process(0.1)
+	_check("wall prevents parry through cover", not bullet.reflected)
+	_blade._process(0.12)
 	_check("wall also blocks slash", _health(enemy).health == 100.0)
+	_check("wall still stops the unreflected bullet", _health(_shooter).health == health_before)
+	await get_tree().process_frame
 	wall.free()
 	_blade.cancel()
 	await _settle()
 	_blade.swing_now()
 	_blade._process(0.08)
+	bullet = Projectile.spawn(_world, Vector3(0, 0, -3), Vector3.BACK, enemy, 10.0, 30.0, [])
 	_blade.set_process(true)
 	var phase_left := _blade._phase_left
+	var bullet_position := bullet.position
 	get_tree().paused = true
 	_check("paused blade rejects public swing", not _blade.swing_now())
 	await get_tree().create_timer(0.05, true).timeout
-	_check("pause freezes blade window", _blade._phase_left == phase_left)
+	_check("pause freezes blade window and projectile", _blade._phase_left == phase_left and bullet.position == bullet_position)
 	_blade.set_process(false)
+	bullet.set_physics_process(false)
 	get_tree().paused = false
 	_blade.cancel()
-	_check("cancel removes the active slash", not _blade.is_swinging())
+	bullet._physics_process(0.1)
+	_check("death/cancel immediately removes parry window", not bullet.reflected)
+	await get_tree().process_frame
 	enemy.free()
+
 
 func _test_grip_trajectory() -> void:
 	# Exercise the public grip in a transformed player frame, so an accidental

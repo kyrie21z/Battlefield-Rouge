@@ -16,7 +16,6 @@ var _bindings := {
 	"throw_magazine": [_key(KEY_C)],
 	"weapon_next": [_mouse(MOUSE_BUTTON_WHEEL_UP)],
 	"weapon_prev": [_mouse(MOUSE_BUTTON_WHEEL_DOWN)],
-	"hammer": [_key(KEY_E)],
 	"melee": [_key(KEY_V), _mouse(MOUSE_BUTTON_XBUTTON1)],
 	"shield": [_key(KEY_G)],
 	"interact": [_key(KEY_F)],

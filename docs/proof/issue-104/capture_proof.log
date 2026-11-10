@@ -1,0 +1,62 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+== 01_clear_guards -> res://docs/proof/issue-104/01_clear_guards.png
+[占点调试 · F3 隐藏]
+阶段 CLEAR_GUARDS   进度 0.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+起点 普通局（无 fixture）   种子 3259686096
+窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
+节拍周期 1.0 s   与命中时刻相差 —
+上一击 —
+统计 完美 0 / 普通 0
+== 02_clock_point_open -> res://docs/proof/issue-104/02_clock_point_open.png
+[占点调试 · F3 隐藏]
+阶段 CLOCK_POINT   进度 0.0%   在锤程内 是
+配置 res://zone/capture_config.tres
+起点 普通局（无 fixture）   种子 3259686096
+窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
+节拍周期 1.0 s   与命中时刻相差 -367 ms
+上一击 —
+统计 完美 0 / 普通 0
+press at offset -200 ms, progress 0%
+struck perfect -20 ms +20%
+== 03_perfect_strike -> res://docs/proof/issue-104/03_perfect_strike.png
+[占点调试 · F3 隐藏]
+阶段 CLOCK_POINT   进度 20.0%   在锤程内 是
+配置 res://zone/capture_config.tres
+起点 普通局（无 fixture）   种子 3259686096
+窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
+节拍周期 1.0 s   与命中时刻相差 +96 ms [窗口内]
+上一击 完美  -20 ms  +20.0%
+统计 完美 1 / 普通 0
+press at offset +227 ms, progress 20%
+struck ordinary +410 ms +10%
+== 04_ordinary_strike -> res://docs/proof/issue-104/04_ordinary_strike.png
+[占点调试 · F3 隐藏]
+阶段 CLOCK_POINT   进度 30.0%   在锤程内 是
+配置 res://zone/capture_config.tres
+起点 普通局（无 fixture）   种子 3259686096
+窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
+节拍周期 1.0 s   与命中时刻相差 +492 ms
+上一击 普通  +410 ms  +10.0%
+统计 完美 1 / 普通 1
+press at offset -202 ms, progress 30%
+struck perfect -19 ms +20%
+press at offset -203 ms, progress 50%
+struck perfect -27 ms +20%
+press at offset -204 ms, progress 70%
+struck perfect -26 ms +20%
+press at offset -197 ms, progress 90%
+struck perfect -19 ms +20%
+== 05_flag_planted -> res://docs/proof/issue-104/05_flag_planted.png
+[占点调试 · F3 隐藏]
+阶段 FLAG_PLANTED   进度 100.0%   在锤程内 否
+配置 res://zone/capture_config.tres
+起点 普通局（无 fixture）   种子 3259686096
+窗口 ±150.0 ms   普通 +10.0%   完美 ×2.0（= +20.0%）
+节拍周期 1.0 s   与命中时刻相差 —
+上一击 完美  -19 ms  +20.0%
+统计 完美 5 / 普通 1
+strikes: 5 perfect, 1 ordinary
+CAPTURE PROOF PASSED

@@ -1,0 +1,63 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== tracks
+  [ok] calm is 22.86 s = 8 bars at 84 BPM
+  [ok] calm loops over the whole buffer
+    calm peak -6.00 dBFS, rms -20.25 dBFS
+  [ok] calm peaks between -9 and -4 dBFS (-6.00)
+  [ok] calm is not near silence (rms -20.3 dBFS)
+  [ok] calm has no click at the loop point (1123)
+  [ok] calm is the same bytes when rendered again
+  [ok] combat is 15.00 s = 8 bars at 128 BPM
+  [ok] combat loops over the whole buffer
+    combat peak -6.00 dBFS, rms -21.38 dBFS
+  [ok] combat peaks between -9 and -4 dBFS (-6.00)
+  [ok] combat is not near silence (rms -21.4 dBFS)
+  [ok] combat has no click at the loop point (505)
+  [ok] combat is the same bytes when rendered again
+  [ok] boss is 13.71 s = 8 bars at 140 BPM
+  [ok] boss loops over the whole buffer
+    boss peak -6.00 dBFS, rms -20.28 dBFS
+  [ok] boss peaks between -9 and -4 dBFS (-6.00)
+  [ok] boss is not near silence (rms -20.3 dBFS)
+  [ok] boss has no click at the loop point (221)
+  [ok] boss is the same bytes when rendered again
+  [ok] generate() returns the cached stream
+== the global RNG is untouched
+  [ok] rendering a track does not consume randi()
+== director
+  [ok] it starts the calm track
+  [ok] which fades in to full (1.00)
+  [ok] at the base level (-7.0 dB)
+  [ok] combat crossfades in at once
+  [ok] halfway through the crossfade (0.33)
+  [ok] the crossfade takes 1.5 s (1.00)
+  [ok] 5 s of calm keep the combat music
+  [ok] a fight in between restarts the 6 s wait
+  [ok] after 6 s it goes back to calm
+    state log: calm → combat (0 s) → 5 s lull → combat → 6.2 s lull → calm
+  [ok] the boss track needs no wait
+  [ok] the buff screen ducks by 6 dB (0.50)
+  [ok] the target level says so (-13.0 dB)
+  [ok] and comes back after (1.00)
+  [ok] death fades the music (0.50)
+  [ok] to silence within 2 s
+    resume points: { "calm": 0.01156462542713, "combat": 0.00580498855561, "boss": 0.00580498855561 }
+  [ok] a stopped track remembers where it was
+== in a zone
+  [ok] the HUD creates the music director
+  [ok] the buff screen at the start is calm
+  [ok] clearing the guards is combat
+  [ok] hammering with enemies alive is combat (5 alive)
+  [ok] the planted flag is calm
+  [ok] the boss phase is boss
+  [ok] the HUD sets the Music bus from the setting (-6.0 dB)
+  [ok] 0% mutes it
+== music volume setting
+  [ok] the default is 70%
+  [ok] it round-trips through the config file
+  [ok] it is clamped to 100%
+  [ok] and to 0%
+  [ok] reset brings back 70%
+  [ok] the Music bus exists and sends to Master
+ALL PASSED (0 failed)

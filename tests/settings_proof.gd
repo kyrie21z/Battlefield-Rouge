@@ -2,7 +2,7 @@ extends Node
 ## Native-window proof frames for the pause menu and crosshair settings:
 ##   godot --path . res://tests/settings_proof.tscn -- --out=docs/proof/settings-menu
 ## Frames: 01 the open pause menu, 02 a bigger green cross+dot in game,
-## 03 the ring style, 04 the key-binding tab after swapping 挥锤 to Q,
+## 03 the ring style, 04 the key-binding tab after swapping 挥刃 to Q,
 ## 05 the menu opened over the buff-select screen. Needs a real display.
 
 const ZONE := "res://maps/zone_1.tscn"
@@ -82,13 +82,12 @@ func _ready() -> void:
 	await _frames(4)
 	_shot("03_ring")
 
-	# The binding tab, right after 挥锤 was rebound to Q (its old owner 切换近战
-	# swaps to E, and the status line names the swap).
+	# The binding tab after assigning the blade to the now-free Q key.
 	menu.try_open()
 	await _frames(2)
 	menu._tab_bindings.button_pressed = true  # highlights the tab too
 	await _frames(2)
-	menu._on_bind_pressed("hammer")
+	menu._on_bind_pressed("melee")
 	var q := InputEventKey.new()
 	q.physical_keycode = KEY_Q
 	q.pressed = true

@@ -15,3 +15,6 @@ const HITBOXES := 1 << 3
 ## pitched dash can lift it over the 4 m boundary. They are not WORLD, so
 ## bullets pass through instead of stopping short of the map edge. Layer 5.
 const BOUNDARY := 1 << 4
+
+## Blade interception volume, only projectile sweeps query this area. Layer 6.
+const PARRY := 1 << 5

@@ -3,8 +3,8 @@ extends Node
 ## Runs one zone from start to finish:
 ##   1. bakes navigation and applies old buffs. Only zone 0 offers an entry
 ##      buff; later zones start combat immediately;
-##   2. when every guard is dead, opens the capture building for hammering.
-##      The boss zone keeps the core shut until the boss dies, then one hammer
+##   2. when every guard is dead, opens the capture building for striking.
+##      The boss zone keeps the core shut until the boss dies, then one blade strike
 ##      finishes it. The six small enemies do not gate that;
 ##   3. a small zone then spawns reinforcements from the rear. They never
 ##      close the building or move its progress. At 100% the flag goes up,
@@ -16,7 +16,7 @@ extends Node
 ## Only this node and RunState change run state (see ARCHITECTURE.md).
 
 ## The two halves of a zone, then the finish (Cut-001b AC-01).
-enum Phase { CLEAR_GUARDS, HAMMER_POINT, FLAG_PLANTED, BUFF_SELECT, BOSS_STANDING }
+enum Phase { CLEAR_GUARDS, CLOCK_POINT, FLAG_PLANTED, BUFF_SELECT, BOSS_STANDING }
 
 signal objective_changed(text: String)
 signal phase_changed(phase: Phase)
@@ -47,7 +47,7 @@ const SPAWN_CLEARANCE_HEIGHT := 2.0
 @export var navigation_region: NavigationRegion3D
 @export var capture_point: CapturePoint
 ## The boss zone. The core stays locked while the boss lives. Its death opens
-## the core; one hammer then plants the flag. The small enemies do not
+## the core; one blade strike then plants the flag. The small enemies do not
 ## gate it, and this zone never spawns reinforcements or a shockwave.
 @export var is_boss_zone := false
 ## Small zones only. Null on the boss zone, which never spawns reinforcements.
@@ -207,7 +207,7 @@ func _open_boss_core() -> void:
 	if phase != Phase.BOSS_STANDING or _ended:
 		return
 	capture_point.open()
-	_set_phase(Phase.HAMMER_POINT, "砸碎城市核心，按 %s" % KeyHint.of("hammer"))
+	_set_phase(Phase.CLOCK_POINT, "砸碎城市核心，按 %s" % KeyHint.of("melee"))
 
 
 func _open_capture_point() -> void:
@@ -215,12 +215,12 @@ func _open_capture_point() -> void:
 		return
 	Events.zone_cleared.emit(zone_index)
 	capture_point.open()
-	_set_phase(Phase.HAMMER_POINT, "前往据点，按 %s 挥锤砸点" % KeyHint.of("hammer"))
+	_set_phase(Phase.CLOCK_POINT, "前往据点，按 %s 挥刃敲钟" % KeyHint.of("melee"))
 	_begin_reinforcements()
 
 
 func _on_point_captured() -> void:
-	if _ended or _capture_handled or not _combat_started or phase != Phase.HAMMER_POINT:
+	if _ended or _capture_handled or not _combat_started or phase != Phase.CLOCK_POINT:
 		return
 	_capture_handled = true
 	var flag_text := "旗已插上" if is_boss_zone \

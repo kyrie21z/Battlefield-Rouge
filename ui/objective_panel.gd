@@ -29,11 +29,11 @@ func _on_phase_changed(value: ZoneDirector.Phase) -> void:
 	match phase:
 		ZoneDirector.Phase.CLEAR_GUARDS:
 			_objective.text = "清除守卫"
-		ZoneDirector.Phase.HAMMER_POINT:
-			_objective.text = "锤击据点"
+		ZoneDirector.Phase.CLOCK_POINT:
+			_objective.text = "挥刃敲钟"
 			_detail.visible = true
-			_detail.text = "按 %s 砸核心" % KeyHint.of("hammer") if director.is_boss_zone \
-				else "按 %s 挥锤" % KeyHint.of("hammer")
+			_detail.text = "按 %s 砸核心" % KeyHint.of("melee") if director.is_boss_zone \
+				else "按 %s 挥刃" % KeyHint.of("melee")
 		ZoneDirector.Phase.FLAG_PLANTED:
 			_objective.text = "城市核心已夺取" if director.is_boss_zone \
 				else "到增益台按 %s" % KeyHint.of("interact")
@@ -55,7 +55,7 @@ func _draw() -> void:
 	var color := HudStyle.ACCENT
 	var center := Vector2(35.0, 65.0)
 	match phase:
-		ZoneDirector.Phase.HAMMER_POINT:
+		ZoneDirector.Phase.CLOCK_POINT:
 			draw_line(center + Vector2(-8.0, 14.0), center + Vector2(7.0, -7.0), color, 5.0, true)
 			draw_line(center + Vector2(-2.0, -13.0), center + Vector2(15.0, -1.0), color, 9.0, true)
 		ZoneDirector.Phase.FLAG_PLANTED, ZoneDirector.Phase.BUFF_SELECT:

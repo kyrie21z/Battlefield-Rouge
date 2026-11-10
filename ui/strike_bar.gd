@@ -1,6 +1,6 @@
 class_name StrikeBar
 extends Control
-## Timing bar for the hammer. A marker sweeps across once per beat; the gold
+## Timing bar for the blade. A marker sweeps across once per beat; the gold
 ## zone in the middle is the perfect window, so swinging while the marker is
 ## inside it is a perfect strike. Shown only while a swing would count.
 ## Perfect and ordinary strikes get different feedback here: gold text, a pop

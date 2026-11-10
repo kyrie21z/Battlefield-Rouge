@@ -53,7 +53,7 @@ func refresh() -> void:
 			if point.is_captured():
 				return
 			opacity = 0.5 if director.phase == ZoneDirector.Phase.CLEAR_GUARDS else 1.0
-			progress_visible = director.phase == ZoneDirector.Phase.HAMMER_POINT
+			progress_visible = director.phase == ZoneDirector.Phase.CLOCK_POINT
 			progress_fraction = point.progress
 		Kind.PEDESTAL:
 			target = director.buff_pedestal

@@ -84,7 +84,6 @@ var _feel_rng := RandomNumberGenerator.new()
 @onready var dash: PlayerDash = $Dash
 @onready var weapon: Weapon = $Head/Camera3D/Weapon
 @onready var melee: MeleeWeapon = $Head/Camera3D/Melee
-@onready var hammer: Hammer = $Head/Camera3D/Hammer
 @onready var shield: PlayerShield = $Shield
 @onready var combat_traits: CombatTraits = $CombatTraits
 @onready var _head: Node3D = $Head
@@ -309,7 +308,6 @@ func view_is_shaking() -> bool:
 
 
 func _on_died(_source: Node) -> void:
-	hammer.set_process(false)
 	melee.deactivate()
 	dash.cancel()
 	dash.set_physics_process(false)

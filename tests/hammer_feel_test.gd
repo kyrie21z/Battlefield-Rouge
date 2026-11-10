@@ -1,5 +1,5 @@
 extends Node
-## Headless check of the capture point's hammer feedback:
+## Headless check of the capture point's blade feedback:
 ##   godot --headless --path . res://tests/hammer_feel_test.tscn
 ## Presentation only: progress, beats, fracture stages and collision stay as
 ## they were; the camera shake, block squash, chips, brass payoff and floating

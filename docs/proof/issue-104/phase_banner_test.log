@@ -1,0 +1,31 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] no banner under the entry buff selection
+  [ok] zone start says 战斗开始
+  [ok] with the objective hint
+  [ok] not a duplicate of the objective panel
+  [ok] the banner fades out after its duration
+  [ok] the open point says 据点开放
+  [ok] the reinforcement warning waits behind it
+  [ok] then the warning appears
+  [ok] red title
+  [ok] the reinforcement warning is once per zone
+== hiding the banner
+  [ok] pistol aims
+  [ok] ADS keeps the current phase banner visible
+  [ok] banner remains after ADS
+== a new phase replaces the banner
+  [ok] the new prompt replaces the old one at once
+  [ok] and it has its own subtitle
+== flag and objective text
+  [ok] capture says 据点已占领
+  [ok] and points at the pedestal action
+  [ok] without copying the objective line
+== the boss zone
+  [ok] boss zone starts with Boss 现身
+  [ok] and its subtitle matches the core objective
+  [ok] not the objective line
+  [ok] the open core says 砸碎城市核心
+  [ok] with the blade action
+  [ok] captured core replaces the blade instruction immediately
+ALL PASSED (0 failed)

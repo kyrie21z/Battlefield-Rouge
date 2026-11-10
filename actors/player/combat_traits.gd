@@ -39,7 +39,7 @@ func _ready() -> void:
 	shield.counter_released.connect(_on_shield_released)
 	shield.absorbed_hit.connect(_on_shield_absorbed)
 	add_child(_audio)
-	_audio.stream = ProceduralAudio.generate("hammer_perfect")
+	_audio.stream = ProceduralAudio.generate("clock_perfect")
 	_audio.volume_db = -10.0
 	_held_magazine = ReloadCharge.create_model()
 	_held_magazine.name = "HeldReloadCharge"

@@ -92,12 +92,12 @@ static func generate(kind: String) -> AudioStreamWAV:
 			return _knife_hit(0.15, 0.6)
 		"dash":
 			return _knife_swing(0.24, 0.55, 0.6, 0.18)
-		"hammer_hit":
-			return _hammer_thud(false)
-		"hammer_perfect":
-			return _hammer_thud(true)
-		"hammer_break":
-			return _hammer_break()
+		"clock_hit":
+			return _clock_thud(false)
+		"clock_perfect":
+			return _clock_thud(true)
+		"clock_break":
+			return _clock_break()
 		"shockwave":
 			return _noise_burst(0.55, 6.0, 1.0, 0.08)
 	return _noise_burst(0.1, 30.0, 0.5, 0.15)
@@ -343,7 +343,7 @@ static func _knife_hit(duration: float, amp: float) -> AudioStreamWAV:
 
 
 ## Struck-metal ring: a few decaying sine partials over a short noise click.
-## Clearly tonal, so a perfect hammer strike never sounds like the dull thud of
+## Clearly tonal, so a perfect blade strike never sounds like the dull thud of
 ## an ordinary one.
 static func _ping(duration: float, partials: Array[float], decay: float) -> AudioStreamWAV:
 	var sample_count := int(duration * SAMPLE_RATE)
@@ -362,9 +362,9 @@ static func _ping(duration: float, partials: Array[float], decay: float) -> Audi
 	return _make_wav(data)
 
 
-## Hammer on stone: a low thud, a short crack and a noise body. A perfect strike
+## Blade on stone: a low thud, a short crack and a noise body. A perfect strike
 ## adds a bright bell on top so it reads even over the building's flash.
-static func _hammer_thud(bell: bool) -> AudioStreamWAV:
+static func _clock_thud(bell: bool) -> AudioStreamWAV:
 	var duration := 0.5 if bell else 0.22
 	var sample_count := int(duration * SAMPLE_RATE)
 	var samples := PackedFloat32Array()
@@ -393,7 +393,7 @@ static func _hammer_thud(bell: bool) -> AudioStreamWAV:
 
 ## The stopped clock breaking open: a heavy crunch, then a clock spring letting
 ## go (a fast falling tone) with a small metallic chime over it.
-static func _hammer_break() -> AudioStreamWAV:
+static func _clock_break() -> AudioStreamWAV:
 	var duration := 0.95
 	var sample_count := int(duration * SAMPLE_RATE)
 	var samples := PackedFloat32Array()

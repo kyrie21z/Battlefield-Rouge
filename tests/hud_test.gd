@@ -436,9 +436,9 @@ func _test_world_markers() -> void:
 	_freeze_scene(scene)
 	capture.refresh()
 	_check("all guard deaths open the point through the director", not point.locked
-		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase)
-	_check("the hammer objective keeps only a short E hint", objective.text == "锤击据点"
-		and top.enemies_alive == 0 and detail.visible and detail.text == "按 E 挥锤"
+		and director.phase == ZoneDirector.Phase.CLOCK_POINT and top.phase == director.phase)
+	_check("the hammer objective keeps only a short E hint", objective.text == "挥刃敲钟"
+		and top.enemies_alive == 0 and detail.visible and detail.text == "按 V 挥刃"
 		and top.size.y == ObjectivePanel.EXPANDED_HEIGHT)
 	_check("the open capture marker is blue and fully opaque", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and is_equal_approx(capture.opacity, 1.0))
@@ -690,9 +690,9 @@ func _test_boss_hud() -> void:
 	_check("the fallen trail eventually drains to zero and stays grey", is_zero_approx(bar.delayed_health)
 		and bar.health_text == "已倒下" and bar.fill_color == CapturePoint.COLOR_LOCKED)
 	_check("boss death opens the actual core and switches the short objective", not point.locked
-		and director.phase == ZoneDirector.Phase.HAMMER_POINT and top.phase == director.phase
-		and objective.text == "锤击据点" and top.enemies_alive == 8
-		and detail.visible and detail.text == "按 E 砸核心")
+		and director.phase == ZoneDirector.Phase.CLOCK_POINT and top.phase == director.phase
+		and objective.text == "挥刃敲钟" and top.enemies_alive == 8
+		and detail.visible and detail.text == "按 V 砸核心")
 	_check("the unlocked boss core shows the blue progress ring", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and capture.progress_visible
 		and is_zero_approx(capture.progress_fraction))

@@ -3,8 +3,8 @@ extends Node
 ## as Proof for Issue #5. Needs a display, so no --headless. Run from the
 ## project root:
 ##   godot --path . res://tests/capture_proof.tscn -- --out=<dir>
-## The guards are killed by damage rather than shot, and the hammer swings are
-## real presses of the `hammer` action, timed against the hit moment.
+## The guards are killed by damage rather than shot, and the blade swings are
+## real presses of the `melee` action, timed against the hit moment.
 ## Each shot prints the debug bar text, so the log shows the same numbers.
 
 const SETTLE_FRAMES := 3
@@ -18,15 +18,23 @@ var _point: CapturePoint
 var _debug: CaptureDebug
 var _strikes: Array = []
 var _last_swing_msec := -100000
+var _blade: MeleeWeapon
+var _failed := false
 
 
 func _ready() -> void:
+	# Proof uses default bindings instead of the developer's saved settings.
+	GameSettings.settings_path = "user://issue104_capture_proof_defaults.cfg"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="):
 			_out_dir = arg.trim_prefix("--out=")
 	DirAccess.make_dir_recursive_absolute(_out_dir)
 	await _run()
-	get_tree().quit()
+	var ok := not _failed and _point.is_captured() \
+		and _strikes.any(func(s: Array): return s[0]) \
+		and _strikes.any(func(s: Array): return not s[0])
+	print("CAPTURE PROOF %s" % ("PASSED" if ok else "FAILED"))
+	get_tree().quit(0 if ok else 1)
 
 
 func _run() -> void:
@@ -35,6 +43,7 @@ func _run() -> void:
 	_point = scene.get_node("CapturePoint") as CapturePoint
 	_debug = scene.get_node("HUD/CaptureDebug") as CaptureDebug
 	var player := scene.get_node("Player") as Player
+	_blade = player.melee
 	var director := scene.get_node("ZoneDirector") as ZoneDirector
 	(director.selection.get_node("Center/Box/Choices/Choice1") as Button).pressed.emit()
 	_point.struck.connect(func(perfect: bool, offset_ms: float, worth: float):
@@ -54,9 +63,10 @@ func _run() -> void:
 	for guard in get_tree().get_nodes_in_group("enemy"):
 		(guard as Enemy).health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
 	player.global_position = _point.global_position + Vector3(0.0, 0.0, 3.0)
+	player.aim_at(_point.global_position + Vector3.UP)
 	for i in 6:
 		await get_tree().physics_frame
-	await _shot("02_hammer_point_open")
+	await _shot("02_clock_point_open")
 
 	# Aim for the hit moment, then for the gap between two of them.
 	await _swing_at(0.0)
@@ -79,17 +89,29 @@ func _run() -> void:
 		_strikes.filter(func(s: Array): return not s[0]).size()])
 
 
-## Presses `hammer` when the swing would land `offset_s` seconds after a hit
+## Presses `melee` when the swing would land `offset_s` seconds after a hit
 ## moment (0.0 = on it, 0.4 = between two of them), to within a frame or two.
 func _swing_at(offset_s: float) -> void:
-	while Time.get_ticks_msec() - _last_swing_msec < int(Hammer.SWING_COOLDOWN * 1000.0) + 50 \
-			or absf(CapturePoint.beat_offset(_point.beat_time()) - offset_s) > TIMING_TOLERANCE:
+	# Input starts wind-up; the contact occurs near the end of the active window.
+	# Match FixtureBot's real-input scheduling instead of treating V as an instant hit.
+	var data := _blade.current()
+	var strike_delay := _blade.scaled_time(data.windup + data.active * MeleeWeapon.STRIKE_AT)
+	await get_tree().process_frame
+	while Time.get_ticks_msec() - _last_swing_msec < int(data.cycle() * 1000.0) + 50 \
+			or absf(CapturePoint.beat_offset(_point.beat_time() + strike_delay) - offset_s) > TIMING_TOLERANCE:
 		await get_tree().process_frame
 	_last_swing_msec = Time.get_ticks_msec()
+	var before := _strikes.size()
 	print("press at offset %+d ms, progress %.0f%%" % [roundi(CapturePoint.beat_offset(_point.beat_time()) * 1000.0), _point.progress * 100.0])
-	Input.action_press("hammer")
+	Input.action_press("melee")
 	await get_tree().process_frame
-	Input.action_release("hammer")
+	Input.action_release("melee")
+	# Screenshots must follow the physical contact, including slow frames.
+	while _strikes.size() == before and Time.get_ticks_msec() - _last_swing_msec < 2000:
+		await get_tree().process_frame
+	if _strikes.size() == before:
+		_failed = true
+		push_error("Real blade input did not reach the clock")
 
 
 func _shot(shot_name: String) -> void:

@@ -5,7 +5,7 @@ extends Node
 ##   godot --path . res://tests/boss_proof.tscn -- --out=<dir>
 ## Victory run: the enemies are frozen so the scripted player is not shot; the
 ## boss is shot down with the real rifle (Weapon.try_fire) and the core is
-## hammered with real presses of the `hammer` action, timed against the hit
+## struck with real presses of the `melee` action, timed against the hit
 ## moment. Defeat run: the enemies fight as normal and the player stands
 ## still, so the boss and its six small enemies kill them.
 ## Each shot prints the debug bar text, and each ending prints its title.
@@ -52,7 +52,7 @@ func _victory_run() -> void:
 	player.global_position = SHOOTING_SPOT
 	await _frames(6)
 	await _shot("02_boss_and_six_small")
-	# The core is open with all seven enemies alive: hammer it first.
+	# The core is open with all seven enemies alive: strike it first.
 	var at_core := _point.global_position + Vector3(0.0, 0.0, 3.6)
 	player.global_position = at_core
 	await _frames(6)
@@ -152,16 +152,16 @@ func _frames(count: int) -> void:
 		await get_tree().process_frame
 
 
-## Presses `hammer` when the swing would land `offset_s` seconds after a hit
+## Presses `melee` when the swing would land `offset_s` seconds after a hit
 ## moment (0.0 = on it), to within a frame or two.
 func _swing_at(offset_s: float) -> void:
-	while Time.get_ticks_msec() - _last_swing_msec < int(Hammer.SWING_COOLDOWN * 1000.0) + 50 \
+	while Time.get_ticks_msec() - _last_swing_msec < int(0.35 * 1000.0) + 50 \
 			or absf(CapturePoint.beat_offset(_point.beat_time()) - offset_s) > TIMING_TOLERANCE:
 		await get_tree().process_frame
 	_last_swing_msec = Time.get_ticks_msec()
-	Input.action_press("hammer")
+	Input.action_press("melee")
 	await get_tree().process_frame
-	Input.action_release("hammer")
+	Input.action_release("melee")
 
 
 func _print_ending(director: ZoneDirector) -> void:

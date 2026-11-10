@@ -266,12 +266,12 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			director.capture_point.resolve_swing(2.5)
 			_check("a hammer does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
 			director.boss.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.HAMMER_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
+			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.CLOCK_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
 			director.capture_point.resolve_swing(2.5)
 		else:
 			for enemy: Enemy in get_tree().get_nodes_in_group("enemy"):
 				enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-			_check("clear guards opens capture", director.phase == ZoneDirector.Phase.HAMMER_POINT)
+			_check("clear guards opens capture", director.phase == ZoneDirector.Phase.CLOCK_POINT)
 			director.capture_point.player_in_reach = true
 			for strike in 12:
 				director.capture_point.resolve_swing(float(strike))
@@ -383,7 +383,7 @@ func _binding_checks() -> void:
 	_check("G is the shield", _bound_key("shield") == KEY_G)
 	_check("F stays interact", _bound_key("interact") == KEY_F)
 	_check("V swings the current melee", _bound_key("melee") == KEY_V)
-	_check("E is still the capture hammer", _bound_key("hammer") == KEY_E)
+	_check("Old E tool is removed", not InputMap.has_action("hammer"))
 	_check("R is still reload", _bound_key("reload") == KEY_R)
 	_check("C throws the stored dangerous magazine", _bound_key("throw_magazine") == KEY_C)
 

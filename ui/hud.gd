@@ -164,6 +164,7 @@ func _ready() -> void:
 	_damage_indicator.setup(_player)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
 	_player.weapon.zoom_changed.connect(_on_zoom_changed)
+	Events.blade_parried.connect(_on_blade_parried)
 	_player.melee.hit_landed.connect(_on_hit_landed)
 	_player.health.damaged.connect(_on_player_damaged)
 	_vitals.setup(_player)
@@ -278,6 +279,11 @@ func _on_zoom_changed(level: float) -> void:
 	_reticle.queue_redraw()
 
 
+func _on_blade_parried(_position: Vector3) -> void:
+	if RunState.fixture == null:
+		HitStop.request(get_tree(), 0.05)
+
+
 func _on_hit_landed(headshot: bool, killed: bool) -> void:
 	_hitmarker.modulate = Color(1, 0.2, 0.15) if killed else (Color(1, 0.85, 0.3) if headshot else Color.WHITE)
 	# Pop big, then settle: a kill ends bigger and holds longer than a plain hit.
@@ -369,11 +375,11 @@ func _on_phase_changed(phase: ZoneDirector.Phase) -> void:
 	match phase:
 		ZoneDirector.Phase.CLEAR_GUARDS:
 			_banner.play("战斗开始", "消灭所有守卫，据点才会开放", PhaseBanner.TITLE_WHITE)
-		ZoneDirector.Phase.HAMMER_POINT:
+		ZoneDirector.Phase.CLOCK_POINT:
 			if _director.is_boss_zone:
-				_banner.play("砸碎城市核心", "按 %s 挥锤" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
+				_banner.play("砸碎城市核心", "按 %s 挥刃" % KeyHint.of("melee"), PhaseBanner.TITLE_GOLD)
 			else:
-				_banner.play("据点开放", "前往据点，按 %s 挥锤 · 金色区间是完美打击" % KeyHint.of("hammer"), PhaseBanner.TITLE_GOLD)
+				_banner.play("据点开放", "前往据点，按 %s 挥刃 · 金色区间是完美打击" % KeyHint.of("melee"), PhaseBanner.TITLE_GOLD)
 		ZoneDirector.Phase.FLAG_PLANTED:
 			# The boss zone wins straight from the core; only small zones have a
 			# pedestal to point at.

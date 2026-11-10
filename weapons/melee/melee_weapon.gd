@@ -21,6 +21,8 @@ signal recoil(pitch: float, yaw: float, manual: float)
 ## The swing carries the player forward. `speed` is m/s for `duration` seconds.
 signal lunge(direction: Vector3, speed: float, duration: float)
 signal selected(index: int, data: MeleeData)
+## One physical clock strike per swing, at the first damage sample.
+signal struck
 
 enum Phase { IDLE, WINDUP, ACTIVE, RECOVERY }
 
@@ -87,6 +89,7 @@ var _swing_forward := Vector3.FORWARD
 ## even when the aim was a little off.
 var _magnet: Hitbox = null
 var _view: Node3D
+var _parry_area: Area3D
 var _magnet_forward := Vector3.FORWARD
 var _pivot: Node3D
 var _audio: AudioStreamPlayer
@@ -116,6 +119,10 @@ func _ready() -> void:
 	add_child(_audio)
 	_hit_sound = ProceduralAudio.generate("melee_hit")
 	select(0)
+	if blade_data != null:
+		_parry_area = preload("res://weapons/mind_blade/parry_area.gd").new()
+		_parry_area.blade = self
+		add_child(_parry_area)
 
 
 func _exit_tree() -> void:
@@ -410,6 +417,8 @@ func _strike() -> void:
 	var data := current()
 	if data == null:
 		return
+	if not _struck_this_swing:
+		struck.emit()
 	_struck_this_swing = true
 	var budget := 0
 	if data.max_targets > 0:
@@ -561,6 +570,26 @@ func _show_view() -> void:
 func _hide_views() -> void:
 	for view in _views:
 		view.visible = false
+
+## Called by the projectile's swept physics ray, so even a fast bullet cannot
+## skip the active window by jumping through the blade's collision volume.
+func try_parry(projectile: Projectile, point: Vector3) -> bool:
+	if get_tree().paused or not _active_enabled:
+		return false
+	if _phase != Phase.ACTIVE or projectile.reflected or shooter == null:
+		return false
+	if is_instance_valid(projectile.source) and projectile.source.get("team") == _team():
+		return false
+	var to := point - _eye()
+	if to.length_squared() < 0.0001 or _forward().angle_to(to) > deg_to_rad(40.0):
+		return false
+	if not _line_of_sight(get_world_3d().direct_space_state, _eye(), point):
+		return false
+	projectile.reflect(shooter, point)
+	_play(_hit_sound, -1.0, 1.6)
+	Events.blade_parried.emit(point)
+	return true
+
 
 ## Lays out the swing: the three poses it travels through and how long each
 ## phase got. The pose is driven from the phase timers (see _update_pose), not

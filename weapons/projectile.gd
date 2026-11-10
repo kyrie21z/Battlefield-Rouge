@@ -4,7 +4,7 @@ extends Node3D
 ## physics frame from its last position, so it cannot tunnel through thin
 ## geometry even at 30 m/s.
 
-const MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES
+const MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES | CollisionLayers.PARRY
 ## The tracer is this many seconds of travel long, so it reads at any speed.
 const TRACER_SECONDS := 0.035
 const TRACER_MIN_LENGTH := 0.7
@@ -16,6 +16,8 @@ var max_distance := 45.0
 var source: Node
 var exclude: Array[RID] = []
 var tint := Color(1.0, 0.55, 0.2)
+
+var reflected := false
 
 var _travelled := 0.0
 var _tracer_length := TRACER_MIN_LENGTH
@@ -91,7 +93,20 @@ func _physics_process(delta: float) -> void:
 	var from := global_position
 	var to := from - global_basis.z * speed * delta
 	var query := PhysicsRayQueryParameters3D.create(from, to, MASK, exclude)
-	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	query.collide_with_areas = true
+	query.hit_from_inside = true
+	var space := get_world_3d().direct_space_state
+	var hit := space.intersect_ray(query)
+	# An inactive/rear-facing blade is transparent to the projectile. Exclude
+	# only that area for this sweep, then continue to the actual world/body hit.
+	while not hit.is_empty() and hit.collider is Area3D:
+		var area := hit.collider as Area3D
+		if area.has_method("try_parry") and area.try_parry(self, hit.position):
+			return
+		var skipped := query.exclude
+		skipped.append(area.get_rid())
+		query.exclude = skipped
+		hit = space.intersect_ray(query)
 	if not hit.is_empty():
 		# Sparks on walls only: a puff on the player's own hitbox would sit
 		# right in front of the camera. The HUD damage flash covers that case.
@@ -105,3 +120,28 @@ func _physics_process(delta: float) -> void:
 	_travelled += speed * delta
 	if _travelled >= max_distance:
 		queue_free()
+
+
+## Transfer ownership atomically: the old shooter's exclusions must disappear,
+## and the player's bodies must be excluded before the next swept step.
+func reflect(new_source: CollisionObject3D, point: Vector3) -> void:
+	var direction := global_basis.z.normalized()
+	source = new_source
+	reflected = true
+	exclude = []
+	_collect_exclusions(new_source)
+	speed = maxf(60.0, speed * 1.8)
+	damage = maxf(damage * 2.0, 55.0)
+	_travelled = 0.0
+	global_position = point
+	look_at(point + direction, Vector3.UP if absf(direction.y) < 0.99 else Vector3.FORWARD)
+	for child in get_children():
+		if child is OmniLight3D:
+			child.light_color = Color(1.0, 0.85, 0.4)
+
+
+func _collect_exclusions(node: Node) -> void:
+	if node is CollisionObject3D:
+		exclude.append((node as CollisionObject3D).get_rid())
+	for child in node.get_children():
+		_collect_exclusions(child)

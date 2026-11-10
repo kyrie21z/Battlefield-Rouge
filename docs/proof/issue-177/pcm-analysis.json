@@ -1,0 +1,37 @@
+{
+  "abyss.wav": {
+    "sha256": "cad7ffe46db4cf2854195159dce2daad954c729c08548d1a368014b03a37d2df",
+    "seconds": 4.0,
+    "rate": 22050,
+    "channels": 2,
+    "peak": 0.6248779296875,
+    "rms": 0.21870032483645507,
+    "lr_rms_difference": 0.015030844768123993,
+    "tone_energy_fraction": {
+      "25": 0.5944706868574076,
+      "33": 0.26538466364953794,
+      "46": 0.0933655854641751,
+      "92": 0.007931145415081687
+    }
+  },
+  "flaw-shatter.wav": {
+    "sha256": "c1732df3bdc6a526285e7c0b6a7400c8597c355f79b4dc31b6fe0bc1290c31dd",
+    "seconds": 0.32,
+    "rate": 22050,
+    "channels": 2,
+    "peak": 0.90692138671875,
+    "rms": 0.09511507990082135,
+    "lr_rms_difference": 0.0,
+    "tone_energy_fraction": {}
+  },
+  "phase.wav": {
+    "sha256": "8312d29547b2b20c40ec53a6ef9741a8e138e462d3a5df3f5837b9fadd3584f1",
+    "seconds": 0.46,
+    "rate": 22050,
+    "channels": 2,
+    "peak": 0.601226806640625,
+    "rms": 0.13946294687074107,
+    "lr_rms_difference": 0.1711381635931946,
+    "tone_energy_fraction": {}
+  }
+}

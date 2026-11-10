@@ -7,6 +7,7 @@ var reassembly: BodyReassembly
 var reconstituted := false
 var duel_started := false
 var encounter: Node3D
+var ending_sequence: Node3D
 var _end_wall: StaticBody3D
 func _ready()->void:
 	var world:=WorldEnvironment.new()
@@ -73,9 +74,19 @@ func _start_duel()->void:
 	encounter=duel
 	duel.position=Vector3(0,0,-50)
 	duel.setup(player)
-	duel.defeated.connect(duel_defeated.emit)
+	duel.defeated.connect(_duel_defeated)
 	add_child(duel)
 	duel_requested.emit(player)
+
+func _duel_defeated(crown:Node3D)->void:
+	duel_defeated.emit(crown)
+	var path:="res://levels/climax/reconciliation_sequence.gd"
+	if not ResourceLoader.exists(path):return
+	var ending:Node3D=load(path).new()
+	ending_sequence=ending
+	ending.setup(player,crown)
+	ending.finished.connect(RunDirector.finish_campaign)
+	add_child(ending)
 
 func _on_player_died(_source:Node)->void:
 	if RunDirector.active:

@@ -17,6 +17,7 @@ var _bindings := {
 	"melee": [_key(KEY_V), _mouse(MOUSE_BUTTON_XBUTTON1)],
 	"shield": [_key(KEY_G)],
 	"psyche_resonance": [_key(KEY_Q)],
+	"reconcile": [_key(KEY_E)],
 	"interact": [_key(KEY_F)],
 	"toggle_debug": [_key(KEY_F3)],
 	"pause": [_key(KEY_ESCAPE)],

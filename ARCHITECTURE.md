@@ -141,3 +141,9 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 
 局外成长由 `MetaProgression` autoload保存，`RunDirector` 组合真实Stage信号与钱包事务：Actor只经Health/Stage上报死亡，不操作货币。`GameStart`在入战前开放Forge，关闭后一次性准备初始赐福/HP/重抽；新Player先注入Meta Stats，再恢复跨房HP和碎片。死亡/结局将收入与历史同次提交，历史再注入CrownVoiceSystem。测试入口在autoload初始化时使用独立档；存档格式、去重与验证见[152证据](docs/proof/issue-152/README.md)。
+
+## Epic 6：接触光照与瞄准景深（#171）
+
+`environments/default_env.tres` 是共享 SSAO/SSIL 参数资源。RealmStage、四领域环境与演出组合根复制此资源后保留各自氛围，不共享可变 Environment 实例。Forward+ 高质量屏幕空间接触光照用于增强白色建筑的尺度和交界可读性。
+
+`ADSFocus` 是 Player 的呈现组件，仅给渲染用 ViewCamera 注入私有 `CameraAttributesPractical`；瞄准和伤害仍由原逻辑相机完成。它以至多 20 Hz 的物理查询获取焦点并平滑收敛，瞄准时使用轻度前后景模糊；死亡、禁用和退出释放或恢复相机状态，不修改武器、命中或移动数值。

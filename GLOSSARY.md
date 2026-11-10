@@ -166,3 +166,10 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 接触光照与瞄准焦点（#171）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 接触光照 | `default_env.tres` / SSAO / SSIL | 白色场景的接触阴影与近距离间接光；各组合根复制公共配置，保留领域氛围。 |
+| 瞄准焦点 | `ADSFocus` | 从逻辑相机限频测距，平滑驱动 ViewCamera 的轻度景深；不改变准星、命中或角色动作。 |

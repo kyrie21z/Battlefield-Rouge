@@ -335,7 +335,7 @@ func objective_text() -> String:
 func _build_world() -> void:
 	var world := WorldEnvironment.new()
 	world.name = "RealmEnvironment"
-	var environment := Environment.new()
+	var environment := preload("res://environments/default_env.tres").duplicate() as Environment
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = [Color("bfb8a6"),Color("969faa"),Color("b9a1a0"),Color("a8b9c7")][realm]
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

@@ -124,6 +124,10 @@ func _ready() -> void:
 	fragments.name = "PsycheFragments"
 	add_child(fragments)
 	fragments.bind(self)
+	var focus := ADSFocus.new()
+	focus.name = "ADSFocus"
+	add_child(focus)
+	focus.bind(self)
 
 
 ## Read-only dash state for the HUD.

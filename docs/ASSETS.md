@@ -359,3 +359,9 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 “你简直无药可救了！！”使用#147登记的官方Apache-2.0 Kokoro-82M-v1.1-zh标准女声 `zf_001` 离线生成，语速1.12，24kHz单声道PCM16，2.825秒。原桌面SAPI语音已完全替换，输出不标CC0，旧生成脚本显式拒绝执行。来源、模型哈希和全部参数见 [语音说明](../tools/cinematic/voice_assets.md)。
 
 `assets/audio/climax/crown_breakdown.wav` SHA-256: `6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828`。
+
+## #171 接触光照与 ADS 景深（2026-11-10）
+
+`environments/default_env.tres` 与 `actors/player/visuals/ads_focus.gd` 是本项目原创配置和代码，使用 Godot 内置 SSAO、SSIL 与 CameraAttributesPractical，不新增外部模型、纹理或音频素材。原始角色及普通皇冠素材保持原样。
+
+[验证截图与参数](proof/issue-171/README.md) 来自本项目真实关卡的 Godot 4.7.2 Forward+ 原生运行，由测试场景保存；不是外部概念图或合成画面。

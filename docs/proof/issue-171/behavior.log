@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS render camera owns private attributes; logical aim untouched
+ACTUAL EYE (0.0, 1.646114, -0.102311) WALL DISTANCE 9.39768886566162 EXPECTED 9.39768866449595
+PASS physics ray focuses actual world wall
+PASS ADS gently enables near and far DOF
+PASS focus converges on true target depth
+PASS rays are rate limited
+PASS target stays between unblurred focus distances
+PASS hipfire completely disables DOF
+PASS cinematic lock clears retained blur
+PASS death clears DOF immediately
+PASS white-space profile includes SSAO and SSIL
+PASS realm copies cannot mutate shared profile
+ADS FOCUS: 11 checks, 0 failures

@@ -52,7 +52,7 @@ func _ready() -> void:
 	splash.max_distance = 25
 	add_child(splash)
 	var world := WorldEnvironment.new()
-	world.environment = Environment.new()
+	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	world.environment.background_mode = Environment.BG_COLOR
 	world.environment.background_color = Color(0.035,0.075,0.105)
 	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

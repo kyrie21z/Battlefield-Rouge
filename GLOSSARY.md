@@ -251,3 +251,11 @@
 | 心魔双面档案 | `LoreEntries.project(archive, true)` | 同一心魔的皇冠“绊脚石”评论与人性保护价值；访问开放评论，击败再开放另一面。 |
 | 档案进度快照 | `MetaProgression.archive_snapshot()` | 包含 visited_realms、defeated_realms 与 reconciled 的数组副本，供只读 UI 投影；旧存档默认锁定。 |
 | 结局档案阅读器 | `ArchiveReader` | 结局菜单中的独立阅读入口，复用 LoreDiary，不开始新挑战；隔离底层菜单焦点并支持 ESC 返回。 |
+
+## 愤怒声景（#178）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 熔炉声景 | `WrathAudioDirector` | 单一蒸汽/炉鸣环境，演员真实蓄力、冲锋速度与锯刃状态驱动持续声音。 |
+| 撞墙音频接管 | `wrath_wall_audio_managed` | 真实 wall_slam 的同步呈现标记；受控房间只响新重撞，独立入口延后确认未接管后保留单一旧声。 |
+| 尖刺破空声 | `WrathSpike` / `projectile_registered` | 每枚由当前注入玩家真正发射的尖刺触发一次声音，死亡或暂停时不新增。 |

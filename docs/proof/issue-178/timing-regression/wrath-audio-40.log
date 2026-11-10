@@ -1,0 +1,49 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production room takes explicit ownership of kiln ambience
+PASS legacy environment cannot restart managed ambience
+PASS real piercer windup starts positional pressure sound
+PASS charge pitch increases with real remaining windup
+PASS deprived warning hides pressure cue without altering windup
+PASS actual 23 m/s rush replaces warning with physical air sound
+PASS real aggressor rush drives saw rotation sound
+PASS stunned powered blade has no residual saw sound
+PASS retreat removes attack sound sources
+PASS real high-speed WORLD contact emits exactly one heavy slam
+PASS actual five emitted lava spikes each have a bounded whoosh
+PASS managed slam is acknowledged and never starts legacy fallback
+PASS floor-only travel produces no additional slam
+PASS piercer real wall self-detonation adds exactly one impact
+PASS distant thermal metal has deterministic simulation-time cadence
+PASS pause freezes metal cadence and rejects new transients
+PASS impact storms cannot allocate unbounded players
+PASS sound synthesis leaves gameplay RNG untouched
+PASS impact loop is cached bounded PCM with zero seam
+PASS real death stops every managed sound
+PASS real boss defeat silences managed kiln without legacy restart
+PASS legacy normal uses actual WORLD contact without an audio director
+PASS unmanaged legacy slam retains exactly one original clock-break voice
+PASS removing the legacy effect stops and frees its fallback voice
+PASS legacy normal never schedules a late replay
+PASS legacy paused uses actual WORLD contact without an audio director
+PASS legacy paused cannot start a deferred sound
+PASS legacy paused never schedules a late replay
+PASS legacy dead uses actual WORLD contact without an audio director
+PASS legacy dead cannot start a deferred sound
+PASS legacy dead never schedules a late replay
+PASS legacy removed uses actual WORLD contact without an audio director
+PASS legacy removed cannot start a deferred sound
+PASS legacy removed never schedules a late replay
+PASS last-piercer fixture has one live actor and no synthetic wall count
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_enemy_defeated","living_enemies":0,"paused":false,"physics_frame":217,"picker_exists":false,"process_frame":313,"stage_cleared":false,"ticks_ms":27461,"wall_detonations":1}
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_stage_cleared","living_enemies":0,"paused":false,"physics_frame":217,"picker_exists":false,"process_frame":313,"stage_cleared":true,"ticks_ms":27464,"wall_detonations":1}
+PASS last piercer really self-detonates and opens the paused reward picker
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"picker_paused","living_enemies":0,"paused":true,"physics_frame":217,"picker_exists":true,"process_frame":313,"stage_cleared":true,"ticks_ms":29029,"wall_detonations":1}
+PASS one heavy impact is dispatched synchronously at real death before reward pause
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"picker_pause_held","living_enemies":0,"paused":true,"physics_frame":226,"picker_exists":true,"process_frame":315,"stage_cleared":true,"ticks_ms":29029,"wall_detonations":1}
+PASS reward pause retains the consumed impact without another voice
+PASS real reward exposes a selectable card
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_card_button_closed_picker","living_enemies":0,"paused":false,"physics_frame":226,"picker_exists":false,"process_frame":315,"stage_cleared":true,"ticks_ms":30493,"wall_detonations":1}
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"four_process_frames_after_choice","living_enemies":0,"paused":false,"physics_frame":236,"picker_exists":false,"process_frame":319,"stage_cleared":true,"ticks_ms":30517,"wall_detonations":1}
+PASS real card choice resumes gameplay without replaying the collision
+WRATH AUDIO: 40 checks, 0 failures

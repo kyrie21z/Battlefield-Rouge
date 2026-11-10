@@ -21,7 +21,7 @@ func setup(room: RealmStage) -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
-	for path in ["res://audio/realms/fear_sound_bank.gd"]:
+	for path in ["res://audio/realms/fear_sound_bank.gd","res://audio/realms/wrath_sound_bank.gd"]:
 		if ResourceLoader.exists(path): _cue_banks.append(load(path) as Script)
 	ambient = AudioStreamPlayer.new()
 	ambient.name = "RealmAmbience"
@@ -39,6 +39,8 @@ func _ready() -> void:
 		add_child(voice)
 		voices.append(voice)
 	player.boons.event_dispatched.connect(_on_boon_event)
+	if ResourceLoader.exists("res://audio/realms/wrath_sound_bank.gd"):
+		Events.projectile_registered.connect(_on_projectile)
 	stage.realm_defeated.connect(_on_realm_defeated)
 	stage.player_fallen.connect(_on_fallen)
 	_install_boon_audio()
@@ -105,7 +107,12 @@ func _on_boon_event(event: StringName, context: Dictionary) -> void:
 	for bank in _cue_banks:
 		for cue in bank.call("boon_cues",event,context):
 			if event == &"fear_flaw_broken": context["fear_flaw_audio_managed"] = true
+			if event == &"wall_slam": context["wrath_wall_audio_managed"] = true
 			play_cue(cue.kind,cue.position,float(cue.get("pitch",1.0)),float(cue.get("volume",-12.0)))
+
+func _on_projectile(projectile: Node3D) -> void:
+	if projectile is WrathSpike and projectile.source == player:
+		play_cue(&"wrath_spike",projectile.global_position,1.0,-12.0)
 
 func _on_realm_defeated(_room: RealmStage) -> void:
 	set_deprived(true)

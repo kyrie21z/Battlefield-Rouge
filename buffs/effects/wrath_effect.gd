@@ -13,6 +13,7 @@ var _dash_active := false
 var _dash_previous := Vector3.ZERO
 var _dash_hits: Dictionary = {}
 var traits: WrathTraits
+var _slam_fallback: AudioStreamPlayer3D
 
 func setup(value: BoonManager) -> void:
 	super.setup(value)
@@ -137,7 +138,6 @@ func _wall_slam(ctx: Dictionary) -> void:
 	if ctx.get("kind", &"") == &"blade" and not ctx.get("rupture", false):
 		manager.aoe(origin, 3.6, 30.0, {"tag": &"wrath_blade_blast", "proc_depth": depth + 1})
 	manager.feedback(origin, COLOR, 1.0)
-	_play_slam(point)
 	for index in 3:
 		var offset := Vector3(cos(index * TAU / 3.0), 0.5, sin(index * TAU / 3.0))
 		manager.feedback(point + offset * 0.5, COLOR.lightened(0.15), 0.12)
@@ -146,6 +146,8 @@ func _wall_slam(ctx: Dictionary) -> void:
 	ctx.merge({"damage": damage, "proc_depth": depth, "wall_broken": false, "wall_impact": wall_impact}, true)
 	traits.after_slam(ctx)
 	manager.dispatch(&"wall_slam", ctx)
+	# Event consumers mark this same context only after effects have finished.
+	_play_slam_fallback.call_deferred(ctx)
 
 func _dash_collision(position: Vector3) -> void:
 	var from := _dash_previous + Vector3.UP
@@ -167,16 +169,30 @@ func _sweep_feedback(origin: Vector3, forward: Vector3) -> void:
 		var direction := forward.rotated(Vector3.UP, lerpf(-0.9, 0.9, index / 6.0))
 		manager.feedback(origin + direction * 1.1, COLOR, 0.09)
 
-func _play_slam(point: Vector3) -> void:
-	var audio := AudioStreamPlayer3D.new()
-	audio.stream = ProceduralAudio.generate("clock_break")
-	audio.volume_db = -8.0
-	manager.player.get_parent().add_child(audio)
-	audio.global_position = point
-	audio.finished.connect(audio.queue_free)
-	audio.play()
+func _play_slam_fallback(ctx: Dictionary) -> void:
+	if bool(ctx.get("wrath_wall_audio_managed", false)) or not is_instance_valid(manager):
+		return
+	if not manager.is_inside_tree() or manager.is_queued_for_deletion() or manager.get_tree().paused:
+		return
+	if not is_instance_valid(manager.player) or manager.player.is_queued_for_deletion() or not manager.player.is_inside_tree():
+		return
+	if not is_instance_valid(manager.health) or manager.health.is_dead() or manager.effect_for(get_script()) != self:
+		return
+	# Legacy combat benches have no RealmAudioDirector. Keep one bounded voice.
+	if not is_instance_valid(_slam_fallback):
+		_slam_fallback = AudioStreamPlayer3D.new()
+		_slam_fallback.name = "WrathWallFallback"
+		_slam_fallback.process_mode = Node.PROCESS_MODE_PAUSABLE
+		_slam_fallback.stream = ProceduralAudio.generate("clock_break")
+		_slam_fallback.volume_db = -8.0
+		manager.player.get_parent().add_child(_slam_fallback)
+	_slam_fallback.global_position = ctx.position
+	_slam_fallback.play()
 
 func cleanup() -> void:
+	if is_instance_valid(_slam_fallback):
+		_slam_fallback.stop()
+		_slam_fallback.queue_free()
 	if traits != null:
 		traits.cleanup()
 	_dash_active = false

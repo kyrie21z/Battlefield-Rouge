@@ -3,6 +3,7 @@ extends Node3D
 ## White porcelain plates split around hot fissures; all walking geometry is explicit.
 @export var boss_arena := false
 var deprived := false
+var audio_managed := false
 var lava: Array[MeshInstance3D] = []
 var steam: Array[CPUParticles3D] = []
 var walls: Array[StaticBody3D] = []
@@ -59,7 +60,17 @@ func _ready() -> void:
 	ambience.volume_db = -24.0
 	ambience.max_distance = 70
 	add_child(ambience)
-	ambience.play()
+	if not audio_managed and not deprived:
+		ambience.play()
+
+func set_audio_managed(active: bool) -> void:
+	audio_managed = active
+	if not is_instance_valid(ambience):
+		return
+	if active or deprived:
+		ambience.stop()
+	elif is_inside_tree():
+		ambience.play()
 
 func set_deprivation(active: bool) -> void:
 	deprived = active
@@ -70,7 +81,7 @@ func set_deprivation(active: bool) -> void:
 	for particles in steam:
 		particles.emitting = not active
 	if is_instance_valid(ambience):
-		if active:
+		if active or audio_managed:
 			ambience.stop()
 		else:
 			ambience.play()

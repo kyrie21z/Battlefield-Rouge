@@ -1,0 +1,45 @@
+{
+  "baseline_commit": "2cea4f0ac595e77458196e9939bbb52ec55df680",
+  "engine": "Godot 4.7.2 stable Windows headless",
+  "before": {
+    "exit_ready": true,
+    "held_cue_count": 0,
+    "late_replay_reproduced": true,
+    "pause_cue_count": 0,
+    "real_death": true,
+    "real_picker_pause": true,
+    "real_wall_detonations": 1,
+    "resumed_cue_count": 1
+  },
+  "after": {
+    "exit_ready": true,
+    "held_cue_count": 1,
+    "late_replay_reproduced": false,
+    "pause_cue_count": 1,
+    "real_death": true,
+    "real_picker_pause": true,
+    "real_wall_detonations": 1,
+    "resumed_cue_count": 1
+  },
+  "regressions": [
+    {
+      "scene": "wrath_audio_test",
+      "checks": 40,
+      "original_checks_preserved": 34,
+      "failures": 0,
+      "exit": 0
+    },
+    {
+      "scene": "wrath_realm_test",
+      "checks": 28,
+      "failures": 0,
+      "exit": 0
+    }
+  ],
+  "raw_errors": [],
+  "raw_warnings": [],
+  "source_sha256": {
+    "audio/realms/wrath_audio_director.gd": "27bd83cbcd1f4a00c6408aa1c0441394519b2cb460098fd8a0afd0bc67421fe6",
+    "tests/wrath_audio_test.gd": "593254bd3bc31b02fd2c65000a4eb8813c27a783a9e20163deb17c9182f1c9ee"
+  }
+}

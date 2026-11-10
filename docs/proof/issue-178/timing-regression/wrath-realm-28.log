@@ -1,0 +1,31 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS actual shared crystalline body has 24 bones
+PASS real frontal gun ray is blocked
+PASS blocked gun pressure is actual requested damage
+PASS real side gun ray penetrates shield
+PASS real rear gun ray penetrates shield
+PASS front melee bypasses bullet-only barrier
+PASS pressure caps at 100
+PASS full pressure starts and releases actual wave
+PASS released wave exists and advances
+PASS caster death/removal clears pending wave
+PASS aggressor rejects ordinary knockback and stagger
+PASS armor does not make aggressor immune to HP damage
+PASS local Sloth freeze stops Wrath actor movement
+PASS piercer commits to visible target with windup
+PASS real WORLD wall contact detonates once
+PASS wall detonation launches eight actual ricochets
+PASS swept piercer body never crosses wall
+PASS death emits all 56 original rigid crystal fragments
+PASS fragments retain crimson instance material
+PASS all rigid fragments are reclaimed
+PASS crystal projectile actually reflects from WORLD
+PASS nearer player hitbox wins over wall in same high-speed sweep
+PASS expanding wave damages actual player HP
+PASS wave pushes the real CharacterBody through shared impulse
+PASS one ring cannot damage twice
+PASS white kiln creates ten tilted WORLD walls and eight fissures
+PASS eight steam vents and synthesized industrial ambience are active
+PASS local loss extinguishes furnace and steam
+WRATH REALM: 28 checks, 0 failed

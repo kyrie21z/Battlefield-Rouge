@@ -425,3 +425,9 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 - `LoreDiary` / `ArchiveReader` 的布局与控件为本项目原创实现，使用现有工程的界面与字体配置；本次没有新增下载字体、模型、贴图或配音。
 - [`docs/proof/issue-175/`](proof/issue-175/) 的 16 张 PNG 来自 Godot 4.7.2 Forward+ 原生运行：14 张独立状态图由 `tests/lore_diary_proof.tscn` 生成，2 张生产入口图由 `tests/lore_modal_proof.tscn` 生成。全部使用隔离测试进度；图片用于布局/可达性验收，未伪称真实玩家的自然通关记录。
 - 14 张独立图的逐文件 SHA-256 见 [screenshots.sha256](proof/issue-175/screenshots.sha256)；2 张生产图的字节数和 SHA-256 见 [production-screenshots.json](proof/issue-175/production-screenshots.json)。场景复用本项目既有资源，没有从 `../origin/` 导入素材；生成命令和人工审阅记录见 [README](proof/issue-175/README.md) 与 [集成证据](proof/issue-175/integration.md)。
+
+## #178 愤怒熔炉程序音频（2026-11-10）
+
+`audio/realms/wrath_sound_bank.gd` 为项目原创数学合成源码，沿用仓库 MIT 许可，无外部采样或旧工程素材。源码 SHA-256：`ee49ff76d223e2b65cbd09f0b322dfd6dc811b2803cf24eb6c62eddb5bc3b7c6`。22050 Hz / PCM16 / 立体声；环境或持续声循环 4 秒，重撞 1.1 秒，其他瞬态 0.75 秒。私有 RNG 种子 `17800 + String(kind).hash()`，以正弦、噪声滤波、指数包络及 tanh 软限幅产生蒸汽、金属断裂、冲锋、锯刃、撞墙和尖刺声音，不消耗玩法 RNG。
+
+`docs/proof/issue-178/kiln.wav` 与 `wall-slam.wav` 为同源生成的预听证据；文件 SHA-256、PCM 峰值和低频分析见 [清单](proof/issue-178/pcm-analysis.json)。预听文件遵守既有 `docs/proof/.gdignore`，不成为运行时导入素材；自动波形与触发验证不代表人工听感验收。

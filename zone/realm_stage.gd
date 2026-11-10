@@ -2,6 +2,7 @@ class_name RealmStage
 extends Node3D
 ## A self-contained room. The run controller injects state and handles campaign exits.
 signal stage_cleared(stage: RealmStage)
+signal realm_defeated(stage: RealmStage)
 signal exit_requested(stage: RealmStage)
 signal reward_selected(stage: RealmStage, card: BoonData)
 signal reroll_spent(stage: RealmStage)
@@ -13,12 +14,16 @@ signal player_fallen(stage: RealmStage, cause: StringName)
 @export var difficulty_multiplier := 1.0
 const REALMS := ["sloth","fear","wrath","sorrow"]
 const TITLES := ["怠惰 · 凝滞庭院","恐惧 · 破碎长廊","愤怒 · 焦灼竞技场","悲伤 · 泪海"]
+const BOSSES := ["sloth_colossus","fear_oculus","wrath_spire","sorrow_monolith"]
+const SHARD := preload("res://zone/psyche_shard_pickup.tscn")
 const PLAYER := preload("res://actors/player/player.tscn")
 const PICKER := preload("res://ui/boon_picker/boon_picker.tscn")
 var player: Player
 var geometry: Node3D
 var enemies: Array[Enemy] = []
 var boss: Enemy
+var shard: PsycheShardPickup
+var boss_defeated := false
 var hud: RealmHUD
 var selection: BoonPicker
 var gate: Node3D
@@ -73,6 +78,8 @@ func _ready() -> void:
 		player.name = "Player"
 		player.position = Vector3(0,0.1,16)
 		add_child(player)
+	if geometry.has_method("player_spawn"):
+		player.position = geometry.call("player_spawn") + Vector3.UP*0.1
 	if geometry.has_method("set_player"):
 		geometry.call("set_player",player)
 	_apply_run()
@@ -106,6 +113,9 @@ func _apply_actor_deprivation(actor: Enemy) -> void:
 		actor.set("ordinary_impacts_enabled",not deprivations.has(2))
 
 func _spawn_encounter() -> void:
+	if boss_room:
+		_spawn_boss()
+		return
 	var path := "res://actors/enemy/%s/%s_realm_enemy.tscn" % [REALMS[realm],REALMS[realm]]
 	if not ResourceLoader.exists(path):
 		push_error("Missing realm enemy: " + path)
@@ -120,8 +130,23 @@ func _spawn_encounter() -> void:
 		actor.position = points[i]
 		if "opening_delay" in actor:
 			actor.set("opening_delay",1.0 + i*0.2)
+		if "arena" in actor:
+			actor.set("arena",geometry)
 		add_child(actor)
 		_register_actor(actor)
+
+func _spawn_boss() -> void:
+	var path := "res://actors/boss/%s/%s.tscn" % [BOSSES[realm],BOSSES[realm]]
+	if not ResourceLoader.exists(path):
+		push_error("Missing realm boss: " + path)
+		return
+	boss = (load(path) as PackedScene).instantiate() as Enemy
+	boss.name = "RealmBoss"
+	boss.position = Vector3(0,0,-8)
+	if "arena" in boss:
+		boss.set("arena",geometry)
+	add_child(boss)
+	_register_actor(boss)
 
 func _register_actor(actor: Enemy) -> void:
 	var scale_value := maxf(0.1,difficulty_multiplier)
@@ -149,9 +174,45 @@ func living_enemies() -> int:
 func _check_clear() -> void:
 	if cleared or fallen or living_enemies() > 0:
 		return
+	if boss_room:
+		_finish_boss_defeat()
+		return
 	cleared = true
 	stage_cleared.emit(self)
 	_offer_reward()
+
+func _finish_boss_defeat() -> void:
+	if boss_defeated:
+		return
+	boss_defeated = true
+	if not deprivations.has(realm):
+		deprivations.append(realm)
+	player.fragments.configure_deprivation(deprivations)
+	player.realm_effects.warnings_enabled = not deprivations.has(1)
+	geometry.call("set_deprivation",true)
+	for actor in enemies:
+		_apply_actor_deprivation(actor)
+	realm_defeated.emit(self)
+	# Revisited debug maps can already own the shard; do not create an uncollectable gate.
+	if player.fragments.has_shard(realm):
+		_on_shard_collected(realm)
+		return
+	shard = SHARD.instantiate() as PsycheShardPickup
+	shard.realm = realm
+	var desired := boss.global_position + Vector3(2,0,2)
+	var landing := NavigationServer3D.map_get_closest_point(_region.get_navigation_map(),desired)
+	shard.position = landing + Vector3.UP*0.1
+	shard.setup(player)
+	shard.collected.connect(_on_shard_collected)
+	add_child(shard)
+
+func _on_shard_collected(value: int) -> void:
+	if value != realm or cleared or fallen:
+		return
+	cleared = true
+	_reward_context = "shard"
+	_finish_reward()
+	stage_cleared.emit(self)
 
 func offer_entry_reward() -> void:
 	if not cleared and not fallen and not is_instance_valid(selection):
@@ -218,7 +279,14 @@ func request_exit() -> bool:
 
 func _standalone_next() -> void:
 	var suffix := "2" if room_index == 0 else "boss"
-	var path := "res://maps/realms/%s_%s.tscn" % [REALMS[realm],suffix]
+	var next_realm := realm
+	if boss_room:
+		next_realm = realm+1
+		suffix = "1"
+	if next_realm >= REALMS.size():
+		transitioning = false
+		return
+	var path := "res://maps/realms/%s_%s.tscn" % [REALMS[next_realm],suffix]
 	if not ResourceLoader.exists(path):
 		transitioning = false
 		return
@@ -249,8 +317,12 @@ func objective_text() -> String:
 		return "穿越门扉…"
 	if exit_ready:
 		return "前往门扉 · 靠近后按 %s" % KeyHint.of("interact")
+	if boss_defeated and not cleared:
+		return "拾取%s · 走近获得独立能力" % PsycheShardPickup.TITLES[realm]
 	if cleared:
 		return "接受心魔的馈赠"
+	if boss_room:
+		return "击败聚合体 · 留意招式间隙"
 	return "击碎领域守卫 · 剩余 %d" % living_enemies()
 
 func _build_world() -> void:
@@ -291,7 +363,7 @@ func _bake_navigation() -> void:
 func _build_gate() -> void:
 	gate = Node3D.new()
 	gate.name = "ExitGate"
-	gate.position = Vector3(0,0,-20)
+	gate.position = geometry.call("exit_position") if geometry.has_method("exit_position") else Vector3(0,0,-20)
 	add_child(gate)
 	_gate_material = StandardMaterial3D.new()
 	_gate_material.albedo_color = Color("423a30")

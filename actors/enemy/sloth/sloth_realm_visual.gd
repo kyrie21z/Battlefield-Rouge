@@ -42,9 +42,10 @@ func _build() -> void:
 		play_motion("CowerIdle")
 		_plate(_outfit,Vector3(0,1.25,0.31),Vector3(0.60,0.58,0.22),amber)
 	if boss_form:
+		var spine := _follow("Spine", "TitanDorsalArmor")
 		for i in 5:
-			var plate := _plate(_outfit,Vector3(0,1.0+i*0.16,0.24+i*0.025),
-				Vector3(0.95-i*0.06,0.25,0.34),amber)
+			var plate := _plate(spine,Vector3(0,1.0+i*0.13,0.22+i*0.012),
+				Vector3(0.68-i*0.035,0.19,0.18),amber)
 			plate.rotation.x = -0.24
 			armor.append(plate)
 		play_motion("CowerIdle")

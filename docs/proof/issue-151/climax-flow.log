@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS real threshold completes original 56 shard reconstruction
+PASS physical threshold opens final duel
+PASS printing hands same live player into final combat
+PASS final opponent is registered for independent shard targeting
+PASS annihilation transfers the same crown to physical ending
+PASS actual crown pickup starts after final fight
+PASS single camera survives all three sequences
+PASS terminal credits clear active death loop
+PASS player retains independent shards and permanent losses through ending
+ALL PASSED (9 checks)

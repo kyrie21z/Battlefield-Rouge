@@ -1,0 +1,20 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS fallen crown is actual resting rigid body
+PASS oppressive crown loses glare
+PASS both weapons holstered
+PASS distant pickup rejected
+PASS wall blocks crown pickup
+PASS paused interaction rejected
+PASS E action starts gentle coronation
+PASS duplicate pickup rejected
+PASS both authored skeletal hands move around crown
+PASS pause freezes ending
+PASS coronation reuses the fallen crown
+PASS physical crown body cleaned
+PASS awakening uses same camera in real lecture space
+PASS breathing replaces crown voice
+PASS credits stop death loop
+PASS completed run cannot death-restart
+PASS credits return to explicit title menu
+ALL PASSED (17 checks)

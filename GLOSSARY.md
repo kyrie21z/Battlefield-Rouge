@@ -117,3 +117,11 @@
 | 动作上下文 | `BoonManager.dispatch` | 同步 Dictionary 拦截，before 改写，after 提供实际伤害。 |
 | 衍生深度 | `proc_depth` | 天然动作 0，技能派生递增，超过 4 的公共伤害请求被拒绝。 |
 | 局部时停 | `BoonManager.freeze_world` | 暂停敌人的移动、AI、动画、特技和敌弹；玩家计时继续并自动恢复。 |
+
+## 愤怒核心（#119）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 锋芒 | `SpiteStatus` | 持续真实物理冲量，临时启用敌人间碰撞；移除恢复原碰撞掩码。 |
+| 撞墙破裂 | `WrathBoons._wall_slam` | 移动后实际侧面接触相对速度大于6m/s触发60主伤、邻近半伤与0.8秒击晕；地板不算墙。 |
+| 绯红晶弹 | `WrathProjectile` | 真实飞行枪弹，WORLD反弹一次后伤害×1.6，仍经过统一Hitbox/Health钩子。 |

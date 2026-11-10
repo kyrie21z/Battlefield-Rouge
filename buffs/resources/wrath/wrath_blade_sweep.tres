@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_blade_sweep"
+name = "狂暴横扫"
+sin = 2
+slot = 1
+rarity = 0
+core = true
+description = "挥刃范围扩大50%，将敌人推向墙面引发第二次熔岩爆破；敲钟判定更宽更重。"
+stat_modifiers = {&"melee_arc": {"mul": 1.5}, &"clock_window": {"mul": 1.4}, &"clock_progress": {"mul": 1.25}, &"clock_theme": {"add": 3.0}}
+script_hook = ExtResource("2")

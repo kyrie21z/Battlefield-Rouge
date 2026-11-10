@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_gun_cannon"
+name = "冲击重炮"
+sin = 2
+slot = 0
+rarity = 0
+core = true
+description = "晶体弹以强烈动能击退敌人；一次墙面反弹后伤害提高60%。"
+stat_modifiers = {}
+script_hook = ExtResource("2")

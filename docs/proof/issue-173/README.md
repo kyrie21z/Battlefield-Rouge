@@ -6,4 +6,4 @@
 
 打开时释放游戏动作、冻结逻辑、释放鼠标；关闭动画仍保持暂停，结束再释放本面板的暂停并恢复原鼠标模式。死亡转交暂停，场景退出释放自己的暂停。背景使用屏幕 mipmap 轻量模糊，面板滚动容纳长构筑。
 
-验证：Godot 4.7.2 `--headless --path . res://tests/build_inspector_test.tscn` 15 项通过；`keybinding_test.tscn` 全部通过。原生 Forward+ 使用 `build_inspector_proof.tscn`，最终截图已实际查看；首轮发现碎片布局竖排后已修正并复拍。首轮格式化日志出现不支持的 `%g`，已改为 `%.2f` 并复验，最终日志无该错误。截图采用测试驱动的生产 RealmStage/HUD 与实际装备资源，属于可复现 UI 证据，不代表人工全流程或手柄硬件验收。
+验证：Godot 4.7.2 `--headless --path . res://tests/build_inspector_test.tscn` 16 项通过（含实际 ESC 分发和 Player 先于 HUD 释放）；`keybinding_test.tscn` 全部通过。原生 Forward+ 使用 `build_inspector_proof.tscn`，最终截图已实际查看；首轮发现碎片布局竖排后已修正并复拍。首轮格式化日志出现不支持的 `%g`，已改为 `%.2f` 并复验，最终日志无该错误。截图采用测试驱动的生产 RealmStage/HUD 与实际装备资源，属于可复现 UI 证据，不代表人工全流程或手柄硬件验收。

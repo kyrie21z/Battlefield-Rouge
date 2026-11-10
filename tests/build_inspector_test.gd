@@ -65,5 +65,14 @@ func _ready() -> void:
 	check("scene exit releases pause",not get_tree().paused)
 	player.queue_free()
 	await get_tree().process_frame
+	var departing := preload("res://actors/player/player.tscn").instantiate() as Player
+	add_child(departing)
+	var last_panel := BuildInspector.new()
+	last_panel.player = departing
+	add_child(last_panel)
+	last_panel.try_open()
+	departing.free()
+	last_panel.free()
+	check("player-first teardown cannot leave tree paused",not get_tree().paused)
 	print("BUILD INSPECTOR: %d checks, %d failed" % [checks,failures])
 	get_tree().quit(0 if failures==0 else 1)

@@ -107,7 +107,7 @@ func _finish_close() -> void:
 	_closing = false
 	hide()
 	_release_actions()
-	if is_instance_valid(player) and not player.health.is_dead():
+	if not is_instance_valid(player) or not player.health.is_dead():
 		get_tree().paused = false
 		Input.mouse_mode = _mouse_mode
 
@@ -116,7 +116,7 @@ func _on_death() -> void:
 	close(true)
 
 func _exit_tree() -> void:
-	if opened and is_instance_valid(player) and not player.health.is_dead():
+	if opened and (not is_instance_valid(player) or not player.health.is_dead()):
 		get_tree().paused = false
 		Input.mouse_mode = _mouse_mode
 

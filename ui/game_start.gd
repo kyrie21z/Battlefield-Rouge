@@ -19,6 +19,8 @@ var _packed: PackedScene
 func _ready() -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if RunState.fixture == null and not RunDirector.active:
+		RunDirector.begin_run()
 	if RunState.fixture != null or "--skip-opening" in OS.get_cmdline_user_args():
 		_enter_game.call_deferred()
 		return
@@ -26,7 +28,11 @@ func _ready() -> void:
 	opening.combat_entry_requested.connect(_enter_game, CONNECT_ONE_SHOT)
 	add_child(opening)
 	opening.flow.start()
-	_zone_path = RunState.zone_scene()
+	_zone_path = _target_scene()
+
+
+func _target_scene() -> String:
+	return RunDirector.scene_path() if RunState.fixture == null and RunDirector.active else RunState.zone_scene()
 
 
 func _enter_game() -> void:
@@ -39,7 +45,7 @@ func _enter_game() -> void:
 	_load_requested = true
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	var target := RunState.zone_scene()
+	var target := _target_scene()
 	if _zone_path.is_empty() or _zone_path != target:
 		# Fixture and --skip-opening enter directly, without an opening fade.
 		_enter_synchronously(target)
@@ -48,7 +54,7 @@ func _enter_game() -> void:
 
 
 func _enter_synchronously(target: String) -> void:
-	var result := get_tree().change_scene_to_file(target)
+	var result := _commit_scene(_load_zone(target))
 	if result != OK:
 		_load_requested = false
 		push_error("Cannot enter the existing game: " + target)
@@ -87,7 +93,7 @@ func _enter_from_opening(target: String) -> void:
 	# Keep a local: the scene change may free this node on the next frame.
 	var fade := _fade
 	var packed := _packed
-	var result := get_tree().change_scene_to_packed(packed)
+	var result := _commit_scene(packed)
 	if result != OK:
 		_load_requested = false
 		fade.show_error("关卡切换失败，请重试。", _enter_game)
@@ -97,3 +103,9 @@ func _enter_from_opening(target: String) -> void:
 
 func _load_zone(target: String) -> PackedScene:
 	return ResourceLoader.load(target, "PackedScene") as PackedScene
+
+
+func _commit_scene(packed: PackedScene) -> Error:
+	if RunState.fixture == null and RunDirector.active:
+		return RunDirector.install_stage(packed)
+	return get_tree().change_scene_to_packed(packed)

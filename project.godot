@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 InputMapSetup="*res://autoload/input_map_setup.gd"
 Events="*res://autoload/events.gd"
 RunState="*res://autoload/run_state.gd"
+RunDirector="*res://autoload/run_director.gd"
 
 [display]
 

@@ -1,0 +1,286 @@
+class_name LoreDiary
+extends Control
+## A read-only, embeddable page. The host owns input capture, pause and persistence.
+## setup() retains the injected dictionary; refresh() reprojects its current values.
+
+const INK := Color("e2ded4")
+const MUTED := Color("999da8")
+const GOLD := Color("c8b58e")
+var _archive: Dictionary = {}
+var _dossier := false
+var _selected := 0
+var _pages: Array[Dictionary] = []
+var _margin: MarginContainer
+var _layout: HBoxContainer
+var _nav: VBoxContainer
+var _buttons: Array[Button] = []
+var _tabs: Array[Button] = []
+var _reader: ScrollContainer
+var _paper: MarginContainer
+var _copy: VBoxContainer
+var _count: Label
+var _heading: Label
+var _footer: Label
+var _built := false
+var _compact := false
+
+func _ready() -> void:
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_build()
+	_built = true
+	resized.connect(_resize)
+	visibility_changed.connect(_focus_when_shown)
+	_resize()
+	refresh()
+	_focus_when_shown()
+
+func setup(archive: Dictionary) -> void:
+	_archive = archive
+	refresh()
+
+func refresh() -> void:
+	if not _built:
+		return
+	_pages = LoreEntries.project(_archive, _dossier)
+	_selected = clampi(_selected, 0, _pages.size() - 1)
+	var unlocked := 0
+	for page in _pages:
+		if page.unlocked:
+			unlocked += 1
+	_count.text = "%02d / %02d  已显影" % [unlocked, _pages.size()]
+	for index in _buttons.size():
+		var button := _buttons[index]
+		button.visible = index < _pages.size()
+		if not button.visible:
+			button.text = ""
+			button.tooltip_text = ""
+			continue
+		var page := _pages[index]
+		button.text = "%02d    %s\n        %s" % [index + 1, page.realm, _nav_title(page)]
+		button.set_pressed_no_signal(index == _selected)
+		button.add_theme_color_override("font_color", INK if page.unlocked else MUTED)
+		button.add_theme_color_override("font_pressed_color", page.color)
+		button.tooltip_text = "" # Never store locked copy in a tooltip.
+		var above: Control = _tabs[1 if _dossier else 0] if index == 0 else _buttons[index - 1]
+		button.focus_neighbor_top = button.get_path_to(above)
+		button.focus_neighbor_bottom = button.get_path_to(_buttons[(index + 1) % _pages.size()])
+		button.focus_neighbor_right = button.get_path_to(_reader)
+		button.focus_next = button.get_path_to(_reader)
+	_reader.focus_neighbor_left = _reader.get_path_to(_buttons[_selected])
+	_reader.focus_previous = _reader.get_path_to(_buttons[_selected])
+	for tab in _tabs:
+		tab.focus_neighbor_bottom = tab.get_path_to(_buttons[_selected])
+	_tabs[0].focus_neighbor_right = _tabs[0].get_path_to(_tabs[1])
+	_tabs[1].focus_neighbor_left = _tabs[1].get_path_to(_tabs[0])
+	_show_page()
+
+func _nav_title(page: Dictionary) -> String:
+	if not page.unlocked:
+		return "封存中"
+	if _dossier:
+		return "双面档案 · " + ("两面显影" if page.human_unlocked else "一面显影")
+	return String(page.title).split("：")[0]
+
+func _build() -> void:
+	var backdrop := ColorRect.new()
+	backdrop.color = Color("101219")
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(backdrop)
+	_margin = MarginContainer.new()
+	_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_margin)
+	var shell := VBoxContainer.new()
+	shell.add_theme_constant_override("separation", 18)
+	_margin.add_child(shell)
+	shell.add_child(_label("PSYCHE ARCHIVES    /    心象档案", 16, GOLD))
+	var masthead := HBoxContainer.new()
+	shell.add_child(masthead)
+	_heading = _label("留在纸上的声音", 36, INK)
+	_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	masthead.add_child(_heading)
+	_count = _label("", 17, MUTED)
+	_count.custom_minimum_size.x = 170
+	_count.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	masthead.add_child(_count)
+	var tab_row := HBoxContainer.new()
+	tab_row.add_theme_constant_override("separation", 12)
+	shell.add_child(tab_row)
+	for index in 2:
+		var tab := _button("现实心象日记" if index == 0 else "心魔双面档案")
+		tab.custom_minimum_size = Vector2(194, 42)
+		tab.pressed.connect(_change_section.bind(index == 1))
+		tab.set_pressed_no_signal(index == 0)
+		tab_row.add_child(tab)
+		_tabs.append(tab)
+	shell.add_child(_rule(Color("37343a")))
+	_layout = HBoxContainer.new()
+	_layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_layout.add_theme_constant_override("separation", 32)
+	shell.add_child(_layout)
+	var nav_scroll := ScrollContainer.new()
+	nav_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	nav_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	nav_scroll.follow_focus = true
+	_layout.add_child(nav_scroll)
+	_nav = VBoxContainer.new()
+	_nav.add_theme_constant_override("separation", 12)
+	nav_scroll.add_child(_nav)
+	for index in 5:
+		var button := _button("")
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.custom_minimum_size.y = 76
+		button.pressed.connect(_select.bind(index))
+		_nav.add_child(button)
+		_buttons.append(button)
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _style(Color("161922"), Color("353641")))
+	_layout.add_child(panel)
+	_reader = ScrollContainer.new()
+	_reader.name = "ReadingScroll"
+	_reader.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_reader.focus_mode = Control.FOCUS_ALL
+	_reader.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, GOLD, 2))
+	_reader.gui_input.connect(_scroll_input)
+	panel.add_child(_reader)
+	_paper = MarginContainer.new()
+	_paper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_reader.add_child(_paper)
+	_copy = VBoxContainer.new()
+	_copy.add_theme_constant_override("separation", 22)
+	_paper.add_child(_copy)
+	_footer = _label("↑ ↓  选择篇目     Enter / A  打开     →  阅读     滚轮 / 方向键  滚动     ←  返回目录", 16, MUTED)
+	shell.add_child(_footer)
+
+func _show_page() -> void:
+	# Remove old text immediately, including on a progress reset or account switch.
+	for child in _copy.get_children():
+		child.free()
+	_reader.scroll_vertical = 0
+	var page := _pages[_selected]
+	var accent: Color = page.color
+	_copy.add_child(_label("%02d    /    %s" % [_selected + 1, "本能的两面" if _dossier else "现实心象"], 16, accent))
+	_copy.add_child(_label(page.title, 28 if _compact else 34, INK))
+	_copy.add_child(_label(page.hint, 16, MUTED))
+	_copy.add_child(_rule(accent.darkened(0.55)))
+	if not page.unlocked:
+		var blank := Control.new()
+		blank.custom_minimum_size.y = 42
+		_copy.add_child(blank)
+		_copy.add_child(_label("纸页还没有留下文字。", 24, MUTED))
+		_copy.add_child(_label("此处只收录你已经走过的部分。", 18, MUTED))
+	elif not _dossier:
+		_copy.add_child(_body(page.body))
+		_copy.add_child(_label("—  我的手记", 16, accent))
+	else:
+		_copy.add_child(_label("皇冠眼中的绊脚石  /  " + page.obstacle, 20, accent))
+		_copy.add_child(_body(page.crown))
+		_copy.add_child(_rule(Color("37343a")))
+		if page.human_unlocked:
+			_copy.add_child(_label("人性内核的保护价值  /  " + page.value, 20, accent))
+			_copy.add_child(_body(page.human))
+		else:
+			_copy.add_child(_label("另一面 · 尚未显影", 20, MUTED))
+			_copy.add_child(_label("击败此境心魔后，再来翻开这一面。", 18, MUTED))
+	_copy.add_child(_label("·    ·    ·", 18, accent.darkened(0.25)))
+
+func _change_section(dossier: bool) -> void:
+	_dossier = dossier
+	for index in _tabs.size():
+		_tabs[index].set_pressed_no_signal((index == 1) == dossier)
+	refresh()
+
+func _select(index: int) -> void:
+	_selected = index
+	refresh()
+
+func _button_input(event: InputEvent, button: Button) -> void:
+	# Allow the labelled south/A button even when platform ui_accept omits it,
+	# without changing the host's InputMap.
+	if event is InputEventJoypadButton and event.button_index == JOY_BUTTON_A and event.pressed and not event.is_action("ui_accept"):
+		button.pressed.emit()
+		button.accept_event()
+
+func _resize() -> void:
+	if not _built:
+		return
+	_compact = size.x < 1500 or size.y < 850
+	var gutter := 28 if _compact else 48
+	for side in ["left", "right", "top", "bottom"]:
+		_margin.add_theme_constant_override("margin_" + side, gutter)
+		_paper.add_theme_constant_override("margin_" + side, 26 if _compact else 44)
+	_nav.custom_minimum_size.x = 280 if _compact else 340
+	_heading.add_theme_font_size_override("font_size", 30 if _compact else 38)
+	_layout.add_theme_constant_override("separation", 24 if _compact else 40)
+	# Sizes are local to this page, including when embedded below the host tabs.
+	if not _pages.is_empty():
+		_show_page()
+
+func _focus_when_shown() -> void:
+	if _built and is_visible_in_tree():
+		_buttons[_selected].grab_focus.call_deferred()
+
+func _scroll_input(event: InputEvent) -> void:
+	var direction := 0
+	if event.is_action_pressed("ui_down", true):
+		direction = 60
+	elif event.is_action_pressed("ui_up", true):
+		direction = -60
+	elif event.is_action_pressed("ui_page_down", true):
+		direction = int(_reader.size.y * 0.8)
+	elif event.is_action_pressed("ui_page_up", true):
+		direction = -int(_reader.size.y * 0.8)
+	elif event.is_action_pressed("ui_home"):
+		_reader.scroll_vertical = 0
+		_reader.accept_event()
+	elif event.is_action_pressed("ui_end"):
+		_reader.scroll_vertical = int(_reader.get_v_scroll_bar().max_value)
+		_reader.accept_event()
+	if direction != 0:
+		_reader.scroll_vertical += direction
+		_reader.accept_event()
+
+func _body(text: String) -> Label:
+	var label := _label(text, 19 if _compact else 22, INK)
+	label.add_theme_constant_override("line_spacing", 9 if _compact else 13)
+	return label
+
+static func _label(text: String, font_size: int, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	return label
+
+static func _rule(color: Color) -> ColorRect:
+	var rule := ColorRect.new()
+	rule.color = color
+	rule.custom_minimum_size.y = 1
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return rule
+
+static func _style(background: Color, border: Color, width: int = 1) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = background
+	style.border_color = border
+	style.set_border_width_all(width)
+	style.set_content_margin_all(4)
+	return style
+
+func _button(text: String) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.toggle_mode = true
+	button.gui_input.connect(_button_input.bind(button))
+	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_stylebox_override("normal", _style(Color("14161e"), Color("292c36")))
+	button.add_theme_stylebox_override("hover", _style(Color("21242e"), Color("786b54")))
+	button.add_theme_stylebox_override("pressed", _style(Color("24252b"), Color("847459")))
+	button.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, GOLD, 2))
+	button.add_theme_color_override("font_color", INK)
+	button.add_theme_color_override("font_hover_color", Color("fff3dc"))
+	return button

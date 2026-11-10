@@ -59,6 +59,7 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	CrystalBurst.prepare(self)
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)
 	_offer_rng.seed = run_seed + 16338 + realm*100 + room_index + depth*1000

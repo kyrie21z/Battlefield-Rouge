@@ -1,0 +1,31 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS realm 0 owns correct identity
+PASS resolved hit uses exact contact 0
+PASS friendly fire creates no debris 0
+PASS one fatal burst at actual death 0
+PASS dead enemy cannot retrigger debris 0
+PASS realm 1 owns correct identity
+PASS resolved hit uses exact contact 1
+PASS friendly fire creates no debris 1
+PASS one fatal burst at actual death 1
+PASS dead enemy cannot retrigger debris 1
+PASS realm 2 owns correct identity
+PASS resolved hit uses exact contact 2
+PASS friendly fire creates no debris 2
+PASS one fatal burst at actual death 2
+PASS dead enemy cannot retrigger debris 2
+PASS realm 3 owns correct identity
+PASS resolved hit uses exact contact 3
+PASS friendly fire creates no debris 3
+PASS one fatal burst at actual death 3
+PASS dead enemy cannot retrigger debris 3
+PASS all four actual action event names create special feedback
+PASS debris uses flat 24-vertex mesh and GPU emitter
+PASS cosmetic debris preserves gameplay RNG
+PASS burst storm stays bounded
+PASS pause freezes cosmetic lifetime
+PASS expired bursts return all emitter leases
+PASS recycled emitter can fire without gameplay random draws
+PASS scene teardown releases emitter budget
+CRYSTAL FEEDBACK: 28 checks, 0 failures

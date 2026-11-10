@@ -22,6 +22,7 @@ func _enter_tree() -> void:
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
 
 func _ready() -> void:
+	enable_crystal_feedback(2)
 	visual = $Model as WrathVisual
 	health.max_health = [110.0, 220.0, 160.0][variant]
 	health.health = health.max_health

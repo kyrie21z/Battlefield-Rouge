@@ -166,3 +166,9 @@
 | 局外成长存档 | `MetaProgression` / `MetaProgressionStore` | 独立双货币、天赋和已结算局记录；包含挑战次数与死亡历史，带校验、备份和事务回滚。测试在autoload初始化时即隔离真实存档。 |
 | 起点准备 | `RunDirector.prepare_departure()` | Forge关闭后一次性准备新局生命、初始赐福和重抽次数；跨房天赋先注入，再恢复准确HP。 |
 | 单局收入 | `earned_will` / `earned_anchors` | 当前Stage的实际敌死、清房、唯一Boss胜利累计；死亡/结局全额入账，一局ID只结算一次。 |
+
+## 光固化打印（#170）
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 打印扫描面 | `print_progress` / `PrintProjection` | 2.5 秒自头至脚扫描，未成型为冷蓝全息网格，已成型为镜面白壳；完成后恢复战斗材质并启动 AI。 |

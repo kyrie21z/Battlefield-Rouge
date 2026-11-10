@@ -359,3 +359,13 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 “你简直无药可救了！！”使用#147登记的官方Apache-2.0 Kokoro-82M-v1.1-zh标准女声 `zf_001` 离线生成，语速1.12，24kHz单声道PCM16，2.825秒。原桌面SAPI语音已完全替换，输出不标CC0，旧生成脚本显式拒绝执行。来源、模型哈希和全部参数见 [语音说明](../tools/cinematic/voice_assets.md)。
 
 `assets/audio/climax/crown_breakdown.wav` SHA-256: `6c8c2003662b3e8d414949eb935a36172cbf5dc5c0c99e7ae7abef217481b828`。
+
+## #170 光固化打印（2026-11-10）
+
+打印网格、光锥、激光环、48 个 GPU 火星与 2.5 秒蜂鸣均为项目原创代码生成，遵循仓库 MIT 许可；未新增下载素材，原白晶人形、皇冠和语音原件不变。声音采用 780/1561 Hz 激光双音、118 Hz 步进振荡与 210 Hz 锁合音，复用 `ProceduralAudio` 的 PCM 输出。源文件 SHA-256：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `levels/climax/print_projection.gd` | `5ec627e1d6c5df0c566fc2a0fe13b9527424814803e59a741e4df705888d2b1f` |
+| `levels/climax/shaders/print_slice.gdshader` | `0453a5a741adfe42593a649ce80762664f2d60015a18de73f7caf7a110adbef4` |
+| `levels/climax/shaders/print_projection.gdshader` | `000ee2fe28d125d5dd66b73cbe3da7b270fc1750501c84c55968a38aa662620c` |

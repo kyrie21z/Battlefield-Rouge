@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS generated map constructs geometry, player, HUD and three realm variants
+PASS baked WORLD geometry produces a navigation polygon
+PASS injected HP, depth and deprivations survive stage setup
+PASS inherited loss of Sloth extinguishes all Rest Zones
+PASS inherited loss of Fear removes enemy tells and damage arrows
+PASS injected difficulty changes both enemy HP and damage
+PASS locked exit refuses premature progress
+PASS entry starter offer pauses without unlocking the gate
+PASS real reroll spends one injected charge and refreshes choices
+PASS starter choice resumes combat without awarding a room clear
+PASS actual final Health death clears the room once
+PASS clear opens the real BoonPicker and pauses combat
+PASS reward draws three cards belonging to the realm
+PASS exit remains locked before reward choice
+PASS selecting the actual card equips it and unpauses
+PASS reward unlocks the gate without skipping to another room
+PASS distant gate cannot be activated
+PASS WORLD wall blocks the otherwise nearby exit
+PASS nearby unobstructed gate emits one campaign exit
+PASS held or repeated interaction cannot emit twice
+PASS reused pause menu opens and pauses the real room
+PASS pause closes without losing captured movement
+MONO_PROBE {"hud_can_process":true,"hud_processing":true,"idle":4,"inspector_opened":false,"monochrome":1.0,"paused":false,"physics":18,"point":"after_effect_assignment","shader_amount":0.0,"visible":false}
+MONO_PROBE {"hud_can_process":true,"hud_processing":true,"idle":9,"inspector_opened":false,"monochrome":1.0,"paused":false,"physics":20,"point":"after_original_two_physics_frames","shader_amount":1.0,"visible":true}
+PASS real realm effect drives the monochrome screen shader
+MONO_PROBE {"hud_can_process":true,"hud_processing":true,"idle":9,"inspector_opened":false,"monochrome":1.0,"paused":false,"physics":20,"point":"after_one_process_signal","shader_amount":1.0,"visible":true}
+MONO_PROBE {"hud_can_process":true,"hud_processing":true,"idle":10,"inspector_opened":false,"monochrome":1.0,"paused":false,"physics":20,"point":"after_two_process_signals","shader_amount":1.0,"visible":true}
+PASS actual player death emits one failure and closes exit
+PASS second generated room has five live actors
+PASS room handoff restores actual HP, boons and independent shard
+PASS restoring Slumber still preserves inherited dark Rest Zones
+REALM STAGE: 27 checks, 0 failed

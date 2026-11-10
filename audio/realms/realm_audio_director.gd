@@ -38,10 +38,19 @@ func _ready() -> void:
 	player.boons.event_dispatched.connect(_on_boon_event)
 	stage.realm_defeated.connect(_on_realm_defeated)
 	stage.player_fallen.connect(_on_fallen)
+	_install_boon_audio()
 	set_deprived(deprived)
 	if is_instance_valid(stage.hud):
 		stage.hud.settings.changed.connect(_apply_audio_settings)
 		_apply_audio_settings()
+
+func _install_boon_audio() -> void:
+	var path := "res://audio/realms/sorrow_boon_audio.gd"
+	if ResourceLoader.exists(path):
+		var feedback := load(path).new() as Node
+		feedback.name = "SorrowBoonAudio"
+		feedback.call("setup",player,stage.realm)
+		add_child(feedback)
 
 func _apply_audio_settings() -> void:
 	var index := AudioServer.get_bus_index(&"Music")

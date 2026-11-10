@@ -75,6 +75,10 @@ func _ready() -> void:
 	PauseMenu.allow_headless = false
 	stage.player.set_realm_effect(&"test_mono",{"monochrome":1.0})
 	await frames(2)
+	# process_frame is emitted before HUD _process; cross two signals so a full
+	# idle update has completed even when several physics ticks share one frame.
+	await get_tree().process_frame
+	await get_tree().process_frame
 	check("real realm effect drives the monochrome screen shader",stage.hud._monochrome.visible)
 	var carried: Array = stage.player.boons.all_equipped()
 	var fall_signals := [0]

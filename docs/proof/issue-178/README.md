@@ -34,3 +34,9 @@ Godot 4.7.2 / Jolt：
 父共享base须在实际消费wall_slam的同一context写 `wrath_wall_audio_managed=true`；本追加提交不包含借入的共享base。
 
 集中集成后的 Godot 4.7.2 headless 重跑为 **34 checks, 0 failures**（`integration.log`），无脚本错误或退出警告。已含父共享 bank 路由、真实 WrathSpike source 过滤与 managed 事件确认；测试同时证明生产场景只发一个重撞声、五个实际尖刺音，以及无控制器时单一旧声音和暂停/死亡/移除后的延迟回调不会补播。
+
+## 最后一名穿刺者与选卡暂停的时序修复
+
+独立审查随后复现：最后一个穿刺者真实撞墙自爆后，Stage立即打开选卡暂停，而旧音频仅在process轮询计数；关闭选卡才补发撞击声。原始探针为0/0/1（暂停/保持/恢复），证据未覆盖或重写。现通过已有`stage.enemy_defeated`同步消费真实自爆计数，并与原轮询共用去重helper，仍沿用暂停/stop拒声。没有改敌人、伤害或Stage公共事件。
+
+原34项保留，新增最后一怪→真实死亡→选卡暂停→真实卡片button恢复的6项，**40/40**通过；旧领域回归**28/28**通过。同一探针对照改为1/1/1，死亡信号时已发声一次，恢复不补播。所有固定后日志exit0且无ERROR/WARNING。原失败、原始探针`.txt`、前后帧号和最终日志见[timing-regression](timing-regression/README.md)及其[SHA256SUMS](timing-regression/SHA256SUMS)。

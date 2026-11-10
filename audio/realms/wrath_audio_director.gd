@@ -11,6 +11,7 @@ func _ready() -> void:
 	super._ready()
 	actor_voices = RealmActorAudioVoices.new()
 	add_child(actor_voices)
+	stage.enemy_defeated.connect(_on_enemy_defeated)
 	if not deprived:
 		set_ambience(&"wrath_kiln")
 
@@ -44,10 +45,7 @@ func _process(delta: float) -> void:
 		var wrath := actor as WrathRealmEnemy
 		var id := wrath.get_instance_id()
 		present.append(id)
-		if wrath.wall_detonations > int(_detonations.get(id, 0)):
-			# Piercer self-detonation follows a real slide collision (not the player's boon event).
-			play_cue(&"wrath_wall_slam", wrath.global_position + Vector3.UP, 1.0, -7.0)
-		_detonations[id] = wrath.wall_detonations
+		_consume_wall_detonation(wrath)
 		if wrath.health.is_dead() or wrath.state in [Enemy.State.DEAD, Enemy.State.FLEE] or wrath.boon_stunned or wrath.boon_time_scale <= 0.0 or not is_instance_valid(wrath.target):
 			continue
 		var rushing := wrath.attack_phase == WrathRealmEnemy.Attack.RUSH and Vector2(wrath.velocity.x, wrath.velocity.z).length() > 8.0
@@ -68,6 +66,19 @@ func _process(delta: float) -> void:
 	for id in _detonations.keys():
 		if not present.has(id):
 			_detonations.erase(id)
+
+func _on_enemy_defeated(_room: RealmStage, actor: Enemy) -> void:
+	if actor is WrathRealmEnemy:
+		# Stage emits synchronously, before its deferred reward picker pauses us.
+		_consume_wall_detonation(actor as WrathRealmEnemy)
+
+func _consume_wall_detonation(actor: WrathRealmEnemy) -> void:
+	var id := actor.get_instance_id()
+	var previous := int(_detonations.get(id, 0))
+	_detonations[id] = actor.wall_detonations
+	if actor.wall_detonations > previous:
+		# Share acknowledgement with polling; pause/stop rejection never replays later.
+		play_cue(&"wrath_wall_slam", actor.global_position + Vector3.UP, 1.0, -7.0)
 
 func stop_all() -> void:
 	super.stop_all()

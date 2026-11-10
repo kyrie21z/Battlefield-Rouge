@@ -1,0 +1,84 @@
+extends Node3D
+## Observes actual stage death/reward callbacks. Never drives director._process or writes counters.
+var stage: RealmStage
+var director: WrathAudioDirector
+var piercer: WrathRealmEnemy
+var _last_state := ""
+var samples: Array[Dictionary] = []
+
+func snapshot(label: String) -> Dictionary:
+	var row := {"event":label,"ticks_ms":Time.get_ticks_msec(),"physics_frame":Engine.get_physics_frames(),"process_frame":Engine.get_process_frames(),"paused":get_tree().paused,"wall_detonations":piercer.wall_detonations,"cue_count":int(director.cue_counts.get(&"wrath_wall_slam",0)),"living_enemies":stage.living_enemies(),"enemy_dead":piercer.health.is_dead(),"stage_cleared":stage.cleared,"picker_exists":is_instance_valid(stage.selection),"director_elapsed":director.elapsed,"attack_phase":piercer.attack_phase,"actor_position":str(piercer.global_position)}
+	samples.append(row)
+	print("TIMING " + JSON.stringify(row))
+	return row
+
+func _process(_delta: float) -> void:
+	if not is_instance_valid(stage) or not is_instance_valid(director) or not is_instance_valid(piercer): return
+	var state := str([get_tree().paused,piercer.wall_detonations,director.cue_counts.get(&"wrath_wall_slam",0),piercer.health.is_dead(),stage.cleared,is_instance_valid(stage.selection)])
+	if state != _last_state:
+		_last_state = state
+		snapshot("process_observer")
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	stage = preload("res://maps/realms/wrath_1.tscn").instantiate() as RealmStage
+	add_child(stage)
+	director = stage.get_node("RealmAudio") as WrathAudioDirector
+	stage.player.set_physics_process(false)
+	stage.player.dash.set_physics_process(false)
+	stage.player.health.invulnerable = true
+	stage.player.weapon.trigger_enabled = false
+	piercer = stage.enemies[0] as WrathRealmEnemy
+	for actor in stage.enemies: actor.set_physics_process(false)
+	stage.enemy_defeated.connect(func(_room: RealmStage, actor: Enemy):
+		if actor == piercer: snapshot("real_enemy_defeated_signal"))
+	stage.stage_cleared.connect(func(_room: RealmStage): snapshot("real_stage_cleared_signal"))
+	stage.reward_selected.connect(func(_room: RealmStage, _card: BoonData): snapshot("real_reward_selected_signal"))
+	for actor in stage.enemies:
+		if actor != piercer: actor.health.apply_damage(99999,Hitbox.BodyPart.BODY,stage.player)
+	var wall := StaticBody3D.new()
+	wall.collision_layer = CollisionLayers.WORLD
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(10,4,0.4)
+	shape.shape = box
+	wall.add_child(shape)
+	wall.position = Vector3(0,2,-6)
+	stage.add_child(wall)
+	piercer.position = Vector3(0,0.04,-4.3)
+	piercer.velocity = Vector3.ZERO
+	stage.player.position = Vector3(0,0.04,-8)
+	for i in 3: await get_tree().physics_frame
+	if stage.living_enemies()!=1 or piercer.variant!=WrathRealmEnemy.Variant.PIERCER or get_tree().paused:
+		push_error("Diagnostic fixture did not retain one live piercer")
+		get_tree().quit(2)
+		return
+	snapshot("one_live_piercer_before_attack")
+	piercer.start_attack()
+	piercer.set_physics_process(true)
+	var deadline := Time.get_ticks_msec()+15000
+	while not is_instance_valid(stage.selection) and Time.get_ticks_msec()<deadline:
+		await get_tree().process_frame
+	if not is_instance_valid(stage.selection) or piercer.wall_detonations!=1 or not piercer.health.is_dead() or not get_tree().paused:
+		snapshot("unexpected_path")
+		get_tree().quit(2)
+		return
+	var at_pause := snapshot("picker_paused_after_real_collision")
+	await get_tree().create_timer(0.25,true).timeout
+	var held := snapshot("picker_pause_held")
+	var picker := stage.selection
+	if picker._buttons.is_empty():
+		push_error("Expected a real selectable reward card")
+		get_tree().quit(2)
+		return
+	picker._buttons[0].pressed.emit()
+	snapshot("after_real_card_button")
+	for i in 4: await get_tree().process_frame
+	var resumed := snapshot("four_process_frames_after_choice")
+	var delayed: bool = int(at_pause.cue_count)==0 and int(held.cue_count)==0 and int(resumed.cue_count)==1
+	print("RESULT " + JSON.stringify({"real_wall_detonations":piercer.wall_detonations,"real_death":piercer.health.is_dead(),"real_picker_pause":at_pause.paused,"pause_cue_count":at_pause.cue_count,"held_cue_count":held.cue_count,"resumed_cue_count":resumed.cue_count,"late_replay_reproduced":delayed,"exit_ready":stage.exit_ready}))
+	stage.queue_free()
+	await get_tree().process_frame
+	OS.delay_msec(250)
+	await get_tree().process_frame
+	get_tree().quit()

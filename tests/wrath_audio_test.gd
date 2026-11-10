@@ -183,6 +183,7 @@ func run_checks() -> void:
 	boss_stage.queue_free()
 	await frames()
 	await legacy_fallback_checks()
+	await last_piercer_reward_checks()
 
 func legacy_fallback_checks() -> void:
 	for mode in ["normal", "paused", "dead", "removed"]:
@@ -245,3 +246,73 @@ func legacy_fallback_checks() -> void:
 		check("legacy %s never schedules a late replay" % mode, arena.get_node_or_null("WrathWallFallback") == null)
 		arena.queue_free()
 		await frames(1)
+
+
+func _timing_snapshot(room: RealmStage, audio: WrathAudioDirector, actor: WrathRealmEnemy, label: String) -> Dictionary:
+	var row := {"event":label,"ticks_ms":Time.get_ticks_msec(),"physics_frame":Engine.get_physics_frames(),"process_frame":Engine.get_process_frames(),"paused":get_tree().paused,"wall_detonations":actor.wall_detonations,"cue_count":int(audio.cue_counts.get(&"wrath_wall_slam",0)),"living_enemies":room.living_enemies(),"enemy_dead":actor.health.is_dead(),"stage_cleared":room.cleared,"picker_exists":is_instance_valid(room.selection)}
+	print("LAST PIERCER TIMING " + JSON.stringify(row))
+	return row
+
+
+func last_piercer_reward_checks() -> void:
+	var room := preload("res://maps/realms/wrath_1.tscn").instantiate() as RealmStage
+	add_child(room)
+	var audio := room.get_node("RealmAudio") as WrathAudioDirector
+	room.player.set_physics_process(false)
+	room.player.dash.set_physics_process(false)
+	room.player.health.invulnerable = true
+	room.player.weapon.trigger_enabled = false
+	var actor := room.enemies[0] as WrathRealmEnemy
+	for enemy in room.enemies: enemy.set_physics_process(false)
+	var death_rows: Array[Dictionary] = []
+	var clear_rows: Array[Dictionary] = []
+	room.enemy_defeated.connect(func(_room: RealmStage, defeated: Enemy):
+		if defeated == actor: death_rows.append(_timing_snapshot(room,audio,actor,"real_enemy_defeated")))
+	room.stage_cleared.connect(func(_room: RealmStage):
+		clear_rows.append(_timing_snapshot(room,audio,actor,"real_stage_cleared")))
+	for enemy in room.enemies:
+		if enemy != actor: enemy.health.apply_damage(99999,Hitbox.BodyPart.BODY,room.player)
+	var wall := StaticBody3D.new()
+	wall.collision_layer = CollisionLayers.WORLD
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(10,4,0.4)
+	shape.shape = box
+	wall.add_child(shape)
+	wall.position = Vector3(0,2,-6)
+	room.add_child(wall)
+	actor.position = Vector3(0,0.04,-4.3)
+	actor.velocity = Vector3.ZERO
+	room.player.position = Vector3(0,0.04,-8)
+	await frames(3)
+	check("last-piercer fixture has one live actor and no synthetic wall count", room.living_enemies()==1 and actor.wall_detonations==0 and not get_tree().paused)
+	actor.start_attack()
+	actor.set_physics_process(true)
+	var deadline := Time.get_ticks_msec()+15000
+	while not is_instance_valid(room.selection) and Time.get_ticks_msec()<deadline:
+		await get_tree().process_frame
+	var real_path := is_instance_valid(room.selection) and actor.wall_detonations==1 and actor.health.is_dead() and room.cleared and get_tree().paused
+	check("last piercer really self-detonates and opens the paused reward picker",real_path)
+	if not real_path:
+		room.queue_free()
+		await frames(1)
+		return
+	var pause_row := _timing_snapshot(room,audio,actor,"picker_paused")
+	check("one heavy impact is dispatched synchronously at real death before reward pause",death_rows.size()==1 and death_rows[0].cue_count==1 and not death_rows[0].paused and clear_rows.size()==1 and clear_rows[0].cue_count==1 and not clear_rows[0].paused and pause_row.cue_count==1)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var held := _timing_snapshot(room,audio,actor,"picker_pause_held")
+	check("reward pause retains the consumed impact without another voice",held.paused and held.cue_count==1)
+	var picker := room.selection
+	check("real reward exposes a selectable card",not picker._buttons.is_empty())
+	if picker._buttons.is_empty():
+		room.queue_free()
+		await frames(1)
+		return
+	picker._buttons[0].pressed.emit()
+	_timing_snapshot(room,audio,actor,"real_card_button_closed_picker")
+	for i in 4: await get_tree().process_frame
+	var resumed := _timing_snapshot(room,audio,actor,"four_process_frames_after_choice")
+	check("real card choice resumes gameplay without replaying the collision",not resumed.paused and not resumed.picker_exists and room.exit_ready and resumed.cue_count==1)
+	room.queue_free()
+	await frames(1)

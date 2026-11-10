@@ -132,7 +132,7 @@ func _test_zone() -> void:
 	director.phase = ZoneDirector.Phase.CLEAR_GUARDS
 	_check("clearing the guards is combat", MusicDirector.desired_track(director) == "combat")
 	director.phase = ZoneDirector.Phase.CLOCK_POINT
-	_check("hammering with enemies alive is combat (%d alive)" % director.living_enemies().size(),
+	_check("striking with enemies alive is combat (%d alive)" % director.living_enemies().size(),
 		director.living_enemies().is_empty() or MusicDirector.desired_track(director) == "combat")
 	director.phase = ZoneDirector.Phase.FLAG_PLANTED
 	_check("the planted flag is calm", MusicDirector.desired_track(director) == "calm")

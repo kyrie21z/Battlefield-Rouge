@@ -25,7 +25,6 @@ func _ready() -> void:
 	_shooter.add_child(camera)
 	camera.current = true
 	_blade = MeleeWeapon.new()
-	_blade.blade_data = preload("res://weapons/mind_blade/mind_blade.tres")
 	_blade.camera = camera
 	_blade.shooter = _shooter
 	camera.add_child(_blade)
@@ -59,8 +58,9 @@ func _test_player_integration() -> void:
 	player.melee.set_process(false)
 	var enemy := _dummy(player.position + Vector3(0, 1.6, -4), 1)
 	await _settle()
-	_check("real Player equips only MindBlade", player.melee.weapons.size() == 1
-		and player.melee.current().resource_path.ends_with("mind_blade.tres"))
+	_check("real Player equips only MindBlade with no switching API", player.melee.blade_data != null
+		and player.melee.blade_data.resource_path.ends_with("mind_blade.tres")
+		and not player.melee.has_method("select") and not player.melee.has_method("select_next"))
 	_check("Q no longer switches the blade", not InputMap.has_action("switch_melee"))
 	var inputs := InputMap.action_get_events("melee")
 	_check("V and side mouse button both bind melee", inputs.size() == 2

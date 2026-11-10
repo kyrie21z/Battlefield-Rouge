@@ -82,7 +82,7 @@ func clear() -> void:
 
 
 func _process(delta: float) -> void:
-	_held_magazine.visible = _reload_charge_stored and not health.is_dead() and not weapon.is_scoped()
+	_held_magazine.visible = _reload_charge_stored and not health.is_dead()
 	if Input.is_action_just_pressed("throw_magazine") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		try_throw_reload_charge()
 	parry_remaining = maxf(0.0, parry_remaining - delta)
@@ -102,7 +102,7 @@ func _store_empty_magazine() -> void:
 			or stats.get_value(Stats.RELOAD_BLAST_DAMAGE) <= 0.0:
 		return
 	_reload_charge_stored = true
-	_held_magazine.visible = not weapon.is_scoped()
+	_held_magazine.visible = true
 	reload_charge_stored.emit()
 	_notify("危险弹匣已储存：按 %s 投出" % KeyHint.of("throw_magazine"))
 

@@ -5,8 +5,8 @@ extends Node
 ## Prints one line per check. Exits 1 if a check failed or if the run stopped
 ## before the last check, so it cannot pass by accident.
 
-# Existing HUD coverage plus eight capacity-shield state/feedback checks.
-const EXPECTED_CHECKS := 286
+# Single-pistol HUD, blade, objectives and capacity-shield state coverage.
+const EXPECTED_CHECKS := 282
 
 var _checks := 0
 var _failures := 0
@@ -23,15 +23,6 @@ var _buff_bar: BuffBar
 
 func _ready() -> void:
 	await _run()
-	for voice in find_children("*", "AudioStreamPlayer", true, false):
-		voice.stop()
-		voice.stream = null
-	for child in get_children():
-		child.queue_free()
-	get_tree().paused = false
-	await get_tree().process_frame
-	OS.delay_msec(100)
-	await get_tree().process_frame
 	var ok := _failures == 0 and _finished
 	print("%s (%d checks, %d failed%s)" % ["ALL PASSED" if ok else "FAIL", _checks,
 		_failures, "" if _finished else ", run did not finish"])
@@ -111,29 +102,29 @@ func _run() -> void:
 	_player.weapon.ammo = 7
 	_player.weapon.try_reload()
 	_panel.advance(0.0)
-	_check("reload shows a progress bar", _panel.reload_visible)
+	_check("reconstruction shows a progress bar", _panel.reload_visible)
 	var before := _panel.reload_fraction
 	_player.weapon._process(0.5)
 	_panel.advance(0.0)
-	_check("the reload bar advances", _panel.reload_fraction > before and _panel.reload_fraction < 1.0)
+	_check("the reconstruction bar advances", _panel.reload_fraction > before and _panel.reload_fraction < 1.0)
 	_player.weapon._process(10.0)
 	_panel.advance(0.0)
-	_check("the bar goes away when reload finishes", not _panel.reload_visible
+	_check("the bar goes away when reconstruction finishes", not _panel.reload_visible
 		and _player.weapon.ammo == _player.weapon.magazine_capacity())
 	_player.weapon.try_reload()
-	_check("full magazine refuses another reload", not _player.weapon.is_reloading())
+	_check("full magazine refuses another reconstruction", not _player.weapon.is_reloading())
 	_player.weapon.ammo = 7
 	_player.weapon.try_reload()
 	_player.weapon._process(0.5)
 	_panel.advance(0.0)
-	_check("a second reload is in progress", _panel.reload_visible
+	_check("a second reconstruction is in progress", _panel.reload_visible
 		and _panel.reload_fraction > 0.0 and _panel.reload_fraction < 1.0)
 	var remaining := _player.weapon._reload_left
 	_player.weapon.try_reload()
 	_check("pressing R again does not restart it", _player.weapon._reload_left == remaining)
 	_player.weapon._process(0.35)
 	_panel.advance(0.0)
-	_check("repeated R completes at 0.85 seconds", not _panel.reload_visible
+	_check("repeated R still completes at 0.85 seconds", not _panel.reload_visible
 		and _player.weapon.ammo == _player.weapon.magazine_capacity())
 
 	print("== buff icon bar")
@@ -230,11 +221,7 @@ func _run() -> void:
 	_test_magazine_slot()
 
 	print("== every weapon has an icon")
-	for data: WeaponData in [load("res://weapons/rifle.tres"), load("res://weapons/shotgun.tres"),
-			load("res://weapons/sniper.tres")]:
-		_check("%s has an icon" % data.display_name, data.icon != null
-			and data.icon.get_size().x > 0.0)
-	for data: MeleeData in MeleePool.ALL:
+	for data: Resource in [_player.weapon.data, _player.melee.current()]:
 		_check("%s has an icon" % data.display_name, data.icon != null
 			and data.icon.get_size().x > 0.0)
 	_check("the shield slot has an icon", _shield_slot.icon != null
@@ -346,9 +333,9 @@ func _test_magazine_slot() -> void:
 	_magazine_slot.advance(0.0)
 	_check("the stored magazine keeps C ready past its flight fuse", _magazine_slot.slot_ready
 		and _magazine_slot.count_text == "1/1")
-	weapon.select_next()
+	weapon._process(1.0)
 	_magazine_slot.advance(0.0)
-	_check("switching guns keeps the stored C slot lit", _magazine_slot.slot_ready
+	_check("reconstruction keeps the stored C slot lit", _magazine_slot.slot_ready
 		and _magazine_slot.count_text == "1/1")
 	var thrown: Array[Node3D] = []
 	traits.reload_charge_thrown.connect(func(charge: Node3D): thrown.append(charge))
@@ -437,12 +424,12 @@ func _test_world_markers() -> void:
 	capture.refresh()
 	_check("all guard deaths open the point through the director", not point.locked
 		and director.phase == ZoneDirector.Phase.CLOCK_POINT and top.phase == director.phase)
-	_check("the hammer objective keeps only a short E hint", objective.text == "挥刃敲钟"
+	_check("the clock objective keeps only a short V hint", objective.text == "挥刃敲钟"
 		and top.enemies_alive == 0 and detail.visible and detail.text == "按 V 挥刃"
 		and top.size.y == ObjectivePanel.EXPANDED_HEIGHT)
 	_check("the open capture marker is blue and fully opaque", capture.visible
 		and capture.marker_color == CapturePoint.COLOR_OPEN and is_equal_approx(capture.opacity, 1.0))
-	_check("hammering starts with an empty progress ring", capture.progress_visible
+	_check("clock striking starts with an empty progress ring", capture.progress_visible
 		and is_zero_approx(capture.progress_fraction))
 	point.add_capture_progress(0.25)
 	capture.refresh()
@@ -634,7 +621,7 @@ func _test_boss_hud() -> void:
 	_check("boss distance is camera-to-boss in rounded metres",
 		marker.distance_meters == roundi(camera.global_position.distance_to(boss.global_position))
 		and marker.distance_text == "%d米" % marker.distance_meters)
-	_check("the boss core starts grey without a hammer ring", point.locked and capture.visible
+	_check("the boss core starts grey without a strike ring", point.locked and capture.visible
 		and capture.marker_color == CapturePoint.COLOR_LOCKED and not capture.progress_visible)
 	_check("the boss zone starts without a pedestal marker", director.buff_pedestal == null
 		and not pedestal_marker.visible)

@@ -14,8 +14,6 @@ var _bindings := {
 	"aim": [_mouse(MOUSE_BUTTON_RIGHT)],
 	"reload": [_key(KEY_R)],
 	"throw_magazine": [_key(KEY_C)],
-	"weapon_next": [_mouse(MOUSE_BUTTON_WHEEL_UP)],
-	"weapon_prev": [_mouse(MOUSE_BUTTON_WHEEL_DOWN)],
 	"melee": [_key(KEY_V), _mouse(MOUSE_BUTTON_XBUTTON1)],
 	"shield": [_key(KEY_G)],
 	"interact": [_key(KEY_F)],

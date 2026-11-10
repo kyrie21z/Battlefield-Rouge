@@ -264,7 +264,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 				enemy.set_physics_process(false)
 			director.capture_point.player_in_reach = true
 			director.capture_point.resolve_swing(2.5)
-			_check("a hammer does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
+			_check("a blade strike does nothing before the Boss falls", director.capture_point.progress == 0.0 and director.capture_point.locked)
 			director.boss.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 			_check("the Boss's death opens the core with minions alive", director.phase == ZoneDirector.Phase.CLOCK_POINT and not director.capture_point.locked and get_tree().get_nodes_in_group("enemy").any(func(e: Enemy): return e != director.boss and not e.health.is_dead()))
 			director.capture_point.resolve_swing(2.5)
@@ -302,7 +302,7 @@ func _play_existing_run(indices: Array, label: String) -> void:
 			var ending := _end_screen(director)
 			_check("Boss ends with victory and no extra reward", director.selection_context.is_empty() and director.selection_count == 0 and ending != null)
 			if ending != null:
-				_check("one hammer wins after the Boss is dead", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and director.boss.health.is_dead())
+				_check("one blade strike wins after the Boss is dead", (ending.get_node("Center/Box/Title") as Label).text == "胜利" and director.boss.health.is_dead())
 			await _shot(label + "_victory")
 	var contexts: Array[String] = []
 	for entry in RunState.selection_history:

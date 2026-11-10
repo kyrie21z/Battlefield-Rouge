@@ -1,5 +1,5 @@
 extends Node
-## Headless check of firing positions and hammer noise (issue #40). Run from
+## Headless check of firing positions and clock noise (issue #40). Run from
 ## the project root:
 ##   godot --headless --path . res://tests/firing_position_test.tscn
 ## Prints one line per check. Exits 1 if a check failed or the run stopped
@@ -34,8 +34,8 @@ func _run() -> void:
 	print("== several reinforcements keep their spots apart")
 	await _spots_stay_apart()
 
-	print("== hammering wakes idle guards in hearing range only")
-	await _hammer_noise()
+	print("== striking wakes idle guards in hearing range only")
+	await _clock_noise()
 
 	print("== the same input picks the same spots")
 	await _deterministic_picks()
@@ -152,7 +152,7 @@ func _spots_stay_apart() -> void:
 	await _close(scene)
 
 
-func _hammer_noise() -> void:
+func _clock_noise() -> void:
 	var scene := await _open_zone(ZONE, 0, 40042)
 	_choose_entry(scene)
 	var point := scene.get_node("CapturePoint") as CapturePoint
@@ -184,8 +184,8 @@ func _hammer_noise() -> void:
 	point.player_in_reach = true
 	point.resolve_swing(2.0)
 	await get_tree().physics_frame
-	_check("hammering wakes the close idle guard", near.state != Enemy.State.IDLE)
-	_check("hammering leaves the far idle guard alone", far.state == Enemy.State.IDLE)
+	_check("striking wakes the close idle guard", near.state != Enemy.State.IDLE)
+	_check("striking leaves the far idle guard alone", far.state == Enemy.State.IDLE)
 	await _close(scene)
 
 

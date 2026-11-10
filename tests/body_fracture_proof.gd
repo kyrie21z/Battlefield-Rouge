@@ -36,7 +36,7 @@ func _ready() -> void:
 	light.rotation_degrees = Vector3(-45, -25, 0)
 	light.light_energy = 0.7
 	add_child(light)
-	var output_path := "res://docs/proof/issue-105/body-fracture"
+	var output_path := "user://proof/body-fracture"
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--out="):
 			output_path = argument.trim_prefix("--out=")
@@ -57,5 +57,5 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			var error := get_viewport().get_texture().get_image().save_png(output.path_join("%s_%d.png" % [region, level]))
 			assert(error == OK)
-	print("BODY FRACTURE MATERIAL PROOF: complete")
+	print("BODY FRACTURE MATERIAL PROOF: " + output)
 	get_tree().quit()

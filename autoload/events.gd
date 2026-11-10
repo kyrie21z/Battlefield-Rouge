@@ -14,8 +14,7 @@ signal point_captured(zone_index: int)
 signal buff_chosen(buff: Resource)
 signal run_won
 
-## Successful blade reflection; UI owns the optional hitstop.
-signal blade_parried(position: Vector3)
-
 ## Presentation hook: count of defeated inner demons (0..4).
 signal sin_defeated(count: int)
+## Successful blade reflection; UI owns the optional hitstop.
+signal blade_parried(position: Vector3)

@@ -1,6 +1,6 @@
 class_name MeleeWeapon
 extends Node3D
-## The equipped mind blade, with the old loadout API retained until issue #106.
+## A single mind blade: quick slash, projectile parry and rhythmic clock strike.
 ## Reads Stats; recoil, movement and presentation are applied by the owner.
 
 ## One swing has started. `step` counts up across swings, so tests and the HUD
@@ -20,7 +20,6 @@ signal hit_landed(headshot: bool, killed: bool)
 signal recoil(pitch: float, yaw: float, manual: float)
 ## The swing carries the player forward. `speed` is m/s for `duration` seconds.
 signal lunge(direction: Vector3, speed: float, duration: float)
-signal selected(index: int, data: MeleeData)
 ## One physical clock strike per swing, at the first damage sample.
 signal struck
 
@@ -61,11 +60,7 @@ class Pose:
 ## The attacker's body. Its `team` keeps the arc off the player's own hitboxes.
 @export var shooter: CollisionObject3D
 
-## Null is the temporary legacy-test loadout; Player explicitly equips MindBlade.
-@export var blade_data: MeleeData
-var weapons: Array[MeleeData] = []
-var index := 0
-var _views: Array[Node3D] = []
+@export var blade_data: MeleeData = preload("res://weapons/mind_blade/mind_blade.tres")
 
 var _active_enabled := true
 var _phase := Phase.IDLE
@@ -111,18 +106,16 @@ func _ready() -> void:
 	_pivot = Node3D.new()
 	_pivot.name = "Pivot"
 	add_child(_pivot)
-	weapons.assign([blade_data] if blade_data != null else MeleePool.ALL)
-	for data in weapons:
-		_views.append(_make_view(data))
+	_view = _make_view(blade_data)
 	_audio = AudioStreamPlayer.new()
 	_audio.max_polyphony = 3
 	add_child(_audio)
 	_hit_sound = ProceduralAudio.generate("melee_hit")
-	select(0)
-	if blade_data != null:
-		_parry_area = preload("res://weapons/mind_blade/parry_area.gd").new()
-		_parry_area.blade = self
-		add_child(_parry_area)
+	_rest = Pose.new(blade_data.rest_hand, blade_data.rest_aim, blade_data.rest_roll)
+	_pivot.transform = _pose_of(_rest)
+	_parry_area = preload("res://weapons/mind_blade/parry_area.gd").new()
+	_parry_area.blade = self
+	add_child(_parry_area)
 
 
 func _exit_tree() -> void:
@@ -133,27 +126,13 @@ func _exit_tree() -> void:
 
 
 func current() -> MeleeData:
-	return weapons[index] if index >= 0 and index < weapons.size() else null
+	return blade_data
+
 
 ## The imported blade root is the grip centre. Body IK follows the same
 ## world-space frame as the rendered blade through wind-up, slash and recovery.
 func grip_transform() -> Transform3D:
 	return _view.global_transform if is_instance_valid(_view) else global_transform
-
-
-func select(new_index: int) -> void:
-	if weapons.is_empty() or _phase != Phase.IDLE:
-		return
-	index = wrapi(new_index, 0, weapons.size())
-	_view = _views[index]
-	var data := current()
-	_rest = Pose.new(data.rest_hand, data.rest_aim, data.rest_roll)
-	_pivot.transform = _pose_of(_rest)
-	selected.emit(index, data)
-
-
-func select_next() -> void:
-	select(index + 1)
 
 
 func is_swinging() -> bool:
@@ -182,7 +161,7 @@ func swing_now() -> bool:
 	_show_view()
 	_make_swing_noise(data)
 	_setup_pose(data, _phase_left, _scaled(data.active), _scaled(data.recovery))
-	swing_started.emit(index, _swing_count)
+	swing_started.emit(0, _swing_count)
 
 	# The snap is decided and taken at the top of the swing, during the wind-up, so
 	# the player is already in contact when the blade arrives. A swing with nothing
@@ -533,25 +512,8 @@ func _make_view(data: MeleeData) -> Node3D:
 	view.position = Vector3.ZERO
 	view.rotation_degrees = Vector3.ZERO
 	view.visible = false
-	if blade_data == null:
-		_flat_shade(view, data.view_brightness)
 	_pivot.add_child(view)
 	return view
-
-
-func _flat_shade(view: Node3D, brightness: float) -> void:
-	var lift := Color(brightness, brightness, brightness, 1.0)
-	for found in view.find_children("*", "MeshInstance3D", true, false):
-		var mesh_instance := found as MeshInstance3D
-		for surface in mesh_instance.mesh.get_surface_count():
-			var original := mesh_instance.mesh.surface_get_material(surface) as BaseMaterial3D
-			if original == null:
-				continue
-			var material := original.duplicate() as BaseMaterial3D
-			material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			material.cull_mode = BaseMaterial3D.CULL_DISABLED
-			material.albedo_color = material.albedo_color * lift
-			mesh_instance.set_surface_override_material(surface, material)
 
 
 func _placeholder_view() -> Node3D:
@@ -564,12 +526,12 @@ func _placeholder_view() -> Node3D:
 
 
 func _show_view() -> void:
-	for i in _views.size():
-		_views[i].visible = i == index
+	_view.visible = true
+
 
 func _hide_views() -> void:
-	for view in _views:
-		view.visible = false
+	_view.visible = false
+
 
 ## Called by the projectile's swept physics ray, so even a fast bullet cannot
 ## skip the active window by jumping through the blade's collision volume.

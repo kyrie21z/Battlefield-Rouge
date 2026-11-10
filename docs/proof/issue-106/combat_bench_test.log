@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] target rail actually moves
+[ok] pistol fires in the production player
+[ok] bench target receives 35 hitscan damage
+[ok] pistol consumes exactly one round
+[ok] player ADS converges to 58 degrees
+[ok] manual recharge starts on partial magazine
+[ok] reassembly refills the production magazine
+[ok] production blade can start while pistol held
+[ok] pistol remains visible through the slash
+[ok] production lunge travels exactly 0.45m without leftover slide
+[ok] bench dummy receives exactly 55 blade damage
+[ok] pistol recovers after quick slash
+[ok] bench clock detects real player in reach
+[ok] V reaches clock through blade signal
+[ok] captured clock releases its collider
+[ok] bench rebuilds a usable clock
+[ok] large core Area detects player beyond centre reach
+[ok] large core reachable face accepts blade
+[ok] back-facing blade cannot strike core
+[ok] solid wall blocks blade-to-clock contact
+[ok] beyond-reach surface is rejected inside an Area
+[ok] bench periodic emitter creates a slow round
+[ok] production blade reflects emitter round
+[ok] bench records parry and asks for 50ms hitstop
+[ok] returned round hits real bench emitter
+[ok] bench body follows level 0
+[ok] bench body follows level 1
+[ok] bench body follows level 2
+[ok] bench body follows level 3
+[ok] bench body follows level 4
+[ok] death cancels both weapons
+ALL PASSED (0 failed)

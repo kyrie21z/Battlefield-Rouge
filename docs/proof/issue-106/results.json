@@ -1,0 +1,146 @@
+[
+  {
+    "test": "active_magazine_test",
+    "exit_code": 0,
+    "seconds": 8.5,
+    "errors": [],
+    "summary": [
+      "ACTIVE MAGAZINE: 50 checks, 0 failed"
+    ]
+  },
+  {
+    "test": "body_awareness_test",
+    "exit_code": 0,
+    "seconds": 10.6,
+    "errors": [],
+    "summary": [
+      "BODY AWARENESS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "combat_bench_test",
+    "exit_code": 0,
+    "seconds": 11.4,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "combat_traits_test",
+    "exit_code": 0,
+    "seconds": 11.0,
+    "errors": [],
+    "summary": [
+      "COMBAT TRAITS: ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "fixture_test",
+    "exit_code": 0,
+    "seconds": 93.2,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "gun_feel_test",
+    "exit_code": 0,
+    "seconds": 40.2,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "hit_feel_test",
+    "exit_code": 0,
+    "seconds": 27.1,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "hud_test",
+    "exit_code": 0,
+    "seconds": 34.0,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (282 checks, 0 failed)"
+    ]
+  },
+  {
+    "test": "keybinding_test",
+    "exit_code": 0,
+    "seconds": 33.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "melee_test",
+    "exit_code": 0,
+    "seconds": 6.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "mind_blade_test",
+    "exit_code": 0,
+    "seconds": 6.7,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "music_test",
+    "exit_code": 0,
+    "seconds": 129.6,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "obsidian_pistol_test",
+    "exit_code": 0,
+    "seconds": 3.3,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "phase_banner_test",
+    "exit_code": 0,
+    "seconds": 25.9,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "settings_test",
+    "exit_code": 0,
+    "seconds": 24.8,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  },
+  {
+    "test": "weapons_test",
+    "exit_code": 0,
+    "seconds": 3.3,
+    "errors": [],
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ]
+  }
+]

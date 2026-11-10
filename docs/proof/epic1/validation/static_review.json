@@ -1,0 +1,55 @@
+{
+  "checked_at_utc": "2026-11-10T01:36:33.313003+00:00",
+  "base": "dfb49a1388e61a813cff1f26bda10f23b4bffd88",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "staged_paths_checked": 219,
+  "literal_resource_references_checked": 368,
+  "checks": [
+    "staged diff whitespace",
+    "UID/import/source registration",
+    "no credential-like strings or absolute private paths in staged text",
+    "active literal resource references",
+    "GLB receipt hashes",
+    "original character models and material byte preservation"
+  ],
+  "issues": [],
+  "test_scenes": 43,
+  "test_failures": 0,
+  "map_check": "not applicable: no maps or generator changes",
+  "notes": [
+    "Logs retain output lines; terminal ANSI codes and trailing whitespace removed.",
+    "Full suite plus focused model rerun; no claim that the review wrapper was run."
+  ],
+  "intentional_absent_resources": [
+    {
+      "path": "actors/player/left_hand_view.gd",
+      "reason": "Negative test verifies deleted fake hand stays absent; not a load dependency."
+    }
+  ],
+  "protected_paths": [
+    "ARCHITECTURE.md",
+    "autoload/events.gd",
+    "autoload/input_map_setup.gd",
+    "components/collision_layers.gd",
+    "docs/adr/0014-epic1-mind-arsenal.md"
+  ],
+  "deleted_paths": [
+    "actors/player/hammer.gd",
+    "actors/player/hammer.gd.uid",
+    "ui/scope.gd",
+    "ui/scope.gd.uid",
+    "weapons/melee/axe.tres",
+    "weapons/melee/knife.tres",
+    "weapons/melee/melee_pool.gd",
+    "weapons/melee/melee_pool.gd.uid",
+    "weapons/melee/tachi.tres",
+    "weapons/rifle.tres",
+    "weapons/shotgun.tres",
+    "weapons/sniper.tres",
+    "weapons/viewmodels/knife_view.tscn",
+    "weapons/viewmodels/rifle_view.tscn",
+    "weapons/viewmodels/shotgun_view.tscn",
+    "weapons/viewmodels/sniper_view.tscn",
+    "weapons/viewmodels/tachi_view.tscn"
+  ]
+}

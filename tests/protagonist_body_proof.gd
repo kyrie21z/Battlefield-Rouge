@@ -1,7 +1,7 @@
 extends Node3D
 ## Native, production-player evidence: horizontal, torso/legs, gait and shadow.
 ## godot --path . res://tests/protagonist_body_proof.tscn -- --out=<directory>
-var _out_dir := "res://docs/proof/issue-105"
+var _out_dir := "res://docs/proof/epic1"
 var _player: Player
 var _body: Node3D
 

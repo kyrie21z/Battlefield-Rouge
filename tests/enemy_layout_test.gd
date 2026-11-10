@@ -29,7 +29,7 @@ const NAVMESH_TOLERANCE := 0.5
 const COVER_DISTANCE := 3.5
 const ESCORT_MIN := 2.0
 const ESCORT_MAX := 6.0
-## The capture point's hammer reach, and the flanks of the approach.
+## The capture point's blade reach, and the flanks of the approach.
 const HAMMER_REACH := 3.2
 const BAND_NAMES := ["front", "middle", "point"]
 

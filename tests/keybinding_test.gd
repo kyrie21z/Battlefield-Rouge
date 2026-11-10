@@ -58,7 +58,8 @@ func _test_encode_decode() -> void:
 
 func _test_reserved() -> void:
 	print("== reserved inputs")
-	_check("retired melee actions are absent", not InputMap.has_action("hammer")
+	_check("retired weapon actions are absent", not InputMap.has_action("hammer")
+		and not InputMap.has_action("weapon_next") and not InputMap.has_action("weapon_prev")
 		and not InputMap.has_action("switch_melee"))
 	_check("Esc cannot be bound", not KeyBindings.can_bind(_key_event(KEY_ESCAPE)))
 	_check("F3 cannot be bound", not KeyBindings.can_bind(_key_event(KEY_F3)))

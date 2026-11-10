@@ -81,7 +81,7 @@ func _run() -> void:
 		await _key(KEY_1)
 		_check(not get_tree().paused and RunState.buffs.size() == 1 and RunState.selection_history.size() == 1, "Entry choice starts the original combat")
 		var player := get_tree().get_first_node_in_group("player") as Player
-		_check(player.weapon.data_set.size() == 1 and is_instance_valid(player.melee) and is_instance_valid(player.shield), "Pistol, legacy melee and shield remain available")
+		_check(player.weapon.data != null and is_instance_valid(player.melee) and is_instance_valid(player.shield), "Original guns, melee and shield remain available")
 		if route == "confirm": await _capture("02-existing-game-after-opening.jpg")
 		player.health.apply_damage(99999, Hitbox.BodyPart.BODY)
 		await get_tree().process_frame

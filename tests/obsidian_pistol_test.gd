@@ -45,7 +45,7 @@ func _run() -> void:
 	target.add_child(hitbox)
 	add_child(target)
 	var weapon := Weapon.new()
-	weapon.data_set = [preload("res://weapons/obsidian_pistol/obsidian_pistol.tres").duplicate() as WeaponData]
+	weapon.data = weapon.data.duplicate() as WeaponData
 	weapon.camera = camera
 	weapon.shooter = source
 	add_child(weapon)
@@ -54,7 +54,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 	var view := weapon._view as ObsidianPistolView
 	_check("single eight-round semi-auto pistol", weapon.ammo == 8 and weapon.data.fire_mode == WeaponData.FireMode.SEMI)
-	_check("isolated pistol uses one compatibility slot", weapon.data_set.size() == 1)
+	_check("no loadout switching API", not weapon.has_method("select") and not weapon.has_method("cycle_zoom"))
 	_check("unlimited crystal regeneration", weapon.reserve == -1)
 	_check("view uses imported Blender model without CSG", view.get_node("Model").scene_file_path == "res://assets/models/weapons/obsidian_pistol.glb" and view.find_children("*", "CSGShape3D", true, false).is_empty())
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/epic1_models/manifest.json"))
@@ -227,7 +227,7 @@ func _test_input_hold(camera: Camera3D, source: Source) -> void:
 		print("[skip] fire press/hold/release requires native mouse capture; run this scene natively")
 		return
 	var probe := Weapon.new()
-	probe.data_set = [preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")]
+	probe.data = preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")
 	probe.camera = camera
 	probe.shooter = source
 	add_child(probe)
@@ -254,7 +254,7 @@ func _test_scaled_reload(camera: Camera3D, source: Source) -> void:
 	stats.base[Stats.MAGAZINE_SIZE] = 1.5
 	add_child(stats)
 	var probe := Weapon.new()
-	probe.data_set = [preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")]
+	probe.data = preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")
 	probe.stats = stats
 	probe.camera = camera
 	probe.shooter = source

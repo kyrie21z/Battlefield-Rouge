@@ -207,9 +207,6 @@ func _test_audio_voices() -> void:
 	print("== audio: a burst does not cut the previous tail")
 	# Let the earlier shots (previous shots may still ring) finish first.
 	await _seconds(1.5)
-	# Simulated frames do not advance the separate real-time audio thread.
-	for voice in _weapon._shot_voices:
-		voice.stop()
 	_reset_weapon()
 	_weapon._cooldown = 0.0
 	_weapon.ammo = 8
@@ -230,7 +227,7 @@ func _test_audio_voices() -> void:
 	await get_tree().process_frame
 	_check("starting a reload does not stop the gunshots", _playing_voices().size() >= 2)
 	_weapon._finish_reload()
-	_check("reload handling has its own voice", _weapon._handling_voice.playing)
+	_check("the snap sound is on its own voice", _weapon._handling_voice.playing)
 	_weapon._reload_left = 0.0
 	# A voice that is playing is cut by assigning a stream: the reason for the pool.
 	var probe := AudioStreamPlayer.new()
@@ -617,6 +614,7 @@ func _reset_weapon() -> void:
 	_weapon._reload_left = 0.0
 	_weapon._spread = 0.0
 	_weapon._spring.reset()
+	_weapon._update_reassembly(1.0)
 
 
 func _test_camera_recovery() -> void:

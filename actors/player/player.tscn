@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://actors/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/stats.gd" id="2_stats"]
@@ -7,13 +7,12 @@
 [ext_resource type="Script" path="res://weapons/weapon.gd" id="5_weapon"]
 [ext_resource type="Resource" path="res://weapons/obsidian_pistol/obsidian_pistol.tres" id="6_pistol"]
 [ext_resource type="Script" path="res://weapons/melee/melee_weapon.gd" id="8_melee"]
-[ext_resource type="Resource" path="res://weapons/mind_blade/mind_blade.tres" id="17_mind_blade"]
-[ext_resource type="Script" path="res://weapons/weapon_data.gd" id="9_weapon_data"]
 [ext_resource type="Script" path="res://actors/player/player_shield.gd" id="12_shield"]
 [ext_resource type="Script" path="res://actors/player/combat_traits.gd" id="13_traits"]
 [ext_resource type="Script" path="res://actors/player/shadow_body.gd" id="14_shadow_body"]
 [ext_resource type="Script" path="res://actors/player/dash.gd" id="16_dash"]
 [ext_resource type="PackedScene" path="res://actors/player/protagonist_body.tscn" id="15_body"]
+
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -52,26 +51,25 @@ script = ExtResource("14_shadow_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+near = 0.025
 far = 18000.0
 fov = 75.0
-near = 0.025
 
 [node name="ViewCamera" type="Camera3D" parent="Head/Camera3D"]
+near = 0.025
 far = 18000.0
 current = true
 fov = 75.0
-near = 0.025
 
 [node name="Weapon" type="Node3D" parent="Head/Camera3D" node_paths=PackedStringArray("stats", "camera", "shooter")]
 script = ExtResource("5_weapon")
-data_set = Array[ExtResource("9_weapon_data")]([ExtResource("6_pistol")])
+data = ExtResource("6_pistol")
 stats = NodePath("../../../Stats")
 camera = NodePath("..")
 shooter = NodePath("../../..")
 
 [node name="Melee" type="Node3D" parent="Head/Camera3D" node_paths=PackedStringArray("stats", "camera", "shooter")]
 script = ExtResource("8_melee")
-blade_data = ExtResource("17_mind_blade")
 stats = NodePath("../../../Stats")
 camera = NodePath("..")
 shooter = NodePath("../../..")

@@ -345,7 +345,7 @@ func _rhythm_and_pedestal() -> void:
 	director.reinforcement_config = tuned
 	for enemy in _enemies(scene):
 		enemy.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
-	_check("opening the building spawns a four-enemy wave", director.reinforcement_count() == 4 and director.phase == ZoneDirector.Phase.HAMMER_POINT)
+	_check("opening the building spawns a four-enemy wave", director.reinforcement_count() == 4 and director.phase == ZoneDirector.Phase.CLOCK_POINT)
 	point.player_in_reach = true
 	point.resolve_swing(2.0)
 	var held := point.progress
@@ -353,7 +353,7 @@ func _rhythm_and_pedestal() -> void:
 	var sample_health := sample.health.health
 	sample.health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	_check("killing a reinforcement does not move progress", is_equal_approx(point.progress, held) and point.progress > 0.0)
-	_check("the building stays open", director.phase == ZoneDirector.Phase.HAMMER_POINT and not point.locked)
+	_check("the building stays open", director.phase == ZoneDirector.Phase.CLOCK_POINT and not point.locked)
 	await _wait(0.9)
 	_check("later waves stop at the eight-enemy cap", director.reinforcement_count() == 8)
 	_check("nine bodies were spawned to hold eight after one kill", director.reinforcement_spawn_log.size() == 9)

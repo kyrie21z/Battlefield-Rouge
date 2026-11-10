@@ -1,0 +1,106 @@
+[
+  {
+    "test": "import",
+    "exit_code": 0,
+    "seconds": 18.84,
+    "passed": true,
+    "checks": 0
+  },
+  {
+    "test": "mind_blade_test",
+    "exit_code": 0,
+    "seconds": 4.67,
+    "passed": true,
+    "checks": 48
+  },
+  {
+    "test": "capture_hammer_test",
+    "exit_code": 0,
+    "seconds": 14.12,
+    "passed": true,
+    "checks": 53
+  },
+  {
+    "test": "hammer_feel_test",
+    "exit_code": 0,
+    "seconds": 12.66,
+    "passed": true,
+    "checks": 27
+  },
+  {
+    "test": "keybinding_test",
+    "exit_code": 0,
+    "seconds": 17.96,
+    "passed": true,
+    "checks": 34
+  },
+  {
+    "test": "hud_test",
+    "exit_code": 0,
+    "seconds": 17.15,
+    "passed": true,
+    "checks": 286
+  },
+  {
+    "test": "phase_banner_test",
+    "exit_code": 0,
+    "seconds": 18.16,
+    "passed": true,
+    "checks": 24
+  },
+  {
+    "test": "music_test",
+    "exit_code": 0,
+    "seconds": 111.04,
+    "passed": true,
+    "checks": 50
+  },
+  {
+    "test": "sloth_integration_test",
+    "exit_code": 0,
+    "seconds": 59.11,
+    "passed": true,
+    "checks": 146,
+    "completion_marker": "SLOTH_INTEGRATION_SUMMARY | 146 checks | 0 failures"
+  },
+  {
+    "test": "fixture_test",
+    "exit_code": 0,
+    "seconds": 55.92,
+    "passed": true,
+    "checks": 26
+  },
+  {
+    "test": "enemy_bullet_test",
+    "exit_code": 0,
+    "seconds": 2.29,
+    "passed": true,
+    "checks": 6
+  },
+  {
+    "test": "buff_run_test",
+    "exit_code": 0,
+    "seconds": 16.23,
+    "passed": true,
+    "checks": 283
+  },
+  {
+    "test": "capture_proof",
+    "exit_code": 0,
+    "passed": true,
+    "renderer": "Forward+ / Vulkan",
+    "completion_marker": "CAPTURE PROOF PASSED",
+    "strikes": {
+      "perfect": 5,
+      "ordinary": 1
+    },
+    "images": [
+      "01_clear_guards.png",
+      "02_clock_point_open.png",
+      "03_perfect_strike.png",
+      "04_ordinary_strike.png",
+      "05_flag_planted.png"
+    ],
+    "review": "Perfect +20% and ordinary +10% frames visually inspected; default V hint shown."
+  }
+]

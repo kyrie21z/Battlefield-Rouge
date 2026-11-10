@@ -1,7 +1,7 @@
 class_name CapturePoint
 extends Area3D
 ## The objective building. Locked until the zone director calls open(); then
-## the player hammers it. Every swing adds progress, and a swing that lands on
+## the player strikes it with the mind blade. Every swing adds progress, and a swing that lands on
 ## a hit moment (within CaptureConfig.perfect_window_ms) adds more. Progress
 ## never goes down, so nothing that happens during the capture can undo it. At
 ## 100% a flag is planted and `captured` fires.
@@ -29,7 +29,7 @@ const FLAG_HEIGHT := 3.5
 ## configured steps cannot leave a capture stuck at 99.999%.
 const FULL_EPSILON := 0.000001
 
-## Hammer-strike presentation. Progress, beats and the fracture mapping never
+## Blade-strike presentation. Progress, beats and the fracture mapping never
 ## read any of these; the collision shape never moves.
 const BLOCK_SQUASH := Vector3(1.04, 0.94, 1.04)
 const BLOCK_SQUASH_PERFECT := Vector3(1.07, 0.90, 1.07)
@@ -70,14 +70,14 @@ const PUFF := preload("res://assets/vfx/puff.png")
 var locked := true
 ## 0..1. Only add_capture_progress() changes it.
 var progress := 0.0
-## True while the player is within hammer reach of the building.
+## True while the player is within blade reach of the building.
 var player_in_reach := false
 
 var _opened_at := 0.0
 var _material := StandardMaterial3D.new()
 var _flash_tween: Tween
-var _hit_sound := ProceduralAudio.generate("hammer_hit")
-var _perfect_sound := ProceduralAudio.generate("hammer_perfect")
+var _hit_sound := ProceduralAudio.generate("clock_hit")
+var _perfect_sound := ProceduralAudio.generate("clock_perfect")
 var _audio := AudioStreamPlayer3D.new()
 var _break_audio := AudioStreamPlayer3D.new()
 var _light := OmniLight3D.new()
@@ -97,7 +97,7 @@ var _brass: StandardMaterial3D
 var _dark_metal: StandardMaterial3D
 var _stone: StandardMaterial3D
 var _puff: StandardMaterial3D
-## Where the hammer lands (front face) and where the clock parts come from.
+## Where the blade lands (front face) and where the clock parts come from.
 ## Computed from the building in _build_fracture().
 var _strike_point := Vector3(0.0, 1.0, 1.3)
 var _gear_origin := Vector3(0.0, 1.2, 0.0)
@@ -121,7 +121,7 @@ func _ready() -> void:
 	add_child(_audio)
 	_break_audio.position.y = 1.0
 	_break_audio.max_distance = 60.0
-	_break_audio.stream = ProceduralAudio.generate("hammer_break")
+	_break_audio.stream = ProceduralAudio.generate("clock_break")
 	add_child(_break_audio)
 	_light.position.y = 2.5
 	_light.omni_range = 10.0
@@ -195,7 +195,7 @@ func add_capture_progress(amount: float) -> void:
 		captured.emit()
 
 
-## Resolves one hammer swing made at `time` on the beat clock. A swing counts
+## Resolves one blade swing made at `time` on the beat clock. A swing counts
 ## only while the building is open and the player is within reach.
 func resolve_swing(time: float) -> void:
 	if locked or is_captured() or not player_in_reach:
@@ -205,24 +205,47 @@ func resolve_swing(time: float) -> void:
 	var worth := config.progress_for_swing(perfect)
 	_play_feedback(perfect)
 	struck.emit(perfect, offset_ms, worth)
-	Events.hammer_struck.emit(global_position)
+	Events.clock_struck.emit(global_position)
 	add_capture_progress(worth)
 
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
 		player_in_reach = true
-		var swung := (body as Player).hammer.swung
-		if not swung.is_connected(_on_swung):
-			swung.connect(_on_swung)
+		var swung := (body as Player).melee.struck
+		var callback := _on_swung.bind(body)
+		if not swung.is_connected(callback):
+			swung.connect(callback)
 
 
 func _on_body_exited(body: Node3D) -> void:
 	if body is Player:
 		player_in_reach = false
+		var swung := (body as Player).melee.struck
+		var callback := _on_swung.bind(body)
+		if swung.is_connected(callback):
+			swung.disconnect(callback)
 
 
-func _on_swung() -> void:
+func _on_swung(player: Player) -> void:
+	# Merely standing in the capture area is insufficient: the blade must face
+	# the clock, and a wall between the player and clock blocks the strike.
+	var eye := player.melee.camera
+	# Measure the reachable face, not the centre of a large core. An actor can
+	# already be inside its reach Area while still >4.2m from the core centre.
+	var bounds := _building.get_aabb()
+	var local_eye := _building.to_local(eye.global_position)
+	var surface := _building.to_global(local_eye.clamp(bounds.position, bounds.end))
+	var to_clock := surface - eye.global_position
+	if to_clock.length() > player.melee.strike_reach():
+		return
+	if (-eye.global_basis.z).angle_to(to_clock) > deg_to_rad(55.0):
+		return
+	var query := PhysicsRayQueryParameters3D.create(eye.global_position,
+		surface + (_building.global_position - surface).normalized() * 0.01, CollisionLayers.WORLD)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty() and not is_ancestor_of(hit.collider):
+		return
 	resolve_swing(beat_time())
 
 
@@ -231,6 +254,8 @@ func _on_swung() -> void:
 func _play_feedback(perfect: bool) -> void:
 	_audio.stream = _perfect_sound if perfect else _hit_sound
 	_audio.play()
+	if perfect:
+		_spawn_strike_ring()
 	if _flash_tween != null:
 		_flash_tween.kill()
 	_material.emission_enabled = true
@@ -420,7 +445,7 @@ func _on_struck_debris(perfect: bool, _offset_ms: float, _worth: float) -> void:
 	bits.scale_amount_min = 1.0 if perfect else 0.9
 	bits.scale_amount_max = 1.4 if perfect else 1.1
 	bits.gravity = Vector3(0.0, -12.0, 0.0)
-	# On the front face, where the hammer lands: spawning inside the box would
+	# On the front face, where the blade lands: spawning inside the box would
 	# hide the first tenth of a second behind the blocks.
 	bits.position = _strike_point
 	add_child(bits)
@@ -681,3 +706,28 @@ func _update_color() -> void:
 		_material.albedo_color = COLOR_OPEN.lerp(COLOR_CAPTURED, progress)
 		if fracture_stage > 0:
 			_material.albedo_color = _material.albedo_color.lerp(Color(0.16, 0.16, 0.18), float(fracture_stage) / 4.0)
+
+
+## A warm expanding clock chime, using the same successful strike as progress.
+func _spawn_strike_ring() -> void:
+	var ring := MeshInstance3D.new()
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = 0.46
+	mesh.outer_radius = 0.5
+	mesh.rings = 24
+	mesh.ring_segments = 6
+	ring.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = FLASH_PERFECT
+	material.emission_enabled = true
+	material.emission = FLASH_PERFECT
+	material.emission_energy_multiplier = 2.0
+	ring.material_override = material
+	ring.position = Vector3(0.0, 0.1, 0.0)
+	add_child(ring)
+	var tween := create_tween().set_parallel()
+	tween.tween_property(ring, "scale", Vector3.ONE * 7.0, 0.35)
+	tween.tween_property(material, "albedo_color:a", 0.0, 0.35)
+	tween.chain().tween_callback(ring.queue_free)

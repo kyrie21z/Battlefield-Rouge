@@ -97,7 +97,7 @@ func _test_replace() -> void:
 
 func _test_flag(scene: Node) -> void:
 	print("== flag and objective text")
-	_director.phase_changed.emit(ZoneDirector.Phase.HAMMER_POINT)
+	_director.phase_changed.emit(ZoneDirector.Phase.CLOCK_POINT)
 	await _frames(2)
 	var point := scene.get_node("CapturePoint") as CapturePoint
 	point.player_in_reach = true
@@ -126,10 +126,10 @@ func _test_boss() -> void:
 	(_director.boss as Enemy).health.apply_damage(99999.0, Hitbox.BodyPart.BODY)
 	await _frames(3)
 	_check("the open core says 砸碎城市核心", _banner.title_text() == "砸碎城市核心" and _banner.is_showing())
-	_check("with the hammer action", "按 E" in _banner.subtitle_text())
+	_check("with the blade action", "按 V" in _banner.subtitle_text())
 	_director.capture_point.add_capture_progress(1.0)
 	await _frames(3)
-	_check("captured core replaces the hammer instruction immediately",
+	_check("captured core replaces the blade instruction immediately",
 		_banner.title_text() == "核心已击碎" and _banner.subtitle_text().is_empty()
 		and _banner.title_color() == PhaseBanner.TITLE_GREEN)
 	# Let the real delayed victory callback finish before releasing its owner.

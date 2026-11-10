@@ -58,6 +58,8 @@ func _test_encode_decode() -> void:
 
 func _test_reserved() -> void:
 	print("== reserved inputs")
+	_check("retired melee actions are absent", not InputMap.has_action("hammer")
+		and not InputMap.has_action("switch_melee"))
 	_check("Esc cannot be bound", not KeyBindings.can_bind(_key_event(KEY_ESCAPE)))
 	_check("F3 cannot be bound", not KeyBindings.can_bind(_key_event(KEY_F3)))
 	_check("the wheel cannot be bound", not KeyBindings.can_bind(_mouse_event(MOUSE_BUTTON_WHEEL_UP))
@@ -78,36 +80,42 @@ func _test_in_game() -> void:
 	_menu = _hud.get_node("PauseLayer/PauseMenu") as PauseMenu
 
 	var settings := GameSettings.new()
-	KeyBindings.assign(settings.bindings, "hammer", _key_event(KEY_T))
+	KeyBindings.assign(settings.bindings, "melee", _key_event(KEY_T))
 	KeyBindings.apply(settings.bindings)
-	var first := InputMap.action_get_events("hammer")[0] as InputEventKey
+	var first := InputMap.action_get_events("melee")[0] as InputEventKey
 	_check("assign + apply rebinds the action in the InputMap", first.physical_keycode == KEY_T)
-	_check("KeyHint.of follows the new binding", KeyHint.of("hammer") == "T")
+	_check("KeyHint.of follows the new binding", KeyHint.of("melee") == "T")
 
-	var swapped := KeyBindings.assign(settings.bindings, "melee", _key_event(KEY_T))
-	_check("a conflict swaps with the other action", swapped == "hammer"
-		and KeyBindings.code_for(settings.bindings, "melee") == "key:%d" % KEY_T
-		and KeyBindings.code_for(settings.bindings, "hammer") == "key:%d" % KEY_V)
+	var swapped := KeyBindings.assign(settings.bindings, "reload", _key_event(KEY_T))
+	_check("a conflict swaps with the other action", swapped == "melee"
+		and KeyBindings.code_for(settings.bindings, "reload") == "key:%d" % KEY_T
+		and KeyBindings.code_for(settings.bindings, "melee") == "key:%d" % KEY_R)
 
-	KeyBindings.assign(settings.bindings, "melee", _key_event(KEY_V))
-	_check("binding back to the default drops the override", not settings.bindings.has("melee")
-		and KeyBindings.code_for(settings.bindings, "melee") == KeyBindings.default_code("melee"))
+	KeyBindings.assign(settings.bindings, "reload", _key_event(KEY_R))
+	_check("binding back to the default drops the override", not settings.bindings.has("reload")
+		and KeyBindings.code_for(settings.bindings, "reload") == KeyBindings.default_code("reload"))
 
 	_check("save the temp file", settings.save_to(TEMP) == OK)
 	var loaded := GameSettings.new()
 	_check("load the temp file", loaded.load_from(TEMP))
-	_check("bindings survive the round trip", loaded.bindings.get("hammer", "") == "key:%d" % KEY_T)
-	_check("sanitize drops unknown actions", not loaded.bindings.has("weapon_next"))
+	_check("bindings survive the round trip", loaded.bindings.get("melee", "") == "key:%d" % KEY_T)
+	var legacy := KeyBindings.sanitize({"hammer": "key:69", "weapon_next": "mouse:4",
+		"weapon_prev": "mouse:5", "switch_melee": "key:81", "melee": "key:%d" % KEY_T})
+	_check("sanitize removes retired actions but preserves blade override", legacy.size() == 1
+		and legacy.get("melee") == "key:%d" % KEY_T)
 
 	settings.reset_defaults()
 	KeyBindings.apply(settings.bindings)
-	var restored := InputMap.action_get_events("hammer")[0] as InputEventKey
-	_check("reset_defaults restores the InputMap", restored.physical_keycode == KEY_E
+	var restored := InputMap.action_get_events("melee")[0] as InputEventKey
+	_check("reset_defaults restores the InputMap", restored.physical_keycode == KEY_V
 		and settings.bindings.is_empty())
 
 	await _test_menu_capture()
 	await _test_menu_over_buff_select()
 	_test_prompt_follows_binding()
+	scene.queue_free()
+	await _frames(3)
+	await get_tree().create_timer(0.15).timeout
 
 
 ## Opens the menu, clicks a binding row and feeds a key through _input.
@@ -126,14 +134,14 @@ func _test_menu_capture() -> void:
 		and _menu._tab_bindings.button_pressed and not _menu._tab_settings.button_pressed)
 	await _frames(2)  # let the bindings grid lay out so the row rects are real
 
-	_menu._on_bind_pressed("hammer")
-	_check("the row asks for a key", _menu._awaiting_action == "hammer"
-		and (_menu._bind_buttons["hammer"] as Button).text == "按下按键…")
+	_menu._on_bind_pressed("melee")
+	_check("the row asks for a key", _menu._awaiting_action == "melee"
+		and (_menu._bind_buttons["melee"] as Button).text == "按下按键…")
 	_menu._input(_key_event(KEY_T))
 	_check("the captured key lands on the action",
-		_hud.settings.bindings.get("hammer", "") == "key:%d" % KEY_T)
-	_check("the InputMap and the row follow", KeyHint.of("hammer") == "T"
-		and (_menu._bind_buttons["hammer"] as Button).text == "T")
+		_hud.settings.bindings.get("melee", "") == "key:%d" % KEY_T)
+	_check("the InputMap and the row follow", KeyHint.of("melee") == "T"
+		and (_menu._bind_buttons["melee"] as Button).text == "T")
 
 	_menu._on_bind_pressed("reload")
 	_menu._input(_key_event(KEY_ESCAPE))
@@ -148,14 +156,14 @@ func _test_menu_capture() -> void:
 
 	# While waiting, a click on another binding row switches the capture target
 	# instead of binding the left button that clicked it.
-	_menu._on_bind_pressed("hammer")
+	_menu._on_bind_pressed("melee")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
 	click.position = (_menu._bind_buttons["reload"] as Button).get_global_rect().get_center()
 	_menu._input(click)
 	_check("clicking another binding row switches the capture", _menu._awaiting_action == "reload"
-		and _hud.settings.bindings.get("hammer", "") == "key:%d" % KEY_T
+		and _hud.settings.bindings.get("melee", "") == "key:%d" % KEY_T
 		and not _hud.settings.bindings.has("reload"))
 	_menu._end_capture()
 
@@ -191,13 +199,13 @@ func _test_menu_over_buff_select() -> void:
 	get_tree().paused = false
 
 
-## The hammer is bound to T at this point; the prompt must show it.
+## The blade is bound to T at this point; the prompt must show it.
 func _test_prompt_follows_binding() -> void:
 	print("== prompts follow bindings")
-	_director.phase = ZoneDirector.Phase.HAMMER_POINT
-	_director.phase_changed.emit(ZoneDirector.Phase.HAMMER_POINT)
+	_director.phase = ZoneDirector.Phase.CLOCK_POINT
+	_director.phase_changed.emit(ZoneDirector.Phase.CLOCK_POINT)
 	var objective := _hud.get_node("Top") as ObjectivePanel
-	_check("the objective panel shows the new key", objective._detail.text == "按 T 挥锤")
+	_check("the objective panel shows the new key", objective._detail.text == "按 T 挥刃")
 
 
 func _key_event(code: Key) -> InputEventKey:

@@ -191,7 +191,7 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 		await get_tree().physics_frame
 	_check("walking to the open building enables hammer reach", point.player_in_reach and not point.locked)
 	for i in 4:
-		await _tap("hammer")
+		await _tap("melee")
 		await get_tree().create_timer(1.0).timeout
 	_check("E swings advance the on-target progress ring", point.progress > 0.0
 		and point.progress < 1.0 and marker.progress_visible
@@ -209,7 +209,7 @@ func _world_proof(scene: Node, player: Player, hud: CanvasLayer, director: ZoneD
 	player.aim_at(point.global_position + Vector3.UP * 2.0)
 	var swings := 0
 	while not point.is_captured() and swings < 20:
-		await _tap("hammer")
+		await _tap("melee")
 		await get_tree().create_timer(1.0).timeout
 		swings += 1
 	await _frames(3)

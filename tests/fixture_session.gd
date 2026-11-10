@@ -140,6 +140,7 @@ func _run() -> void:
 		var changed := await _play(other, 0, "seed%d" % other.run_seed)
 		print("   seed %d: %s after %d ticks, hash %s" % [other.run_seed, changed.result, changed.ticks, changed.hash])
 		_check("%s with another seed is a different run" % fixture.id, changed.hash != results[0].hash)
+		_check("%s alternate seed also ends without a timeout" % fixture.id, changed.result != "超时")
 
 	RunState.clear_fixture()
 	RunState.start_new_run()
@@ -211,7 +212,7 @@ func _end_screen() -> Node:
 	return null
 
 
-## Logs each hammer strike of the zone now being played.
+## Logs each blade clock strike of the zone now being played.
 func _watch_capture() -> void:
 	var director := get_tree().get_first_node_in_group("zone_director") as ZoneDirector
 	if director == null or director.capture_point == _watched_point:

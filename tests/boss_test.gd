@@ -137,8 +137,8 @@ func _run() -> void:
 		await get_tree().physics_frame
 	boss.health.apply_damage(9999.0, Hitbox.BodyPart.BODY)
 	_check("the boss is dead and the small enemies are not", boss.health.is_dead() and small.all(func(e: Enemy): return not e.health.is_dead()))
-	_check("the core opens", director.phase == ZoneDirector.Phase.HAMMER_POINT and not point.locked)
-	_check("the objective names the hammer", director.objective == "砸碎城市核心，按 E" and objective.text == "锤击据点")
+	_check("the core opens", director.phase == ZoneDirector.Phase.CLOCK_POINT and not point.locked)
+	_check("the objective names the hammer", director.objective == "砸碎城市核心，按 E" and objective.text == "挥刃敲钟")
 	_check("the bar is empty once the boss is dead", bar.displayed_health == 0.0)
 	_check("the label says it has fallen", bar.health_text == "已倒下" and bar.fallen
 		and bar.fill_color == CapturePoint.COLOR_LOCKED)

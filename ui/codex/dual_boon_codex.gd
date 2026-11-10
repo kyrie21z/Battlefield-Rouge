@@ -165,6 +165,7 @@ func _build() -> void:
 	_detail_scroll = ScrollContainer.new()
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.focus_mode = Control.FOCUS_ALL
+	_detail_scroll.gui_input.connect(_scroll_detail)
 	detail.add_child(_detail_scroll)
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -243,7 +244,6 @@ func _update_cards() -> void:
 		var owned := is_instance_valid(_manager) and _manager.has(card.id)
 		var eligible := is_instance_valid(_manager) and _manager.can_equip(card)
 		button.text = "%s\n%s · %s" % [card.name, "已发现" if known else "未发现", "已持有" if owned else ("可获得" if eligible else "查看前置")]
-		button.tooltip_text = card.description
 		var accent := BoonIdentity.accent(card)
 		button.add_theme_stylebox_override("normal", _button_panel(Color("29303a") if _selected == card else Color("1d2430"), accent if _selected == card else accent.darkened(.55), 2 if _selected == card else 1))
 	_count.text = "%s  /  %d 张  ·  已发现 %d / %d" % [PAGE_NAMES[_page], cards.size(), known_count, cards.size()]
@@ -291,6 +291,16 @@ func _set_page(index: int, move_focus: bool = true) -> void:
 	refresh()
 	if move_focus:
 		_tabs[_page].grab_focus()
+
+func _scroll_detail(event: InputEvent) -> void:
+	# ScrollContainer does not scroll JoypadButton arrows itself. Keep focus here
+	# while reading; Up at the top falls through to the last card's focus route.
+	if event.is_action_pressed(&"ui_down"):
+		_detail_scroll.scroll_vertical += 48
+		_detail_scroll.accept_event()
+	elif event.is_action_pressed(&"ui_up") and _detail_scroll.scroll_vertical > 0:
+		_detail_scroll.scroll_vertical = maxi(0, _detail_scroll.scroll_vertical - 48)
+		_detail_scroll.accept_event()
 
 func _input(event: InputEvent) -> void:
 	# Local shoulder handling needs no global InputMap changes; hidden tabs never consume it.

@@ -102,6 +102,9 @@ func _draw() -> void:
 		if ready_card:
 			color = Color("e7ce8c")
 			draw_line(a, b, Color(color, .07 + .08 * glow), 12, true)
+			if _edges.has(card.id):
+				var button: Button = _edges[card.id]
+				draw_rect(button.get_rect().grow(3), Color(color, .14 + .18 * glow), false, 3, true)
 		draw_line(a, b, color, 2.5 if chosen or ready_card else 1.2, true)
 	for sin_type in 4:
 		var center := POINTS[sin_type] * size

@@ -397,3 +397,11 @@ func _placeholder_view() -> Node3D:
 	mesh.mesh = box
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return mesh
+
+
+## Abilities may finish the current reassembly through the normal refill path.
+func complete_reload() -> bool:
+	if not is_reloading():
+		return false
+	_finish_reload()
+	return true

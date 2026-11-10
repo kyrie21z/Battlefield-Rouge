@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_retaliation"
+name = "仇恨反噬"
+sin = 2
+slot = 3
+rarity = 1
+core = false
+description = "受敌人攻击时震退4米内敌人，并在3秒内提高40%全伤害。"
+prerequisite_any = Array[String]([])
+required_trait_sin = 2
+required_trait_count = 0
+script_hook = ExtResource("2")

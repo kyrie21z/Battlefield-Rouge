@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_cataclysm"
+name = "灾厄怒潮"
+sin = 2
+slot = 3
+rarity = 3
+core = false
+description = "强冲量在空旷地移动0.16秒后撕裂空间；全场被击退敌人脚下升起晶刺连锁轰爆。"
+prerequisite_any = Array[String]([])
+required_trait_sin = 2
+required_trait_count = 2
+script_hook = ExtResource("2")

@@ -12,8 +12,14 @@ var _spite: Dictionary = {}
 var _dash_active := false
 var _dash_previous := Vector3.ZERO
 var _dash_hits: Dictionary = {}
+var traits: WrathTraits
+
+func setup(value: BoonManager) -> void:
+	super.setup(value)
+	traits = WrathTraits.new(self)
 
 func on_event(event: StringName, ctx: Dictionary) -> void:
+	traits.on_event(event, ctx)
 	match event:
 		&"shoot_before":
 			if manager.has(GUN):
@@ -43,12 +49,15 @@ func on_event(event: StringName, ctx: Dictionary) -> void:
 				_dash_active = false
 				manager.remove_modifier(&"wrath_dash_armor")
 
-func tick(_delta: float) -> void:
+func tick(delta: float) -> void:
+	traits.tick(delta)
 	if _dash_active:
 		_dash_collision(manager.player.global_position)
 	for id in _spite.keys():
 		if not is_instance_valid(_spite[id]):
 			_spite.erase(id)
+		else:
+			_spite[id].legendary = manager.has(WrathTraits.LEGENDARY)
 
 func has_spite(enemy: Node) -> bool:
 	return is_instance_valid(enemy) and _spite.has(enemy.get_instance_id()) and is_instance_valid(_spite[enemy.get_instance_id()]) and _spite[enemy.get_instance_id()].is_active()
@@ -71,9 +80,10 @@ func knock(enemy: Node, direction: Vector3, strength: float, context: Dictionary
 		_spite[id] = status
 	var force := BASE_FORCE * maxf(strength, 1.0)
 	if "is_boss" in enemy and enemy.is_boss:
-		force *= 0.45
+		force *= traits.elite_force_scale()
 	var ctx := context.duplicate()
 	ctx.proc_depth = int(context.get("proc_depth", 0)) + 1
+	status.legendary = manager.has(WrathTraits.LEGENDARY)
 	status.arm(enemy, direction, force, 0.9, ctx)
 	manager.feedback(enemy.global_position + Vector3.UP, COLOR, 0.3)
 
@@ -105,16 +115,22 @@ func _wall_slam(ctx: Dictionary) -> void:
 	var enemy: Node3D = ctx.target
 	if not is_instance_valid(enemy):
 		return
-	var damage := SLAM_DAMAGE
+	var damage := SLAM_DAMAGE * traits.damage_multiplier()
 	var depth := int(ctx.get("proc_depth", 1))
 	var point: Vector3 = ctx.position
 	var origin := enemy.global_position + Vector3.UP
+	ctx.damage = damage
+	ctx.proc_depth = depth
+	traits.before_slam(ctx)
 	# The target itself receives a full body hit; nearby unique Health owners
 	# are resolved through the same wall-aware query as other boons.
 	manager.apply_damage(enemy, damage, {"tag": &"wrath_slam", "proc_depth": depth})
 	for other in manager.targets_in_radius(origin, SLAM_RADIUS):
 		if other != enemy:
-			manager.apply_damage(other, damage * 0.5, {"tag": &"wrath_slam", "proc_depth": depth})
+			var pair := traits.full_pair_damage(ctx, other)
+			manager.apply_damage(other, damage if pair else damage * 0.5, {"tag": &"wrath_slam", "proc_depth": depth})
+			if pair and not manager.health_of(other).is_dead():
+				manager.set_status(other, &"wrath_chain", 0.8, 1.0, 1.0, true)
 	if not manager.health_of(enemy).is_dead():
 		manager.set_status(enemy, &"wrath_slam", 0.8, 1.0, 1.0, true)
 	# A blade knock into a real wall produces its distinct second eruption.
@@ -128,6 +144,7 @@ func _wall_slam(ctx: Dictionary) -> void:
 	var collider: Node = ctx.get("collider")
 	var wall_impact: bool = is_instance_valid(collider) and collider is CollisionObject3D and (collider.collision_layer & CollisionLayers.WORLD) != 0
 	ctx.merge({"damage": damage, "proc_depth": depth, "wall_broken": false, "wall_impact": wall_impact}, true)
+	traits.after_slam(ctx)
 	manager.dispatch(&"wall_slam", ctx)
 
 func _dash_collision(position: Vector3) -> void:
@@ -160,6 +177,8 @@ func _play_slam(point: Vector3) -> void:
 	audio.play()
 
 func cleanup() -> void:
+	if traits != null:
+		traits.cleanup()
 	_dash_active = false
 	manager.remove_modifier(&"wrath_dash_armor")
 	for status in _spite.values():

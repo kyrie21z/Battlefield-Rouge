@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BoonData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://buffs/boon_data.gd" id="1"]
+[ext_resource type="Script" path="res://buffs/effects/wrath_effect.gd" id="2"]
+[resource]
+script = ExtResource("1")
+id = "wrath_breaker"
+name = "破壁之威"
+sin = 2
+slot = 3
+rarity = 2
+core = false
+description = "削弱精英击退抗性；撞墙时摧毁目标全部屏障，追加250%真实伤害。"
+prerequisite_any = Array[String](["wrath_gun_cannon", "wrath_blade_sweep"])
+required_trait_sin = 2
+required_trait_count = 0
+script_hook = ExtResource("2")

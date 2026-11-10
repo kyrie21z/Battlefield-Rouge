@@ -21,7 +21,11 @@ func _ready() -> void:
 	check("hidden tells also suppress boss warning audio",not attack._audio.playing and not attack._ring.visible)
 	attack.finish()
 	await frames(2)
+	await ui_frame()
 	check("HUD renders the actual boss bar",stage.hud._boss_bar.visible and stage.hud._boss_bar.max_value==1750)
+	stage.boss.health.apply_damage(35,Hitbox.BodyPart.BODY,stage.player)
+	await ui_frame()
+	check("HUD follows actual boss damage",stage.boss.health.health<1750 and is_equal_approx(stage.hud._boss_bar.value,stage.boss.health.health))
 	check("boss gate starts locked",not stage.exit_ready and not stage.request_exit())
 	var deaths := [0]
 	var clears := [0]
@@ -29,6 +33,8 @@ func _ready() -> void:
 	stage.stage_cleared.connect(func(_stage):clears[0]+=1)
 	stage.boss.health.apply_damage(9999,Hitbox.BodyPart.BODY,stage.player)
 	await frames(3)
+	await ui_frame()
+	check("HUD hides the defeated boss bar",not stage.hud._boss_bar.visible and not stage.hud._boss_name.visible)
 	check("actual boss death emits immediate realm defeat only once",deaths[0]==1 and stage.boss_defeated)
 	check("new deprivation is cumulative and immediate",stage.deprivations.has(0) and stage.deprivations.has(1) and stage.player.fragments.deprivations==stage.deprivations)
 	check("death blackens Rest and accelerates the world clock",not stage.geometry.get("rest_enabled") and stage.geometry.get("clock_bpm")==148)
@@ -56,6 +62,12 @@ func _ready() -> void:
 func frames(count: int) -> void:
 	for i in count:
 		await get_tree().physics_frame
+
+func ui_frame() -> void:
+	# process_frame emits before _process; the next signal guarantees one full UI tick.
+	# Physics catch-up may deliver all eight earlier ticks before any render tick.
+	await get_tree().process_frame
+	await get_tree().process_frame
 
 func check(label: String,passed: bool) -> void:
 	checks += 1

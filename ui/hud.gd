@@ -160,6 +160,7 @@ func _ready() -> void:
 	_heartbeat.volume_db = HEARTBEAT_DB
 	add_child(_heartbeat)
 	_damage_indicator.setup(_player)
+	BoonHitstop.attach(self, _player)
 	_player.weapon.hit_landed.connect(_on_hit_landed)
 	Events.blade_parried.connect(_on_blade_parried)
 	_player.melee.hit_landed.connect(_on_hit_landed)

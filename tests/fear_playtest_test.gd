@@ -70,7 +70,7 @@ func _ready() -> void:
 	get_tree().current_scene = null
 	RunDirector.randomize_realm_order = false
 	RunDirector.begin_run(19140)
-	check("default campaign starts Fear and keeps authored fixed order",RunDirector.order == [1,0,2,3] and RunDirector.scene_path().ends_with("fear_1.tscn"))
+	check("explicit Fear diagnostic route keeps its focused order",RunDirector.order == [1,0,2,3] and RunDirector.scene_path().ends_with("fear_1.tscn"))
 	check("actual first Fear stage installs",RunDirector.install_stage(load(RunDirector.scene_path())) == OK)
 	for room in 3:
 		await frames(8)
@@ -145,7 +145,7 @@ func _ready() -> void:
 			if is_instance_valid(forge): forge.close()
 		if is_instance_valid(RunDirector.current_stage) and RunDirector.current_stage != falling: break
 		await get_tree().process_frame
-	check("death button restarts an actual fixed Fear-first run",is_instance_valid(RunDirector.current_stage) and RunDirector.current_stage != falling and RunDirector.scene_path().ends_with("fear_1.tscn") and not RunDirector._dead)
+	check("death button restarts the explicit Fear diagnostic route",is_instance_valid(RunDirector.current_stage) and RunDirector.current_stage != falling and RunDirector.scene_path().ends_with("fear_1.tscn") and not RunDirector._dead)
 	get_tree().paused = false
 	if is_instance_valid(RunDirector.current_stage): RunDirector.current_stage.queue_free()
 	RunDirector.current_stage = null

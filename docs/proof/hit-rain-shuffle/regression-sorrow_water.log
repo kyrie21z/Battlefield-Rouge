@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS tests use isolated autoload profile
+PASS production map uses new opaque mirror shader
+PASS production rain is 750 GPU white threads
+PASS production realm enables SSR with 128 steps
+PASS idle feet emit no artificial actor rings
+PASS real wet movement keeps visual packets and one managed splash layer
+PASS real dash starts
+PASS dash draws denser wakes with managed slide audio and unchanged distance
+PASS real enemy AI movement drives foot ripples
+PASS dead and idle actors stop emitting
+PASS real successful pistol shot
+PASS successful shot displaces wet shooter water
+PASS cooldown rejects extra trigger
+PASS rejected trigger emits no extra water event
+PASS real tear placement creates a landing ring
+PASS real blade starts
+PASS real blade creates owned projectiles, a water ring and one spray cue
+PASS real pickup creates exactly two rings and one return cue
+PASS real gun can fire at a tear
+PASS actual gun ray consumes tear and creates its water ring
+PASS same-frame tear consumption is observed once
+PASS dry platform motion emits no false rings
+PASS airborne motion emits no water rings
+PASS teleport does not paint a room-long wake
+PASS pause freezes water and GPU rain clocks
+PASS presentation never consumes seeded gameplay RNG
+PASS event flood remains a bounded 32-entry uniform pool
+PASS flood updates rain impact height and water together
+PASS visual changes preserve collision and baked navigation
+PASS deprivation suppresses water, rain and new rings
+PASS restoring water cannot resurrect old wave packets
+PASS realm removal stops audio immediately and stays silent after geometry free
+SORROW WATER: 32 checks, 0 failed

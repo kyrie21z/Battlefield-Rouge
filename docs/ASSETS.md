@@ -458,3 +458,13 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 | `fall-recovered.jpg` | 实际坠落后70生命和恢复提示 | `166fadcecb1bcb039190e3f61de18df4111e5d8b6c6d43ac2e5168c17c3db84f` |
 
 完整来源、复现方法、日志与字节数核对见[证明说明](proof/realm-balance/README.md)和[清单](proof/realm-balance/validation.json)。
+
+## #207 正式领域红边与连续雨底（2026-11-11）
+
+`audio/realms/sorrow_sound_bank.gd` 为#179已有原创数学合成的修订，沿用项目MIT许可，无外部采样；本轮只替换rain路径，其他六种音色PCM字节不变。当前源码SHA-256：`09fc455ee26ecbcaeec90a2936d144a5c42b8a1b8381de4d8317ad6e45a1d85b`。旧登记及旧证明保留历史。
+
+`docs/proof/hit-rain-shuffle/audio/` 的两个4秒/22050Hz/PCM16单声道WAV由实际音库导出，仅供对比试听，受 `docs/proof/.gdignore` 隔离，不增加运行时依赖；来源/许可同上述原创代码。`rain-before.wav` SHA256=`ec805e38563381ec11cdd28563db5e17329ac76baa5f1b121c4081648d2d54ae`，`rain-after.wav` SHA256=`8a43c9bbd861a325943ee6382fb7503fc771fa55911614a25aa269a0a32edf33`。
+
+`fear-red-edge.jpg` 与 `sorrow-red-edge.jpg` 是真实生产领域受击后的Godot4.7.2 Forward+截图；原生PNG由Godot转存JPEG0.84，无重绘，PNG保留本机。使用项目既有已登记素材，来源/许可沿用原登记，不另标CC0。SHA256分别为 `b1bd15170bb00686c81f30447081ed781e078060ba3dd074307737ebadfb7294` / `31a99b2e662765d932b8c1f0daac0c2fe0c7574a11faab40c7b69757613f9696`。
+
+红边组件复用项目既有 `damage_vignette.gdshader`，未下载模型、贴图、字体、声音，也未从origin导入素材。复现、数值、局限及完整文件校验见[本轮证明](proof/hit-rain-shuffle/README.md)与[清单](proof/hit-rain-shuffle/validation.json)。

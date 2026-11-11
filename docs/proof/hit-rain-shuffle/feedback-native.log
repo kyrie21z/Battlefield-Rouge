@@ -1,0 +1,48 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS fear production HUD starts with a clear border
+PASS fear real HP hit immediately lights the border
+PASS fear rendered edge gains visible red tint
+PASS fear rendered aiming center stays clear
+PASS fear native image saves
+PASS fear pause freezes the existing pulse
+PASS fear pulse fades back to clear within 0.55 seconds
+PASS fear blocked hits do not fake HP loss feedback
+PASS fear shield-only absorption does not flash red
+PASS fear warning deprivation preserves non-directional HP feedback
+PASS fear a burst merges and stays under its opacity cap
+PASS fear death clears the border for retry UI
+PASS sorrow production HUD starts with a clear border
+PASS sorrow real HP hit immediately lights the border
+PASS sorrow rendered edge gains visible red tint
+PASS sorrow rendered aiming center stays clear
+PASS sorrow native image saves
+PASS sorrow pause freezes the existing pulse
+PASS sorrow pulse fades back to clear within 0.55 seconds
+PASS sorrow blocked hits do not fake HP loss feedback
+PASS sorrow shield-only absorption does not flash red
+PASS sorrow warning deprivation preserves non-directional HP feedback
+PASS sorrow a burst merges and stays under its opacity cap
+PASS sorrow death clears the border for retry UI
+PASS sloth production HUD starts with a clear border
+PASS sloth real HP hit immediately lights the border
+PASS sloth pause freezes the existing pulse
+PASS sloth pulse fades back to clear within 0.55 seconds
+PASS sloth blocked hits do not fake HP loss feedback
+PASS sloth shield-only absorption does not flash red
+PASS sloth warning deprivation preserves non-directional HP feedback
+PASS sloth a burst merges and stays under its opacity cap
+PASS sloth death clears the border for retry UI
+PASS wrath production HUD starts with a clear border
+PASS wrath real HP hit immediately lights the border
+PASS wrath pause freezes the existing pulse
+PASS wrath pulse fades back to clear within 0.55 seconds
+PASS wrath blocked hits do not fake HP loss feedback
+PASS wrath shield-only absorption does not flash red
+PASS wrath warning deprivation preserves non-directional HP feedback
+PASS wrath a burst merges and stays under its opacity cap
+PASS wrath death clears the border for retry UI
+PASS all four production room scenarios finish
+PASS both production views complete their rendered checks
+REALM FEEDBACK: 44 checks, 0 failed

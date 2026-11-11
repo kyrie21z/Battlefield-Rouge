@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS rain keeps four seconds of mono PCM16 and its full loop
+PASS fresh rain synthesis is byte deterministic
+PASS rain synthesis leaves gameplay randomness untouched
+PASS rain is audible continuous noise with no clipping
+PASS loop wrap has no isolated sharp discontinuity
+RAIN_PCM rms=0.035739 peak=0.142639 wrap_delta=0.003021
+PASS idle across two loops emits no gameplay gunshot events
+PASS idle room plays only the managed rain bed in its environment pool
+PASS idle movement does not generate water-step or slide shots
+PASS real player gunshot remains audible and emits its own event
+PASS pause freezes the environment clock
+PASS deprivation stops both environmental voices
+PASS production ambience scenario finishes
+SORROW AMBIENCE: 12 checks, 0 failed

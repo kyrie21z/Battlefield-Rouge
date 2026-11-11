@@ -22,6 +22,7 @@ var _death_panel: PanelContainer
 var _death_reason: Label
 var _fall_notice: Label
 var _fall_notice_left := 0.0
+var hurt_feedback: RealmHurtFeedback
 
 func _ready() -> void:
 	layer = 10
@@ -38,6 +39,9 @@ func _ready() -> void:
 	material_value.shader = shader
 	_monochrome.material = material_value
 	_root.add_child(_monochrome)
+	hurt_feedback = RealmHurtFeedback.new()
+	hurt_feedback.health = stage.player.health
+	_root.add_child(hurt_feedback)
 	var title := _label(RealmStage.TITLES[stage.realm],23)
 	title.position = Vector2(28,24)
 	_objective = _label("",18)

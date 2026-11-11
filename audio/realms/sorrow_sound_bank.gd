@@ -3,14 +3,18 @@ extends RefCounted
 ## Original deterministic PCM. Local noise generator never advances gameplay RNG.
 const KINDS := [&"rain", &"water_bell", &"tear_return", &"tear_spray", &"glass", &"water_step", &"water_slide"]
 const RATE := 22050
+const RAIN_SECONDS := 4.0
+const RAIN_OVERLAP := 0.25
 static var _cache: Dictionary = {}
 
 static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 	var key := String(kind) + ("_loop" if loop else "")
 	if _cache.has(key): return _cache[key]
+	if kind == &"rain":
+		_cache[key] = _rain_bed(loop)
+		return _cache[key]
 	var duration := 0.6
 	match kind:
-		&"rain": duration = 4.0
 		&"water_bell": duration = 2.4
 		&"tear_return": duration = 1.1
 		&"tear_spray": duration = 0.65
@@ -28,12 +32,6 @@ static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 		low += (noise - low) * 0.16
 		var value := 0.0
 		match kind:
-			&"rain":
-				# Periodic rain bed, no abrupt seam; sparse distant droplet resonances.
-				value = low * 0.22
-				for drop in 13:
-					var age := fposmod(t - float(drop) * 0.307, duration)
-					value += sin(TAU * (720.0 + drop * 47.0) * age) * exp(-age * 60.0) * 0.06
 			&"water_bell":
 				for harmonic in [1.0, 2.76, 4.07, 5.43]:
 					value += sin(TAU * 196.0 * harmonic * t + 0.015 * sin(t * 19.0)) * exp(-t * (1.8 + harmonic)) * 0.3 / sqrt(harmonic)
@@ -68,4 +66,40 @@ static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 		sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		sound.loop_end = count
 	_cache[key] = sound
+	return sound
+
+static func _rain_bed(loop: bool) -> AudioStreamWAV:
+	# Continuous diffuse rain, without the old 13 regularly struck resonances.
+	# Generate an extra tail and overlap it into the head to make the wrap soft.
+	var count := int(RATE*RAIN_SECONDS)
+	var overlap := int(RATE*RAIN_OVERLAP)
+	var samples := PackedFloat32Array()
+	samples.resize(count+overlap)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 179
+	var soft := 0.0
+	var low := 0.0
+	for index in samples.size():
+		var noise := rng.randf_range(-1,1)
+		soft += (noise-soft)*0.18
+		low += (noise-low)*0.035
+		var phase := TAU*float(index)/count
+		var swell := 0.85+0.10*sin(phase)+0.05*cos(phase*2)
+		samples[index] = (soft*0.19+low*0.24)*swell*0.85
+	var data := PackedByteArray()
+	data.resize(count*2)
+	for index in count:
+		var value := samples[index]
+		if loop and index < overlap:
+			value = lerpf(samples[count+index],value,smoothstep(0,1,float(index)/overlap))
+		elif not loop:
+			value *= minf(float(index)/(RATE*0.12),1)*minf(float(count-index)/(RATE*0.20),1)
+		data.encode_s16(index*2,int(clampf(value,-0.9,0.9)*32767))
+	var sound := AudioStreamWAV.new()
+	sound.format = AudioStreamWAV.FORMAT_16_BITS
+	sound.mix_rate = RATE
+	sound.data = data
+	if loop:
+		sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		sound.loop_end = count
 	return sound

@@ -1,0 +1,17 @@
+import wave,struct,json,math,hashlib,sys
+from pathlib import Path
+# Usage: python analyze_rain.py before/rain.wav after/rain.wav
+results={}
+for label,name in zip(['before','after'],sys.argv[1:3]):
+    path=Path(name)
+    with wave.open(str(path),'rb') as wav:
+        rate=wav.getframerate()
+        samples=[v/32768 for v in struct.unpack('<'+'h'*wav.getnframes(),wav.readframes(wav.getnframes()))]
+    projections=[]
+    for drop in range(13):
+        start=int(drop*.307*rate);length=int(.04*rate);frequency=720+drop*47
+        real=sum(samples[(start+j)%len(samples)]*math.cos(math.tau*frequency*j/rate) for j in range(length))
+        imaginary=sum(samples[(start+j)%len(samples)]*math.sin(math.tau*frequency*j/rate) for j in range(length))
+        projections.append(2*math.hypot(real,imaginary)/length)
+    results[label]={'rms':math.sqrt(sum(v*v for v in samples)/len(samples)),'peak':max(map(abs,samples)),'wrap_delta':abs(samples[0]-samples[-1]),'mean_old_droplet_projection':sum(projections)/13,'pulse_projections':projections,'wav_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+print(json.dumps(results,indent=2))

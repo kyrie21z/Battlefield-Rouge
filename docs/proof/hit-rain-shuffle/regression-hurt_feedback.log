@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== hurt sounds
+  [ok] player_hurt has samples (0.18 s) and is audible
+  [ok] player_hurt_heavy has samples (0.30 s) and is audible
+  [ok] heartbeat has samples (0.42 s) and is audible
+  [ok] the heavy hurt is longer than the light one
+  [ok] generation is deterministic
+== a hit at full HP lights the screen edge
+  [ok] the edge lights on the same frame as the hit (0.50)
+  [ok] and the hurt sound starts at once
+  [ok] a 10-damage hit reaches at least 0.30 (0.31)
+  [ok] and stays under the 0.90 cap
+  [ok] it is gone within a second (0.000)
+  [ok] a huge hit is capped at 0.90 (0.90)
+== damage direction arcs
+  [ok] a hit from behind makes one arc
+  [ok] it points down (180 deg from ahead)
+  [ok] a hit from the right points right (90 deg)
+  [ok] a hit without a source draws nothing
+  [ok] an arc fades away after a second
+== a burst of hits is one impact
+  [ok] the flash uses the summed damage (0.50)
+  [ok] five hits on one frame play one hurt sound (1)
+  [ok] and draw one arc (1)
+== a blocked hit stays silent
+  [ok] the hit is blocked (0.0 dealt)
+  [ok] no vignette (0.00)
+  [ok] no hurt sound
+  [ok] no arc
+== getting hit kicks the view, never the aim
+  [ok] the rendering camera shakes (peak 1.33 deg)
+  [ok] the aim camera's global transform is untouched
+  [ok] the player's yaw is untouched
+  [ok] the shake settles back to identity
+== low health pulses the edge
+  [ok] 20% health turns the low-health state on
+  [ok] the edge is lit (0.47)
+  [ok] the heartbeat is running
+  [ok] 40% health turns it off (hysteresis above 35%)
+  [ok] the heartbeat stops
+ALL PASSED (0 failed)

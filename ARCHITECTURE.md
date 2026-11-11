@@ -139,7 +139,9 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 ### 四领域组合根（#146）
 
-2026-11-11试玩修订：`RunDirector.PLAYTEST_ORDER` 为 `[1,0,2,3]`（恐惧→怠惰→愤怒→悲伤），`randomize_realm_order` 默认false；种子洗牌分支保留并单独验证。RealmHUD通过注入的Stage调用`retry()`，Stage发`retry_requested`交给RunDirector，不由HUD访问战役单例。恐惧几何通过已有`set_player`接口接收弱引用，-12米高度边界补足有限Area之外或高速穿过的坠落，并和Area共用上述30点生命恢复规则。
+2026-11-11当前修订：`randomize_realm_order` 恢复默认true，正式新局使用私有RNG按run_seed洗牌四领域，不重复；`PLAYTEST_ORDER=[1,0,2,3]`仅用于显式固定路线诊断。RealmHUD通过注入的Stage调用`retry()`，Stage发`retry_requested`交给RunDirector，不由HUD访问战役单例。恐惧几何通过已有`set_player`接口接收弱引用，-12米高度边界补足有限Area之外或高速穿过的坠落，并和Area共用上述30点生命恢复规则。
+
+`RealmHUD` 在悲伤全屏单色层之后、读数/准星/菜单之前创建 `RealmHurtFeedback`，显式注入Health，只消费实际 `damaged`/`died`信号。它复用既有damage_vignette shader，以帧delta合并并淡出红边，保持中心透明、鼠标穿透及暂停冻结；不读取RunDirector，也不因预警剥夺丢失实际受伤反馈，不额外生成枪声或伤害。
 
 `FearShatter.prepare_templates()`在FearRealmVisual构建时预先缓存56份凸碰撞资源；每次死亡仍创建独立RigidBody、材质和实时骨骼变换，只共享不变的形状。昂贵的凸形生成不再发生在击杀伤害回调中。门扉显示和HUD方向提示只读取`exit_ready`，不绕过选卡、碎片、距离与WORLD视线检查。
 
@@ -153,6 +155,8 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 ### 领域音频组合（#176 / #179）
 
 `RealmStage` 完成玩家、几何与 HUD 初始化后安装领域音频组件，并注入房间引用；没有专属声景脚本时仍安装通用 `RealmAudioDirector`。音频只消费注入状态、真实技能事件和 Stage 生命周期，不读取 RunDirector/RunState，不参与伤害或进度结算。环境交叉淡出和空间音源池随暂停、死亡、退出停止或释放。
+
+`SorrowSoundBank` 的rain由独立固定种子生成连续双层滤波噪声，4秒PCM循环使用额外0.25秒尾部与开头平滑重叠，消除旧循环接缝及13个规律短促共鸣。涉水音色续改将water_step/water_slide交给私有种子的_motion_water生成：滤波噪声与缓变液体共鸣，45ms淡入/120ms淡出，不读录音数据。SorrowAudioDirector在房间加载时预热两种缓存，独立几何的_splash_sound复用同一water_step；音频路由、涉水触发和真实武器播放仍由原组件管理，其他五种音色PCM字节不变。
 
 `SorrowAudioDirector` 负责本房间水声；独立 `SorrowBoonAudio` 在每个领域监听已装备赐福的真实泪晶事件。`SorrowRealm.set_audio_managed(true)` 显式关闭旧 splash 音源，保留涟漪及独立场景默认行为。玻璃反馈通过公开 `PsycheFragments.set_brittle_audio` 替换已有伤害音源，避免重复 Health 监听。`SorrowEffect` 仅在实际消费成功后派发 `sorrow_tear_collected`，视觉和音频可以分别订阅。
 

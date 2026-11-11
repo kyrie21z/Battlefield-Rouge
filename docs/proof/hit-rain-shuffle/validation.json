@@ -1,0 +1,463 @@
+{
+  "date": "2026-11-11",
+  "issue": 207,
+  "base_commit": "c6c33a079dfcc2e53640817234888149074b296b",
+  "base_tree": "3f6355ffb2af150477fdecae05ae1d896847244f",
+  "engine": "Godot4.7.2 Windows Forward+ Vulkan / RTX4060 Laptop",
+  "regressions": [
+    {
+      "name": "realm_feedback",
+      "exit": 0,
+      "seconds": 9.89,
+      "passed": true,
+      "summary": [
+        "REALM FEEDBACK: 37 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_ambience",
+      "exit": 0,
+      "seconds": 11.34,
+      "passed": true,
+      "summary": [
+        "SORROW AMBIENCE: 12 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "run_director",
+      "exit": 0,
+      "seconds": 5.11,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (54 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "campaign_realms",
+      "exit": 0,
+      "seconds": 25.47,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (98 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_playtest",
+      "exit": 0,
+      "seconds": 35.3,
+      "passed": true,
+      "summary": [
+        "FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_audio",
+      "exit": 0,
+      "seconds": 3.81,
+      "passed": true,
+      "summary": [
+        "SORROW AUDIO: 16 checks, 0 failed"
+      ],
+      "diagnostics": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details)."
+      ]
+    },
+    {
+      "name": "sorrow_audio_integration",
+      "exit": 0,
+      "seconds": 7.14,
+      "passed": true,
+      "summary": [
+        "SORROW AUDIO INTEGRATION: 12 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_water",
+      "exit": 0,
+      "seconds": 6.06,
+      "passed": true,
+      "summary": [
+        "SORROW WATER: 32 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_stage",
+      "exit": 0,
+      "seconds": 3.33,
+      "passed": true,
+      "summary": [
+        "REALM STAGE: 27 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_boss_stage",
+      "exit": 0,
+      "seconds": 2.64,
+      "passed": true,
+      "summary": [
+        "REALM BOSS STAGE: 20 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_player_effects",
+      "exit": 0,
+      "seconds": 3.42,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (15 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "hurt_feedback",
+      "exit": 0,
+      "seconds": 7.91,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "counter_shield",
+      "exit": 0,
+      "seconds": 2.0,
+      "passed": true,
+      "summary": [
+        "COUNTER SHIELD: 28 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_balance",
+      "exit": 0,
+      "seconds": 10.78,
+      "passed": true,
+      "summary": [
+        "REALM BALANCE: ALL PASSED (21 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_campaign",
+      "exit": 0,
+      "seconds": 10.95,
+      "passed": true,
+      "summary": [
+        "META CAMPAIGN: 23 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_forge",
+      "exit": 0,
+      "seconds": 2.81,
+      "passed": true,
+      "summary": [
+        "META FORGE: 31 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_settlement_guard",
+      "exit": 0,
+      "seconds": 1.8,
+      "passed": true,
+      "summary": [
+        "META SETTLEMENT GUARD: 16 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "opening_boot",
+      "exit": 0,
+      "seconds": 8.45,
+      "passed": true,
+      "summary": [
+        "OPENING BOOT: ALL PASSED (22 checks, longest frame 874 ms)"
+      ],
+      "diagnostics": []
+    }
+  ],
+  "final_checks": {
+    "realm_feedback_headless": 37,
+    "realm_feedback_native": 44,
+    "sorrow_ambience_headless": 13,
+    "sorrow_ambience_native": 14,
+    "run_director": 54,
+    "opening_boot_native_skip": 14
+  },
+  "shuffle": {
+    "seeds": 96,
+    "unique_orders": 24,
+    "opener_counts": {
+      "sloth": 21,
+      "fear": 22,
+      "wrath": 28,
+      "sorrow": 25
+    }
+  },
+  "fixture": {
+    "FX-001": "18f02a294f3e538a",
+    "FX-002": "ad3703cd93d3073e",
+    "baseline_equals_fix": true
+  },
+  "rain_analysis": {
+    "before": {
+      "rms": 0.038159812834949985,
+      "peak": 0.142120361328125,
+      "wrap_delta": 0.086029052734375,
+      "mean_old_droplet_projection": 0.021177254584380915,
+      "pulse_projections": [
+        0.016055057436199043,
+        0.019969905306026832,
+        0.025834285572165588,
+        0.02402136443337941,
+        0.024351864316287126,
+        0.01885573578820818,
+        0.020009691045157416,
+        0.01789877327221019,
+        0.018060543602146914,
+        0.025051127670029264,
+        0.016467909138705158,
+        0.027622924550808763,
+        0.021105127465628037
+      ],
+      "wav_sha256": "ec805e38563381ec11cdd28563db5e17329ac76baa5f1b121c4081648d2d54ae"
+    },
+    "after": {
+      "rms": 0.0357385131586144,
+      "peak": 0.14263916015625,
+      "wrap_delta": 0.003021240234375,
+      "mean_old_droplet_projection": 0.0037239777368454708,
+      "pulse_projections": [
+        0.0050478872397325,
+        0.0049721563268919165,
+        0.0038491987536539165,
+        0.0013430676747015642,
+        0.003312385842687691,
+        0.0035553307352965305,
+        0.0038708359452892622,
+        0.004217521088685752,
+        0.004462479106557983,
+        0.0026720561997547114,
+        0.005011048041818337,
+        0.0042484257436883,
+        0.0018493178802326594
+      ],
+      "wav_sha256": "8a43c9bbd861a325943ee6382fb7503fc771fa55911614a25aa269a0a32edf33"
+    },
+    "other_cues_identical": {
+      "glass": true,
+      "tear_return": true,
+      "tear_spray": true,
+      "water_bell": true,
+      "water_slide": true,
+      "water_step": true
+    }
+  },
+  "notes": [
+    "No manual audio listening or cross-platform claim. PCM analysis does not substitute subjective listening.",
+    "Actual native idle observation covers 520 physics frames, no gunshot event or gunshot PCM voice before the intentional shot.",
+    "Old sorrow_audio test passes but had 10 ObjectDB exit diagnostics; final verbose did not reproduce.",
+    "Editor import exit0 with host Safe save diagnostic retained; no system settings changed.",
+    "Native entry longest frame includes loading; no performance guarantee claimed.",
+    "JPEG converted from native PNG with Godot quality0.84; no repainting. Logs normalize trailing whitespace; verbose excerpt omits resource-load noise."
+  ],
+  "files": [
+    {
+      "path": "ambience-final.log",
+      "bytes": 894,
+      "sha256": "8765f6a7f1705a16bf3ca59415ebbebda311a10af069594ab102babbfc20b996"
+    },
+    {
+      "path": "ambience-native.log",
+      "bytes": 1025,
+      "sha256": "84f9cde3d65969d3b04b74ae0a92a0e09d3d3600e3ea95ef8472bca241496f27"
+    },
+    {
+      "path": "analyze_rain.py.txt",
+      "bytes": 1134,
+      "sha256": "2c556e4af9ca21aeed7d06169ff7cceae5e6cd2d32866ef056e00bf246bfd5f6"
+    },
+    {
+      "path": "audio/rain-after.wav",
+      "bytes": 176444,
+      "sha256": "8a43c9bbd861a325943ee6382fb7503fc771fa55911614a25aa269a0a32edf33"
+    },
+    {
+      "path": "audio/rain-before.wav",
+      "bytes": 176444,
+      "sha256": "ec805e38563381ec11cdd28563db5e17329ac76baa5f1b121c4081648d2d54ae"
+    },
+    {
+      "path": "cue-hashes-after.json",
+      "bytes": 582,
+      "sha256": "79f30a75aa0a186ef7afb47fd41d4488749f30a40a08d06afe41c3fe966bafdd"
+    },
+    {
+      "path": "cue-hashes-before.json",
+      "bytes": 582,
+      "sha256": "9f20285d411d58001a4c386786e6d76164b8aff286f2d5c19a2c1fdf6bcb1b68"
+    },
+    {
+      "path": "export_audio.gd.txt",
+      "bytes": 584,
+      "sha256": "e0be6e7ed640746f3a1d3741b84765822d3ea342d1d1f6f9cc74dd821396d584"
+    },
+    {
+      "path": "fear-red-edge.jpg",
+      "bytes": 54934,
+      "sha256": "b1bd15170bb00686c81f30447081ed781e078060ba3dd074307737ebadfb7294"
+    },
+    {
+      "path": "feedback-native.log",
+      "bytes": 2503,
+      "sha256": "93cf035fea04e1b0560bdce1a2cb97c7b65d485e239d5820897cc0d24a56db52"
+    },
+    {
+      "path": "fixture-base.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "fixture-fix.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "import-final.log",
+      "bytes": 1715,
+      "sha256": "fe9ee795b2f5d9ecee089b8a4462638901337d541356d87869dd357cdaff53dc"
+    },
+    {
+      "path": "rain-analysis.json",
+      "bytes": 1491,
+      "sha256": "96ce2531a609da87d644319aaf0de18cd6c8f9547888009d9c806aa6cba9f383"
+    },
+    {
+      "path": "random-entry-native.log",
+      "bytes": 899,
+      "sha256": "10e648de1632aecb4b0012e7bace59c3c826b095dfaf27c340fb9b89425989c6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6485,
+      "sha256": "0c9dbd0904c77ad9a711d86344e9c520636e9050d3804909eef3b421e27be090"
+    },
+    {
+      "path": "regression-campaign_realms.log",
+      "bytes": 4404,
+      "sha256": "3e95998413a1a11a13755b9bddbc664f22da7baa04eb06cb75b7a06ab3aee62a"
+    },
+    {
+      "path": "regression-counter_shield.log",
+      "bytes": 1793,
+      "sha256": "271748c81feb7b789dec43b646d1783354e07867ddfc6f23080371b3f109d62a"
+    },
+    {
+      "path": "regression-fear_playtest.log",
+      "bytes": 1805,
+      "sha256": "1b1a5ed6e857ebc0930eae2958f04d0510e5aa62fec849721c61199fda1d6a73"
+    },
+    {
+      "path": "regression-hurt_feedback.log",
+      "bytes": 1663,
+      "sha256": "47a64d69bc5c2b7f634518c5c34cedb0427005b9fa8c84fa64485d5a38ac4fbe"
+    },
+    {
+      "path": "regression-meta_campaign.log",
+      "bytes": 1558,
+      "sha256": "42bafba2914f5d7e0bc6cf6bd79d6d5097768028bcf6df94de976a0102d9ed1c"
+    },
+    {
+      "path": "regression-meta_forge.log",
+      "bytes": 1813,
+      "sha256": "a21395f8a30e5a1fdd110522f9295aeb7c5f09459287c776ea6352ce1f718b08"
+    },
+    {
+      "path": "regression-meta_settlement_guard.log",
+      "bytes": 1196,
+      "sha256": "8d19add88a3beeac44a4000f80d75fff166db6a84dcab9d445a17dffd6557f4c"
+    },
+    {
+      "path": "regression-opening_boot.log",
+      "bytes": 1282,
+      "sha256": "43b7e9c547070e7a5b82c56310978ff1cb7631c6ba7fbabfcb3ed5be488aa15b"
+    },
+    {
+      "path": "regression-realm_balance.log",
+      "bytes": 1332,
+      "sha256": "c74856766345a71e4343969ae616e4c9508f5577e2952edf9d9e4ac9482db873"
+    },
+    {
+      "path": "regression-realm_boss_stage.log",
+      "bytes": 1103,
+      "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+    },
+    {
+      "path": "regression-realm_feedback.log",
+      "bytes": 2108,
+      "sha256": "6e32bbc1a53726e6f69fd8fa56077e4fdc48984e1e8b7a6e1627abc7206ef1e1"
+    },
+    {
+      "path": "regression-realm_player_effects.log",
+      "bytes": 732,
+      "sha256": "8b83717d2fff5101a7acb3e0bec015eb93d12dc48bf92fd97fc7002ed70c9624"
+    },
+    {
+      "path": "regression-realm_stage.log",
+      "bytes": 1632,
+      "sha256": "46b5ef6192351c23af0861183a9c872932d606cd4ce65b3f16d2a7b95e636c31"
+    },
+    {
+      "path": "regression-run_director.log",
+      "bytes": 2473,
+      "sha256": "366ff3233f5e3bb882a54db1eb2a1107bd964cdf07d568d092a4ef82d17eb08b"
+    },
+    {
+      "path": "regression-sorrow_ambience.log",
+      "bytes": 830,
+      "sha256": "28bf5fe093aa7f822faebf2f351af208ecd2a72c5ae4628d31291312e9aa404d"
+    },
+    {
+      "path": "regression-sorrow_audio.log",
+      "bytes": 1041,
+      "sha256": "23af3c828fde6edb34359cc98aacdd323e93942ddeb9f46479035dd1c879432a"
+    },
+    {
+      "path": "regression-sorrow_audio_integration.log",
+      "bytes": 933,
+      "sha256": "0f2f74adffaf559008e71f8fd0b9dd2d5ee0a3fc896f6edc45ad9cee96b324ac"
+    },
+    {
+      "path": "regression-sorrow_water.log",
+      "bytes": 1712,
+      "sha256": "4c85e0699b8d32ab728cc8edf089d5b4b1d28f1ed793c6772b206249328165e4"
+    },
+    {
+      "path": "shuffle-final.log",
+      "bytes": 2551,
+      "sha256": "87454fe5665ed6db01f5d3e7b1fdfc82bfadafc8a9f0b2365dffbd9d318cc244"
+    },
+    {
+      "path": "sorrow-audio-verbose-final.log",
+      "bytes": 936,
+      "sha256": "b80d8ce9c234f0e0fd75a46bece473b23f64460daddc98ae9e0d4ef28ee8ebc9"
+    },
+    {
+      "path": "sorrow-red-edge.jpg",
+      "bytes": 74877,
+      "sha256": "31a99b2e662765d932b8c1f0daac0c2fe0c7574a11faab40c7b69757613f9696"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "before": {
+    "water_step": {
+      "seconds": 0.6,
+      "rate": 22050,
+      "rms": 0.04577745995825897,
+      "peak": 0.56024169921875,
+      "first_40ms_rms": 0.15869615654495317,
+      "sha256": "8a139cbb6278dab29ded7788416f665f3f76d0e352b29bcc0b4db24c8245bf91"
+    },
+    "water_slide": {
+      "seconds": 0.6499773242630386,
+      "rate": 22050,
+      "rms": 0.056546323773762314,
+      "peak": 0.5921630859375,
+      "first_40ms_rms": 0.1727569445383441,
+      "sha256": "75d4e33e7e40882a0994d3256b080321a96d68d2a8ff7e5a05012d0afc6b316e"
+    }
+  },
+  "original": {
+    "water_step": {
+      "seconds": 0.6,
+      "rate": 22050,
+      "rms": 0.033103359367346305,
+      "peak": 0.17279052734375,
+      "first_40ms_rms": 0.030768580042746747,
+      "sha256": "366b597e03d2b470fcd5f286f65892030f5a4fb702bee89b9bd61dc08f2cf60e"
+    },
+    "water_slide": {
+      "seconds": 0.6499773242630386,
+      "rate": 22050,
+      "rms": 0.035470245036901105,
+      "peak": 0.15509033203125,
+      "first_40ms_rms": 0.010799621852231026,
+      "sha256": "c94922bf6b142cdd3de4358c061fa943a882f0786c8c14e140374195670f04c2"
+    }
+  },
+  "other_five_unchanged": {
+    "glass": true,
+    "rain": true,
+    "tear_return": true,
+    "tear_spray": true,
+    "water_bell": true
+  }
+}

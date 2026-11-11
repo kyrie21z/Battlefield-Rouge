@@ -5,9 +5,9 @@ signal realm_completed(realm: int, count: int)
 signal run_failed(depth: int, cause: StringName)
 signal threshold_reached
 const REALMS := ["sloth","fear","wrath","sorrow"]
-## Temporary playtest order. Keep seeded shuffle available for the next iteration.
+## Optional fixed route for focused Fear diagnostics; ordinary runs use shuffle.
 const PLAYTEST_ORDER := [1,0,2,3]
-var randomize_realm_order := false
+var randomize_realm_order := true
 const THRESHOLD := "res://levels/climax/threshold_corridor.tscn"
 var active := false
 var completed := false

@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== explosion filtering
+  [ok] one blast damages a multi-hitbox enemy once
+  [ok] blast ignores allies and player
+  [ok] blast does not pass through walls
+== last-shot storage core
+  [ok] tactical reload does not throw a charge
+  [ok] starting empty reload neither throws nor stores a charge
+  [ok] completed empty reload cannot store a charge
+  [ok] last round fires
+  [ok] last round stores the magazine before reload finishes
+  [ok] active throw consumes one stored magazine
+  [ok] magazine detonates only once
+  [ok] repeated gun core raises blast damage
+== blade parry and gun release
+  [ok] blade core grants one storage slot
+  [ok] friendly fire cannot create stored bullets
+  [ok] timed V swing catches an actual enemy projectile
+  [ok] parry storage respects capacity
+  [ok] damage resumes outside the parry window
+  [ok] next shot releases and consumes the collected bullet
+  [ok] returned bullet adds real damage to gunfire
+  [ok] repeated blade core raises storage capacity
+== shield counterattack
+  [ok] unused counter shield persists beyond the old duration
+  [ok] unused shield cannot produce a free pulse
+  [ok] shield absorbs attacks before countering
+  [ok] manual release returns the sixty actually absorbed damage exactly once
+== death clears primed combat state
+  [ok] death fixture has a visible stored bullet and active parry
+  [ok] death cancels shield overlay and invulnerability
+  [ok] death clears parry storage and orbiting bullets
+  [ok] death cancels blade and does not trigger shield counter
+COMBAT TRAITS: ALL PASSED (0 failed)

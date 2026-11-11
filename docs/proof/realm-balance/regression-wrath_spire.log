@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS boss exposes production Enemy and Health contract
+PASS storm has three rotating layers of original humanoid parts
+PASS crystal limbs actually rotate
+PASS fissure stays in telegraph before release
+PASS pause preserves attack deadline
+PASS fissure releases three actual directed wave fans
+PASS locked ground fan damages a grounded player
+PASS two shrapnel bursts launch 24 real projectiles
+PASS launched ricochets remain actual moving objects
+PASS vortex uses committed direction, not last-frame tracking
+PASS vortex physically translates the large body
+PASS local time stop freezes boss attacks and physics
+PASS real gun ray damages boss in punish window
+PASS actual boss death emits one Wrath clear event
+PASS boss death extinguishes local furnace and ambience
+PASS boss death scatters original 56 rigid crystal parts
+PASS boss death cancels all still-flying owned projectiles
+PASS dead boss never starts later attacks
+PASS boss rigid fragments clean up after two seconds
+PASS duplicate damage cannot duplicate clear event
+PASS post-boss ordinary force remains disabled
+PASS physical Spite pickup activates independent shard
+PASS Spite can move armored Wrath actor independently
+WRATH SPIRE: 23 checks, 0 failed

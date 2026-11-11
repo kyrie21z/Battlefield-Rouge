@@ -7,6 +7,7 @@ var radius := 0.0
 var hit_player := false
 var ring: MeshInstance3D
 var audio: AudioStreamPlayer3D
+const WAVE_BLUE := Color(0.06,0.42,0.95)
 
 func _ready() -> void:
 	ring = MeshInstance3D.new()
@@ -17,9 +18,11 @@ func _ready() -> void:
 	mesh.ring_segments = 4
 	ring.mesh = mesh
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.12,0.52,0.68)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = WAVE_BLUE
 	mat.emission_enabled = true
-	mat.emission = Color(0.05,0.34,0.5)
+	mat.emission = WAVE_BLUE
+	mat.emission_energy_multiplier = 0.7
 	ring.material_override = mat
 	ring.position.y = 0.5
 	add_child(ring)

@@ -61,6 +61,7 @@ func _run() -> void:
 		if node is WrathRicochet:
 			live_bullets += 1
 	_check("launched ricochets remain actual moving objects", live_bullets > 0)
+	player.position = boss.global_position+Vector3(0,0,6)
 	boss.begin_move(WrathSpire.Move.VORTEX)
 	var locked := boss.locked_direction
 	player.position = Vector3(9, 0, 8)

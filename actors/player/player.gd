@@ -273,6 +273,14 @@ func cancel_forced_movement() -> void:
 	if is_instance_valid(dash):
 		dash.cancel()
 
+func recover_from_fall(point: Vector3) -> void:
+	cancel_forced_movement()
+	_external_impulse = Vector3.ZERO
+	_external_impulse_left = 0.0
+	velocity = Vector3.ZERO
+	global_position = point
+	reset_physics_interpolation()
+
 
 func apply_external_impulse(direction: Vector3, speed: float, duration: float) -> void:
 	if health.is_dead() or direction.length_squared() < 0.0001:

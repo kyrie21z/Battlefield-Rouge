@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS giant keeps real Enemy/Health and original crystal skeleton
+PASS wave remains telegraphed before release
+PASS real full-room tide hits grounded player
+PASS tide pushes actual player with collision motion
+PASS locked rain launches 25 actual downward projectiles
+PASS center tear damages actual player hitbox
+PASS slap aim remains locked and can be dodged
+PASS slap punishes staying in marked area
+PASS local time stop freezes rising water and boss deadline
+PASS actual gun ray damages giant
+PASS battle progression raises actual shader water plane
+PASS low platform is actually submerged while high platform remains usable
+PASS real giant death emits one Sorrow realm event
+PASS defeat dries mirror water and shuts off rain
+PASS death clears tell, waves and unlanded rain projectiles
+PASS giant fractures into 56 physical cyan pieces
+PASS post-boss ordinary buffering stays deprived
+PASS physical Tenderness pickup enables independent 60 barrier
+PASS independent barrier absorbs 60 and actual overflow shatters HP
+PASS pickup never restores ordinary buffering and real HP loss sounds brittle
+PASS giant physical shards fully clean up
+PASS duplicate damage cannot duplicate Sorrow completion
+SORROW MONOLITH: 22 checks, 0 failed

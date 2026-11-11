@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS mirror water shader, eight melted pillars and four low platforms exist
+PASS silent white rain falls over ankle water
+PASS actual player movement emits water ripple and splash
+PASS Sorrow body retains original 24 bones
+PASS live gravity aura changes player jump and dash reach
+PASS leaving gravity range restores movement
+PASS source death clears its gravity constraint immediately
+PASS cyan death creates 56 actual rigid crystal droplets
+PASS shards preserve source cyan material
+PASS diving removes hittable body while leaving water silhouette
+PASS Corroder resurfaces behind player with restored hitboxes
+PASS behind-player emergence stays inside real WORLD boundary
+PASS actual slime projectile damages and slows player
+PASS slime source death clears slow and flying globs
+PASS actual expanding cry makes screen monochrome
+PASS cry changes real reload speed and skill cooldown stats
+PASS pause does not consume source effect duration
+PASS caster removal clears cry monochrome and reload debuff
+PASS all cyan rigid droplets expire
+PASS water visibly floods lower platforms
+PASS deprivation fully evaporates water and stops rain
+PASS dry world creates no phantom water ripples
+SORROW REALM: 22 checks, 0 failed

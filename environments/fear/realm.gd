@@ -1,6 +1,6 @@
 class_name FearRealm
 extends Node3D
-## White, unguarded connected bridges above a genuine lethal void.
+## Falling players lose a fixed amount of HP and return to stable bridge ground.
 @export var boss_arena := false
 @export var warnings_enabled := true
 var tiles: Array[FearFlipTile] = []
@@ -9,11 +9,17 @@ var scan_lights: Array[Node3D] = []
 var scan_time := 0.0
 var deprivation := false
 var _falling: Array[WeakRef] = []
-const FATAL_HEIGHT := -12.0
+const FALL_HEIGHT := -12.0
 var _player: WeakRef
+const FALL_DAMAGE := 30.0
+var _safe_position := Vector3.INF
+var _safe_check_left := 0.0
+var _recover_pending := false
+var _recover_cooldown := 0.0
 
-func set_player(value: CharacterBody3D) -> void:
+func set_player(value: Player) -> void:
 	_player = weakref(value)
+	_safe_position = global_position + player_spawn() + Vector3.UP*0.12
 
 func _ready() -> void:
 	var stone := StandardMaterial3D.new()
@@ -114,8 +120,61 @@ func _build_void() -> void:
 	abyss.body_entered.connect(_on_abyss_entered)
 
 func _on_abyss_entered(body: Node3D) -> void:
+	if body is Player:
+		_queue_recovery(body as Player)
+		return
 	_falling.append(weakref(body))
 	_fatal_fall(body)
+
+func _queue_recovery(player: Player) -> void:
+	if _recover_pending or _recover_cooldown > 0.0 or player.health.is_dead():
+		return
+	_recover_pending = true
+	_recover_cooldown = 0.3
+	player.cancel_forced_movement()
+	_recover_player.call_deferred(weakref(player))
+
+func _recover_player(reference: WeakRef) -> void:
+	var player := reference.get_ref() as Player
+	if is_instance_valid(player) and not player.health.is_dead():
+		var landing := _safe_position
+		if landing == Vector3.INF or not _landing_clear(landing):
+			landing = global_position + player_spawn() + Vector3.UP*0.12
+			for offset in [Vector3.ZERO,Vector3(-2,0,0),Vector3(2,0,0),Vector3(0,0,-2),Vector3(0,0,2),Vector3(-2,0,-2),Vector3(2,0,-2),Vector3(-2,0,2),Vector3(2,0,2)]:
+				var candidate: Vector3 = global_position+player_spawn()+offset+Vector3.UP*0.12
+				if _landing_clear(candidate):
+					landing = candidate
+					break
+		player.recover_from_fall(landing)
+		player.health.apply_damage(FALL_DAMAGE,Hitbox.BodyPart.BODY,null,
+			{"environmental_penalty":true,"true_damage":true,"tag":&"abyss"})
+	_recover_pending = false
+
+func _landing_clear(point: Vector3) -> bool:
+	var support := PhysicsRayQueryParameters3D.create(point+Vector3.UP*0.2,point-Vector3.UP*0.5,CollisionLayers.WORLD)
+	var ground := get_world_3d().direct_space_state.intersect_ray(support)
+	if ground.is_empty() or not ground.collider is StaticBody3D or ground.normal.y < 0.8:
+		return false
+	var shape := CapsuleShape3D.new()
+	shape.radius = 0.35
+	shape.height = 1.8
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = shape
+	query.transform.origin = point + Vector3.UP*0.9
+	query.collision_mask = CollisionLayers.WORLD | CollisionLayers.ENEMIES
+	return get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
+
+func _remember_safe_floor(player: Player) -> void:
+	if not player.is_on_floor():
+		return
+	# Stable floors only, with support around the whole capsule rather than an edge.
+	for offset in [Vector3.ZERO,Vector3(0.6,0,0),Vector3(-0.6,0,0),Vector3(0,0,0.6),Vector3(0,0,-0.6)]:
+		var point: Vector3 = player.global_position + offset
+		var ray := PhysicsRayQueryParameters3D.create(point+Vector3.UP*0.3,point-Vector3.UP*0.5,CollisionLayers.WORLD)
+		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+		if hit.is_empty() or not hit.collider is StaticBody3D or hit.normal.y < 0.8:
+			return
+	_safe_position = player.global_position + Vector3.UP*0.12
 
 func _fatal_fall(body: Node3D) -> void:
 	var hp := body.get_node_or_null("Health") as Health
@@ -124,10 +183,15 @@ func _fatal_fall(body: Node3D) -> void:
 			{"environmental_fatal": true, "true_damage": true, "tag": &"abyss"})
 
 func _physics_process(delta: float) -> void:
+	_recover_cooldown = maxf(0.0,_recover_cooldown-delta)
+	_safe_check_left -= delta
 	# A height boundary also catches fast dashes and falls beyond the Area's box.
-	var player := _player.get_ref() as CharacterBody3D if _player != null else null
-	if is_instance_valid(player) and player.global_position.y <= global_position.y + FATAL_HEIGHT:
-		_fatal_fall(player)
+	var player := _player.get_ref() as Player if _player != null else null
+	if is_instance_valid(player) and player.global_position.y <= global_position.y + FALL_HEIGHT:
+		_queue_recovery(player)
+	elif is_instance_valid(player) and _safe_check_left <= 0.0:
+		_safe_check_left = 0.15
+		_remember_safe_floor(player)
 	scan_time += delta
 	for i in scan_lights.size():
 		var pivot := scan_lights[i]

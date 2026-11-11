@@ -16,7 +16,8 @@ func _ready() -> void:
 	mesh.ring_segments = 6
 	ring.mesh = mesh
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.08,0.42,0.56)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = SorrowCry.WAVE_BLUE
 	mat.metallic = 0.6
 	mat.roughness = 0.13
 	mat.emission_enabled = true

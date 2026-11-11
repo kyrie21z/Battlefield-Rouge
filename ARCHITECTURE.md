@@ -131,11 +131,15 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## Epic 3：领域约束接口（#138）
 
-Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责；深渊致死走 Health 明确的 environmental_fatal 分支及正常死亡信号。
+Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责。恐惧玩家坠落使用 Health 的 `environmental_penalty` 分支扣30点实际生命，绕过战斗护盾、无敌与复活拦截，扣至0生命时才发正常死亡信号；敌人和其他明确致死边界继续使用 `environmental_fatal`。
+
+`FearRealm` 通过注入的Player弱引用每0.15秒保存稳定静态地面落点，检查脚下及四侧支撑，排除翻转板。深渊Area与高度-12米判定汇入同一个延迟恢复回调及0.3秒防重；恢复前检查支撑与角色胶囊占位，受阻时查入口九个候选。Player取消冲刺、吸附和外部冲量、清零速度并重置物理插值后才扣生命；HUD只消费真实伤害信号显示扣血/返回提示。
+
+`OculusVisual` 加载准备并复用 `FearShatter` 的56份不可变凸碰撞形状；死亡仍保留独立刚体与当前姿态。`WrathSpire` 拥有齐射弹体与 `SpireEruption` 的弱引用列表，死亡、目标死亡或退出时清理；晶刺自己推进局部时间、预警和单次范围/遮挡/跳跃判定，不读取战役单例。
 
 ### 四领域组合根（#146）
 
-2026-11-11试玩修订：`RunDirector.PLAYTEST_ORDER` 为 `[1,0,2,3]`（恐惧→怠惰→愤怒→悲伤），`randomize_realm_order` 默认false；种子洗牌分支保留并单独验证。RealmHUD通过注入的Stage调用`retry()`，Stage发`retry_requested`交给RunDirector，不由HUD访问战役单例。恐惧几何通过已有`set_player`接口接收弱引用，-12米高度边界使用Health的environmental_fatal分支，补足有限Area之外或高速穿过的坠落。
+2026-11-11试玩修订：`RunDirector.PLAYTEST_ORDER` 为 `[1,0,2,3]`（恐惧→怠惰→愤怒→悲伤），`randomize_realm_order` 默认false；种子洗牌分支保留并单独验证。RealmHUD通过注入的Stage调用`retry()`，Stage发`retry_requested`交给RunDirector，不由HUD访问战役单例。恐惧几何通过已有`set_player`接口接收弱引用，-12米高度边界补足有限Area之外或高速穿过的坠落，并和Area共用上述30点生命恢复规则。
 
 `FearShatter.prepare_templates()`在FearRealmVisual构建时预先缓存56份凸碰撞资源；每次死亡仍创建独立RigidBody、材质和实时骨骼变换，只共享不变的形状。昂贵的凸形生成不再发生在击杀伤害回调中。门扉显示和HUD方向提示只读取`exit_ready`，不绕过选卡、碎片、距离与WORLD视线检查。
 

@@ -113,13 +113,32 @@ func run_checks() -> void:
 			burst = child as FearShatter
 	check("death reuses exactly 56 colliding rigid crystal shards", burst != null and burst.pieces.size() == 56 and burst.pieces[0].get_child(1) is CollisionShape3D)
 	check("dead caster loses every damaging hitbox and lock line", watcher.state == Enemy.State.DEAD and not watcher._line.visible and watcher.get_node("HeadHitbox").collision_layer == 0)
+	realm.set_player(player)
+	player.health.health = 100
+	player.position = Vector3(-7,0.05,8)
+	player.set_physics_process(true)
+	await frames(15)
+	player.set_physics_process(false)
 	var fatal_hp := player.health.health
 	player.health.invulnerable = true
 	player.health.dash_invulnerable = true
 	player.health.grant_shield(500)
-	player.position = Vector3(0, -14, 0)
+	player.position = Vector3(130, -14, 0)
 	await frames(3)
-	check("entering true abyss kills the player despite dash, immunity and shield", fatal_hp > 0 and player.health.is_dead() and player.health.last_damage_context.get("environmental_fatal", false))
+	check("abyss costs thirty HP and returns player despite dash, immunity and shield", fatal_hp > 30 and is_equal_approx(player.health.health,fatal_hp-30) and player.position.y > -1 and player.health.last_damage_context.get("environmental_penalty",false))
+	check("fall recovery returns to the last visited stable side platform",Vector2(player.position.x+7,player.position.z-8).length() < 0.5)
+	await frames(30)
+	wall = block(Vector3(-7,1,8),Vector3(2,2,2))
+	await frames(2)
+	player.position = Vector3(130,-14,0)
+	await frames(3)
+	check("an obstructed old landing safely falls back to the entry platform",Vector2(player.position.x,player.position.z-16).length() < 0.5 and is_equal_approx(player.health.health,fatal_hp-60))
+	wall.queue_free()
+	await frames(30)
+	player.health.health = 20
+	player.position = Vector3(0,-14,0)
+	await frames(3)
+	check("a fall is lethal only when remaining HP cannot cover its cost",player.health.is_dead())
 	await frames(150)
 	check("all rigid shards are reclaimed after their lifetime", not is_instance_valid(burst))
 

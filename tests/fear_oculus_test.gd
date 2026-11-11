@@ -32,6 +32,7 @@ func run_checks() -> void:
 	boss.defeated.connect(func() -> void: victories += 1)
 	await frames(3)
 	check("three independently rotating rings use 36 actual humanoid limb meshes", boss.visual.rings.size() == 3 and boss.visual.pieces.size() == 36)
+	check("boss prepares all collision shapes before any killing shot",FearShatter._collision_shapes.size() == 56)
 	var hp := boss.health.health
 	boss.health.apply_damage(100, Hitbox.BodyPart.BODY, player)
 	check("closed iris reduces actual damage to forty percent", is_equal_approx(hp - boss.health.health, 40))
@@ -116,6 +117,7 @@ func run_checks() -> void:
 		if child is FearShatter:
 			shards = child as FearShatter
 	check("aggregated body explodes into 56 rigid crystalline fragments", shards != null and shards.pieces.size() == 56)
+	check("boss death reuses a cooked immutable shape",shards.pieces[0].get_child(1).shape == FearShatter._collision_shapes[0])
 	await frames(155)
 	check("post-boss physics fragments are fully reclaimed", not is_instance_valid(shards))
 

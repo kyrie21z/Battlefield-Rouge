@@ -118,12 +118,23 @@ func _ready() -> void:
 	falling.player.health.dash_invulnerable = true
 	falling.player.health.grant_shield(500)
 	falling.player.health.lethal_guard = func(_context): return 100.0
+	var before_fall := falling.player.health.health
+	falling.player.position = Vector3(130,3,0)
+	for tick in 180:
+		if falling.player.health.health < before_fall: break
+		await get_tree().physics_frame
+	await frames(3)
+	check("Area-external fall costs exactly thirty HP despite immunity and shield",not falling.fallen and is_equal_approx(falling.player.health.health,before_fall-30) and falling.player.position.y > -1)
+	await frames(45)
+	check("one fall cannot charge repeated HP penalties",is_equal_approx(falling.player.health.health,before_fall-30))
+	await capture("fall-recovered")
+	falling.player.health.health = 25
 	falling.player.position = Vector3(130,3,0)
 	for tick in 180:
 		if falling.fallen: break
 		await get_tree().physics_frame
 	await frames(3)
-	check("real falling beyond Area bounds kills despite immunity, shield and revival",falling.fallen and falling.player.health.is_dead() and RunDirector.last_death_cause == &"abyss")
+	check("insufficient HP still records one genuine abyss death",falling.fallen and falling.player.health.is_dead() and RunDirector.last_death_cause == &"abyss")
 	check("fatal fall displays clear death and retry feedback",falling.hud._death_panel.visible and falling.hud._death_reason.text.contains("坠入深渊"))
 	await capture("fatal-fall")
 	falling.hud._death_panel.get_child(0).get_child(1).pressed.emit()
@@ -141,6 +152,6 @@ func _ready() -> void:
 	get_tree().current_scene = null
 	RunDirector.active = false
 	await frames(3)
-	await get_tree().create_timer(0.25).timeout
+	OS.delay_msec(250)
 	print("FEAR PLAYTEST: %s (%d checks, %d failures)" % ["ALL PASSED" if failures == 0 else "FAIL",checks,failures])
 	get_tree().quit(0 if failures == 0 else 1)

@@ -1,0 +1,435 @@
+{
+  "date": "2026-11-11",
+  "issue": 205,
+  "base_commit": "a6f4186d674c9ee8ca709d21345437fefe97edaa",
+  "base_tree": "b14d010b611afd237a74190e77fc2b9cbccda478",
+  "engine": "Godot 4.7.2 Windows Forward+ Vulkan / RTX 4060 Laptop",
+  "regressions": [
+    {
+      "name": "fear_oculus",
+      "exit": 0,
+      "seconds": 8.72,
+      "passed": true,
+      "summary": [
+        "FEAR OCULUS: ALL PASSED (29 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_realm",
+      "exit": 0,
+      "seconds": 12.77,
+      "passed": true,
+      "summary": [
+        "FEAR REALM: ALL PASSED (32 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "wrath_spire",
+      "exit": 0,
+      "seconds": 10.64,
+      "passed": true,
+      "summary": [
+        "WRATH SPIRE: 23 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_realm",
+      "exit": 0,
+      "seconds": 7.2,
+      "passed": true,
+      "summary": [
+        "SORROW REALM: 22 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_monolith",
+      "exit": 0,
+      "seconds": 11.83,
+      "passed": true,
+      "summary": [
+        "SORROW MONOLITH: 22 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_balance",
+      "exit": 0,
+      "seconds": 11.34,
+      "passed": true,
+      "summary": [
+        "REALM BALANCE: ALL PASSED (20 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_playtest",
+      "exit": 0,
+      "seconds": 32.86,
+      "passed": true,
+      "summary": [
+        "FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_stage",
+      "exit": 0,
+      "seconds": 3.25,
+      "passed": true,
+      "summary": [
+        "REALM STAGE: 27 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_boss_stage",
+      "exit": 0,
+      "seconds": 2.36,
+      "passed": true,
+      "summary": [
+        "REALM BOSS STAGE: 20 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "campaign_realms",
+      "exit": 0,
+      "seconds": 20.52,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (98 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_player_effects",
+      "exit": 0,
+      "seconds": 3.28,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (15 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_campaign",
+      "exit": 0,
+      "seconds": 7.38,
+      "passed": true,
+      "summary": [
+        "META CAMPAIGN: 23 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_forge",
+      "exit": 0,
+      "seconds": 2.75,
+      "passed": true,
+      "summary": [
+        "META FORGE: 31 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_settlement_guard",
+      "exit": 0,
+      "seconds": 1.8,
+      "passed": true,
+      "summary": [
+        "META SETTLEMENT GUARD: 16 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "combat_traits",
+      "exit": 0,
+      "seconds": 1.91,
+      "passed": true,
+      "summary": [
+        "COMBAT TRAITS: ALL PASSED (0 failed)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "counter_shield",
+      "exit": 0,
+      "seconds": 1.91,
+      "passed": true,
+      "summary": [
+        "COUNTER SHIELD: 28 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "hurt_feedback",
+      "exit": 0,
+      "seconds": 7.55,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (0 failed)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "buff_run",
+      "exit": 0,
+      "seconds": 13.69,
+      "passed": true,
+      "summary": [
+        "boon-two-small-zones-and-boss-epic2-seed-40408: ALL PASSED (0 failed)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "wrath_audio",
+      "exit": 0,
+      "seconds": 7.3,
+      "passed": true,
+      "summary": [
+        "WRATH AUDIO: 40 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_audio",
+      "exit": 0,
+      "seconds": 3.94,
+      "passed": true,
+      "summary": [
+        "SORROW AUDIO: 16 checks, 0 failed"
+      ],
+      "diagnostics": [
+        "WARNING: 3 ObjectDB instances were leaked at exit (run with `--verbose` for details)."
+      ]
+    }
+  ],
+  "final_checks": {
+    "realm_balance_headless": 21,
+    "realm_balance_native": 24,
+    "fear_realm": 32,
+    "fear_playtest_headless": 30,
+    "fear_playtest_native": 37,
+    "sorrow_audio_verbose": 16
+  },
+  "fixture": {
+    "FX-001": "18f02a294f3e538a",
+    "FX-002": "ad3703cd93d3073e",
+    "baseline_equals_fix": true
+  },
+  "oculus_ms": {
+    "baseline": {
+      "callback": 1931.741,
+      "max_death_frame": 1960.874,
+      "max_pickup_frame": 8.351
+    },
+    "fix": {
+      "callback": 12.802,
+      "max_death_frame": 22.294,
+      "max_pickup_frame": 8.834
+    }
+  },
+  "notes": [
+    "Single controlled native sample per version; not whole-run percentile or cross-platform claim.",
+    "Sorrow audio passed 16 assertions; intermediate exits had 3/10 ObjectDB warnings, final verbose did not reproduce.",
+    "Editor import returned 0 with host Safe save diagnostic retained.",
+    "JPEG images converted from native PNG with Godot quality 0.84; eruption view uses a temporary elevated review camera.",
+    "Logs normalize trailing whitespace only; verbose excerpt omits resource-load lines."
+  ],
+  "files": [
+    {
+      "path": "benchmark.gd.txt",
+      "bytes": 1853,
+      "sha256": "f56079341e17ce97795559d10335cc7c663879de917745d304d3801af5bc2d69"
+    },
+    {
+      "path": "fall-flow.log",
+      "bytes": 1806,
+      "sha256": "bc3c1892d287a9f57c5a22f98693675b08903a8a301a8a0f60edab19c3bd7578"
+    },
+    {
+      "path": "fall-native.log",
+      "bytes": 2119,
+      "sha256": "acba0c618379d830145dcb0923b891ecd13e91bf6a3d0ae2b1899f765ec00659"
+    },
+    {
+      "path": "fall-recovered.jpg",
+      "bytes": 58131,
+      "sha256": "166fadcecb1bcb039190e3f61de18df4111e5d8b6c6d43ac2e5168c17c3db84f"
+    },
+    {
+      "path": "fear-realm-final.log",
+      "bytes": 1944,
+      "sha256": "c3cb377de7d88e4aa2dac30cfeef5bd9983aa256e76b48640aef5c8dd11ca7c9"
+    },
+    {
+      "path": "fixture-base.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "fixture-fix.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "import-final.log",
+      "bytes": 2103,
+      "sha256": "80c23a6274ac03362f47e96c1e7a0d9cc6fdb761dd4ab2358edcace761f7a321"
+    },
+    {
+      "path": "oculus-after.log",
+      "bytes": 318,
+      "sha256": "18f25b14bf7cd522daa478d28d66650dbebe744d1a461af67155db5fc4f99d4a"
+    },
+    {
+      "path": "oculus-before.log",
+      "bytes": 322,
+      "sha256": "acdc8c25dd03db69f8b6a2efb82f5e3ccf1b25dd9aeaf292ee6963fa2cbf8c99"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6332,
+      "sha256": "7f3a837e9de8a0300935fe3dd4e1b148668474e133c3cf739a93abc7bc36e0cb"
+    },
+    {
+      "path": "realm-balance-final.log",
+      "bytes": 1332,
+      "sha256": "c74856766345a71e4343969ae616e4c9508f5577e2952edf9d9e4ac9482db873"
+    },
+    {
+      "path": "realm-balance-native.log",
+      "bytes": 1534,
+      "sha256": "7c1bd14f052bc80fcc2ebca30ed2c1734ea8a38e881fb4c3716faa5d285161c8"
+    },
+    {
+      "path": "regression-buff_run.log",
+      "bytes": 8531,
+      "sha256": "f60d8a85fbb437ad42197212001ce4fab7d71ebb7daa90814fe5c12bf2fee5ec"
+    },
+    {
+      "path": "regression-campaign_realms.log",
+      "bytes": 4404,
+      "sha256": "077e90edf39f34b9c6b3e0c391361a1863fbb0a6418f71bebd71e6a5b8e703ec"
+    },
+    {
+      "path": "regression-combat_traits.log",
+      "bytes": 1632,
+      "sha256": "8b46bd61940b8ebfe92a2c935b31699f471d37bc26978650ae9f74d70d9b8336"
+    },
+    {
+      "path": "regression-counter_shield.log",
+      "bytes": 1793,
+      "sha256": "271748c81feb7b789dec43b646d1783354e07867ddfc6f23080371b3f109d62a"
+    },
+    {
+      "path": "regression-fear_oculus.log",
+      "bytes": 1824,
+      "sha256": "601b8c095b91836c32a39c4d38e94a3557f4053befeff8992597d26e81e93c05"
+    },
+    {
+      "path": "regression-fear_playtest.log",
+      "bytes": 1806,
+      "sha256": "bc3c1892d287a9f57c5a22f98693675b08903a8a301a8a0f60edab19c3bd7578"
+    },
+    {
+      "path": "regression-fear_realm.log",
+      "bytes": 1944,
+      "sha256": "c3cb377de7d88e4aa2dac30cfeef5bd9983aa256e76b48640aef5c8dd11ca7c9"
+    },
+    {
+      "path": "regression-hurt_feedback.log",
+      "bytes": 1663,
+      "sha256": "1f3f15bd47f0898f01987f1e17b5eca4ac91346e1598e0ba7c7e98a1e4066529"
+    },
+    {
+      "path": "regression-meta_campaign.log",
+      "bytes": 1558,
+      "sha256": "42bafba2914f5d7e0bc6cf6bd79d6d5097768028bcf6df94de976a0102d9ed1c"
+    },
+    {
+      "path": "regression-meta_forge.log",
+      "bytes": 1813,
+      "sha256": "a21395f8a30e5a1fdd110522f9295aeb7c5f09459287c776ea6352ce1f718b08"
+    },
+    {
+      "path": "regression-meta_settlement_guard.log",
+      "bytes": 1196,
+      "sha256": "8d19add88a3beeac44a4000f80d75fff166db6a84dcab9d445a17dffd6557f4c"
+    },
+    {
+      "path": "regression-realm_balance.log",
+      "bytes": 1257,
+      "sha256": "ea7cb89707f70c4aec5b9765cdbd12820aed6ee2be755c6daa2aa386570f3ace"
+    },
+    {
+      "path": "regression-realm_boss_stage.log",
+      "bytes": 1103,
+      "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+    },
+    {
+      "path": "regression-realm_player_effects.log",
+      "bytes": 732,
+      "sha256": "8b83717d2fff5101a7acb3e0bec015eb93d12dc48bf92fd97fc7002ed70c9624"
+    },
+    {
+      "path": "regression-realm_stage.log",
+      "bytes": 1632,
+      "sha256": "46b5ef6192351c23af0861183a9c872932d606cd4ce65b3f16d2a7b95e636c31"
+    },
+    {
+      "path": "regression-sorrow_audio.log",
+      "bytes": 1040,
+      "sha256": "c4eca1627a10237d877926481a7b8e040e1c45498f00c369dde2d425f2d2b834"
+    },
+    {
+      "path": "regression-sorrow_monolith.log",
+      "bytes": 1305,
+      "sha256": "3c18a952a74467cb17d3c999cd1bbbbac43101eb7fb0a68983a33843e877f6a0"
+    },
+    {
+      "path": "regression-sorrow_realm.log",
+      "bytes": 1290,
+      "sha256": "e2fe4ae74be3756b15db0b5f4481e60791ffcbbec841d318975807335ecf095c"
+    },
+    {
+      "path": "regression-wrath_audio.log",
+      "bytes": 3940,
+      "sha256": "f37fcba5786eb724a0190de252e8afc7951ad3cec38ee85b0b331d6cc6cb3adb"
+    },
+    {
+      "path": "regression-wrath_spire.log",
+      "bytes": 1290,
+      "sha256": "48645dc699b371c42fb46c6e1758eeb1098712a39fe4b1aa50426deb3860f1d6"
+    },
+    {
+      "path": "sorrow-audio-final.log",
+      "bytes": 1041,
+      "sha256": "23af3c828fde6edb34359cc98aacdd323e93942ddeb9f46479035dd1c879432a"
+    },
+    {
+      "path": "sorrow-audio-verbose-final.log",
+      "bytes": 936,
+      "sha256": "b80d8ce9c234f0e0fd75a46bece473b23f64460daddc98ae9e0d4ef28ee8ebc9"
+    },
+    {
+      "path": "sorrow-blue-wave.jpg",
+      "bytes": 76202,
+      "sha256": "dfdbc021bc48639ec796694995f04ed5b4022ff17ad47e57a7da02bdcd50c852"
+    },
+    {
+      "path": "wrath-eruption-warning.jpg",
+      "bytes": 60738,
+      "sha256": "02a57a8c4c00cea1bda1f8167d29f1edd96bd8001ba4914463241847bda40caa"
+    },
+    {
+      "path": "wrath-volley.jpg",
+      "bytes": 58810,
+      "sha256": "ed31ea6eef3e73abc2cfc0a6672fc2364f8ffaed38a58fb78e5e8599e0ccb79e"
+    }
+  ]
+}

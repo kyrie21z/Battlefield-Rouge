@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.341 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS ranged volley has a real locked windup before any shot
+PASS pause freezes new ranged windup
+PASS native capture wrath-volley
+PASS three aimed fans launch fifteen actual ricochets
+PASS ranged fan deals real damage to a distant player
+PASS ranged attack retains a full punish recovery
+PASS distant player replaces wasted melee charge with ranged pressure
+PASS volley locks direction rather than tracking after its tell
+PASS eruption lays three distinct locked ground warnings
+PASS native capture wrath-eruption-warning
+PASS local time stop also freezes eruption warnings
+PASS Fear deprivation hides warnings while preserving the attack
+PASS actual default jump avoids the ground eruption at its release
+PASS standing inside the locked eruption takes eighteen HP once
+PASS eruption cannot keep damaging after its single release
+PASS WORLD cover blocks eruption damage inside the nominal radius
+PASS target death stops pending ranged attacks immediately
+PASS boss death removes every owned pending projectile and eruption
+PASS actual Mourner expanding wave is blue in both color and emission
+PASS attack blue is independent of warm scene lighting
+PASS native capture sorrow-blue-wave
+PASS blue wave retains its actual debuff on contact
+PASS boss tide uses the same blue family
+PASS both production realm scenarios finish
+REALM BALANCE: ALL PASSED (24 checks, 0 failures)

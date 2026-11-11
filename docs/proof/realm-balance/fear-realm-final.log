@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS three real trap slabs and four connected encounter platforms
+PASS sampled main and side routes have continuous physical support
+PASS void outside narrow bridges has no invisible floor
+PASS actual camera facing watcher counts as gaze
+PASS watcher starts one cast
+PASS sustained gaze cancels charged shot before damage
+PASS looking away is not eye contact
+PASS ordinary stagger cannot substitute for gaze cancellation
+PASS pause freezes charged attack
+PASS uninterrupted watcher launches physical projectile that damages real player
+PASS WORLD occlusion rejects apparent on-screen eye contact
+PASS injected warning suppression hides lock line without canceling attack
+PASS blink finds solid destination and moves toward player
+PASS blink creates frozen crystalline afterimage
+PASS actual hit splits a new afterimage
+PASS blink refuses wall crossing
+PASS blink refuses destination without ground support
+PASS crawler has four anatomical contact limbs beneath its horizontal torso
+PASS faller starts warned pounce
+PASS pounce has real forward velocity and a single claw hit
+PASS landing schedules nearest physical bridge trap
+PASS trap warning leaves supporting collider intact
+PASS slab physically rotates to vertical and exposes a real gap
+PASS deprivation removes trap alarm but does not remove lethal mechanism
+PASS bridge restores after bounded trap cycle
+PASS death reuses exactly 56 colliding rigid crystal shards
+PASS dead caster loses every damaging hitbox and lock line
+PASS abyss costs thirty HP and returns player despite dash, immunity and shield
+PASS fall recovery returns to the last visited stable side platform
+PASS an obstructed old landing safely falls back to the entry platform
+PASS a fall is lethal only when remaining HP cannot cover its cost
+PASS all rigid shards are reclaimed after their lifetime
+FEAR REALM: ALL PASSED (32 checks, 0 failures)

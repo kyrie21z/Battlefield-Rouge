@@ -1,0 +1,46 @@
+extends Node
+var previous := 0
+var max_gap := 0.0
+func _process(_delta: float) -> void:
+	var now := Time.get_ticks_usec()
+	if previous > 0: max_gap = maxf(max_gap,(now-previous)/1000.0)
+	previous = now
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	await get_tree().process_frame
+	get_tree().current_scene = null
+	RunDirector.begin_run(20511)
+	RunDirector.room_index = 2
+	RunDirector._starter_given = true
+	RunDirector.forge_visited = true
+	RunDirector.install_stage(load(RunDirector.scene_path()))
+	var stage := RunDirector.current_stage as RealmStage
+	var boss := stage.boss as FearOculus
+	var player := stage.player
+	player.set_physics_process(false)
+	player.dash.set_physics_process(false)
+	boss.set_physics_process(false)
+	boss.phase = 2
+	boss.health.health = 1
+	player.position = Vector3(0,0.1,12)
+	player.aim_at(boss.eye_position())
+	for frame in 60: await get_tree().process_frame
+	max_gap = 0
+	var start := Time.get_ticks_usec()
+	var shot := player.weapon.try_fire()
+	var cost := (Time.get_ticks_usec()-start)/1000.0
+	for frame in 45: await get_tree().process_frame
+	print("OCULUS_DEATH shot=%s dead=%s callback_ms=%.3f max_frame_ms=%.3f shard=%s recorded=%s" % [shot,boss.health.is_dead(),cost,max_gap,is_instance_valid(stage.shard),RunDirector.defeated.has(1)])
+	assert(boss.health.is_dead() and is_instance_valid(stage.shard))
+	max_gap = 0
+	player.position = stage.shard.position
+	for frame in 30: await get_tree().process_frame
+	print("OCULUS_PICKUP max_frame_ms=%.3f exit_ready=%s core=%s" % [max_gap,stage.exit_ready,player.fragments.has_shard(1)])
+	assert(stage.exit_ready and player.fragments.has_shard(1))
+	stage.queue_free()
+	RunDirector.current_stage = null
+	RunDirector.active = false
+	get_tree().current_scene = null
+	await get_tree().process_frame
+	await get_tree().create_timer(0.25).timeout
+	get_tree().quit()

@@ -20,6 +20,8 @@ var _resonance: Label
 var _exit_hint: Label
 var _death_panel: PanelContainer
 var _death_reason: Label
+var _fall_notice: Label
+var _fall_notice_left := 0.0
 
 func _ready() -> void:
 	layer = 10
@@ -118,6 +120,15 @@ func _ready() -> void:
 	_build_exit_and_death_feedback()
 
 func _build_exit_and_death_feedback() -> void:
+	_fall_notice = _label("",22)
+	_fall_notice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fall_notice.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_fall_notice.offset_left = -260
+	_fall_notice.offset_right = 260
+	_fall_notice.offset_top = 110
+	_fall_notice.offset_bottom = 150
+	_fall_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_fall_notice.hide()
 	_exit_hint = _label("",22)
 	_exit_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_exit_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -180,6 +191,8 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(stage) or not is_instance_valid(stage.player):
 		return
 	var player := stage.player
+	_fall_notice_left = maxf(0.0,_fall_notice_left-_delta)
+	_fall_notice.visible = _fall_notice_left > 0 and not stage.fallen
 	_update_exit_and_death_feedback()
 	_resonance.visible = player.fragments.has_shard(PsycheFragments.SLOTH)
 	_resonance.text = "%s 沉睡共鸣 · %s" % [KeyHint.of("psyche_resonance"),"就绪" if player.fragments.resonance_cooldown<=0 else "%.1f s" % player.fragments.resonance_cooldown]
@@ -208,6 +221,9 @@ func _process(_delta: float) -> void:
 		vitals._trail.reset(player.health.health)
 
 func _damaged(amount: float,_part: Hitbox.BodyPart,source: Node) -> void:
+	if stage.player.health.last_damage_context.get("environmental_penalty",false):
+		_fall_notice.text = "坠落 -%d 生命 · 已返回安全平台" % int(amount)
+		_fall_notice_left = 2.5
 	if source is Node3D and stage.player.realm_effects.warnings_enabled:
 		damage_indicator.add_hit(source,amount)
 

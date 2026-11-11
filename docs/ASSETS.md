@@ -443,3 +443,18 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 皇冠由 `audio/crown/crown_audio_filter.tres` 提供 300 Hz 高通、3500 Hz 低通、轻饱和、高架和 Godot 算法混响，模拟金属板质感，没有使用外部板式脉冲响应。配置 SHA-256：`7960029a43d9047bb52b45810053afab5f03693047894dd30573a8427de6bf5f`。自发光 0.5→16.5888 映射 wet 0.12→0.43、drive 0.04→0.22。
 
 原有 Crown/climax 中文 WAV 共 **23** 个保持字节不变，来源/许可沿用 #147–150 登记，逐文件核验见 [原始声音清单](proof/issue-180/original-voice-sha256.json)。`docs/proof/issue-180/audio/` 的 crown_soft/blazing 是复用已授权原始台词经真实 Godot DSP 录制的48kHz双声道预听；shatter/gold_flow/piano 是上述合成器直接导出的22.05kHz双声道 PCM。五个文件的 SHA-256、峰值及频率记录见 [分析](proof/issue-180/audio-analysis.json)，遵守既有 `.gdignore`，均不是运行时新增依赖；处理后语音不重新标为 MIT 或 CC0。自动检查不代表人工听感验收。
+
+## #205 Boss试玩修订与坠落恢复（2026-11-11）
+
+`SpireEruption` 的晶刺与预警环为Godot内置几何和本项目原创代码，沿用项目MIT许可，无新下载模型、贴图、音频或旧工程素材。悲伤攻击波复用既有几何，统一蓝色材质。
+
+四张证据是Godot4.7.2 Forward+真实渲染，由测试场景保存PNG后用Godot转存JPEG（质量0.84，无重绘）；PNG保留本机。晶刺图使用临时俯视审阅相机，其余为生产第一人称。图片使用项目既有已登记素材，来源/许可沿用原登记，不另标CC0。
+
+| 文件（`docs/proof/realm-balance/`） | 内容 | SHA-256 |
+| --- | --- | --- |
+| `wrath-volley.jpg` | 实际三轮齐射 | `ed31ea6eef3e73abc2cfc0a6672fc2364f8ffaed38a58fb78e5e8599e0ccb79e` |
+| `wrath-eruption-warning.jpg` | 三个真实地面预警圈 | `02a57a8c4c00cea1bda1f8167d29f1edd96bd8001ba4914463241847bda40caa` |
+| `sorrow-blue-wave.jpg` | 哀嚎者蓝色扩散攻击波 | `dfdbc021bc48639ec796694995f04ed5b4022ff17ad47e57a7da02bdcd50c852` |
+| `fall-recovered.jpg` | 实际坠落后70生命和恢复提示 | `166fadcecb1bcb039190e3f61de18df4111e5d8b6c6d43ac2e5168c17c3db84f` |
+
+完整来源、复现方法、日志与字节数核对见[证明说明](proof/realm-balance/README.md)和[清单](proof/realm-balance/validation.json)。

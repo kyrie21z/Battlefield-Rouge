@@ -339,7 +339,7 @@ func _on_player_died(_source: Node) -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var cause: StringName = &"combat"
-	if player.health.last_damage_context.get("environmental_fatal",false):
+	if player.health.last_damage_context.get("environmental_fatal",false) or player.health.last_damage_context.get("environmental_penalty",false):
 		cause = StringName(player.health.last_damage_context.get("tag",&"environment"))
 	player_fallen.emit(self,cause)
 

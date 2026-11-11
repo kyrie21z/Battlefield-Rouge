@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS default campaign starts Fear and keeps authored fixed order
+PASS actual first Fear stage installs
+PASS Fear room 0 retains intended progression
+PASS clear offers reward before gate unlock
+PASS all convex fragment shapes were prepared before combat
+PASS deaths share immutable collision shapes with independent bodies
+PASS reward or shard reveals explicit next-room portal
+PASS real Player walks across Fear bridges to reachable gate
+PASS HUD marks unlocked portal and interaction
+PASS real interaction advances room without teleporting to gate
+PASS Fear room 1 retains intended progression
+PASS clear offers reward before gate unlock
+PASS all convex fragment shapes were prepared before combat
+PASS deaths share immutable collision shapes with independent bodies
+PASS reward or shard reveals explicit next-room portal
+PASS real Player walks across Fear bridges to reachable gate
+PASS HUD marks unlocked portal and interaction
+PASS real interaction advances room without teleporting to gate
+PASS Fear room 2 retains intended progression
+PASS Fear boss requires real shard before next realm
+PASS reward or shard reveals explicit next-room portal
+PASS real Player walks across Fear bridges to reachable gate
+PASS HUD marks unlocked portal and interaction
+PASS real interaction advances room without teleporting to gate
+PASS third Fear exit loads Sloth next with Fear shard retained
+PASS Area-external fall costs exactly thirty HP despite immunity and shield
+PASS one fall cannot charge repeated HP penalties
+PASS insufficient HP still records one genuine abyss death
+PASS fatal fall displays clear death and retry feedback
+PASS death button restarts an actual fixed Fear-first run
+FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)

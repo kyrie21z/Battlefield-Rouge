@@ -73,6 +73,8 @@ func apply_damage(amount: float, body_part: Hitbox.BodyPart, source: Node = null
 		return 0.0
 	if context.get("environmental_fatal", false):
 		return _environmental_fatal(source, context)
+	if context.get("environmental_penalty", false):
+		return _environmental_hit(amount, source, context)
 	if not is_instance_valid(source):
 		source = null
 	if source != null and "team" in source and source.team == team and not context.get("allow_friendly_fire", false):
@@ -162,17 +164,25 @@ func _on_stats_changed() -> void:
 ## Falling beyond an authored abyss is a lethal boundary, not an absorbable hit.
 ## It still supplies the same actual-HP/death events, once, for run settlement.
 func _environmental_fatal(source: Node, context: Dictionary) -> float:
-	var dealt := health
+	return _environmental_hit(health, source, context)
+
+## A fixed environmental HP cost bypasses combat shields and temporary immunity.
+## Fatal boundaries still use all remaining HP; recoverable falls use a fixed cost.
+func _environmental_hit(amount: float, source: Node, context: Dictionary) -> float:
+	var dealt := minf(health, maxf(amount, 0.0))
+	if dealt <= 0.0:
+		return 0.0
 	var ctx := context.duplicate()
 	ctx.merge({"source": source, "target": get_parent(), "health": self,
 		"damage": dealt, "dealt": dealt, "absorbed": 0.0, "resolved_damage": dealt,
-		"body_part": Hitbox.BodyPart.BODY, "cancelled": false, "killed": true,
+		"body_part": Hitbox.BodyPart.BODY, "cancelled": false, "killed": dealt >= health,
 		"tag": &"abyss", "proc_depth": 0}, true)
 	_damage_resolution_depth += 1
-	health = 0.0
+	health = maxf(health - dealt, 0.0)
 	last_damage_context = ctx
 	damaged.emit(dealt, Hitbox.BodyPart.BODY, source)
-	died.emit(source)
+	if is_dead():
+		died.emit(source)
 	after_damage.emit(ctx)
 	_damage_resolution_depth -= 1
 	if _damage_resolution_depth == 0:

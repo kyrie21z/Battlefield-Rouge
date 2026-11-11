@@ -10,6 +10,7 @@ var charge := 0.0
 var dead := false
 
 func _ready() -> void:
+	FearShatter.prepare_templates()
 	material = preload("res://assets/materials/red_crystal_material_shader.tres").duplicate() as ShaderMaterial
 	material.set_shader_parameter("base_color", Color(0.16, 0.07, 0.3))
 	material.set_shader_parameter("rim_color", Color(0.65, 0.38, 0.95))
@@ -120,7 +121,7 @@ func shatter() -> void:
 	if dead:
 		return
 	dead = true
-	SlothShatter.prepare_templates()
+	FearShatter.prepare_templates()
 	var burst := FearShatter.new()
 	get_parent().get_parent().add_child(burst)
 	for index in SlothShatter._templates.size():
@@ -135,7 +136,7 @@ func shatter() -> void:
 		mesh.material_override = material
 		piece.add_child(mesh)
 		var shape := CollisionShape3D.new()
-		shape.shape = (entry.mesh as Mesh).create_convex_shape(true, true)
+		shape.shape = FearShatter._collision_shapes[index]
 		piece.add_child(shape)
 		burst.add_child(piece)
 		var ring := index % 3

@@ -1,0 +1,164 @@
+SCRIPT ERROR: Parse Error: Could not find type "BoonData" in the current scope.
+   at: GDScript::reload (res://autoload/run_state.gd:82)
+ERROR: Failed to load script "res://autoload/run_state.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "BoonData" in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:153)
+SCRIPT ERROR: Parse Error: Could not find type "BoonData" in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:156)
+SCRIPT ERROR: Parse Error: Identifier "BoonCatalog" not declared in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:157)
+SCRIPT ERROR: Parse Error: Identifier "BoonData" not declared in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:158)
+SCRIPT ERROR: Parse Error: Identifier "BoonCatalog" not declared in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:337)
+SCRIPT ERROR: Parse Error: Could not find type "BoonData" in the current scope.
+   at: GDScript::reload (res://autoload/meta_progression.gd:341)
+ERROR: Failed to load script "res://autoload/meta_progression.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "BoonData" in the current scope.
+   at: GDScript::reload (res://autoload/run_director.gd:314)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "starting_boon".
+   at: GDScript::reload (res://autoload/run_director.gd:109)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "starting" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://autoload/run_director.gd:109)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "boons".
+   at: GDScript::reload (res://autoload/run_director.gd:226)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "fragments".
+   at: GDScript::reload (res://autoload/run_director.gd:227)
+SCRIPT ERROR: Parse Error: Could not find type "CrownRadiance" in the current scope.
+   at: GDScript::reload (res://autoload/run_director.gd:260)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "radiance" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://autoload/run_director.gd:260)
+SCRIPT ERROR: Parse Error: Identifier "CrownRadiance" not declared in the current scope.
+   at: GDScript::reload (res://autoload/run_director.gd:262)
+SCRIPT ERROR: Parse Error: Could not find type "RealmStage" in the current scope.
+   at: GDScript::reload (res://autoload/run_director.gd:295)
+ERROR: Failed to load script "res://autoload/run_director.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "BoonManager" in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:32)
+SCRIPT ERROR: Parse Error: Could not find type "RealmPlayerEffects" in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:33)
+SCRIPT ERROR: Parse Error: Could not find type "PsycheFragments" in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:34)
+SCRIPT ERROR: Parse Error: Identifier "BoonManager" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:114)
+SCRIPT ERROR: Parse Error: Identifier "DualBoonManager" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:118)
+SCRIPT ERROR: Parse Error: Identifier "RealmPlayerEffects" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:119)
+SCRIPT ERROR: Parse Error: Identifier "PsycheFragments" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:123)
+SCRIPT ERROR: Parse Error: Identifier "CrystalCombatFeedback" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:127)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "crystal_feedback" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://actors/player/player.gd:127)
+SCRIPT ERROR: Parse Error: Identifier "ADSFocus" not declared in the current scope.
+   at: GDScript::reload (res://actors/player/player.gd:131)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "focus" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://actors/player/player.gd:131)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "speed" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://actors/player/player.gd:225)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "data".
+   at: GDScript::reload (res://actors/player/player.gd:227)
+ERROR: Failed to load script "res://actors/player/player.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not preload resource file "res://weapons/obsidian_pistol/obsidian_pistol.tres".
+   at: GDScript::reload (res://weapons/weapon.gd:38)
+ERROR: Failed to load script "res://weapons/weapon.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not preload resource file "res://weapons/mind_blade/mind_blade.tres".
+   at: GDScript::reload (res://weapons/melee/melee_weapon.gd:63)
+ERROR: Failed to load script "res://weapons/melee/melee_weapon.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "CrownDialogueDatabase" in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:7)
+SCRIPT ERROR: Parse Error: Could not find type "CrownModel" in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:11)
+SCRIPT ERROR: Parse Error: Could not find type "CrownVoiceDSP" in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:13)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:36)
+SCRIPT ERROR: Parse Error: Identifier "CrownVoiceDSP" not declared in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:64)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "entry" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:125)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://actors/crown/crown_voice_system.gd:174)
+ERROR: Failed to load script "res://actors/crown/crown_voice_system.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "CrownModel" in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:18)
+SCRIPT ERROR: Parse Error: Could not find type "CrownVoiceDSP" in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:21)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:52)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:76)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "white" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:76)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:77)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "shade" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:77)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:101)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:241)
+SCRIPT ERROR: Parse Error: Identifier "CrownVoiceDSP" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:273)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:328)
+SCRIPT ERROR: Parse Error: Identifier "CrownModel" not declared in the current scope.
+   at: GDScript::reload (res://ui/cinematics/opening_sequence.gd:363)
+ERROR: Failed to load script "res://ui/cinematics/opening_sequence.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "MetaProgressionStore" in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:5)
+SCRIPT ERROR: Parse Error: Could not find type "MetaProgressionStore" in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:24)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:44)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "eyebrow" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:44)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:46)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "heading" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:46)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:48)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:50)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:66)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:78)
+SCRIPT ERROR: Parse Error: Identifier "MetaProgressionStore" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:82)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:82)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "title" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:82)
+SCRIPT ERROR: Parse Error: Identifier "BoonPresentation" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:84)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "description" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:84)
+SCRIPT ERROR: Parse Error: Identifier "MetaProgressionStore" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:102)
+SCRIPT ERROR: Parse Error: Identifier "MetaProgressionStore" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:102)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "blocker" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:104)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "cost" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:105)
+SCRIPT ERROR: Parse Error: Identifier "MetaProgressionStore" not declared in the current scope.
+   at: GDScript::reload (res://ui/meta_forge/crown_forge.gd:118)
+ERROR: Failed to load script "res://ui/meta_forge/crown_forge.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+SCRIPT ERROR: Parse Error: Could not find type "CrownForge" in the current scope.
+   at: GDScript::reload (res://ui/game_start.gd:17)
+SCRIPT ERROR: Parse Error: Could not find type "CrownForge" in the current scope.
+   at: GDScript::reload (res://ui/game_start.gd:50)
+ERROR: Failed to load script "res://ui/game_start.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

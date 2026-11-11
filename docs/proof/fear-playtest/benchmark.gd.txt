@@ -1,0 +1,52 @@
+extends Node
+var last := 0
+var max_frame := 0.0
+func _process(_dt: float) -> void:
+	var now := Time.get_ticks_usec()
+	if last > 0: max_frame = maxf(max_frame, (now-last)/1000.0)
+	last = now
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	RunDirector.active = false
+	await get_tree().process_frame
+	var stage := load("res://maps/realms/fear_1.tscn").instantiate() as RealmStage
+	get_tree().root.add_child(stage)
+	get_tree().current_scene = stage
+	var player := stage.player
+	player.set_physics_process(false)
+	player.dash.set_physics_process(false)
+	for enemy in stage.enemies: enemy.set_physics_process(false)
+	stage.offer_entry_reward()
+	var picker := stage.selection
+	picker._choose(picker._offered[0])
+	picker.confirm_replacement(true)
+	player.boons.restore([])
+	for frame in 60: await get_tree().process_frame
+	for enemy in stage.enemies:
+		player.position = enemy.position + Vector3(0,0,4)
+		player.aim_at(enemy.get_node("TorsoHitbox").global_position)
+		player.weapon.data = player.weapon.data.duplicate()
+		player.weapon.data.hip_spread = 0.0
+		player.weapon.data.ads_spread = 0.0
+		enemy.health.health = 1000
+		for shot in 2:
+			player.weapon._cooldown = 0
+			player.weapon._spread = 0
+			max_frame = 0
+			var started := Time.get_ticks_usec()
+			var accepted := player.weapon.try_fire()
+			var cost := (Time.get_ticks_usec()-started)/1000.0
+			for frame in 12: await get_tree().process_frame
+			print("SHOT variant=%d accepted=%s cost_ms=%.3f max_frame=%.3f hp=%.1f" % [enemy.variant, accepted,cost,max_frame,enemy.health.health])
+		max_frame = 0
+		var started := Time.get_ticks_usec()
+		enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,player,{"true_damage":true})
+		var cost := (Time.get_ticks_usec()-started)/1000.0
+		for frame in 12: await get_tree().process_frame
+		print("KILL variant=%d cost_ms=%.3f max_frame=%.3f" % [enemy.variant,cost,max_frame])
+		if is_instance_valid(stage.selection): stage.selection._skip_empty()
+	get_tree().paused=false
+	stage.free()
+	get_tree().current_scene=null
+	await get_tree().process_frame
+	get_tree().quit()

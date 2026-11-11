@@ -17,6 +17,9 @@ var _monochrome: ColorRect
 var _base_sensitivity := 0.0022
 var _root: Control
 var _resonance: Label
+var _exit_hint: Label
+var _death_panel: PanelContainer
+var _death_reason: Label
 
 func _ready() -> void:
 	layer = 10
@@ -112,6 +115,55 @@ func _ready() -> void:
 	_root.add_child(inspector)
 	stage.player.boons.changed.connect(_refresh_boons)
 	_refresh_boons()
+	_build_exit_and_death_feedback()
+
+func _build_exit_and_death_feedback() -> void:
+	_exit_hint = _label("",22)
+	_exit_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_exit_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_exit_hint.size = Vector2(280,60)
+	_exit_hint.hide()
+	_death_panel = PanelContainer.new()
+	_death_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_death_panel.offset_left = -240
+	_death_panel.offset_right = 240
+	_death_panel.offset_top = -100
+	_death_panel.offset_bottom = 100
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation",20)
+	_death_panel.add_child(column)
+	_death_reason = Label.new()
+	_death_reason.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_death_reason.add_theme_font_size_override("font_size",28)
+	column.add_child(_death_reason)
+	var retry_button := Button.new()
+	retry_button.text = "重新挑战 · R"
+	retry_button.add_theme_font_size_override("font_size",25)
+	retry_button.pressed.connect(stage.retry)
+	column.add_child(retry_button)
+	_root.add_child(_death_panel)
+	_death_panel.hide()
+
+func _update_exit_and_death_feedback() -> void:
+	_death_panel.visible = stage.fallen
+	if stage.fallen:
+		var abyss: bool = stage.player.health.last_damage_context.get("tag",&"") == &"abyss"
+		_death_reason.text = "心智破碎\n%s" % ("坠入深渊" if abyss else "本次挑战结束")
+	_exit_hint.visible = stage.exit_ready and not stage.fallen and not stage.transitioning
+	if not _exit_hint.visible:
+		return
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		return
+	var target := stage.gate.global_position + Vector3.UP*2.0
+	var viewport_size := get_viewport().get_visible_rect().size
+	var location := camera.unproject_position(target)
+	if camera.is_position_behind(target):
+		var side := 1.0 if camera.global_basis.x.dot(target-camera.global_position) >= 0 else -1.0
+		location = Vector2(viewport_size.x*0.5+side*(viewport_size.x*0.5-160),viewport_size.y*0.5)
+	_exit_hint.position = Vector2(clampf(location.x-140,24,viewport_size.x-304),clampf(location.y-70,96,viewport_size.y-180))
+	var distance := stage.player.global_position.distance_to(stage.gate.global_position)
+	_exit_hint.text = "下一关门扉 · %.0f 米\n%s" % [distance,"按 %s 进入" % KeyHint.of("interact") if distance <= 3.0 else "朝标记方向前进"]
 
 func _label(text_value: String,font_size: int) -> Label:
 	var label := Label.new()
@@ -128,6 +180,7 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(stage) or not is_instance_valid(stage.player):
 		return
 	var player := stage.player
+	_update_exit_and_death_feedback()
 	_resonance.visible = player.fragments.has_shard(PsycheFragments.SLOTH)
 	_resonance.text = "%s 沉睡共鸣 · %s" % [KeyHint.of("psyche_resonance"),"就绪" if player.fragments.resonance_cooldown<=0 else "%.1f s" % player.fragments.resonance_cooldown]
 	_objective.text = stage.objective_text()

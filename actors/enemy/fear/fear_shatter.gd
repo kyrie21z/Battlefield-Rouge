@@ -3,9 +3,17 @@ extends Node3D
 ## All 56 authored shard meshes, frozen to the live 24-bone pose, then rigid physics.
 var pieces: Array[RigidBody3D] = []
 var elapsed := 0.0
+static var _collision_shapes: Array[Shape3D] = []
+
+static func prepare_templates() -> void:
+	if not _collision_shapes.is_empty():
+		return
+	SlothShatter.prepare_templates()
+	for entry in SlothShatter._templates:
+		_collision_shapes.append((entry.mesh as Mesh).create_convex_shape(true, true))
 
 func build(visual: SlothVisual, point: Vector3, direction: Vector3) -> void:
-	SlothShatter.prepare_templates()
+	prepare_templates()
 	var material := visual.crystal_material().duplicate() as ShaderMaterial
 	material.set_shader_parameter("rim_strength", 0.7)
 	for entry in SlothShatter._templates:
@@ -26,7 +34,7 @@ func build(visual: SlothVisual, point: Vector3, direction: Vector3) -> void:
 		mesh.material_override = material
 		piece.add_child(mesh)
 		var collision := CollisionShape3D.new()
-		collision.shape = (entry.mesh as Mesh).create_convex_shape(true, true)
+		collision.shape = _collision_shapes[pieces.size()]
 		piece.add_child(collision)
 		add_child(piece)
 		piece.global_transform = xf

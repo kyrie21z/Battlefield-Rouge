@@ -9,6 +9,11 @@ var scan_lights: Array[Node3D] = []
 var scan_time := 0.0
 var deprivation := false
 var _falling: Array[WeakRef] = []
+const FATAL_HEIGHT := -12.0
+var _player: WeakRef
+
+func set_player(value: CharacterBody3D) -> void:
+	_player = weakref(value)
 
 func _ready() -> void:
 	var stone := StandardMaterial3D.new()
@@ -119,6 +124,10 @@ func _fatal_fall(body: Node3D) -> void:
 			{"environmental_fatal": true, "true_damage": true, "tag": &"abyss"})
 
 func _physics_process(delta: float) -> void:
+	# A height boundary also catches fast dashes and falls beyond the Area's box.
+	var player := _player.get_ref() as CharacterBody3D if _player != null else null
+	if is_instance_valid(player) and player.global_position.y <= global_position.y + FATAL_HEIGHT:
+		_fatal_fall(player)
 	scan_time += delta
 	for i in scan_lights.size():
 		var pivot := scan_lights[i]

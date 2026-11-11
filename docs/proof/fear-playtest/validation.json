@@ -1,0 +1,141 @@
+{
+  "base": "8e95bdcc4e1d4caa5a0bd6c73f85570757029dfb",
+  "regressions": [
+    {
+      "name": "run_director",
+      "exit": 0,
+      "seconds": 6.66,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (53 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_stage",
+      "exit": 0,
+      "seconds": 3.36,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_boss_stage",
+      "exit": 0,
+      "seconds": 2.38,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "campaign_realms",
+      "exit": 0,
+      "seconds": 37.94,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (98 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_realm",
+      "exit": 0,
+      "seconds": 11.09,
+      "passed": true,
+      "summary": [
+        "FEAR REALM: ALL PASSED (29 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_oculus",
+      "exit": 0,
+      "seconds": 9.84,
+      "passed": true,
+      "summary": [
+        "FEAR OCULUS: ALL PASSED (27 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_audio",
+      "exit": 0,
+      "seconds": 7.22,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "build_inspector",
+      "exit": 0,
+      "seconds": 2.09,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "opening_boot",
+      "exit": 0,
+      "seconds": 15.62,
+      "passed": true,
+      "summary": [
+        "OPENING BOOT: ALL PASSED (22 checks, longest frame 4836 ms)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_campaign",
+      "exit": 0,
+      "seconds": 13.8,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_forge",
+      "exit": 0,
+      "seconds": 2.84,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "meta_settlement_guard",
+      "exit": 0,
+      "seconds": 1.73,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    },
+    {
+      "name": "crystal_feedback",
+      "exit": 0,
+      "seconds": 4.7,
+      "passed": true,
+      "summary": [],
+      "diagnostics": []
+    }
+  ],
+  "functional": {
+    "headless": 28,
+    "native": 34
+  },
+  "fixture_hashes": {
+    "FX-001": "18f02a294f3e538a",
+    "FX-002": "ad3703cd93d3073e"
+  },
+  "screenshots": {
+    "exit-guide.jpg": {
+      "bytes": 62475,
+      "sha256": "2f5df0ea449e5a73ecfd4388a3aa370ffb4266695bc13919654e95ba988e685c"
+    },
+    "fatal-fall.jpg": {
+      "bytes": 37850,
+      "sha256": "30a5daa0cbaae549113d29574fff4ebd987cc252c576898826d67259b480c6f0"
+    },
+    "gate-open.jpg": {
+      "bytes": 45827,
+      "sha256": "ae0f0edfa052ab7406283a190110c74fe5b8e2c44ba18fffc3205049087f84bb"
+    }
+  }
+}

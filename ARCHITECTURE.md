@@ -135,6 +135,10 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 ### 四领域组合根（#146）
 
+2026-11-11试玩修订：`RunDirector.PLAYTEST_ORDER` 为 `[1,0,2,3]`（恐惧→怠惰→愤怒→悲伤），`randomize_realm_order` 默认false；种子洗牌分支保留并单独验证。RealmHUD通过注入的Stage调用`retry()`，Stage发`retry_requested`交给RunDirector，不由HUD访问战役单例。恐惧几何通过已有`set_player`接口接收弱引用，-12米高度边界使用Health的environmental_fatal分支，补足有限Area之外或高速穿过的坠落。
+
+`FearShatter.prepare_templates()`在FearRealmVisual构建时预先缓存56份凸碰撞资源；每次死亡仍创建独立RigidBody、材质和实时骨骼变换，只共享不变的形状。昂贵的凸形生成不再发生在击杀伤害回调中。门扉显示和HUD方向提示只读取`exit_ready`，不绕过选卡、碎片、距离与WORLD视线检查。
+
 `autoload/RunDirector` 与旧 `RunState` 同属允许拥有对局状态的组合根；正式入口选择前者，旧 fixture 继续选择后者。`RealmStage` 不读取 RunDirector，通过 configure_run 及信号组成流程。四种 Enemy 派生、Boss、PsycheFragments 和 CrownRadiance 都只接收注入的引用与值，不寻找对局控制器。新地图由 gen_zones.py 调用 gen_realms.py 生成，旧地图逐字保持。
 
 `PsycheFragments` 管理独立碎片运行态，BoonManager 管理可替换的赐福；两者不混存。普通击退经 Enemy.apply_impact，独立脉冲经 apply_fragment_impact；普通防御受 Health.unbuffered 关闭，fragment_absorber 仍单独结算实际吸收与 HP 溢出。数值增益通过 Stats，实际位移保留物理碰撞，所有能力暂停冻结。原始黑晶素材及黑接缝保持，终局金缮由后续演出显式启用。状态边界及验证见 [ADR 0018](docs/adr/0018-realms-and-independent-fragments.md)。

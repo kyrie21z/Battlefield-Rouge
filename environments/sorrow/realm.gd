@@ -57,7 +57,7 @@ func _ready() -> void:
 	_rain()
 	splash = AudioStreamPlayer3D.new()
 	splash.stream = _splash_sound()
-	splash.volume_db = -13
+	splash.volume_db = SorrowSoundBank.MOTION_VOLUME_DB
 	splash.max_distance = 25
 	add_child(splash)
 	var world := WorldEnvironment.new()

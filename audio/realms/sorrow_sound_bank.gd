@@ -5,6 +5,10 @@ const KINDS := [&"rain", &"water_bell", &"tear_return", &"tear_spray", &"glass",
 const RATE := 22050
 const RAIN_SECONDS := 4.0
 const RAIN_OVERLAP := 0.25
+const MOTION_GAIN := 0.38
+const MOTION_VOLUME_DB := -17.0
+const MOTION_FADE_IN := 0.075
+const MOTION_FADE_OUT := 0.18
 static var _cache: Dictionary = {}
 
 static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
@@ -81,6 +85,7 @@ static func _motion_water(sliding: bool, loop: bool) -> AudioStreamWAV:
 	var noise_older := 0.0
 	var liquid_old := 0.0
 	var liquid_older := 0.0
+	var softened := 0.0
 	var data := PackedByteArray()
 	data.resize(count*2)
 	for index in count:
@@ -98,8 +103,11 @@ static func _motion_water(sliding: bool, loop: bool) -> AudioStreamWAV:
 		liquid_older = liquid_old
 		liquid_old = liquid
 		var texture := 0.68+0.20*sin(t*11.0+phase)+0.12*sin(t*23.0+phase*0.7)
-		var envelope := smoothstep(0,0.045,t)*smoothstep(0,0.12,duration-t)
-		var value := (liquid*0.24+(fast-low)*0.09+low*0.18)*texture*envelope*0.8
+		var envelope := smoothstep(0,MOTION_FADE_IN,t)*smoothstep(0,MOTION_FADE_OUT,duration-t)
+		# Round off the bright hiss as well as reducing level.
+		var flow := liquid*0.24+(fast-low)*0.09+low*0.18
+		softened += (flow-softened)*0.30
+		var value := softened*texture*envelope*MOTION_GAIN
 		data.encode_s16(index*2,int(clampf(value,-0.9,0.9)*32767))
 	var sound := AudioStreamWAV.new()
 	sound.format = AudioStreamWAV.FORMAT_16_BITS

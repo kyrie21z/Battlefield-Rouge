@@ -471,6 +471,10 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 
 ## #207 涉水原创音色续改（2026-11-11）
 
-用户最终选择参考“水波2”风格制作自己的声音。本次 `_motion_water` 为项目原创数学合成、沿用项目代码的MIT登记；没有用户录音采样、裁剪或混入，未从origin或第三方音库复制数据。当前 `audio/realms/sorrow_sound_bank.gd` SHA256=`480e97397498c77b8330515e9d5d8decb811a4250275a6dae2d73edfa2a9970c`。
+用户最终选择参考“水波2”风格制作自己的声音。`_motion_water` 为项目原创数学合成、沿用项目代码的MIT登记；没有用户录音采样、裁剪或混入，未从origin或第三方音库复制数据。原创涉水初版 `audio/realms/sorrow_sound_bank.gd` SHA256=`480e97397498c77b8330515e9d5d8decb811a4250275a6dae2d73edfa2a9970c`。
 
 `docs/proof/sorrow-water-audio/audio/` 中 `step-before.wav` 是旧项目原创合成的对照；`step-after.wav`、`slide-after.wav`、`walk-preview.wav`均由新原创生成器导出或叠加，来源/许可同上述代码，仅作试听，不是运行时素材。代码、参数、生成方式与逐文件SHA256见[证明说明](proof/sorrow-water-audio/README.md)及[清单](proof/sorrow-water-audio/validation.json)。参考录音与其本地派生片段不在本PR提交树或祖先历史中，不赋予它们新的许可。
+
+### 同日轻柔版
+
+继续降低原创涉水声的增益与播放电平，增加高频平滑和更缓的起止；来源/许可沿用上述原创代码登记，无新第三方资产。当前音库源码SHA256=`29c69c68c0f5c8bf0a1a7989e772e401e7fa08574c8f0713e6ad6f69a7b94baa`。`docs/proof/sorrow-water-soft/audio/` 的3份WAV均为当前原创生成器的导出/六步叠加，未归一化，仅供试听，完整参数与SHA256见[轻柔版证明](proof/sorrow-water-soft/README.md)。

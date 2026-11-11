@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-11",
+  "parent": "8d3db209f705878713999bef5766ba2862e2dd52",
+  "parent_tree": "80520f9b7eac0cb34c6037a79409a045c7214811",
+  "original_synthesis": true,
+  "gain": {
+    "before": 0.8,
+    "after": 0.38
+  },
+  "motion_playback_db": {
+    "before": -13,
+    "after": -17
+  },
+  "fade_seconds": {
+    "before": [
+      0.045,
+      0.12
+    ],
+    "after": [
+      0.075,
+      0.18
+    ]
+  },
+  "checks": {
+    "native_audio": 16,
+    "integration": 12,
+    "water": 32,
+    "ambience": 13
+  },
+  "files": [
+    {
+      "path": "ambience.log",
+      "bytes": 894,
+      "sha256": "8765f6a7f1705a16bf3ca59415ebbebda311a10af069594ab102babbfc20b996"
+    },
+    {
+      "path": "analysis.json",
+      "bytes": 1417,
+      "sha256": "f0eea18ca43632022b295c45711abbcdedcc27ce69e73b637b74643ca387f87a"
+    },
+    {
+      "path": "audio/slide-soft.wav",
+      "bytes": 28708,
+      "sha256": "7fd03e3b829b0979fa5dda8de190f88a9169cbf7a669de136a0325417bf27a94"
+    },
+    {
+      "path": "audio/step-soft.wav",
+      "bytes": 26504,
+      "sha256": "738589cd10452df73e933247c4ea8fb645aa57faec0d8e40af9d17b724d21173"
+    },
+    {
+      "path": "audio/walk-soft.wav",
+      "bytes": 92654,
+      "sha256": "70d0c38e6ebf2da2016f535be43179dd1a184981553dc568e9c30b5606269097"
+    },
+    {
+      "path": "integration.log",
+      "bytes": 933,
+      "sha256": "0f2f74adffaf559008e71f8fd0b9dd2d5ee0a3fc896f6edc45ad9cee96b324ac"
+    },
+    {
+      "path": "native.log",
+      "bytes": 998,
+      "sha256": "21b1bdac0b6aee13f023efd16c022ff7a7a1d96815a467465282fde59447515f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2123,
+      "sha256": "6699a048c57004a62e427885226445f8b6217b36afb82563babdfa5f5e56917f"
+    },
+    {
+      "path": "water.log",
+      "bytes": 1712,
+      "sha256": "4c85e0699b8d32ab728cc8edf089d5b4b1d28f1ed793c6772b206249328165e4"
+    }
+  ]
+}

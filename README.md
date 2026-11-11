@@ -1,5 +1,7 @@
 # Battlefield Rouge
 
+**Windows 启动修复（2026-11-11）：** 双击根目录的 `启动游戏.cmd`。启动器先显示资源准备提示，使用 Godot 4.7.2 完成增量导入和全局脚本类索引更新，再打开游戏，避免更新源码后沿用旧缓存而停在黑屏/Godot 标志。初次准备可能需要几十秒；失败时显示日志位置，不继续启动空场景。默认寻找项目同磁盘 `godot` 目录下的标准版引擎，也可用 `GODOT_EXE` 指定可执行文件。保留现有用户存档位置。复现与验证见[启动器修复记录](docs/proof/startup-launcher/README.md)。
+
 普通启动现在先自动播放 Pride 开场：点击画面或按 Enter / 空格逐句推进，右上角可跳过。确认“开始行动”后先淡黑并显示“加载中…”，再加载第一关、淡入原来的开局增益三选一；关卡资源读取失败时可重试或退出，见 [开场加载卡住修复](docs/proof/loading-stall/README.md)。之后继续两小关与 Boss，死亡重开不重播开场。双击原有的本地“启动游戏.cmd”即可看到；编辑器请用 F5 运行项目。直接运行战区场景、指定 fixture 或使用 `--skip-opening` 会跳过开场。接入说明见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
 游戏方向见 [Creative Vision](docs/CREATIVE_VISION.md)：抽象精神世界里的 FPS 肉鸽，头顶的皇冠 Pride 引导玩家逐层消灭心魔，最后与 Pride 和解；第一层是 Sloth（[关卡设计](docs/levels/SLOTH_LEVEL_DESIGN.md)）。武器系统现已迁移至一枪一刃（Epic 1），其余关卡流程仍沿用原型。

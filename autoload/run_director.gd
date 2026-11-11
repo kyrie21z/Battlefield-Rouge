@@ -5,6 +5,9 @@ signal realm_completed(realm: int, count: int)
 signal run_failed(depth: int, cause: StringName)
 signal threshold_reached
 const REALMS := ["sloth","fear","wrath","sorrow"]
+## Temporary playtest order. Keep seeded shuffle available for the next iteration.
+const PLAYTEST_ORDER := [1,0,2,3]
+var randomize_realm_order := false
 const THRESHOLD := "res://levels/climax/threshold_corridor.tscn"
 var active := false
 var completed := false
@@ -72,12 +75,14 @@ func begin_run(value_seed: int = -1) -> bool:
 	run_seed = randi() if value_seed < 0 else value_seed
 	var rng := RandomNumberGenerator.new()
 	rng.seed = run_seed
-	order.assign([0,1,2,3])
-	for index in range(3,0,-1):
-		var other := rng.randi_range(0,index)
-		var saved := order[index]
-		order[index] = order[other]
-		order[other] = saved
+	order.assign(PLAYTEST_ORDER)
+	if randomize_realm_order:
+		order.assign([0,1,2,3])
+		for index in range(3,0,-1):
+			var other := rng.randi_range(0,index)
+			var saved := order[index]
+			order[index] = order[other]
+			order[other] = saved
 	floor_index = 0
 	room_index = 0
 	defeated.clear()
@@ -281,6 +286,7 @@ func install_stage(packed: PackedScene) -> Error:
 		next.stage_cleared.connect(_stage_cleared)
 		next.exit_requested.connect(_stage_exit)
 		next.player_fallen.connect(_stage_fallen)
+		next.retry_requested.connect(_stage_retry)
 		next.reward_selected.connect(_reward_selected)
 		next.reroll_spent.connect(_reroll_spent)
 	var previous := get_tree().current_scene
@@ -376,6 +382,10 @@ func _stage_fallen(stage: Node, cause: StringName) -> void:
 	if stage != current_stage:
 		return
 	record_death(cause)
+
+func _stage_retry(stage: Node) -> void:
+	if stage == current_stage:
+		restart.call_deferred()
 
 func record_death(cause: StringName) -> void:
 	if not active or _dead or completed:

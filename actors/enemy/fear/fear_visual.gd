@@ -9,6 +9,8 @@ func _build() -> void:
 	if _built:
 		return
 	_built = true
+	# Convex cooking belongs to room loading, never to a killing shot.
+	FearShatter.prepare_templates()
 	_crystal = CRYSTAL.duplicate() as ShaderMaterial
 	_crystal.set_shader_parameter("base_color", Color(0.115, 0.045, 0.23))
 	_crystal.set_shader_parameter("rim_color", Color(0.63, 0.38, 0.95))

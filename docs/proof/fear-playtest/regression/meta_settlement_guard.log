@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS failure audit is isolated from the real profile
+PASS failed death save keeps the original run ID and every pending reward
+PASS failed save leaves verified wallet unchanged
+PASS failure exposes a live retry button and clear pending-save message
+PASS death restart cannot discard rewards or change scene while disk is blocked
+PASS direct new challenge also refuses to erase pending income
+PASS actual retry button banks the original run once after disk recovers
+PASS successful retry removes the failure notice without restarting gameplay
+PASS repeated retry does not duplicate the saved transaction
+PASS a successful settlement permits exactly one fresh challenge
+PASS save failure cannot re-enable the completed death loop
+PASS ending menu preserves the failed completed run instead of loading a new scene
+PASS R restart remains blocked after terminal completion
+PASS completed-run retry preserves the terminal state and pays its original ID
+PASS duplicate ending cannot replay a recovered settlement
+PASS explicit new challenge is available after successful terminal save
+META SETTLEMENT GUARD: 16 checks, 0 failures

@@ -6,6 +6,13 @@ func check(label:String,ok:bool)->void:
 	print("%s %s" % ["PASS" if ok else "FAIL",label])
 	if not ok:failures+=1
 func _ready()->void:
+	check("playtest defaults to the fixed Fear-first route",not RunDirector.randomize_realm_order)
+	var fixed := true
+	for value in 16:
+		RunDirector.begin_run(value)
+		fixed = fixed and RunDirector.order == [1,0,2,3] and RunDirector.scene_path() == "res://maps/realms/fear_1.tscn"
+	check("different seeds keep Fear, Sloth, Wrath, Sorrow during this playtest",fixed)
+	RunDirector.randomize_realm_order = true
 	var permutations: Dictionary = {}
 	var valid := true
 	for value in 96:
@@ -20,6 +27,8 @@ func _ready()->void:
 	var first:=RunDirector.order.duplicate()
 	RunDirector.begin_run(91234)
 	check("same seed reproduces exact order",RunDirector.order==first)
+	RunDirector.randomize_realm_order = false
+	RunDirector.begin_run(91234)
 	check("ordinary room cannot trigger boss deprivation",not RunDirector.defeat_realm(RunDirector.current_realm()))
 	var levels: Array[int] = []
 	var listener:=func(count:int):levels.append(count)

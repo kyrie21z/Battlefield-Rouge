@@ -8,6 +8,7 @@ signal exit_requested(stage: RealmStage)
 signal reward_selected(stage: RealmStage, card: BoonData)
 signal reroll_spent(stage: RealmStage)
 signal player_fallen(stage: RealmStage, cause: StringName)
+signal retry_requested(stage: RealmStage)
 @export_range(0,3) var realm: int = 0
 @export var room_index: int = 0
 @export var boss_room := false
@@ -41,6 +42,8 @@ var saved_boons: Array = []
 var _offer_rng := RandomNumberGenerator.new()
 var _region: NavigationRegion3D
 var _gate_material: StandardMaterial3D
+var _portal_material: StandardMaterial3D
+var _gate_label: Label3D
 var run_seed := 13800
 var rerolls_remaining := 2
 var _reward_context := ""
@@ -272,13 +275,24 @@ func _finish_reward() -> void:
 	exit_ready = true
 	_gate_material.albedo_color = Color(0.55,0.82,0.77)
 	_gate_material.emission = Color(0.25,0.8,0.66)
+	_portal_material.albedo_color = Color(0.35,0.9,0.75,0.24)
+	_portal_material.emission = Color(0.2,0.8,0.6)
+	_gate_label.text = "下一关\n靠近后按 %s 进入" % KeyHint.of("interact")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and request_exit():
 		get_viewport().set_input_as_handled()
 	elif fallen and event is InputEventKey and event.pressed and event.physical_keycode == KEY_R and not campaign:
+		retry()
+
+func retry() -> void:
+	if not fallen:
+		return
+	if campaign:
+		retry_requested.emit(self)
+	elif get_tree().current_scene == self:
 		get_tree().paused = false
-		get_tree().reload_current_scene()
+		get_tree().reload_current_scene.call_deferred()
 
 func request_exit() -> bool:
 	if not exit_ready or fallen or transitioning or get_tree().paused:
@@ -331,7 +345,7 @@ func _on_player_died(_source: Node) -> void:
 
 func objective_text() -> String:
 	if fallen:
-		return "心智破碎 · 按 R 重试" if not campaign else "心智破碎"
+		return "心智破碎 · 按 R 重新挑战"
 	if transitioning:
 		return "穿越门扉…"
 	if exit_ready:
@@ -385,7 +399,8 @@ func _build_gate() -> void:
 	gate.position = geometry.call("exit_position") if geometry.has_method("exit_position") else Vector3(0,0,-20)
 	add_child(gate)
 	_gate_material = StandardMaterial3D.new()
-	_gate_material.albedo_color = Color("423a30")
+	_gate_material.albedo_color = Color("8568a8")
+	_gate_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_gate_material.emission_enabled = true
 	_gate_material.emission = Color("58432c")
 	_gate_material.emission_energy_multiplier = 0.4
@@ -397,10 +412,32 @@ func _build_gate() -> void:
 		frame.position = Vector3(side*1.5,1.9,0)
 		frame.material_override = _gate_material
 		gate.add_child(frame)
-	var label := Label3D.new()
-	label.text = "门 扉"
-	label.position = Vector3(0,4.2,0)
-	label.font_size = 56
-	label.outline_size = 8
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	gate.add_child(label)
+	var lintel := MeshInstance3D.new()
+	var beam := BoxMesh.new()
+	beam.size = Vector3(3.22,0.22,0.3)
+	lintel.mesh = beam
+	lintel.position.y = 3.8
+	lintel.material_override = _gate_material
+	gate.add_child(lintel)
+	_portal_material = StandardMaterial3D.new()
+	_portal_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_portal_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_portal_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_portal_material.albedo_color = Color(0.55,0.35,0.8,0.13)
+	_portal_material.emission_enabled = true
+	_portal_material.emission = Color(0.4,0.2,0.7)
+	var portal := MeshInstance3D.new()
+	var surface := QuadMesh.new()
+	surface.size = Vector2(2.8,3.6)
+	portal.mesh = surface
+	portal.position.y = 1.8
+	portal.material_override = _portal_material
+	portal.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	gate.add_child(portal)
+	_gate_label = Label3D.new()
+	_gate_label.text = "下一关门扉\n%s" % ("击败聚合体并拾取碎片后开启" if boss_room else "击碎守卫并领取馈赠后开启")
+	_gate_label.position = Vector3(0,4.5,0)
+	_gate_label.font_size = 48
+	_gate_label.outline_size = 8
+	_gate_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	gate.add_child(_gate_label)

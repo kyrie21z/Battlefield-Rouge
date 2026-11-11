@@ -461,10 +461,16 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 
 ## #207 正式领域红边与连续雨底（2026-11-11）
 
-`audio/realms/sorrow_sound_bank.gd` 为#179已有原创数学合成的修订，沿用项目MIT许可，无外部采样；本轮只替换rain路径，其他六种音色PCM字节不变。当前源码SHA-256：`09fc455ee26ecbcaeec90a2936d144a5c42b8a1b8381de4d8317ad6e45a1d85b`。旧登记及旧证明保留历史。
+`audio/realms/sorrow_sound_bank.gd` 为#179已有原创数学合成的修订，沿用项目MIT许可，无外部采样；雨底修订阶段只替换rain路径，其他六种音色PCM字节不变。该阶段源码SHA-256：`09fc455ee26ecbcaeec90a2936d144a5c42b8a1b8381de4d8317ad6e45a1d85b`。旧登记及旧证明保留历史。
 
 `docs/proof/hit-rain-shuffle/audio/` 的两个4秒/22050Hz/PCM16单声道WAV由实际音库导出，仅供对比试听，受 `docs/proof/.gdignore` 隔离，不增加运行时依赖；来源/许可同上述原创代码。`rain-before.wav` SHA256=`ec805e38563381ec11cdd28563db5e17329ac76baa5f1b121c4081648d2d54ae`，`rain-after.wav` SHA256=`8a43c9bbd861a325943ee6382fb7503fc771fa55911614a25aa269a0a32edf33`。
 
 `fear-red-edge.jpg` 与 `sorrow-red-edge.jpg` 是真实生产领域受击后的Godot4.7.2 Forward+截图；原生PNG由Godot转存JPEG0.84，无重绘，PNG保留本机。使用项目既有已登记素材，来源/许可沿用原登记，不另标CC0。SHA256分别为 `b1bd15170bb00686c81f30447081ed781e078060ba3dd074307737ebadfb7294` / `31a99b2e662765d932b8c1f0daac0c2fe0c7574a11faab40c7b69757613f9696`。
 
 红边组件复用项目既有 `damage_vignette.gdshader`，未下载模型、贴图、字体、声音，也未从origin导入素材。复现、数值、局限及完整文件校验见[本轮证明](proof/hit-rain-shuffle/README.md)与[清单](proof/hit-rain-shuffle/validation.json)。
+
+## #207 涉水原创音色续改（2026-11-11）
+
+用户最终选择参考“水波2”风格制作自己的声音。本次 `_motion_water` 为项目原创数学合成、沿用项目代码的MIT登记；没有用户录音采样、裁剪或混入，未从origin或第三方音库复制数据。当前 `audio/realms/sorrow_sound_bank.gd` SHA256=`480e97397498c77b8330515e9d5d8decb811a4250275a6dae2d73edfa2a9970c`。
+
+`docs/proof/sorrow-water-audio/audio/` 中 `step-before.wav` 是旧项目原创合成的对照；`step-after.wav`、`slide-after.wav`、`walk-preview.wav`均由新原创生成器导出或叠加，来源/许可同上述代码，仅作试听，不是运行时素材。代码、参数、生成方式与逐文件SHA256见[证明说明](proof/sorrow-water-audio/README.md)及[清单](proof/sorrow-water-audio/validation.json)。参考录音与其本地派生片段不在本PR提交树或祖先历史中，不赋予它们新的许可。

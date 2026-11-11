@@ -312,18 +312,7 @@ func _rain() -> void:
 	add_child(rain)
 
 func _splash_sound() -> AudioStreamWAV:
-	var rate := 22050
-	var data := PackedByteArray()
-	data.resize(int(rate*0.2)*2)
-	for i in int(rate*0.2):
-		var t := float(i)/rate
-		var value := sin(t*18934)*sin(t*9753)*exp(-t*24)*0.35 + sin(t*TAU*(230-t*650))*exp(-t*35)*0.14
-		data.encode_s16(i*2,int(value*32767))
-	var sound := AudioStreamWAV.new()
-	sound.format = AudioStreamWAV.FORMAT_16_BITS
-	sound.mix_rate = rate
-	sound.data = data
-	return sound
+	return SorrowSoundBank.get_sound(&"water_step")
 
 func _exit_tree() -> void:
 	if Events.enemy_registered.is_connected(_register_walker):

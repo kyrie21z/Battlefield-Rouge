@@ -8,6 +8,9 @@ var _dashing := false
 var _observed_tides := 0
 
 func _ready() -> void:
+	# Prepare motion cues during room load rather than the first footstep/dash.
+	SorrowSoundBank.get_sound(&"water_step")
+	SorrowSoundBank.get_sound(&"water_slide")
 	if stage.geometry is SorrowRealm:
 		stage.geometry.set_audio_managed(true)
 		stage.geometry.tree_exiting.connect(stop_all)

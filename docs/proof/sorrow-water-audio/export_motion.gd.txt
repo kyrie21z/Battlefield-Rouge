@@ -1,0 +1,18 @@
+extends SceneTree
+func _initialize() -> void:
+	var output := "res://.runtime/water-audio-before"
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--out="): output = arg.trim_prefix("--out=")
+	DirAccess.make_dir_recursive_absolute(output)
+	for kind in [&"water_step",&"water_slide"]:
+		assert(SorrowSoundBank.get_sound(kind).save_to_wav(output.path_join(String(kind)+".wav")) == OK)
+	var hashes := {}
+	for kind in SorrowSoundBank.KINDS:
+		var hash := HashingContext.new()
+		hash.start(HashingContext.HASH_SHA256)
+		hash.update(SorrowSoundBank.get_sound(kind).data)
+		hashes[kind] = hash.finish().hex_encode()
+	var file := FileAccess.open(output.path_join("cue-hashes.json"),FileAccess.WRITE)
+	file.store_string(JSON.stringify(hashes,"  "))
+	print("Exported actual motion cues: "+output)
+	quit()

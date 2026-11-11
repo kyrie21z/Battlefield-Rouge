@@ -1,0 +1,116 @@
+{
+  "date": "2026-11-11",
+  "issue": 207,
+  "pr": 208,
+  "parent_commit": "9114c09d6b5ee17b5e3624dc85eff097fbe8295d",
+  "parent_tree": "b258045128f91252ed659177ae887f3e46afea81",
+  "provenance": "Original deterministic filtered-noise synthesis; reference recording style only, no copied/transformed samples. Local sample-preview commit is not an ancestor.",
+  "checks": {
+    "native_audio": 16,
+    "integration": 12,
+    "water": 32,
+    "ambience": 13
+  },
+  "analysis": {
+    "before": {
+      "water_step": {
+        "seconds": 0.6,
+        "rate": 22050,
+        "rms": 0.04577745995825897,
+        "peak": 0.56024169921875,
+        "first_40ms_rms": 0.15869615654495317,
+        "sha256": "8a139cbb6278dab29ded7788416f665f3f76d0e352b29bcc0b4db24c8245bf91"
+      },
+      "water_slide": {
+        "seconds": 0.6499773242630386,
+        "rate": 22050,
+        "rms": 0.056546323773762314,
+        "peak": 0.5921630859375,
+        "first_40ms_rms": 0.1727569445383441,
+        "sha256": "75d4e33e7e40882a0994d3256b080321a96d68d2a8ff7e5a05012d0afc6b316e"
+      }
+    },
+    "original": {
+      "water_step": {
+        "seconds": 0.6,
+        "rate": 22050,
+        "rms": 0.033103359367346305,
+        "peak": 0.17279052734375,
+        "first_40ms_rms": 0.030768580042746747,
+        "sha256": "366b597e03d2b470fcd5f286f65892030f5a4fb702bee89b9bd61dc08f2cf60e"
+      },
+      "water_slide": {
+        "seconds": 0.6499773242630386,
+        "rate": 22050,
+        "rms": 0.035470245036901105,
+        "peak": 0.15509033203125,
+        "first_40ms_rms": 0.010799621852231026,
+        "sha256": "c94922bf6b142cdd3de4358c061fa943a882f0786c8c14e140374195670f04c2"
+      }
+    },
+    "other_five_unchanged": {
+      "glass": true,
+      "rain": true,
+      "tear_return": true,
+      "tear_spray": true,
+      "water_bell": true
+    }
+  },
+  "files": [
+    {
+      "path": "ambience.log",
+      "bytes": 894,
+      "sha256": "8765f6a7f1705a16bf3ca59415ebbebda311a10af069594ab102babbfc20b996"
+    },
+    {
+      "path": "analysis.json",
+      "bytes": 1274,
+      "sha256": "6bea83652ff016af760baa51974785436f23484ccb575a5ec79091a052ef7340"
+    },
+    {
+      "path": "audio/slide-after.wav",
+      "bytes": 28708,
+      "sha256": "c94922bf6b142cdd3de4358c061fa943a882f0786c8c14e140374195670f04c2"
+    },
+    {
+      "path": "audio/step-after.wav",
+      "bytes": 26504,
+      "sha256": "366b597e03d2b470fcd5f286f65892030f5a4fb702bee89b9bd61dc08f2cf60e"
+    },
+    {
+      "path": "audio/step-before.wav",
+      "bytes": 26504,
+      "sha256": "8a139cbb6278dab29ded7788416f665f3f76d0e352b29bcc0b4db24c8245bf91"
+    },
+    {
+      "path": "audio/walk-preview.wav",
+      "bytes": 92654,
+      "sha256": "9dd2b01e24e180130335b465b138136f88143cc6f34c195c69c1ae07e18d002f"
+    },
+    {
+      "path": "export_motion.gd.txt",
+      "bytes": 807,
+      "sha256": "259ef4522dd1a832e9206f42e8e158d789c64c0bf7a35c9802af0f2d3614d81b"
+    },
+    {
+      "path": "integration.log",
+      "bytes": 933,
+      "sha256": "0f2f74adffaf559008e71f8fd0b9dd2d5ee0a3fc896f6edc45ad9cee96b324ac"
+    },
+    {
+      "path": "native-motion.log",
+      "bytes": 998,
+      "sha256": "21b1bdac0b6aee13f023efd16c022ff7a7a1d96815a467465282fde59447515f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3194,
+      "sha256": "d7771fec3f1932bdee2eb1ce9bb5696b1fd306f2a77cc7c36bcf8038c7bac011"
+    },
+    {
+      "path": "water.log",
+      "bytes": 1712,
+      "sha256": "4c85e0699b8d32ab728cc8edf089d5b4b1d28f1ed793c6772b206249328165e4"
+    }
+  ]
+}

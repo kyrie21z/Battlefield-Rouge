@@ -10,6 +10,9 @@ static var _cache: Dictionary = {}
 static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 	var key := String(kind) + ("_loop" if loop else "")
 	if _cache.has(key): return _cache[key]
+	if kind == &"water_step" or kind == &"water_slide":
+		_cache[key] = _motion_water(kind == &"water_slide",loop)
+		return _cache[key]
 	if kind == &"rain":
 		_cache[key] = _rain_bed(loop)
 		return _cache[key]
@@ -50,10 +53,6 @@ static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 					value += sin(TAU * frequency * t) * exp(-t * 18.0) * 0.15
 				for onset in [0.0, 0.037, 0.083, 0.146]:
 					if t >= onset: value += (noise - low) * exp(-(t-onset)*75.0) * 0.19
-			_:
-				var slide := kind == &"water_slide"
-				value = low * exp(-t * (7.0 if slide else 15.0)) * 0.85
-				value += sin(TAU * (260.0*t-160.0*t*t)) * exp(-t*24.0) * 0.22
 		var attack := minf(t / 0.003, 1.0)
 		var release := minf((duration-t) / 0.025, 1.0)
 		if loop: attack = 1.0; release = 1.0
@@ -66,6 +65,49 @@ static func get_sound(kind: StringName, loop := false) -> AudioStreamWAV:
 		sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		sound.loop_end = count
 	_cache[key] = sound
+	return sound
+
+static func _motion_water(sliding: bool, loop: bool) -> AudioStreamWAV:
+	# Original filtered-noise water: diffuse flow with moving liquid resonances.
+	# No recording data, pitched bass strike, or abrupt percussive attack.
+	var duration := 0.65 if sliding else 0.6
+	var count := int(RATE*duration)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 17971 if sliding else 17970
+	var phase := rng.randf_range(0,TAU)
+	var fast := 0.0
+	var low := 0.0
+	var noise_old := 0.0
+	var noise_older := 0.0
+	var liquid_old := 0.0
+	var liquid_older := 0.0
+	var data := PackedByteArray()
+	data.resize(count*2)
+	for index in count:
+		var t := float(index)/RATE
+		var noise := rng.randf_range(-1,1)
+		fast += (noise-fast)*0.22
+		low += (noise-low)*0.03
+		var frequency := 1050.0+300.0*sin(t*8.0+phase)+110.0*sin(t*19.0)
+		var angle := TAU*frequency/RATE
+		var alpha := sin(angle)/(2.0*0.85)
+		var divisor := 1.0+alpha
+		var liquid := (alpha*(noise-noise_older)+2.0*cos(angle)*liquid_old-(1.0-alpha)*liquid_older)/divisor
+		noise_older = noise_old
+		noise_old = noise
+		liquid_older = liquid_old
+		liquid_old = liquid
+		var texture := 0.68+0.20*sin(t*11.0+phase)+0.12*sin(t*23.0+phase*0.7)
+		var envelope := smoothstep(0,0.045,t)*smoothstep(0,0.12,duration-t)
+		var value := (liquid*0.24+(fast-low)*0.09+low*0.18)*texture*envelope*0.8
+		data.encode_s16(index*2,int(clampf(value,-0.9,0.9)*32767))
+	var sound := AudioStreamWAV.new()
+	sound.format = AudioStreamWAV.FORMAT_16_BITS
+	sound.mix_rate = RATE
+	sound.data = data
+	if loop:
+		sound.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		sound.loop_end = count
 	return sound
 
 static func _rain_bed(loop: bool) -> AudioStreamWAV:

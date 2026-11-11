@@ -156,7 +156,7 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 `RealmStage` 完成玩家、几何与 HUD 初始化后安装领域音频组件，并注入房间引用；没有专属声景脚本时仍安装通用 `RealmAudioDirector`。音频只消费注入状态、真实技能事件和 Stage 生命周期，不读取 RunDirector/RunState，不参与伤害或进度结算。环境交叉淡出和空间音源池随暂停、死亡、退出停止或释放。
 
-`SorrowSoundBank` 的rain由独立固定种子生成连续双层滤波噪声，4秒PCM循环使用额外0.25秒尾部与开头平滑重叠，消除旧循环接缝及13个规律短促共鸣。只更换雨底生成路径，其他六种悲伤音色保持字节不变，音频路由、涉水触发和真实武器播放仍由原组件管理。
+`SorrowSoundBank` 的rain由独立固定种子生成连续双层滤波噪声，4秒PCM循环使用额外0.25秒尾部与开头平滑重叠，消除旧循环接缝及13个规律短促共鸣。涉水音色续改将water_step/water_slide交给私有种子的_motion_water生成：滤波噪声与缓变液体共鸣，45ms淡入/120ms淡出，不读录音数据。SorrowAudioDirector在房间加载时预热两种缓存，独立几何的_splash_sound复用同一water_step；音频路由、涉水触发和真实武器播放仍由原组件管理，其他五种音色PCM字节不变。
 
 `SorrowAudioDirector` 负责本房间水声；独立 `SorrowBoonAudio` 在每个领域监听已装备赐福的真实泪晶事件。`SorrowRealm.set_audio_managed(true)` 显式关闭旧 splash 音源，保留涟漪及独立场景默认行为。玻璃反馈通过公开 `PsycheFragments.set_brittle_audio` 替换已有伤害音源，避免重复 Health 监听。`SorrowEffect` 仅在实际消费成功后派发 `sorrow_tear_collected`，视觉和音频可以分别订阅。
 

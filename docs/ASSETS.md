@@ -1,5 +1,11 @@
 # 素材登记
 
+## 恐惧白色圣殿与高空幽魂（2026-11-15，#211）
+
+`environments/fear/sanctum.gd` 通过 Godot 基础网格和原创程序几何生成柱廊、断墙、巨眼、侧台及6只漂浮幽魂，使用本项目原创材质与静态天空着色器。无下载模型、纹理、采样、字体或旧工程素材。源码及取证文件的 SHA-256 记录在 `docs/proof/fear-sanctum/validation.json`。
+
+同目录的 `fear_1.jpg`、`fear_2.jpg`、`fear_boss.jpg`、`fear_balcony.jpg` 为 Godot 4.7.2 原生运行截图，使用本项目已有角色、武器、HUD及上述程序环境；`gate-open.jpg` 展示实际F过门流程。仅将原生PNG编码为JPEG，无重绘或生成式替换。图像和日志逐文件哈希、尺寸与验证限制见该目录记录。
+
 ## 恐惧试玩修复取证（2026-11-11）
 
 `docs/proof/fear-playtest/exit-guide.jpg`、`gate-open.jpg`、`fatal-fall.jpg` 来自本项目 Godot 4.7.2 原生测试 `tests/fear_playtest_test.tscn`，使用现有模型、材质和字体，分别展示出口指引、F交互及坠落死亡面板。仅将本次PNG转存JPEG，没有重绘或生成式替换；逐图SHA-256与字节数见同目录`validation.json`。门框与门面由原有BoxMesh/QuadMesh及本项目程序材质构造，没有新增第三方运行素材、下载资源、配音或旧工程素材。

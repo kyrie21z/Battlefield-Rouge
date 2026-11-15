@@ -3,6 +3,8 @@ extends Node3D
 ## Falling players lose a fixed amount of HP and return to stable bridge ground.
 @export var boss_arena := false
 @export var warnings_enabled := true
+@export_range(0,1) var chamber_style := 0
+var sanctum: FearSanctum
 var tiles: Array[FearFlipTile] = []
 var abyss: Area3D
 var scan_lights: Array[Node3D] = []
@@ -20,6 +22,8 @@ var _recover_cooldown := 0.0
 func set_player(value: Player) -> void:
 	_player = weakref(value)
 	_safe_position = global_position + player_spawn() + Vector3.UP*0.12
+	if is_instance_valid(sanctum):
+		value.view_camera.environment = sanctum.environment
 
 func _ready() -> void:
 	var stone := StandardMaterial3D.new()
@@ -44,6 +48,11 @@ func _ready() -> void:
 	if boss_arena:
 		_floor("OculusDais", Vector3(0, -0.45, -8), Vector3(18, 0.9, 11), stone)
 	_build_void()
+	sanctum = FearSanctum.new()
+	sanctum.name = "WhiteSanctum"
+	sanctum.chamber = chamber_style
+	sanctum.boss_room = boss_arena
+	add_child(sanctum)
 	for side in [-1.0, 1.0]:
 		var pivot := Node3D.new()
 		pivot.position = Vector3(side * 25, 17, -10)
@@ -73,15 +82,6 @@ func _ready() -> void:
 		cone.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		pivot.add_child(cone)
 		scan_lights.append(pivot)
-		for j in 5:
-			var ruin := MeshInstance3D.new()
-			var block := BoxMesh.new()
-			block.size = Vector3(3 + j, 9 + j * 3, 4)
-			ruin.mesh = block
-			ruin.material_override = stone
-			ruin.position = Vector3(side * (17 + j * 3), -10 - j * 4, 15 - j * 9)
-			ruin.rotation_degrees.z = side * (15 + j * 7)
-			add_child(ruin)
 
 func _floor(label: String, pos: Vector3, size: Vector3, mat: Material) -> StaticBody3D:
 	var body := StaticBody3D.new()

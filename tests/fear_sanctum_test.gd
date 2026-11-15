@@ -34,6 +34,7 @@ func _room(name: String) -> void:
 	add_child(stage)
 	var realm := stage.geometry as FearRealm
 	var player := stage.player
+	player.set_process_unhandled_input(false)
 	for actor in stage.enemies: actor.set_physics_process(false)
 	player.health.invulnerable = true
 	await frames(5)

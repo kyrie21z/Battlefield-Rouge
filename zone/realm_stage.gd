@@ -151,6 +151,11 @@ func _spawn_encounter() -> void:
 			actor.set("arena",geometry)
 		add_child(actor)
 		_register_actor(actor)
+	if realm == 1:
+		var reaper := preload("res://actors/enemy/fear/fear_reaper.tscn").instantiate() as FearReaper
+		reaper.position = Vector3(7,0.05,-8) if room_index == 0 else Vector3(-9.8,1.25,0)
+		add_child(reaper)
+		_register_actor(reaper)
 
 func _spawn_boss() -> void:
 	var path := "res://actors/boss/%s/%s.tscn" % [BOSSES[realm],BOSSES[realm]]

@@ -27,6 +27,11 @@ func _process(delta: float) -> void:
 	actor_voices.begin_frame()
 	var present: Array[int] = []
 	for actor in stage.enemies:
+		if is_instance_valid(actor) and actor is FearReaper:
+			var reaper := actor as FearReaper
+			if not deprived and reaper.warnings_enabled and not reaper.health.is_dead() and not reaper.boon_stunned and reaper.boon_time_scale > 0 and reaper.attack_elapsed >= 0:
+				actor_voices.sync_actor(reaper,get_sound(&"fear_lock",true),0.65,-21.0)
+			continue
 		if not is_instance_valid(actor) or not actor is FearRealmEnemy:
 			continue
 		var fear := actor as FearRealmEnemy

@@ -1,0 +1,15 @@
+maps/zone_1.tscn 5 Sloth guards
+maps/zone_2.tscn 9 Sloth guards
+maps/boss.tscn 9 Sloth guards + boss
+maps\realms\sloth_1.tscn realm
+maps\realms\sloth_2.tscn realm
+maps\realms\sloth_boss.tscn realm
+maps\realms\fear_1.tscn realm
+maps\realms\fear_2.tscn realm
+maps\realms\fear_boss.tscn realm
+maps\realms\wrath_1.tscn realm
+maps\realms\wrath_2.tscn realm
+maps\realms\wrath_boss.tscn realm
+maps\realms\sorrow_1.tscn realm
+maps\realms\sorrow_2.tscn realm
+maps\realms\sorrow_boss.tscn realm

@@ -1,5 +1,11 @@
 # 素材登记
 
+## 恐惧引魂者与紫色追魂（2026-11-15，#213）
+
+`actors/enemy/fear/reaper_visual.gd` 复用本项目既有 `SlothVisual` 破损斗篷、兜帽及已登记晶体身体，使用原创暗紫配色和由程序几何构成的曲刃镰刀；`fear_wisp.gd` 使用共享基础网格生成紫色半透明追魂、淡色眼睛与尾片。音效复用已登记的 `FearSoundBank.fear_lock`。没有下载、移入旧工程素材或引用外部录音。
+
+`docs/proof/fear-reaper/` 的3张JPEG来自Godot 4.7.2正式恐惧房间的真实玩家相机，仅将原生PNG转为JPEG，没有重绘。源码、图片和验证日志的逐文件SHA-256及字节数见同目录 `validation.json`。
+
 ## 恐惧白色圣殿与高空幽魂（2026-11-15，#211）
 
 `environments/fear/sanctum.gd` 通过 Godot 基础网格和原创程序几何生成柱廊、断墙、巨眼、侧台及6只漂浮幽魂，使用本项目原创材质与静态天空着色器。无下载模型、纹理、采样、字体或旧工程素材。源码及取证文件的 SHA-256 记录在 `docs/proof/fear-sanctum/validation.json`。

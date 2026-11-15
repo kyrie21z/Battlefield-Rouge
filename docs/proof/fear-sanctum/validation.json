@@ -205,8 +205,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 3198,
-      "sha256": "f3d99afe90e07fe2f4206b10f794a83a1f5b8967c447179103db7d33323a7935"
+      "bytes": 3512,
+      "sha256": "c29149f70e36284a3555e348f4b6027dc933a22a889ca72317a50ba285f61356"
     },
     {
       "path": "regression/campaign_realms.log",

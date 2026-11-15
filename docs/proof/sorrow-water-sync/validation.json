@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-15",
+  "merge_parents": [
+    "10b0b1001533c60d857122d6d112688185d3576d",
+    "a41d1af4132b6e4baa7a0b2c48fd68d118cb3888"
+  ],
+  "water_sources_match_main": true,
+  "fear_sources_match_previous_head": true,
+  "runtime_parameters": {
+    "fade_in": 0.075,
+    "fade_out": 0.18,
+    "gain": 0.38,
+    "volume_db": -17.0
+  },
+  "native_audio_checks": 16,
+  "headless_checks": [
+    {
+      "name": "sorrow_audio_integration",
+      "exit": 0,
+      "passed": true,
+      "summary": [
+        "SORROW AUDIO INTEGRATION: 12 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_water",
+      "exit": 0,
+      "passed": true,
+      "summary": [
+        "SORROW WATER: 32 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_ambience",
+      "exit": 0,
+      "passed": true,
+      "summary": [
+        "SORROW AMBIENCE: 13 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_sanctum",
+      "exit": 0,
+      "passed": true,
+      "summary": [
+        "FEAR SANCTUM: 37 checks, 0 failed"
+      ],
+      "diagnostics": []
+    }
+  ],
+  "exported_audio": [
+    {
+      "cue": "water_step.wav",
+      "matches_main_asset": "docs/proof/sorrow-water-soft/audio/step-soft.wav",
+      "bytes": 26504,
+      "sha256": "738589cd10452df73e933247c4ea8fb645aa57faec0d8e40af9d17b724d21173"
+    },
+    {
+      "cue": "water_slide.wav",
+      "matches_main_asset": "docs/proof/sorrow-water-soft/audio/slide-soft.wav",
+      "bytes": 28708,
+      "sha256": "7fd03e3b829b0979fa5dda8de190f88a9169cbf7a669de136a0325417bf27a94"
+    }
+  ],
+  "sources": [
+    {
+      "path": "audio/realms/sorrow_sound_bank.gd",
+      "bytes": 5813,
+      "sha256": "29c69c68c0f5c8bf0a1a7989e772e401e7fa08574c8f0713e6ad6f69a7b94baa"
+    },
+    {
+      "path": "audio/realms/sorrow_audio_director.gd",
+      "bytes": 3107,
+      "sha256": "b53fbc8a5fac7accdde2500300040928e06a9cbcd120346f094d53317205231a"
+    },
+    {
+      "path": "environments/sorrow/realm.gd",
+      "bytes": 11662,
+      "sha256": "97fcccb56fcf4c2f669ee964ec2cfdd956d5e4231c2ddac868b403c82a717737"
+    },
+    {
+      "path": "environments/fear/sanctum.gd",
+      "bytes": 10682,
+      "sha256": "b6b90aeef9bf2ebb1a68a9151817635b696cb7ab41bf234101db9543293de8ff"
+    },
+    {
+      "path": "environments/fear/realm.gd",
+      "bytes": 8689,
+      "sha256": "66de47209bf49b1a9a1723634e2dd9717b253b1d46ca4e27b2c6af02bacece0b"
+    },
+    {
+      "path": "maps/realms/fear_2.tscn",
+      "bytes": 570,
+      "sha256": "5d5064453ef355d27df8935a0c84d9a207c57b45b7472fbc8376bacca01088a9"
+    },
+    {
+      "path": "tools/gen_realms.py",
+      "bytes": 1838,
+      "sha256": "1155c288995bd4ab2324d622ffeae6f66506e009726d9f64a2a4212bb4853486"
+    }
+  ],
+  "files": [
+    {
+      "path": "export.log",
+      "bytes": 162,
+      "sha256": "9dac7a025da1ccebf8b5c8efd0451006fe86ab0588956fd2c866def812dddc24"
+    },
+    {
+      "path": "fear_sanctum.log",
+      "bytes": 2358,
+      "sha256": "0a47d6edd574236b601f41bc4dd0f2c9bec18858c63221941305fad80a9b9125"
+    },
+    {
+      "path": "native-audio.log",
+      "bytes": 998,
+      "sha256": "bd7e65a8b7577961d42945bcf3365228c2d72e32e40b5dc3c2b034743b881967"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2116,
+      "sha256": "8257203f84f9eba6c96e4f94ebc180720aff1a5fe769bb9c74335b17f33392be"
+    },
+    {
+      "path": "sorrow_ambience.log",
+      "bytes": 894,
+      "sha256": "8765f6a7f1705a16bf3ca59415ebbebda311a10af069594ab102babbfc20b996"
+    },
+    {
+      "path": "sorrow_audio_integration.log",
+      "bytes": 933,
+      "sha256": "0f2f74adffaf559008e71f8fd0b9dd2d5ee0a3fc896f6edc45ad9cee96b324ac"
+    },
+    {
+      "path": "sorrow_water.log",
+      "bytes": 1712,
+      "sha256": "4c85e0699b8d32ab728cc8edf089d5b4b1d28f1ed793c6772b206249328165e4"
+    }
+  ]
+}

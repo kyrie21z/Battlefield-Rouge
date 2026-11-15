@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS actual Sloth room automatically owns one cross-realm tear observer
+PASS real tear pickup is audible outside Sorrow
+PASS Sloth clock does not acquire a water-bell layer
+PASS inherited Sorrow loss keeps one glass hit source across rooms
+PASS res://maps/realms/fear_1.tscn installs shared tear feedback even without a specialised director
+PASS res://maps/realms/wrath_1.tscn installs shared tear feedback even without a specialised director
+PASS actual Sorrow boss room has only managed rain and no legacy splash
+PASS real tidal windup does not ring the water bell
+PASS real radial tide release rings one positional water bell
+PASS observing the same released tide cannot replay the bell
+PASS actual boss defeat evaporates environmental rain
+PASS boss death cancels pending tidal bell with no tail or catch-up
+SORROW AUDIO INTEGRATION: 12 checks, 0 failures

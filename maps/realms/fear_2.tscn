@@ -13,6 +13,7 @@ boss_room = false
 [node name="Geometry" type="Node3D" parent="."]
 script = ExtResource("2")
 boss_arena = false
+chamber_style = 1
 
 [node name="Player" parent="." instance=ExtResource("3")]
 position = Vector3(0, 0.1, 16)

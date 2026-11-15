@@ -23,6 +23,8 @@ func choose(stage: RealmStage) -> void:
 
 func stop_attacks(stage: RealmStage) -> void:
 	for enemy in stage.enemies: enemy.set_physics_process(false)
+	# Scripted walking/aiming must not be rotated by the real desktop mouse.
+	stage.player.set_process_unhandled_input(false)
 	stage.player.health.invulnerable = true
 
 func capture(name: String) -> void:
@@ -44,6 +46,7 @@ func walk_to_gate(stage: RealmStage) -> void:
 	Input.action_release("move_forward")
 	await frames(2)
 	check("real Player walks across Fear bridges to reachable gate",not stage.fallen and stage.player.position.z < -18 and stage.player.position.y > -1)
+	if stage.player.position.z >= -18: print("WALK STOP: ",stage.player.position)
 
 func interact() -> void:
 	var event := InputEventAction.new()

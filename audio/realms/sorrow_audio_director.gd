@@ -64,7 +64,7 @@ func _physics_process(delta: float) -> void:
 	_travel += distance
 	if distance < 0.001 or _travel < 0.55 or _step_left > 0: return
 	var sliding := _dashing
-	play_cue(&"water_slide" if sliding else &"water_step", point, 1.0, -13.0)
+	play_cue(&"water_slide" if sliding else &"water_step", point, 1.0, SorrowSoundBank.MOTION_VOLUME_DB)
 	_travel = 0.0
 	_step_left = 0.14 if sliding else 0.3
 

@@ -1,0 +1,45 @@
+{
+  "before": {
+    "water_step": {
+      "rms": 0.033103359367346305,
+      "peak": 0.17279052734375,
+      "first_40ms_rms": 0.030768580042746747,
+      "playback_db": -13,
+      "estimated_rms_after_cue_gain": 0.007410919037330242,
+      "sha256": "366b597e03d2b470fcd5f286f65892030f5a4fb702bee89b9bd61dc08f2cf60e"
+    },
+    "water_slide": {
+      "rms": 0.035470245036901105,
+      "peak": 0.15509033203125,
+      "first_40ms_rms": 0.010799621852231026,
+      "playback_db": -13,
+      "estimated_rms_after_cue_gain": 0.007940798735430923,
+      "sha256": "c94922bf6b142cdd3de4358c061fa943a882f0786c8c14e140374195670f04c2"
+    }
+  },
+  "after": {
+    "water_step": {
+      "rms": 0.00911446725896853,
+      "peak": 0.04132080078125,
+      "first_40ms_rms": 0.00436231356441027,
+      "playback_db": -17,
+      "estimated_rms_after_cue_gain": 0.0012874527202527894,
+      "sha256": "738589cd10452df73e933247c4ea8fb645aa57faec0d8e40af9d17b724d21173"
+    },
+    "water_slide": {
+      "rms": 0.0104618660743685,
+      "peak": 0.04461669921875,
+      "first_40ms_rms": 0.0018045319594459544,
+      "playback_db": -17,
+      "estimated_rms_after_cue_gain": 0.0014777778616860576,
+      "sha256": "7fd03e3b829b0979fa5dda8de190f88a9169cbf7a669de136a0325417bf27a94"
+    }
+  },
+  "other_five_unchanged": {
+    "glass": true,
+    "rain": true,
+    "tear_return": true,
+    "tear_spray": true,
+    "water_bell": true
+  }
+}

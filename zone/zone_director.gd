@@ -480,8 +480,6 @@ func _spawn_pedestal() -> void:
 		return
 	buff_pedestal = BuffPedestal.new()
 	buff_pedestal.name = "BuffPedestal"
-	# injected before add_child so the orb's _ready already knows who to face
-	buff_pedestal.set_player(_player)
 	get_parent().add_child(buff_pedestal)
 	buff_pedestal.global_position = capture_point.global_position + PEDESTAL_OFFSET
 	reward_marker = DOOR_MARKER.instantiate() as DoorRewardMarker

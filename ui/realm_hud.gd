@@ -133,20 +133,10 @@ func _build_exit_and_death_feedback() -> void:
 	_fall_notice.offset_bottom = 150
 	_fall_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_fall_notice.hide()
-	_exit_hint = _label("",30)
+	_exit_hint = _label("",22)
 	_exit_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_exit_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_exit_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_exit_hint.size = Vector2(320,70)
-	var hint_panel := StyleBoxFlat.new()
-	hint_panel.bg_color = Color(0.03, 0.04, 0.06, 0.72)
-	hint_panel.border_color = Color(0.55, 0.85, 1.0, 0.55)
-	hint_panel.set_border_width_all(2)
-	hint_panel.set_corner_radius_all(8)
-	hint_panel.set_content_margin_all(10)
-	_exit_hint.add_theme_stylebox_override("normal", hint_panel)
-	_exit_hint.add_theme_color_override("font_color", Color(0.72, 0.94, 1.0))
-	_exit_hint.add_theme_constant_override("outline_size", 8)
+	_exit_hint.size = Vector2(280,60)
 	_exit_hint.hide()
 	_death_panel = PanelContainer.new()
 	_death_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
@@ -174,39 +164,18 @@ func _update_exit_and_death_feedback() -> void:
 	if stage.fallen:
 		var abyss: bool = stage.player.health.last_damage_context.get("tag",&"") == &"abyss"
 		_death_reason.text = "心智破碎\n%s" % ("坠入深渊" if abyss else "本次挑战结束")
-	# while the talent orb is still unclaimed the prompt points at the orb, not the door
-	var orb := stage.talent_orb
-	var orb_pending: bool = is_instance_valid(orb) and stage.orb_pending()
-	_exit_hint.visible = (orb_pending or stage.exit_ready) and not stage.fallen and not stage.transitioning
+	_exit_hint.visible = stage.exit_ready and not stage.fallen and not stage.transitioning
 	if not _exit_hint.visible:
 		return
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
-	var focus: Vector3 = orb.global_position + Vector3.UP*1.85 if orb_pending else stage.gate.global_position + Vector3.UP*2.0
-	var target := focus
+	var target := stage.gate.global_position + Vector3.UP*2.0
 	var viewport_size := get_viewport().get_visible_rect().size
-	if orb_pending:
-		# the talent prompt is anchored low-centre instead of following the 3D point,
-		# so it never drifts off behind the player's weapon or the gate frame
-		_exit_hint.size = Vector2(560, 116)
-		_exit_hint.position = Vector2(viewport_size.x * 0.5 - 280.0, viewport_size.y * 0.70)
-		_exit_hint.add_theme_font_size_override("font_size", 34)
-		var pulse := 0.80 + 0.20 * sin(Time.get_ticks_msec() * 0.004)
-		_exit_hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.42) * pulse)
-		var orb_distance := stage.player.global_position.distance_to(orb.global_position)
-		if orb_distance <= TalentOrb.INTERACT_RANGE:
-			_exit_hint.text = "按 %s 取回天赋" % KeyHint.of("interact")
-		else:
-			_exit_hint.text = "天赋球 · 前方 %.0f 米\n朝标记方向前进" % orb_distance
-		return
 	var location := camera.unproject_position(target)
 	if camera.is_position_behind(target):
 		var side := 1.0 if camera.global_basis.x.dot(target-camera.global_position) >= 0 else -1.0
 		location = Vector2(viewport_size.x*0.5+side*(viewport_size.x*0.5-160),viewport_size.y*0.5)
-	_exit_hint.size = Vector2(320, 70)
-	_exit_hint.add_theme_font_size_override("font_size", 30)
-	_exit_hint.add_theme_color_override("font_color", Color(0.72, 0.94, 1.0))
 	_exit_hint.position = Vector2(clampf(location.x-140,24,viewport_size.x-304),clampf(location.y-70,96,viewport_size.y-180))
 	var distance := stage.player.global_position.distance_to(stage.gate.global_position)
 	_exit_hint.text = "下一关门扉 · %.0f 米\n%s" % [distance,"按 %s 进入" % KeyHint.of("interact") if distance <= 3.0 else "朝标记方向前进"]

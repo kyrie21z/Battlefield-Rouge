@@ -48,10 +48,6 @@ var run_seed := 13800
 var rerolls_remaining := 2
 var _reward_context := ""
 var _reward_offer: Array[BoonData] = []
-## The reclaimed-talent orb that appears in front of the exit gate once the room
-## is clear. The player walks up and presses interact to open the reward offer.
-var talent_orb: TalentOrb
-var _orb_ready := false
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -208,7 +204,7 @@ func _check_clear() -> void:
 		return
 	cleared = true
 	stage_cleared.emit(self)
-	_spawn_talent_orb()
+	_offer_reward()
 
 func _finish_boss_defeat() -> void:
 	if boss_defeated:
@@ -246,145 +242,6 @@ func _on_shard_collected(value: int) -> void:
 func offer_entry_reward() -> void:
 	if not cleared and not fallen and not is_instance_valid(selection):
 		_offer_reward(true)
-
-
-## The talent orb arrives in front of the exit gate the moment the room is clear.
-## It is deliberately NOT a paused UI: the player walks over and presses interact,
-## which is what opens the three-card offer.
-func _spawn_talent_orb() -> void:
-	if is_instance_valid(talent_orb) or fallen:
-		return
-	_orb_ready = true
-	talent_orb = TalentOrb.new()
-	talent_orb.name = "TalentOrb"
-	talent_orb.set_player(player)
-	# stand it between the gate and the player, so it reads as "the door's reward"
-	var away := Vector3.ZERO
-	if is_instance_valid(gate):
-		away = player.global_position - gate.global_position
-	away.y = 0.0
-	if away.length() < 0.1:
-		away = Vector3(0.0, 0.0, 1.0)
-	away = away.normalized()
-	var anchor := gate.global_position if is_instance_valid(gate) else global_position
-	talent_orb.position = anchor + away * 1.95
-	talent_orb.position.y = talent_orb.base_height
-	talent_orb.set_idle_enabled(false)
-	add_child(talent_orb)
-	# shatter the shell into its own armour pieces, then fly them back together
-	talent_orb.set_core_visible(false)
-	talent_orb.scatter(1.9)
-	talent_orb.set_accent(BoonIdentity.COLORS[realm])
-	_play_orb_arrival()
-
-
-## Arrival flourish: a light column drops onto the spot, the shell flies together
-## out of its scattered armour pieces, and the cube ignites at the centre.
-func _play_orb_arrival() -> void:
-	var origin := talent_orb.position
-
-	# ground halo
-	var halo_mesh := TorusMesh.new()
-	halo_mesh.inner_radius = 0.55
-	halo_mesh.outer_radius = 0.68
-	var halo := MeshInstance3D.new()
-	halo.mesh = halo_mesh
-	halo.position = origin + Vector3(0.0, 0.06, 0.0)
-	halo.scale = Vector3(0.25, 1.0, 0.25)
-	var halo_mat := StandardMaterial3D.new()
-	halo_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	halo_mat.albedo_color = Color(0.55, 0.95, 1.0, 0.95)
-	halo_mat.emission_enabled = true
-	halo_mat.emission = Color(0.5, 0.9, 1.0)
-	halo_mat.emission_energy_multiplier = 2.5
-	halo.material_override = halo_mat
-	add_child(halo)
-
-	# light column
-	var column := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = 0.42
-	cyl.bottom_radius = 0.78
-	cyl.height = 4.5
-	column.mesh = cyl
-	column.position = origin + Vector3(0.0, 2.25, 0.0)
-	var col_mat := StandardMaterial3D.new()
-	col_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	col_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	col_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	col_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	col_mat.albedo_color = Color(0.5, 0.9, 1.0, 0.14)
-	col_mat.emission_enabled = true
-	col_mat.emission = Color(0.45, 0.85, 1.0)
-	col_mat.emission_energy_multiplier = 1.6
-	column.material_override = col_mat
-	column.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(column)
-
-	# burst light
-	var burst := OmniLight3D.new()
-	burst.position = origin + Vector3(0.0, 1.3, 0.0)
-	burst.light_color = Color(0.65, 0.95, 1.0)
-	burst.light_energy = 0.0
-	burst.omni_range = 9.0
-	add_child(burst)
-
-	var tween := create_tween()
-	tween.set_parallel(true)
-	# each piece fades in and then immediately flies home - no all-hands pause
-	talent_orb.reveal_pieces()
-	talent_orb.assemble()
-	# ignite the core the moment the shell is whole (~4.6 s), not when the slow
-	# light column finishes fading (~5.8 s) - that gap was the empty ring
-	var shell_done := talent_orb.assembly_seconds() - 0.35
-	var core_tween := create_tween()
-	core_tween.tween_interval(maxf(0.6, shell_done))
-	core_tween.tween_callback(func() -> void:
-		if is_instance_valid(talent_orb):
-			talent_orb.fade_core_in(0.55)
-			talent_orb.set_idle_enabled(true)
-	)
-	# halo blooms out and fades
-	tween.tween_property(halo, "scale", Vector3(3.4, 1.0, 3.4), 3.2) \
-		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tween.tween_property(halo_mat, "albedo_color:a", 0.0, 3.2) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	# column flares then vanishes
-	tween.tween_property(burst, "light_energy", 7.0, 0.30)
-	tween.tween_property(burst, "light_energy", 0.0, 5.2).set_delay(0.30)
-	tween.tween_property(col_mat, "albedo_color:a", 0.0, 5.4).set_delay(0.40)
-	tween.chain().tween_callback(func() -> void:
-		halo.queue_free()
-		column.queue_free()
-		burst.queue_free()
-	)
-
-
-## True while the orb is on the ground waiting to be claimed; the HUD uses it to
-## decide whether the prompt should point at the orb or at the door.
-func orb_pending() -> bool:
-	return _orb_ready and is_instance_valid(talent_orb)
-
-
-## Called when the player presses interact next to the orb: swallow the orb, then
-## open the ordinary three-card offer.
-func claim_talent() -> void:
-	if not _orb_ready or not is_instance_valid(talent_orb):
-		return
-	_orb_ready = false
-	var orb := talent_orb
-	talent_orb = null
-	orb.set_collision_enabled(false)
-	orb.set_idle_enabled(false)
-	var tween := create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(orb, "scale", Vector3.ONE * 0.02, 0.3) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	tween.tween_property(orb, "position", orb.position + Vector3.UP * 1.6, 0.3) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.chain().tween_callback(orb.queue_free)
-	_offer_reward()
 
 func _offer_reward(entry := false) -> void:
 	_reward_context = "enter" if entry else "clear"
@@ -428,14 +285,8 @@ func _finish_reward() -> void:
 	_gate_label.text = "下一关\n靠近后按 %s 进入" % KeyHint.of("interact")
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("interact"):
-		# the orb takes priority over the door while it is still unclaimed
-		if _orb_ready and is_instance_valid(talent_orb) and talent_orb.player_in_range(player):
-			claim_talent()
-			get_viewport().set_input_as_handled()
-			return
-		if request_exit():
-			get_viewport().set_input_as_handled()
+	if event.is_action_pressed("interact") and request_exit():
+		get_viewport().set_input_as_handled()
 	elif fallen and event is InputEventKey and event.pressed and event.physical_keycode == KEY_R and not campaign:
 		retry()
 

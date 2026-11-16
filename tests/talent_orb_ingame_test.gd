@@ -80,10 +80,25 @@ func _check_scene(path: String) -> void:
 		_check(orb.player_in_range(stage.player) == (reach <= TalentOrb.INTERACT_RANGE),
 			"range check agrees with real distance")
 
+		# solid body: must exist, be on WORLD, and sit inside the interact range
+		var body := orb.get_node_or_null("Body") as StaticBody3D
+		_check(body != null, "orb has a solid body")
+		if body != null:
+			_check(body.collision_layer == CollisionLayers.WORLD, "body is on the WORLD layer")
+			var cs := body.get_child(0) as CollisionShape3D
+			var sphere := cs.shape as SphereShape3D
+			_check(sphere != null and sphere.radius >= 0.4, "body has a sphere shape")
+			_check(sphere.radius < TalentOrb.INTERACT_RANGE,
+				"body radius (%.2f) is smaller than the interact range (%.2f)"
+				% [sphere.radius, TalentOrb.INTERACT_RANGE])
+
 		# claiming opens the normal three-card offer
 		stage.claim_talent()
 		await get_tree().process_frame
 		_check(not stage.orb_pending(), "orb is consumed on claim")
+		if is_instance_valid(orb):
+			_check(orb.get_node_or_null("Body").collision_layer == 0,
+				"claiming turns the solid body off")
 		_check(is_instance_valid(stage.selection), "three-card picker opened")
 
 	stage.queue_free()

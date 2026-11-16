@@ -19,6 +19,12 @@ const INTERACT_RANGE := 2.8
 ## HDR colour a scattered piece glows with before it cools back to its own material.
 const PIECE_GLOW := Color(1.6, 1.15, 0.62)
 
+## Timing of the arrival sequence. assembly_seconds() combines these, so the zone
+## can pop the cube in exactly when the shell is whole.
+const PIECE_STEP := 0.020
+const ASSEMBLE_START := 0.70
+const ASSEMBLE_TIME := 1.60
+
 @export var bob_height := 0.16
 @export var bob_speed := 0.9
 @export var turn_speed := 2.2
@@ -28,16 +34,19 @@ const PIECE_GLOW := Color(1.6, 1.15, 0.62)
 
 var _shell: Node3D
 var _core: Node3D
+var _body: StaticBody3D
 var _player_ref: WeakRef
 var _accent := Color(1.0, 0.62, 0.18)
 var _bob_enabled := true
 var _bob_phase := 0.0
 var _bob_clock := 0.0
 var _pieces: Array[Dictionary] = []
+var _piece_count := 0
 
 
 func _ready() -> void:
 	_build_models()
+	_build_collision()
 
 
 func _build_models() -> void:
@@ -46,6 +55,31 @@ func _build_models() -> void:
 	_core = CORE_SCENE.instantiate() as Node3D
 	_core.position = Vector3(0.0, 0.0, CORE_FORWARD)
 	add_child(_core)
+
+
+## Solid body so the orb reads as a real object: the player cannot walk through it
+## and bullets stop on it. It sits on WORLD, which is what player rays and
+## projectiles already test. The radius is a touch under the visual shell so the
+## plates still poke out, and it stays well inside INTERACT_RANGE so you can
+## always reach the orb even while standing against it.
+func _build_collision() -> void:
+	_body = StaticBody3D.new()
+	_body.name = "Body"
+	_body.collision_layer = CollisionLayers.WORLD
+	_body.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.52
+	shape.shape = sphere
+	_body.add_child(shape)
+	add_child(_body)
+
+
+## Turns the solid body off the moment the orb is claimed, so the shrink animation
+## cannot leave an invisible wall behind.
+func set_collision_enabled(value: bool) -> void:
+	if _body != null:
+		_body.collision_layer = CollisionLayers.WORLD if value else 0
 
 
 ## The zone director injects the player; the orb never searches the tree for it.
@@ -110,7 +144,7 @@ func scatter(radius: float = 1.9) -> void:
 		mi.visible = true
 		# one shared schedule per piece: it starts fading in at `reveal` and starts
 		# flying home a moment later, so no piece ever hovers waiting for the rest
-		var slot := float(i) * 0.020
+		var slot := float(i) * PIECE_STEP
 		_pieces.append({
 			"node": mi,
 			"target": target,
@@ -146,7 +180,7 @@ func reveal_pieces(fade: float = 0.85) -> float:
 
 ## Flies every scattered piece back to its authored pose while its glow drains
 ## away, so each piece settles on its original material colour.
-func assemble(duration: float = 1.60, start_delay: float = 0.70) -> void:
+func assemble(duration: float = ASSEMBLE_TIME, start_delay: float = ASSEMBLE_START) -> void:
 	for entry in _pieces:
 		var mi := entry["node"] as MeshInstance3D
 		if mi == null or not is_instance_valid(mi):
@@ -165,19 +199,30 @@ func assemble(duration: float = 1.60, start_delay: float = 0.70) -> void:
 	_pieces.clear()
 
 
-## How long the whole assembly takes, so the zone can size its light show to match.
-func assembly_length(duration: float = 0.95, start_delay: float = 0.30,
-		pieces: int = 0, step: float = 0.032) -> float:
-	if pieces <= 0:
-		pieces = _shell.find_children("*", "MeshInstance3D", true, false).size() if _shell != null else 0
-	return start_delay + float(pieces) * step + duration
+## How long the whole reveal-then-assemble sequence runs. The zone uses it to line
+## its light show up with the shell, and to pop the cube in the moment the shell is
+## whole instead of waiting for the slowest fade.
+## Must stay in sync with PIECE_STEP, ASSEMBLE_START and ASSEMBLE_TIME.
+func assembly_seconds() -> float:
+	return float(_piece_count) * PIECE_STEP + ASSEMBLE_START + ASSEMBLE_TIME
 
 
 ## Hides or shows the glowing cube. The zone keeps it hidden while the shell is
-## still flying together, then fades it in at the centre.
+## still flying together, then pops it in at the centre.
 func set_core_visible(value: bool) -> void:
 	if _core != null:
 		_core.visible = value
+
+
+## Pops the cube in with a small overshoot instead of hard-switching it on.
+func fade_core_in(duration: float = 0.55) -> void:
+	if _core == null:
+		return
+	_core.visible = true
+	_core.scale = Vector3.ONE * 0.45
+	var tween := create_tween()
+	tween.tween_property(_core, "scale", Vector3.ONE, duration) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## Freezes the idle motion during the arrival / absorb animation so the tween owns

@@ -5,7 +5,7 @@ extends Node3D
 ## Run with:  godot --path . res://tests/talent_gate_preview.tscn
 
 const OUT_DIR := "res://docs/proof/talent-orb"
-const SHOT_FRAMES: Array[int] = [22, 80, 170, 330]
+const SHOT_FRAMES: Array[int] = [24, 90, 190, 350]
 
 var _orb: TalentOrb
 var _fake_player: Node3D
@@ -183,7 +183,15 @@ func _play_arrival() -> void:
 	var tween := create_tween()
 	tween.set_parallel(true)
 	_orb.reveal_pieces()
-	_orb.assemble(1.60, 0.70)
+	_orb.assemble()
+	var shell_done := _orb.assembly_seconds() - 0.35
+	var core_tween := create_tween()
+	core_tween.tween_interval(maxf(0.6, shell_done))
+	core_tween.tween_callback(func() -> void:
+		if is_instance_valid(_orb):
+			_orb.fade_core_in(0.55)
+			_orb.set_idle_enabled(true)
+	)
 	tween.tween_property(halo, "scale", Vector3(3.4, 1.0, 3.4), 3.2) \
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	tween.tween_property(halo_mat, "albedo_color:a", 0.0, 3.2) \
@@ -195,9 +203,6 @@ func _play_arrival() -> void:
 		halo.queue_free()
 		column.queue_free()
 		burst.queue_free()
-		if is_instance_valid(_orb):
-			_orb.set_core_visible(true)
-			_orb.set_idle_enabled(true)
 	)
 
 

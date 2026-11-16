@@ -334,7 +334,17 @@ func _play_orb_arrival() -> void:
 	tween.set_parallel(true)
 	# each piece fades in and then immediately flies home - no all-hands pause
 	talent_orb.reveal_pieces()
-	talent_orb.assemble(1.60, 0.70)
+	talent_orb.assemble()
+	# ignite the core the moment the shell is whole (~4.6 s), not when the slow
+	# light column finishes fading (~5.8 s) - that gap was the empty ring
+	var shell_done := talent_orb.assembly_seconds() - 0.35
+	var core_tween := create_tween()
+	core_tween.tween_interval(maxf(0.6, shell_done))
+	core_tween.tween_callback(func() -> void:
+		if is_instance_valid(talent_orb):
+			talent_orb.fade_core_in(0.55)
+			talent_orb.set_idle_enabled(true)
+	)
 	# halo blooms out and fades
 	tween.tween_property(halo, "scale", Vector3(3.4, 1.0, 3.4), 3.2) \
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -348,10 +358,6 @@ func _play_orb_arrival() -> void:
 		halo.queue_free()
 		column.queue_free()
 		burst.queue_free()
-		if is_instance_valid(talent_orb):
-			# the cube only ignites once the shell is whole again
-			talent_orb.set_core_visible(true)
-			talent_orb.set_idle_enabled(true)
 	)
 
 
@@ -369,6 +375,7 @@ func claim_talent() -> void:
 	_orb_ready = false
 	var orb := talent_orb
 	talent_orb = null
+	orb.set_collision_enabled(false)
 	orb.set_idle_enabled(false)
 	var tween := create_tween()
 	tween.set_parallel(true)

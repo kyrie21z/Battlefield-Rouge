@@ -88,6 +88,10 @@ func _ready() -> void:
 			enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
 		await frames(4)
 		if not stage.boss_room:
+			if stage.orb_pending():
+				stage.claim_talent()
+				for _f in 4:
+					await get_tree().physics_frame
 			check("clear offers reward before gate unlock",stage.cleared and is_instance_valid(stage.selection) and not stage.exit_ready)
 			await choose(stage)
 			check("all convex fragment shapes were prepared before combat",FearShatter._collision_shapes.size() == 56)

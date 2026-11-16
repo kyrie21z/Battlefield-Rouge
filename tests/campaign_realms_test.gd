@@ -42,6 +42,10 @@ func _ready()->void:
 			await frames(4)
 			check("boss %d pickup activates independent core"%stage.realm,stage.player.fragments.has_shard(stage.realm) and stage.exit_ready)
 		else:
+			if stage.orb_pending():
+				stage.claim_talent()
+				for _f in 4:
+					await get_tree().physics_frame
 			check("normal room clear opens actual reward choice",is_instance_valid(stage.selection) and get_tree().paused)
 			if is_instance_valid(stage.selection):
 				var picker:=stage.selection

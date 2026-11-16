@@ -11,7 +11,8 @@ sin = 0
 slot = 3
 rarity = 2
 core = false
-description = "对滞后目标暴击率+25%；爆发使范围内幸存敌人昏睡1秒。"
+description = "你打带钟的敌人时，暴击率 +25%
+钟爆炸后，3 米内的敌人昏睡 1 秒"
 parameters = {"crit_chance": 0.25, "sleep_duration": 1.0}
 prerequisite_any = Array[String](["sloth_gun_pulse", "sloth_blade_cleave"])
 script_hook = ExtResource("2")

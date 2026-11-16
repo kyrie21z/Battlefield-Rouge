@@ -10,6 +10,8 @@ slot = 3
 rarity = 4
 core = false
 required_sins = Array[int]([0, 2])
-description = "怠惰 × 暴怒：射击间隔与挥刃时间增加 25%。滞后爆发时，将所有滞后敌人以强劲冲量轰向最近墙体，引发爆碎与熔岩地刺。"
+description = "你的出手速度 ×0.8
+钟爆炸时，全场带钟的敌人被轰向墙，击退力 ×3.0
+落地处升起地刺，45 伤、半径 4 米"
 script_hook = ExtResource("2")
 parameters = {"attack_speed": 0.8, "launch_strength": 3.0, "lava_damage": 45.0, "lava_radius": 4.0}

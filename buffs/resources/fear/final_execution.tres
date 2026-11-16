@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 2
 core = false
-description = "对生命低于35%的惊悸敌人，击碎破绽造成5倍伤害，致命命中粉碎敌人。"
+description = "你打血低于 35% 且正在发慌的敌人时，打弱点必暴击
+这一下的暴击倍率是 5.0，平时只有 2.0"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"health_threshold": 0.35, "critical_multiplier": 5.0}

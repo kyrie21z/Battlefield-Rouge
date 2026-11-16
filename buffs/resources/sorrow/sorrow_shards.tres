@@ -11,6 +11,7 @@ sin = 3
 slot = 3
 rarity = 0
 core = false
-description = "枪或刀打碎泪晶造成水爆，并对周围敌人附加2层溶蚀。"
+description = "你用枪或刀打碎泪晶时，会炸出一圈半径 3 米、45 伤的水爆
+被水爆打到的敌人各 +2 层溶蚀"
 parameters = {"radius": 3.0, "damage": 45.0}
 script_hook = ExtResource("2")

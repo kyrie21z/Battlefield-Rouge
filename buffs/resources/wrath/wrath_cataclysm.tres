@@ -9,7 +9,9 @@ sin = 2
 slot = 3
 rarity = 3
 core = false
-description = "强冲量在空旷地移动0.16秒后撕裂空间；全场被击退敌人脚下升起晶刺连锁轰爆。"
+description = "被你撞飞的敌人，没撞到墙也会在半空炸开
+飞满 0.16 秒自动引爆，脚下升起半径 0.55 米的地刺
+你再次击退敌人时，所有正在飞的敌人一起炸"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 2

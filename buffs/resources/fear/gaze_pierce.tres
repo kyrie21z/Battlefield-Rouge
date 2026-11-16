@@ -11,7 +11,9 @@ sin = 1
 slot = 0
 rarity = 0
 core = true
-description = "手枪命中附加4秒惊悸；直击紫色晶面造成260%暴击并将破绽移至后背。"
+description = "你打中敌人时，它发慌 4 秒
+正中紫色弱点时造成 260% 暴击
+暴击后，它的弱点会转移到后背"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"panic_duration": 4.0}

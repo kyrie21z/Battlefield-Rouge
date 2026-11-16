@@ -11,6 +11,8 @@ sin = 3
 slot = 3
 rarity = 0
 core = false
-description = "泪晶拾取半径扩大150%，并缓慢向玩家漂浮；墙体阻挡吸附路径。"
+description = "泪晶的拾取半径从 0.85 米扩到 2.1 米
+泪晶会以 2 m/s 的速度朝你飘过来
+墙会挡住正在飘的泪晶"
 parameters = {"pickup_multiplier": 2.5, "pull_speed": 2.0}
 script_hook = ExtResource("2")

@@ -10,6 +10,8 @@ slot = 3
 rarity = 4
 core = false
 required_sins = Array[int]([0, 1])
-description = "怠惰 × 恐惧：静止或开镜时，视线瞄准的敌人减速 80%，其破绽受击面积扩大至 3 倍。墙后敌人不受影响。"
+description = "你站着不动或开镜时，8° 瞄准锥内的敌人移速 ×0.2
+被瞄准的敌人弱点面积 ×3
+墙后的敌人不受影响"
 script_hook = ExtResource("2")
 parameters = {"move_scale": 0.2, "flaw_area": 3.0, "aim_half_angle_degrees": 8.0}

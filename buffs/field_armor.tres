@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_buff")
 title = "野战护甲"
-description = "最大生命值 +30"
+description = "你的最大生命 +30"
 stat = &"max_health"
 add = 30.0
 mul = 1.0

@@ -9,6 +9,7 @@ sin = 2
 slot = 0
 rarity = 0
 core = true
-description = "晶体弹以强烈动能击退敌人；一次墙面反弹后伤害提高60%。"
+description = "你的子弹命中敌人时，会把敌人打飞，击退力 ×2.5
+子弹弹过一次墙之后，它的伤害 +60%"
 stat_modifiers = {}
 script_hook = ExtResource("2")

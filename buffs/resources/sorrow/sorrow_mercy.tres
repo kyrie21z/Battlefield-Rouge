@@ -11,7 +11,9 @@ sin = 3
 slot = 3
 rarity = 2
 core = false
-description = "每颗未拾取泪晶提供4%减伤，最多36%；持续恢复过载护盾，不因受击中断。"
+description = "场上每留一颗没捡的泪晶，你受到的伤害 −4%
+最多减到 −36%
+同时你的护盾会持续回复，上限 35、每秒回 2"
 parameters = {"per_tear": 0.04, "maximum_reduction": 0.36, "shield_regen": 2.0, "shield_cap": 35.0}
 prerequisite_any = Array[String](["sorrow_dash_ribbon", "sorrow_echo", "sorrow_gravity", "sorrow_buffer", "sorrow_pressure", "sorrow_shards", "sorrow_suffocation"])
 script_hook = ExtResource("2")

@@ -10,6 +10,8 @@ slot = 3
 rarity = 4
 core = false
 required_sins = Array[int]([1, 3])
-description = "恐惧 × 悲伤：破绽暴击生成半径 5 米的融蚀深潭，聚拢周围敌人并施加满 5 层溶蚀。"
+description = "你的弱点暴击会砸出一个深潭，半径 5 米、持续 2 秒
+深潭会把周围敌人以 12 的吸力吸进来
+被吸进来的敌人直接湿满 5 层"
 script_hook = ExtResource("2")
 parameters = {"pool_radius": 5.0, "pull_speed": 12.0, "pool_duration": 2.0}

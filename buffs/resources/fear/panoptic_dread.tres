@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 3
 core = false
-description = "新生敌人永久惊悸，前后同时暴露破绽；碎面发射必暴击追踪紫晶。"
+description = "所有敌人一出生就永久发慌，前后两面都有弱点
+你打碎弱点时，会射出一枚追踪晶，35 伤且必暴击"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"crystal_damage": 35.0, "crystal_speed": 36.0}

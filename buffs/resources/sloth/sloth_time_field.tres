@@ -11,7 +11,9 @@ sin = 0
 slot = 3
 rarity = 2
 core = false
-description = "至少2个滞后目标时，敌人与敌弹时间降至80%，冲刺充能速度+50%。"
+description = "场上同时有 2 个敌人带钟时
+所有敌人的时间流速 ×0.8，敌弹也一样
+你的冲刺充能速度 +50%"
 parameters = {"minimum_targets": 2.0, "world_scale": 0.8, "dash_recharge": 1.5}
 prerequisite_any = Array[String](["sloth_dash_ripple", "sloth_inertia", "sloth_resonance", "sloth_stillness", "sloth_reload", "sloth_heavy_beat", "sloth_drowsy"])
 script_hook = ExtResource("2")

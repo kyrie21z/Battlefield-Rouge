@@ -11,6 +11,7 @@ sin = 3
 slot = 3
 rarity = 0
 core = false
-description = "拾取水浪击退周围敌人并附加1层溶蚀。"
+description = "你拾取泪晶时，会震开 3.5 米内的敌人，击退力 4.0
+被震到的敌人各 +1 层溶蚀"
 parameters = {"radius": 3.5, "force": 4.0}
 script_hook = ExtResource("2")

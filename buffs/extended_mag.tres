@@ -4,11 +4,12 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_magazine.svg" id="2_icon"]
 
 [resource]
+display_name = "大容量弹匣"
 script = ExtResource("1_buff")
 school_id = &"firearm"
 title = "扩容弹匣"
 icon = ExtResource("2_icon")
-description = "弹匣容量 +50%"
+description = "你的弹匣容量 +50%"
 stat = &"magazine_size"
 add = 0.0
 mul = 1.5

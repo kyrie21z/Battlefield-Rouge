@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 1
 core = false
-description = "击碎破绽使8米内最近两名可见敌人获得4秒惊悸。"
+description = "你打爆一个弱点时
+8 米内最近的两个敌人会发慌 4 秒"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"radius": 8.0, "panic_duration": 4.0}

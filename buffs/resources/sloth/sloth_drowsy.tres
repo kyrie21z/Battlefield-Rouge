@@ -11,6 +11,6 @@ sin = 0
 slot = 3
 rarity = 0
 core = false
-description = "带滞后敌人射出的飞弹速度降低50%。"
+description = "身上带钟的敌人开火时，它射出的子弹速度减半"
 parameters = {"projectile_scale": 0.5}
 script_hook = ExtResource("2")

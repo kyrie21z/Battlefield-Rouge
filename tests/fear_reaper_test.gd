@@ -34,6 +34,8 @@ func stop_wisps() -> void:
 	for wisp in reaper.living_wisps(): wisp.set_physics_process(false)
 
 func _ready() -> void:
+	# the realm intro panel is a UI concern; these tests only care about the flow
+	MetaProgression.introduced_realms.assign([0,1,2,3])
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--out="): output = arg.trim_prefix("--out=")

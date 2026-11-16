@@ -9,7 +9,8 @@ sin = 2
 slot = 3
 rarity = 1
 core = false
-description = "撞墙基础伤害提高80%，墙面留下3秒灼烧余烬。"
+description = "敌人撞墙时，这一下的撞墙伤害 ×1.8，从 60 变成 108
+墙面上会留下 1 米宽、持续 3 秒的灼烧余烬"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 0

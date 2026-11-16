@@ -8,7 +8,8 @@ script = ExtResource("1_buff")
 id = &"blade_range"
 school_id = &"blade"
 title = "长刃改造"
-description = "刀具攻击距离 +20%。按 V 挥刀；可重复叠加。"
+description = "你的刀具攻击距离 +20%
+这张卡可以重复叠加"
 icon = ExtResource("2_icon")
 stack_text = "刀距 ×1.20"
 stat = &"melee_range"

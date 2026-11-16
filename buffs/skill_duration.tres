@@ -8,7 +8,8 @@ script = ExtResource("1_buff")
 id = &"skill_duration"
 school_id = &"skill"
 title = "持久屏障"
-description = "获得 G 护盾，普通盾持续时间 +0.5 秒；搭配反击护盾时吸收上限 +25。可与任意流派混搭。"
+description = "你的普通盾持续时间 +0.5 秒
+搭配反击护盾时，反击盾的吸收上限 +25"
 icon = ExtResource("2_icon")
 stack_text = "普通盾时间 +0.5 秒 · 反击盾容量 +25"
 stat = &"shield_duration"

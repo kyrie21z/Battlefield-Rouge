@@ -9,7 +9,8 @@ sin = 2
 slot = 3
 rarity = 1
 core = false
-description = "被击退敌人撞击另一敌人，双方承受完整撞墙伤害并击晕0.8秒。"
+description = "被撞飞的敌人砸到另一个敌人时
+双方都吃完整的撞墙伤害，并一起被击晕 0.8 秒"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 0

@@ -11,7 +11,9 @@ sin = 3
 slot = 0
 rarity = 0
 core = true
-description = "命中叠加5秒溶蚀，每0.5秒水蚀，满5层凝结泪晶。拾取回复25护盾并扩散水波。"
+description = "你打中敌人时，它开始变湿，持续 5 秒
+变湿的敌人每 0.5 秒受 4 伤
+湿满 5 层掉一颗泪晶，你捡起来回 25 盾、3 米内敌人受 10 伤"
 parameters = {"erosion_duration": 5.0, "interval": 0.5, "damage_per_layer": 4.0, "tear_shield": 25.0, "pickup_radius": 3.0, "pickup_damage": 10.0}
 stat_modifiers = {}
 script_hook = ExtResource("2")

@@ -9,7 +9,9 @@ sin = 2
 slot = 3
 rarity = 2
 core = false
-description = "4秒内连续击杀，每次叠加10%移速与刀速，最高50%，免疫受击硬直。"
+description = "你每杀一个敌人，就在 4 秒内 +1 层，最多 5 层
+每层让你的移速和刀速同步提升，满层时 ×1.5
+这期间你不会被打断"
 prerequisite_any = Array[String](["wrath_dash_ram", "wrath_shrapnel", "wrath_retaliation", "wrath_desperation", "wrath_reload", "wrath_crusher", "wrath_chain"])
 required_trait_sin = 2
 required_trait_count = 0

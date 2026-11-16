@@ -25,6 +25,9 @@ var history := {"run_count":0,"last_depth":0,"death_cause":""}
 var discovered_boons: Array[String] = []
 var visited_realms: Array[int] = []
 var defeated_realms: Array[int] = []
+## Realms whose one-time mechanic card has already been shown. Kept separate
+## from visited_realms because entering a realm is not the same as explaining it.
+var introduced_realms: Array[int] = []
 var reconciled := false
 var codex_save_pending := false
 var isolated_profile := false
@@ -209,6 +212,7 @@ func _restore(payload: Dictionary) -> void:
 	var archive: Dictionary = payload.get("archive",{})
 	visited_realms.assign(archive.get("visited_realms",[]))
 	defeated_realms.assign(archive.get("defeated_realms",[]))
+	introduced_realms.assign(archive.get("introduced_realms",[]))
 	reconciled = archive.get("reconciled",false)
 
 func _checksum(payload: Dictionary) -> String:
@@ -257,7 +261,7 @@ func _read_payload(path: String) -> Dictionary:
 	if data.has("archive"):
 		if not data.archive is Dictionary or not data.archive.get("reconciled") is bool:
 			return {}
-		for field in ["visited_realms","defeated_realms"]:
+		for field in ["visited_realms","defeated_realms","introduced_realms"]:
 			var values: Variant = data.archive.get(field)
 			if not values is Array or values.size()>4:
 				return {}
@@ -348,7 +352,23 @@ func record_discoveries(cards: Array) -> bool:
 
 
 func archive_snapshot() -> Dictionary:
-	return {"visited_realms":visited_realms.duplicate(),"defeated_realms":defeated_realms.duplicate(),"reconciled":reconciled}
+	return {"visited_realms":visited_realms.duplicate(),"defeated_realms":defeated_realms.duplicate(),"introduced_realms":introduced_realms.duplicate(),"reconciled":reconciled}
+
+## Remembers that a realm's one-time mechanic card has been shown, so the player
+## sees the explanation exactly once per save. Returns true when this call was the
+## one that recorded it, which lets the caller skip the panel on replays.
+func mark_realm_introduced(realm: int) -> bool:
+	if realm < 0 or realm > 3 or introduced_realms.has(realm):
+		return false
+	introduced_realms.append(realm)
+	codex_save_pending = true
+	changed.emit()
+	save()
+	return true
+
+## True when this realm has never had its mechanic card shown.
+func realm_needs_intro(realm: int) -> bool:
+	return realm >= 0 and realm <= 3 and not introduced_realms.has(realm)
 
 ## Only the campaign composition root calls this after real progression events.
 func record_archive(realm: int = -1,was_defeated := false,was_reconciled := false) -> bool:

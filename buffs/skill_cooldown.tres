@@ -8,7 +8,8 @@ script = ExtResource("1_buff")
 id = &"skill_cooldown"
 school_id = &"skill"
 title = "能量回流"
-description = "获得主动护盾（G），冷却时间 -20%。可重复选择，乘算叠加。"
+description = "你的 G 护盾冷却 −20%
+这张卡可以重复选择，效果乘算叠加"
 icon = ExtResource("2_icon")
 stack_text = "护盾冷却 ×0.80"
 stat = &"shield_cooldown"

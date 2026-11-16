@@ -18,6 +18,8 @@ func frames(count := 2) -> void:
 	await get_tree().process_frame
 
 func _ready() -> void:
+	# the realm intro panel is a UI concern; these tests only care about the flow
+	MetaProgression.introduced_realms.assign([0,1,2,3])
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	await run_checks()
 	get_tree().paused = false

@@ -11,7 +11,9 @@ sin = 1
 slot = 1
 rarity = 0
 core = true
-description = "出刀速度提高30%；背刺与破绽必暴击，弹反棱晶追踪并引爆全场破绽。"
+description = "你的出刀速度 +30%
+你捅敌人后背或打弱点时，这一刀必暴击
+你弹反成功时，棱晶会追向敌人并引爆全场弱点，每处 35 伤"
 stat_modifiers = {"melee_speed": {"mul": 1.3}, "clock_theme": {"add": 2.0}}
 script_hook = ExtResource("2_effect")
 parameters = {"detonation_damage": 35.0}

@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 1
 core = false
-description = "生命低于50%时，移速+25%、暴击率+20%、冲刺充能速度+40%。"
+description = "你的生命低于 50% 时
+你的移速 ×1.25，暴击率 +20%，冲刺充能速度 ×1.4"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"health_threshold": 0.5, "move_multiplier": 1.25, "critical_add": 0.2, "recharge_multiplier": 1.4}

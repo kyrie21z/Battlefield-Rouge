@@ -11,6 +11,7 @@ sin = 0
 slot = 3
 rarity = 0
 core = false
-description = "静止1.2秒后，受到伤害−40%，手枪充能速度+100%；移动即失去效果。"
+description = "你站住不动 1.2 秒后，自己受到的伤害 −40%
+同时你的换弹速度 ×2"
 parameters = {"stand_duration": 1.2, "damage_taken": 0.6, "reload_speed": 2.0}
 script_hook = ExtResource("2")

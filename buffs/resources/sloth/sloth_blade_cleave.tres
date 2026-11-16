@@ -11,7 +11,9 @@ sin = 0
 slot = 1
 rarity = 0
 core = true
-description = "斩击植入滞后；已有时钟立即以150%伤害引爆。挥刃霸体，敲钟进度翻倍。"
+description = "你挥刀命中时，没钟的敌人会被挂上钟
+已经有时钟的敌人，这一刀会直接把钟引爆
+引爆伤害 ×1.5，挥刀期间你不会被打断"
 stat_modifiers = {"clock_progress": {"mul": 2.0}, "clock_theme": {"add": 1.0}}
 parameters = {"latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0, "detonation_multiplier": 1.5}
 script_hook = ExtResource("2")

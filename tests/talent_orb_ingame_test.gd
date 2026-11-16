@@ -17,6 +17,8 @@ const SCENES: Array[String] = [
 
 
 func _ready() -> void:
+	# the realm intro panel is a UI concern; these tests only care about the flow
+	MetaProgression.introduced_realms.assign([0,1,2,3])
 	for path in SCENES:
 		await _check_scene(path)
 	print("")

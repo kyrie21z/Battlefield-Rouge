@@ -9,7 +9,8 @@ sin = 2
 slot = 3
 rarity = 1
 core = false
-description = "受敌人攻击时震退4米内敌人，并在3秒内提高40%全伤害。"
+description = "你被敌人打中时，4 米内的敌人会被弹开
+接下来 3 秒，你的伤害 ×1.4"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 0

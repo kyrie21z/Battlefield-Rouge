@@ -11,6 +11,8 @@ sin = 0
 slot = 3
 rarity = 0
 core = false
-description = "碎裂波半径+60%；若原波击杀敌人，同地点追加一次同伤害回弹。"
+description = "钟爆炸时，它的爆炸范围从 3 米扩到 4.8 米
+如果这一爆炸死了人，原地会再炸一次
+第二次爆炸的伤害和第一次相同"
 parameters = {"radius_multiplier": 1.6}
 script_hook = ExtResource("2")

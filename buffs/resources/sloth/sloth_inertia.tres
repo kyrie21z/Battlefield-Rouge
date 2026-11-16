@@ -11,6 +11,7 @@ sin = 0
 slot = 3
 rarity = 0
 core = false
-description = "滞后期间实际扣血蓄压的结算倍率+50%。"
+description = "敌人身上带钟时，你这段时间打掉它的血
+会按 1.5 倍算进最后那次爆炸"
 parameters = {"pressure_multiplier": 1.5}
 script_hook = ExtResource("2")

@@ -11,6 +11,7 @@ sin = 0
 slot = 3
 rarity = 0
 core = false
-description = "空匣绽放期间没有实际受伤，重组补弹帧获得35过载护盾。"
+description = "你打空弹匣开始重组时，只要这期间没被打到
+补满就额外得 35 护盾"
 parameters = {"shield": 35.0}
 script_hook = ExtResource("2")

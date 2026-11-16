@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 2
 core = false
-description = "残影爆炸或破绽击碎释放紫光，使可见8米内敌人无法行动2秒。"
+description = "你打爆残影或弱点时，会喷出一圈紫光
+8 米内的敌人被定住 2 秒"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"radius": 8.0, "duration": 2.0}

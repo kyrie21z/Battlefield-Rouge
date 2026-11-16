@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_buff")
 title = "轻装上阵"
-description = "移动速度 +15%"
+description = "你的移动速度 +15%"
 stat = &"move_speed"
 add = 0.0
 mul = 1.15

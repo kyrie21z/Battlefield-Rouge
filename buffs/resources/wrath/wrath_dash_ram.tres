@@ -9,6 +9,8 @@ sin = 2
 slot = 2
 rarity = 0
 core = true
-description = "冲刺沿途推开敌人，以真实冲量将其砸向最近墙体；撞击破裂并击晕0.8秒。"
+description = "你冲刺撞到敌人时，把敌人直接砸进墙里，击退力 ×3.0
+撞击会让敌人破裂并击晕 0.8 秒
+冲刺期间你不会被打断"
 stat_modifiers = {}
 script_hook = ExtResource("2")

@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 1
 core = false
-description = "盲区敌人开火时亮起边缘预警；致命一击35%概率免伤并安全后撤3米。"
+description = "视野外的敌人开火时，屏幕边缘会亮起提示
+这一击真会打死你时，你有 35% 概率免伤并自动后撤 3 米"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"evade_chance": 0.35, "evade_distance": 3.0}

@@ -11,7 +11,8 @@ sin = 0
 slot = 3
 rarity = 3
 core = false
-description = "滞后击杀精英，或3秒内击杀3敌人时，敌人及敌弹冻结2秒。"
+description = "你用钟炸死精英时，或 3 秒内连杀 3 个敌人时
+全场敌人和敌弹都会冻结 2 秒"
 parameters = {"kill_window": 3.0, "kill_count": 3.0, "freeze_duration": 2.0}
 required_trait_sin = 0
 required_trait_count = 2

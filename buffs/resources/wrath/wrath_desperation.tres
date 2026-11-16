@@ -9,7 +9,8 @@ sin = 2
 slot = 3
 rarity = 1
 core = false
-description = "生命越低，全伤害越高；生命不高于30%时达到60%增伤。"
+description = "你的血越少，你打出的伤害越高
+生命降到 30% 时，伤害提升到 +60%"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 0

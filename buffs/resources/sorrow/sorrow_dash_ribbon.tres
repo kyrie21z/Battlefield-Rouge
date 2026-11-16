@@ -11,7 +11,9 @@ sin = 3
 slot = 2
 rarity = 0
 core = true
-description = "冲刺留下3秒水迹；站在其中移速+30%，敌人减速40%且每0.5秒叠加溶蚀。"
+description = "冲刺时，你会在身后留下一条水迹，持续 3 秒
+水迹半径 1.15 米
+踩进水迹的敌人速度 −40%，且每 0.5 秒叠一层溶蚀"
 parameters = {"erosion_duration": 5.0, "interval": 0.5, "damage_per_layer": 4.0, "tear_shield": 25.0, "pickup_radius": 3.0, "pickup_damage": 10.0, "duration": 3.0, "radius": 1.15}
 stat_modifiers = {}
 script_hook = ExtResource("2")

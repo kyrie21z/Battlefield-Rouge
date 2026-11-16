@@ -11,7 +11,9 @@ sin = 3
 slot = 3
 rarity = 3
 core = false
-description = "击杀留下喷泉；泪晶升华为穿透追踪水刃，喷泉持续发射水刃。"
+description = "你杀敌时会留下喷泉，存在 6 秒
+喷泉每 0.6 秒射一发，场上最多 12 座
+泪晶会变成会追人的水刃，每发 14 伤"
 parameters = {"fountain_duration": 6.0, "fire_interval": 0.6, "maximum_fountains": 12.0, "blade_damage": 14.0, "blade_speed": 22.0}
 required_trait_sin = 3
 required_trait_count = 2

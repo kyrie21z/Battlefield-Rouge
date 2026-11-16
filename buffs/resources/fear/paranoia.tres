@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 1
 core = false
-description = "惊悸敌人35%概率走火，射击对你无伤并转向同类。"
+description = "发慌的敌人开火时，有 35% 概率子弹会拐弯
+拐弯的子弹飞向它最近的同伴，对你没有伤害"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"chance": 0.35}

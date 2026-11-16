@@ -10,6 +10,7 @@ slot = 3
 rarity = 4
 core = false
 required_sins = Array[int]([1, 2])
-description = "恐惧 × 暴怒：打破破绽时以强劲定向冲量将敌人轰向墙体。触发碎墙撞击时，全场残余破绽连锁引爆。"
+description = "你打爆弱点时，会把敌人轰向墙，击退力 ×3.5
+碎墙的瞬间，全场所有弱点连锁引爆"
 script_hook = ExtResource("2")
 parameters = {"launch_strength": 3.5}

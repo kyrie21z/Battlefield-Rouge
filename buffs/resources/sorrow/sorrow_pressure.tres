@@ -11,6 +11,7 @@ sin = 3
 slot = 3
 rarity = 0
 core = false
-description = "满层溶蚀使敌人攻击前摇延长30%，新发射敌弹速度降低40%。"
+description = "敌人湿到 5 层以上时，它的出手时间 ×1.3
+它新射出的子弹速度 ×0.6"
 parameters = {"windup_scale": 1.3, "projectile_scale": 0.6}
 script_hook = ExtResource("2")

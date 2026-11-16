@@ -8,7 +8,9 @@ script = ExtResource("1_buff")
 id = &"blade_damage"
 school_id = &"blade"
 title = "子弹收藏家"
-description = "刀伤 +30%。V 挥刀后 0.24 秒内弹反并储存弹头，下次开枪释放；每层多存 1 发。"
+description = "你的刀伤 +30%
+你挥刀后的 0.24 秒内弹反，能把子弹存起来
+存下的子弹会在你下次开枪时一起打出去，每层多存 1 发"
 icon = ExtResource("2_icon")
 stack_text = "刀伤 ×1.30 · 弹头容量 +1"
 stat = &"melee_damage"

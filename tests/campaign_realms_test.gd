@@ -8,6 +8,8 @@ func check(label:String,ok:bool)->void:
 func frames(count:int)->void:
 	for i in count:await get_tree().physics_frame
 func _ready()->void:
+	# the realm intro panel is a UI concern; these tests only care about the flow
+	MetaProgression.introduced_realms.assign([0,1,2,3])
 	process_mode=Node.PROCESS_MODE_ALWAYS
 	await get_tree().process_frame
 	# The test driver stays at root while actual campaign scenes replace each other.

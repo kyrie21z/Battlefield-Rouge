@@ -9,7 +9,9 @@ sin = 2
 slot = 3
 rarity = 2
 core = false
-description = "削弱精英击退抗性；撞墙时摧毁目标全部屏障，追加250%真实伤害。"
+description = "精英也推得动了
+敌人撞墙时，这一下直接打碎它的护盾
+打碎护盾后追加 250% 真实伤害"
 prerequisite_any = Array[String](["wrath_gun_cannon", "wrath_blade_sweep"])
 required_trait_sin = 2
 required_trait_count = 0

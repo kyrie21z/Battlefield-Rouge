@@ -9,7 +9,9 @@ sin = 2
 slot = 3
 rarity = 1
 core = false
-description = "空匣重组中受击立即完成重组；此后该弹匣全部子弹双倍伤害。"
+description = "你在空匣重组期间挨打时，重组会立刻完成
+重组出来的这匣子弹全部双倍伤害
+你下次换弹后，这个效果就失效"
 prerequisite_any = Array[String]([])
 required_trait_sin = 2
 required_trait_count = 0

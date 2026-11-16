@@ -388,9 +388,39 @@ func claim_talent() -> void:
 
 func _offer_reward(entry := false) -> void:
 	_reward_context = "enter" if entry else "clear"
+	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1 if entry else realm,[],entry)
+	if _should_introduce(entry):
+		_show_intro()
+	else:
+		_build_picker()
+
+
+## The realm's shared mechanic is explained once, right before the first three
+## cards from that realm show up. Only fires when the offer actually contains a
+## card carrying this realm's sin, so a pure stat roll never triggers it.
+func _should_introduce(entry: bool) -> bool:
+	if entry or not MetaProgression.realm_needs_intro(realm):
+		return false
+	for card: BoonData in _reward_offer:
+		if card.sin == realm and card.rarity != BoonData.Rarity.DUAL:
+			return true
+	return false
+
+
+func _show_intro() -> void:
+	var panel := RealmIntro.new()
+	add_child(panel)
+	panel.setup(realm)
+	panel.dismissed.connect(func() -> void:
+		MetaProgression.mark_realm_introduced(realm)
+		_build_picker()
+	)
+
+
+func _build_picker() -> void:
 	selection = PICKER.instantiate() as BoonPicker
 	add_child(selection)
-	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1 if entry else realm,[],entry)
+	var entry := _reward_context == "enter"
 	selection.setup(_reward_offer,player.boons,"选择初始馈赠" if entry else "%s · 门扉馈赠" % TITLES[realm],rerolls_remaining)
 	selection.reroll_requested.connect(_reroll_reward)
 	selection.chosen.connect(_reward_chosen)

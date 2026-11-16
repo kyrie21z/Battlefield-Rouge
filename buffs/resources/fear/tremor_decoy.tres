@@ -11,7 +11,9 @@ sin = 1
 slot = 2
 rarity = 0
 core = true
-description = "冲刺留下2秒可被打碎的残影，吸引敌人；破碎或到时向6米内施加惊悸。"
+description = "冲刺时，你会在原地留下一个假身，存在 2 秒
+16 米内的敌人会被假身吸引，转去攻击它
+假身碎掉时，6 米内的敌人发慌 4 秒"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"decoy_duration": 2.0, "aggro_radius": 16.0, "panic_radius": 6.0, "panic_duration": 4.0}

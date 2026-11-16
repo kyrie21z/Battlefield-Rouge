@@ -4,11 +4,13 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_rate.svg" id="2_icon"]
 
 [resource]
+display_name = "扳机调校"
 script = ExtResource("1_buff")
 id = &"firearm_rate"
 school_id = &"firearm"
 title = "快速扳机"
-description = "枪械射速 +15%。可重复选择，乘算叠加。"
+description = "你的枪械射速 +15%
+这张卡可以重复选择，效果乘算叠加"
 icon = ExtResource("2_icon")
 stack_text = "射速 ×1.15"
 stat = &"fire_rate"

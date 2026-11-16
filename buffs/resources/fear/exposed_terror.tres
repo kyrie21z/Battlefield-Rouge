@@ -11,7 +11,8 @@ sin = 1
 slot = 3
 rarity = 1
 core = false
-description = "破绽物理面积扩大50%，跳弹和溅射擦过晶面边缘也触发暴击。"
+description = "敌人的弱点变大一倍半
+你的反弹子弹和范围伤害更容易打中弱点，打中必暴击"
 stat_modifiers = {}
 script_hook = ExtResource("2_effect")
 parameters = {"area_multiplier": 1.5, "graze_radius": 0.12}

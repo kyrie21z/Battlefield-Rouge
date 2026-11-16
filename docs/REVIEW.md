@@ -8,7 +8,7 @@
 
 | 结论 | 含义 | 之后 |
 | --- | --- | --- |
-| ✅ **Approve** | 没有阻断项，所属级别的检查全部通过 | Kyrie 可以直接 Squash and merge |
+| ✅ **Approve** | 没有阻断项，所属级别的检查全部通过，且不涉及第四节受保护项 | HydrogenJr 直接 Approve 并 Squash and merge |
 | ❌ **Request changes** | 至少一条阻断项（第二节），或者检查脚本有 `FAIL` | 作者修改后重新审 |
 | ⚠️ **需要 Kyrie** | 没发现错误，但属于第四节那几类 | HydrogenJr 写审查意见，不点 Approve，由 Kyrie 决定 |
 
@@ -89,20 +89,24 @@
 
 ## 五、HydrogenJr 的工作方式
 
-**触发**：PR 打开、更新、或者从草稿转为 Ready for review 时，由 CI（`.github/workflows/pr-checks.yml`）自动运行 R1–R6 检查，并由 HydrogenJr 执行审查。草稿 PR 不审。
+**触发**：除 Kyrie（`kyrie21z`）本人之外的作者打开 PR、更新 PR、或者从草稿转为 Ready for review 时，常驻后台进程自动拉起 HydrogenJr 在隔离沙箱中运行 R1–R6 检查并执行审查（CI `.github/workflows/pr-checks.yml` 亦会运行检查）。草稿 PR 与 `kyrie21z` 本人 PR 不自动触发。
 
 **每次审查的步骤**
 
 1. 先读 PR 描述，检查 B1。
 2. 运行 `bash tools/review/run_checks.sh origin/main`（`origin/main` 要先 fetch 到最新）。
-3. **只读脚本输出的摘要。** 完整日志在 `/tmp/review_logs/`，只有某一项 `FAIL` 或 `WARN` 时才看，而且只看对应日志的相关部分（`grep`、`tail -n 50`），不要整份读进来。
+3. **只读脚本输出的摘要。** 完整日志在对应审查日志目录，只有某一项 `FAIL` 或 `WARN` 时才看，而且只看对应日志的相关部分（`grep`、`tail -n 50`），不要整份读进来。
 4. 读 diff，按第二节审。重新审同一个 PR 时，只读上次审查之后新增的提交；检查脚本仍然整体重跑，它不占多少模型用量。
 5. 二进制文件（`.glb`、`.blend`、图片、音频）只看文件名、大小和 `ASSETS.md` 登记，不读内容。
-6. 按下面的格式发一条审查评论，并给出结论。
+6. 按下面的格式发布审查结论并执行对应动作：
+   - **Approve**（且未触及第四节受保护项）：发表 Approve 评论并直接 Squash and merge（`--delete-branch`）。
+   - **Request changes**：发表审查评论指出阻断项，不合并。
+   - **需要 Kyrie**：发表评论列出第四节受保护项，不批准、不合并，交由 Kyrie 决定。
 
 **权限**
 
-- 只审查。不往 PR 分支推提交，不合并、不关闭 PR，不改 Issue。需要修改的地方写成建议，由作者自己改。
+- 不往 PR 分支推提交，不关闭 PR，不改 Issue。需要修改的地方写成建议，由作者自己改。
+- 仅在结论为 **Approve** 且不触及第四节保护项时，执行 Squash and merge。
 - 不配置也不读取任何密钥。
 - 不能确定的地方写“不确定”，不要猜。
 

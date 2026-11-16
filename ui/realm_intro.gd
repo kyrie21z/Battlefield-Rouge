@@ -51,6 +51,7 @@ const INTRO := [
 	},
 ]
 
+var _previous_mouse := Input.MOUSE_MODE_VISIBLE
 var _title: Label
 var _body: VBoxContainer
 var _note: Label
@@ -58,8 +59,12 @@ var _note: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	# The game runs with the cursor captured, so the panel has to hand it back or
+	# the player cannot click "知道了".
+	_previous_mouse = Input.mouse_mode
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_build()
 	get_tree().paused = true
 
@@ -83,14 +88,22 @@ func setup(realm_id: int) -> void:
 func _build() -> void:
 	var backdrop := ColorRect.new()
 	backdrop.color = BACKDROP
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(backdrop)
 
 	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.custom_minimum_size = PANEL_SIZE
-	panel.position = -PANEL_SIZE * 0.5
+	# anchor to the middle of the screen and let the offsets carry the size, so the
+	# panel stays centred no matter what resolution the game runs at
+	panel.anchor_left = 0.5
+	panel.anchor_top = 0.5
+	panel.anchor_right = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left = -PANEL_SIZE.x * 0.5
+	panel.offset_top = -PANEL_SIZE.y * 0.5
+	panel.offset_right = PANEL_SIZE.x * 0.5
+	panel.offset_bottom = PANEL_SIZE.y * 0.5
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.045, 0.05, 0.07, 0.97)
 	style.border_color = Color(0.35, 0.42, 0.55, 0.7)
@@ -137,6 +150,7 @@ func _build() -> void:
 
 func _dismiss() -> void:
 	get_tree().paused = false
+	Input.mouse_mode = _previous_mouse
 	dismissed.emit()
 	queue_free()
 

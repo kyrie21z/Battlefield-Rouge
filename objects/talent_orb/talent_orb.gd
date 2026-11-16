@@ -66,7 +66,7 @@ func _build_collision() -> void:
 	_body = StaticBody3D.new()
 	_body.name = "Body"
 	_body.collision_layer = CollisionLayers.WORLD
-	_body.collision_mask = 0
+	_body.collision_mask = CollisionLayers.NONE
 	var shape := CollisionShape3D.new()
 	var sphere := SphereShape3D.new()
 	sphere.radius = 0.52
@@ -79,7 +79,7 @@ func _build_collision() -> void:
 ## cannot leave an invisible wall behind.
 func set_collision_enabled(value: bool) -> void:
 	if _body != null:
-		_body.collision_layer = CollisionLayers.WORLD if value else 0
+		_body.collision_layer = CollisionLayers.WORLD if value else CollisionLayers.NONE
 
 
 ## The zone director injects the player; the orb never searches the tree for it.

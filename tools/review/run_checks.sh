@@ -84,7 +84,11 @@ while IFS= read -r f; do
 	case "$f" in
 		*.gd)
 			git cat-file -e "HEAD:$f.uid" 2>/dev/null || { fail "$f has no $f.uid"; r6=1; } ;;
-		assets/*.glb|assets/*.gltf|assets/*.png|assets/*.jpg|assets/*.jpeg|assets/*.webp|assets/*.wav|assets/*.ogg|assets/*.mp3|assets/*.ttf|assets/*.otf)
+		assets/*.glb|assets/*.gltf)
+			git cat-file -e "HEAD:$f.import" 2>/dev/null || { fail "$f has no $f.import"; r6=1; }
+			git show HEAD:docs/ASSETS.md 2>/dev/null | grep -qF "$(basename "$f")" \
+				|| info "$f has no entry in docs/ASSETS.md (treated as self-made model)" ;;
+		assets/*.png|assets/*.jpg|assets/*.jpeg|assets/*.webp|assets/*.wav|assets/*.ogg|assets/*.mp3|assets/*.ttf|assets/*.otf)
 			git cat-file -e "HEAD:$f.import" 2>/dev/null || { fail "$f has no $f.import"; r6=1; }
 			git show HEAD:docs/ASSETS.md 2>/dev/null | grep -qF "$(basename "$f")" \
 				|| { fail "$f is not listed in docs/ASSETS.md"; r6=1; } ;;

@@ -1,6 +1,6 @@
 # PR 审查标准
 
-本文件规定 PR 什么情况能合并、什么情况不能，以及常驻审查者 kk（Grok Bot，运行在 Cursor Cloud Agent 上）怎么审。人审查也用同一套标准。改本文件走 PR，并且需要 Kyrie 本人批准。
+本文件规定 PR 什么情况能合并、什么情况不能，以及常驻审查者 HydrogenJr（替代原 Cursor Cloud Agent 上的 kk）怎么审。人审查也用同一套标准。改本文件走 PR，并且需要 Kyrie 本人批准。
 
 ## 一、三种结论
 
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | ✅ **Approve** | 没有阻断项，所属级别的检查全部通过 | Kyrie 可以直接 Squash and merge |
 | ❌ **Request changes** | 至少一条阻断项（第二节），或者检查脚本有 `FAIL` | 作者修改后重新审 |
-| ⚠️ **需要 Kyrie** | 没发现错误，但属于第四节那几类 | kk 写审查意见，不点 Approve，由 Kyrie 决定 |
+| ⚠️ **需要 Kyrie** | 没发现错误，但属于第四节那几类 | HydrogenJr 写审查意见，不点 Approve，由 Kyrie 决定 |
 
 ## 二、阻断项（任何一条都不能合并）
 
@@ -53,7 +53,7 @@
 
 ## 三、分级检查
 
-kk 在云端虚拟机上运行 `tools/review/run_checks.sh`。脚本按改动的文件自动定级，取所有文件里最高的一级，只跑这一级需要的检查：
+由 CI（`.github/workflows/pr-checks.yml`）或 HydrogenJr 在审查环境上运行 `tools/review/run_checks.sh`。脚本按改动的文件自动定级，取所有文件里最高的一级，只跑这一级需要的检查：
 
 | 级别 | 改了哪些文件 | 跑哪些检查 |
 | --- | --- | --- |
@@ -71,11 +71,11 @@ kk 在云端虚拟机上运行 `tools/review/run_checks.sh`。脚本按改动的
 | R5 | 地图是生成的 | 重新跑 `tools/gen_zones.py`，`maps/` 必须没有变化 |
 | R6 | 文件卫生 | `.uid` / `.import` 齐全，`ASSETS.md` 已登记，许可写清楚，没有本机路径和密钥；再按依赖规则做文本匹配提示（`WARN`） |
 
-`FAIL` 是硬失败。`WARN` 是脚本的提示，kk 要打开对应代码确认：确实违规就按第二节阻断，是误报就在审查里说明原因。
+`FAIL` 是硬失败。`WARN` 是脚本的提示，HydrogenJr 要打开对应代码确认：确实违规就按第二节阻断，是误报就在审查里说明原因。
 
-**截图**：虚拟机上没有显卡，`*_proof.tscn` 截图还没在虚拟机上验证过。有画面变化的 PR 仍然要作者自己附截图。
+**截图**：无显卡环境上，`*_proof.tscn` 截图还没在自动化审查环境中验证过。有画面变化的 PR 仍然要作者自己附截图。
 
-## 四、kk 不能单独放行，必须由 Kyrie 批准
+## 四、HydrogenJr 不能单独放行，必须由 Kyrie 批准
 
 检查脚本遇到下面几种情况会打出 `WARN needs Kyrie`：
 
@@ -85,11 +85,11 @@ kk 在云端虚拟机上运行 `tools/review/run_checks.sh`。脚本按改动的
 - 删除了文件；
 - fixture 哈希变了（R4）。
 
-另外两种情况脚本识别不了，kk 要自己判断：引入新的第三方代码或新的许可类型；B19 所说的删除别人负责的代码。
+另外两种情况脚本识别不了，HydrogenJr 要自己判断：引入新的第三方代码或新的许可类型；B19 所说的删除别人负责的代码。
 
-## 五、kk 的工作方式
+## 五、HydrogenJr 的工作方式
 
-**触发**：PR 打开、更新、或者从草稿转为 Ready for review 时自动触发。草稿 PR 不审。
+**触发**：PR 打开、更新、或者从草稿转为 Ready for review 时，由 CI（`.github/workflows/pr-checks.yml`）自动运行 R1–R6 检查，并由 HydrogenJr 执行审查。草稿 PR 不审。
 
 **每次审查的步骤**
 
@@ -125,7 +125,7 @@ kk 在云端虚拟机上运行 `tools/review/run_checks.sh`。脚本按改动的
 
 ## 六、作者要做什么
 
-- 按 `.github/pull_request_template.md` 填写。机器能跑的测试 kk 会自己跑，“怎么测”里只写**手动玩过的流程**和看到的结果。
+- 按 `.github/pull_request_template.md` 填写。机器能跑的测试由 CI / HydrogenJr 自己跑，“怎么测”里只写**手动玩过的流程**和看到的结果。
 - 有画面变化附截图。
 - 开 PR 前可以自己先跑一遍检查：`GODOT=你的 godot 路径 bash tools/review/run_checks.sh`。
-- 对 kk 的意见有不同看法，在评论里回复理由；争议由 Kyrie 决定。
+- 对 HydrogenJr 的意见有不同看法，在评论里回复理由；争议由 Kyrie 决定。

@@ -16,6 +16,8 @@ var attack_cooldown := 1.2
 var summons_cast := 0
 var scythe_hits := 0
 var visual: FearReaperVisual
+var _stock: Array[FearWisp] = []
+var _warm_frames := 0
 
 func _ready() -> void:
 	visual = $Model as FearReaperVisual
@@ -28,12 +30,39 @@ func _ready() -> void:
 	_hitbox_rids.append(get_rid())
 	health.died.connect(_on_died)
 	FearWisp.prepare_visuals()
+	for index in MAX_WISPS: _reserve_wisp()
 	enable_crystal_feedback(1)
 	Events.enemy_registered.emit(self)
 
 func setup(value: CharacterBody3D, points: Array[CoverPoint], board: FiringPositionBoard = null) -> void:
 	super.setup(value,points,board)
 	state = State.CHASE
+	# Real tiny draws warm the exact opaque/maw pipelines before the first cast.
+	for wisp in _stock:
+		wisp.global_position = value.global_position+Vector3(0,1.4,-3)
+		wisp.scale = Vector3.ONE*0.01
+		wisp.visual.advance(0.0,1.0,true)
+		wisp.show()
+	_warm_frames = 4
+
+func _reserve_wisp() -> void:
+	var wisp := WISP.instantiate() as FearWisp
+	wisp.dormant = true
+	wisp.summoner = weakref(self)
+	get_parent().add_child(wisp)
+	_stock.append(wisp)
+
+func _process(_delta: float) -> void:
+	if _warm_frames > 0:
+		_warm_frames -= 1
+		if _warm_frames == 0:
+			for wisp in _stock:
+				wisp.hide()
+				wisp.scale = Vector3.ONE
+				wisp.visual.advance(0.0,0.0,false)
+	if state != State.DEAD and _stock.size()+living_wisps().size() < MAX_WISPS:
+		# Spread replenishment over idle frames. Activated actors are never reused.
+		_reserve_wisp()
 
 func living_wisps() -> Array[FearWisp]:
 	var result: Array[FearWisp] = []
@@ -108,13 +137,9 @@ func _summon() -> void:
 		query.transform.origin = point
 		query.collision_mask = CollisionLayers.WORLD
 		if not get_world_3d().direct_space_state.intersect_shape(query,1).is_empty(): continue
-		var wisp := WISP.instantiate() as FearWisp
-		wisp.summoner = weakref(self)
-		wisp.realm_damage_scale = realm_damage_scale
-		wisp.warnings_enabled = warnings_enabled
-		wisp.position = get_parent().to_local(point)
-		get_parent().add_child(wisp)
-		wisp.setup(target,[])
+		if _stock.is_empty(): _reserve_wisp()
+		var wisp := _stock.pop_back() as FearWisp
+		wisp.activate(point,self,target)
 		wisps.append(weakref(wisp))
 	summons_cast += 1
 
@@ -149,3 +174,6 @@ func _on_died(_source: Node) -> void:
 
 func _exit_tree() -> void:
 	_dismiss_wisps()
+	for wisp in _stock:
+		if is_instance_valid(wisp): wisp.queue_free()
+	_stock.clear()

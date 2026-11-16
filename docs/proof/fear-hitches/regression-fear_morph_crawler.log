@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS calm face keeps a small mouth and hides fangs
+PASS one continuous windup opens mouth without a mesh swap
+PASS all fang roots stay embedded at the lip and tips point inward
+PASS enlarged upper face remains a real shootable hitbox
+PASS pause freezes shroud, mouth and tongue time
+PASS stun freezes animation with the actual ghost
+PASS crawler climbs actual slope side=-1 end=-1
+PASS crawler really damages player above the ramp side=-1 end=-1
+PASS crawler climbs actual slope side=-1 end=1
+PASS crawler really damages player above the ramp side=-1 end=1
+PASS crawler climbs actual slope side=1 end=-1
+PASS crawler really damages player above the ramp side=1 end=-1
+PASS crawler climbs actual slope side=1 end=1
+PASS crawler really damages player above the ramp side=1 end=1
+PASS crawler has stronger pursuit and shorter recovery without higher damage
+PASS crawler can descend from the balcony too
+PASS nearby crawler attacks repeatedly instead of waiting long gaps
+PASS all morph and slope scenarios finish
+FEAR MORPH CRAWLER: 18 checks, 0 failed

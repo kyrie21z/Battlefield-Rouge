@@ -13,6 +13,7 @@ var elapsed := 0.0
 var hits := 0
 var locked_direction := Vector3.FORWARD
 var visual: FearWispVisual
+var dormant := false
 
 static func prepare_visuals() -> void:
 	FearWispVisual.prepare()
@@ -26,6 +27,28 @@ func _ready() -> void:
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
 	visual = FearWispVisual.new()
 	$Model.add_child(visual)
+	if dormant:
+		process_mode = Node.PROCESS_MODE_DISABLED
+		collision_layer = 0
+		$TorsoHitbox.collision_layer = 0
+		hide()
+	else: Events.enemy_registered.emit(self)
+
+func activate(point: Vector3, owner_actor: Enemy, victim: CharacterBody3D) -> void:
+	dormant = false
+	summoner = weakref(owner_actor)
+	realm_damage_scale = float(owner_actor.get("realm_damage_scale"))
+	warnings_enabled = bool(owner_actor.get("warnings_enabled"))
+	health.max_health = 18.0*realm_damage_scale
+	health.health = health.max_health
+	global_position = point
+	scale = Vector3.ONE
+	visual.advance(0.0,0.0,false)
+	process_mode = Node.PROCESS_MODE_INHERIT
+	collision_layer = CollisionLayers.ENEMIES
+	$TorsoHitbox.collision_layer = CollisionLayers.HITBOXES
+	setup(victim,[])
+	show()
 	Events.enemy_registered.emit(self)
 
 func setup(value: CharacterBody3D, points: Array[CoverPoint], board: FiringPositionBoard = null) -> void:

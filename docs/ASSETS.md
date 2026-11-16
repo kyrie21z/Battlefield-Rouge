@@ -1,5 +1,9 @@
 # 素材登记
 
+## 恐惧卡顿优化取证（2026-11-16，#219）
+
+`docs/proof/fear-hitches/wisp-warning.jpg`为本项目Godot4.7.2原生`fear_reaper_test.tscn`截图，展示预建演员激活后仍保留原张嘴表情。仅PNG转JPEG，没有重绘或生成式替换；SHA256与字节数见同目录`validation.json`。性能改动复用已登记的模型、材质和声音，没有增加第三方素材。
+
 ## 恐惧幽魂表情精细化（2026-11-16，#216）
 
 `actors/enemy/fear/wisp_visual.gd`、`wisp_shroud.gdshader`、`wisp_tongue.gdshader` 为本项目原创程序模型与动画：圆顶衣身、嘴缘、内嵌獠牙、连续卷舌、眼球与瞳孔。用户提供两张幽灵参考仅用于平时到张嘴的表情方向，参考图片未入库，没有下载第三方模型/纹理/音频。
@@ -22,7 +26,7 @@
 
 `docs/proof/fear-playtest/exit-guide.jpg`、`gate-open.jpg`、`fatal-fall.jpg` 来自本项目 Godot 4.7.2 原生测试 `tests/fear_playtest_test.tscn`，使用现有模型、材质和字体，分别展示出口指引、F交互及坠落死亡面板。仅将本次PNG转存JPEG，没有重绘或生成式替换；逐图SHA-256与字节数见同目录`validation.json`。门框与门面由原有BoxMesh/QuadMesh及本项目程序材质构造，没有新增第三方运行素材、下载资源、配音或旧工程素材。
 
-每个进入仓库的第三方文件都要登记在这里。原始压缩包和完整下载放在仓库外的
+每个进入仓库的第三方文件都要登记在这里。**如果新增模型素材没有标注来源与许可，一律按项目自建模型处理（默认项目自有/CC0，不因未登记而阻断 PR）。**原始压缩包和完整下载放在仓库外的
 `../third_party_sources/`（含 `SHA256SUMS`），不提交到 Git。只拷游戏实际用到的文件。
 
 引擎是 Godot 4.7.2。导入格式优先 glTF / `.glb`（已入库的 `.gltf` 同属 glTF）。整包二进制不进仓库。

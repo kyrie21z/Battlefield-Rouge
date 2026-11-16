@@ -1,0 +1,172 @@
+[
+  {
+    "name": "fear_hitches",
+    "exit": 0,
+    "seconds": 5.88,
+    "passed": true,
+    "summary": [
+      "FEAR HITCHES: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "boon_picker",
+    "exit": 0,
+    "seconds": 4.7,
+    "passed": true,
+    "summary": [
+      "BOON PICKER: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "boon_offers",
+    "exit": 0,
+    "seconds": 3.14,
+    "passed": true,
+    "summary": [
+      "BOON OFFERS: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "crystal_feedback",
+    "exit": 0,
+    "seconds": 4.61,
+    "passed": true,
+    "summary": [
+      "CRYSTAL FEEDBACK: 30 checks, 0 failures"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_morph_crawler",
+    "exit": 0,
+    "seconds": 20.27,
+    "passed": true,
+    "summary": [
+      "FEAR MORPH CRAWLER: 18 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_reaper",
+    "exit": 0,
+    "seconds": 12.47,
+    "passed": true,
+    "summary": [
+      "FEAR REAPER: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_sanctum",
+    "exit": 0,
+    "seconds": 23.23,
+    "passed": true,
+    "summary": [
+      "FEAR SANCTUM: 37 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_realm",
+    "exit": 0,
+    "seconds": 12.47,
+    "passed": true,
+    "summary": [
+      "FEAR REALM: ALL PASSED (32 checks, 0 failures)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_oculus",
+    "exit": 0,
+    "seconds": 8.47,
+    "passed": true,
+    "summary": [
+      "FEAR OCULUS: ALL PASSED (29 checks, 0 failures)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_audio",
+    "exit": 0,
+    "seconds": 6.81,
+    "passed": true,
+    "summary": [
+      "FEAR AUDIO: 24 checks, 0 failures"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_playtest",
+    "exit": 0,
+    "seconds": 31.83,
+    "passed": true,
+    "summary": [
+      "FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_stage",
+    "exit": 0,
+    "seconds": 2.84,
+    "passed": true,
+    "summary": [
+      "REALM STAGE: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_boss_stage",
+    "exit": 0,
+    "seconds": 2.36,
+    "passed": true,
+    "summary": [
+      "REALM BOSS STAGE: 20 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "campaign_realms",
+    "exit": 0,
+    "seconds": 21.98,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (98 checks)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "run_director",
+    "exit": 0,
+    "seconds": 3.84,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (54 checks)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_feedback",
+    "exit": 0,
+    "seconds": 10.44,
+    "passed": true,
+    "summary": [
+      "REALM FEEDBACK: 37 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sorrow_audio_integration",
+    "exit": 0,
+    "seconds": 7.23,
+    "passed": true,
+    "summary": [
+      "SORROW AUDIO INTEGRATION: 12 checks, 0 failures"
+    ],
+    "diagnostics": []
+  }
+]

@@ -62,6 +62,8 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	# Keep reward data resident; clear-time eligibility still uses live state/RNG.
+	if realm == 1: BoonCatalog.all()
 	CrystalBurst.prepare(self)
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)

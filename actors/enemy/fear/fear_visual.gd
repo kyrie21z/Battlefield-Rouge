@@ -65,6 +65,7 @@ func _build() -> void:
 					var hook := _plate(hand, Vector3((finger - 1) * 0.065, -0.07, -0.29), Vector3(0.035, 0.15, 0.10), light)
 					hook.rotation.x = -0.55
 	skeleton.force_update_all_bone_transforms()
+	FearShatter.prepare_for(self,_crystal)
 
 func _pose_crawler(stride: float) -> void:
 	# Four real contact limbs: solve in skeleton space, keeping each authored
@@ -170,7 +171,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	if _dead:
 		return
 	_dead = true
-	var burst := FearShatter.new()
+	var burst := FearShatter.take(self,_crystal)
 	get_parent().get_parent().add_child(burst)
 	burst.build(self, global_position + Vector3.UP if point == Vector3.INF else point, direction)
 	model.hide()

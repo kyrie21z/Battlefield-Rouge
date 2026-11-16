@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS three ghosts prepared before the first cast
+PASS pause freezes warmup and dormant lifetimes
+PASS preparation hides all reserved ghosts
+PASS reserves have no physics or shootable layers
+PASS reserves never register with boon targeting
+PASS reserves do not change room kill count
+PASS cast activates the exact three reserved nodes
+PASS activation restores visibility and shootable layers
+PASS activation uses current health scale and deprivation
+PASS only activated ghosts join boon targeting
+PASS spent ghosts are freed instead of reusing status-bearing actors
+PASS idle frames prepare a fresh reserve
+PASS new reserves are hidden and unregistered
+PASS death reserves contain all 56 real rigid shards
+PASS unused debris remains outside the physics world
+PASS collision geometry is shared rather than rebuilt per death
+PASS death activates the exact prepared shard bodies
+PASS shards retain real world collision and outward motion
+PASS prepared shards really move in native physics
+PASS pause freezes debris lifetime
+PASS retirement hides shards and frees only eight this tick
+PASS retiring bodies stop colliding immediately
+PASS all retired debris is ultimately freed
+PASS caller array edits cannot corrupt the catalog cache
+PASS cached definitions still evaluate live ownership
+PASS room exit frees unused off-tree death reserves
+PASS room exit frees hidden ghosts
+FEAR HITCHES: 27 checks, 0 failed

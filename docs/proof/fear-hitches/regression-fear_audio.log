@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production Fear room injects player and plays abyss PCM
+PASS actual watcher windup starts a positional sustained lock
+PASS pitch follows actual lock progress, not player gaze timer
+PASS real sustained eye contact cancels lock without residual cue
+PASS actor warning deprivation suppresses sound without cancelling attack
+PASS realm deprivation immediately stops an existing lock
+PASS deprived realm cannot reintroduce warning
+PASS real collision-tested blink succeeds
+PASS one real blink plays one phase cue
+PASS invalid close blink does not advance counter
+PASS failed blink cannot manufacture another phase cue
+PASS phase distortion contains different left/right waveforms
+PASS real facet damage dispatches exactly one shatter
+PASS facet keeps critical text but suppresses duplicate old audio
+PASS ordinary non-facet critical retains existing sound
+PASS pause freezes director and rejects new cues
+PASS dead watcher loses sustained source
+PASS transients and sustained sources have fixed bounds
+PASS sound generation does not consume gameplay RNG
+PASS cached loop has zero endpoints and 16-bit stereo PCM
+PASS real player death stops ambient, transients and locks
+PASS Fear boon in production Sloth room still plays one facet shatter
+PASS real facet without a managed director retains exactly one legacy voice
+PASS room exit frees actor audio voices
+FEAR AUDIO: 24 checks, 0 failures

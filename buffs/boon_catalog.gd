@@ -1,8 +1,10 @@
 class_name BoonCatalog
 extends RefCounted
 const FAMILIES := ["sloth", "fear", "wrath", "sorrow", "dual"]
+static var _cards: Array[BoonData] = []
 
 static func all() -> Array[BoonData]:
+	if not _cards.is_empty(): return _cards.duplicate()
 	var result: Array[BoonData] = []
 	for family in FAMILIES:
 		var path := "res://buffs/resources/%s/pool.tres" % family
@@ -10,6 +12,7 @@ static func all() -> Array[BoonData]:
 			var pool := load(path) as BoonPool
 			if pool != null:
 				result.append_array(pool.cards)
+	_cards.assign(result)
 	return result
 
 static func eligible(manager: BoonManager, sin: int = -1) -> Array[BoonData]:

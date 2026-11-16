@@ -13,7 +13,7 @@ rarity = 0
 core = true
 description = "打中敌人时，它头顶会挂一个钟
 1.5 秒后，这个钟炸出 60 伤
-钟还在的时候，敌人速度慢 40%
+钟还在的时候，敌人移动速度 −40%
 你每多打中一枪，钟就多炸 25 伤"
 stat_modifiers = {}
 parameters = {"latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0, "repeat_pressure": 25.0}

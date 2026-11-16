@@ -40,6 +40,12 @@ func _ready() -> void:
 	health.max_health = [65.0, 85.0, 115.0][variant]
 	health.health = health.max_health
 	run_speed = [0.0, 3.4, 4.2][variant]
+	if variant == Variant.FALLER:
+		# Baked path vertices float above actual floor contact. Compare the
+		# crawler against the floor, so it can advance beyond the ramp entry.
+		_agent.path_height_offset = 0.5
+		run_speed = 5.0
+		attack_cooldown = 0.35
 	eye_height = [2.1, 1.6, 0.75][variant]
 	$HeadHitbox.position.y = eye_height
 	$TorsoHitbox.position.y = [1.35, 0.94, 0.65][variant]
@@ -175,10 +181,10 @@ func advance_attack(delta: float) -> void:
 			elif attack_elapsed >= windup() + 0.38:
 				if is_instance_valid(arena) and arena.has_method("flip_tile_near"):
 					arena.call("flip_tile_near", global_position)
-				_finish_attack(3.0)
+				_finish_attack(1.6)
 
 func windup() -> float:
-	return [1.6, 0.55, 0.85][variant] * boon_windup_scale
+	return [1.6, 0.55, 0.65][variant] * boon_windup_scale
 
 func _finish_attack(cooldown: float) -> void:
 	attack_elapsed = -1.0

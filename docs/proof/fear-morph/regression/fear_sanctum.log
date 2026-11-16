@@ -1,0 +1,44 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS fear_1 keeps the original 36m entry-to-exit distance
+PASS fear_1 retains the three trap slabs
+PASS fear_1 uses the dedicated purple-distance environment
+PASS fear_1 grand scenery contributes no physics or navigation bodies
+PASS fear_1 bounds static decorative mesh work
+PASS fear_1 six airborne spirits stay outside combat systems
+PASS fear_1 spirits drift over time
+PASS fear_1 pause freezes spirits
+PASS fear_1 keeps the abyss outside combat genuinely empty
+ROUTE fear_1 side=-1 peak=1.204 finish=(-9.0, 0.001102, -8.022579)
+PASS fear_1 actual Player traverses side -1 without jumping
+ROUTE fear_1 side=1 peak=1.204 finish=(9.0, 0.001102, -8.022579)
+PASS fear_1 actual Player traverses side 1 without jumping
+PASS fear_1 AI navigation reaches the upper balcony
+PASS fear_1 second chamber has its own broken architecture
+PASS fear_2 keeps the original 36m entry-to-exit distance
+PASS fear_2 retains the three trap slabs
+PASS fear_2 uses the dedicated purple-distance environment
+PASS fear_2 grand scenery contributes no physics or navigation bodies
+PASS fear_2 bounds static decorative mesh work
+PASS fear_2 six airborne spirits stay outside combat systems
+PASS fear_2 spirits drift over time
+PASS fear_2 pause freezes spirits
+PASS fear_2 keeps the abyss outside combat genuinely empty
+ROUTE fear_2 side=-1 peak=1.204 finish=(-9.0, 0.001102, -8.022579)
+PASS fear_2 actual Player traverses side -1 without jumping
+ROUTE fear_2 side=1 peak=1.204 finish=(9.0, 0.001102, -8.022579)
+PASS fear_2 actual Player traverses side 1 without jumping
+PASS fear_2 AI navigation reaches the upper balcony
+PASS fear_2 second chamber has its own broken architecture
+PASS fear_boss keeps the original 36m entry-to-exit distance
+PASS fear_boss retains the three trap slabs
+PASS fear_boss uses the dedicated purple-distance environment
+PASS fear_boss grand scenery contributes no physics or navigation bodies
+PASS fear_boss bounds static decorative mesh work
+PASS fear_boss six airborne spirits stay outside combat systems
+PASS fear_boss spirits drift over time
+PASS fear_boss pause freezes spirits
+PASS fear_boss keeps the abyss outside combat genuinely empty
+PASS Boss keeps the original open dais and no balcony obstruction
+PASS all three production rooms finish
+FEAR SANCTUM: 37 checks, 0 failed

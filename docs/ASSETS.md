@@ -1,5 +1,11 @@
 # 素材登记
 
+## 恐惧幽魂表情精细化（2026-11-16，#216）
+
+`actors/enemy/fear/wisp_visual.gd`、`wisp_shroud.gdshader`、`wisp_tongue.gdshader` 为本项目原创程序模型与动画：圆顶衣身、嘴缘、内嵌獠牙、连续卷舌、眼球与瞳孔。用户提供两张幽灵参考仅用于平时到张嘴的表情方向，参考图片未入库，没有下载第三方模型/纹理/音频。
+
+`docs/proof/fear-morph/` 的4张JPEG和1份GIF来自Godot4.7.2真实玩家相机；JPEG由原生PNG编码，GIF由同一视角11张原生变形帧缩小为640×360并往返播放，无重绘。源码、图片、动图和日志的SHA-256及字节数见同目录 `validation.json`。
+
 ## 恐惧引魂者与紫色追魂（2026-11-15，#213）
 
 `actors/enemy/fear/reaper_visual.gd` 复用本项目既有 `SlothVisual` 破损斗篷、兜帽及已登记晶体身体，使用原创暗紫配色和由程序几何构成的曲刃镰刀；`fear_wisp.gd` 使用共享基础网格生成紫色半透明追魂、淡色眼睛与尾片。音效复用已登记的 `FearSoundBank.fear_lock`。没有下载、移入旧工程素材或引用外部录音。

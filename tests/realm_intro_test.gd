@@ -9,7 +9,7 @@ var failures := 0
 func _ready() -> void:
 	MetaProgression.introduced_realms.clear()
 	await _check_intro_appears_once()
-	await _check_entry_gift_skips_intro()
+	await _check_entry_gift_uses_one_realm()
 	print("REALM INTRO: %d checks, %d failed" % [checks, failures])
 	get_tree().quit(1 if failures else 0)
 
@@ -59,15 +59,27 @@ func _check_intro_appears_once() -> void:
 	await _frames(2)
 
 
-func _check_entry_gift_skips_intro() -> void:
+func _check_entry_gift_uses_one_realm() -> void:
 	MetaProgression.introduced_realms.clear()
 	var stage := preload("res://maps/realms/fear_1.tscn").instantiate() as RealmStage
 	add_child(stage)
 	await _frames(3)
-	# the opening gift is offered through _offer_reward(true) on boot
+	stage.offer_entry_reward()
+	await _frames(3)
+	var intro := _find_intro(stage)
+	_check(intro != null, "opening gift explains its realm before the cards")
+	if intro != null:
+		intro._dismiss()
+		await _frames(3)
+	_check(is_instance_valid(stage.selection), "opening picker opens after the card")
+	if is_instance_valid(stage.selection):
+		var offered := stage.selection._offered
+		var sins := {}
+		for card: BoonData in offered:
+			sins[card.sin] = true
+		_check(sins.size() == 1, "all opening cards come from a single realm")
 	stage.queue_free()
 	await _frames(2)
-	_check(true, "entry gift path leaves meta untouched")
 
 
 func _find_intro(stage: Node) -> RealmIntro:

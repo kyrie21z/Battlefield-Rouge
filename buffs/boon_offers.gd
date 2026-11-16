@@ -12,10 +12,20 @@ static func pick(manager: BoonManager, rng: RandomNumberGenerator, count: int = 
 	if count <= 0:
 		return result
 	if starter:
+		# The opening gift is one realm's three core cards, not three cards from
+		# three realms. That way the mechanic card explains a single noun and the
+		# player starts the run understanding one system instead of half of four.
+		var realms: Array[int] = []
+		for card in candidates:
+			if card.core and not realms.has(card.sin):
+				realms.append(card.sin)
+		if realms.is_empty():
+			return result
+		var opening_sin: int = realms[rng.randi_range(0, realms.size() - 1)]
 		for slot in [BoonData.Slot.GUN, BoonData.Slot.BLADE, BoonData.Slot.DASH]:
 			var matching: Array[BoonData] = []
 			for card in candidates:
-				if card.core and card.slot == slot:
+				if card.core and card.slot == slot and card.sin == opening_sin:
 					matching.append(card)
 			var fresh: Array[BoonData] = []
 			for card in matching:

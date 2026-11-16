@@ -399,10 +399,16 @@ func _offer_reward(entry := false) -> void:
 ## cards from that realm show up. Only fires when the offer actually contains a
 ## card carrying this realm's sin, so a pure stat roll never triggers it.
 func _should_introduce(entry: bool) -> bool:
-	if entry or not MetaProgression.realm_needs_intro(realm):
+	# The opening gift draws its three cards from a single realm, so it needs the
+	# same explanation the first door reward would. The realm comes from the offer
+	# itself because `realm` is still the level's own sin at that point.
+	var target := realm
+	if entry and not _reward_offer.is_empty():
+		target = _reward_offer[0].sin
+	if not MetaProgression.realm_needs_intro(target):
 		return false
 	for card: BoonData in _reward_offer:
-		if card.sin == realm and card.rarity != BoonData.Rarity.DUAL:
+		if card.sin == target and card.rarity != BoonData.Rarity.DUAL:
 			return true
 	return false
 
@@ -410,9 +416,12 @@ func _should_introduce(entry: bool) -> bool:
 func _show_intro() -> void:
 	var panel := RealmIntro.new()
 	add_child(panel)
-	panel.setup(realm)
+	var target := realm
+	if _reward_context == "enter" and not _reward_offer.is_empty():
+		target = _reward_offer[0].sin
+	panel.setup(target)
 	panel.dismissed.connect(func() -> void:
-		MetaProgression.mark_realm_introduced(realm)
+		MetaProgression.mark_realm_introduced(target)
 		_build_picker()
 	)
 

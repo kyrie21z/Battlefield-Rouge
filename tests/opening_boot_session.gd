@@ -62,8 +62,9 @@ func _run() -> void:
 		var stage_id := stage.get_instance_id()
 		check("exactly one actual realm is installed", stage == RunDirector.current_stage and get_tree().get_nodes_in_group("player").size() == 1)
 		check("opening preserves seed and initial shard/deprivation state", RunDirector.run_seed == seed_before and RunDirector.shards.is_empty() and RunDirector.deprivations.is_empty())
-		check("real initial reward UI is offered once", is_instance_valid(stage.selection) and stage._reward_context == "enter")
-		stage.selection._buttons[0].pressed.emit()
+		# a fresh run no longer opens with a three-card gift: the first card is
+		# claimed from the talent orb after the first room is cleared
+		check("a fresh run starts without an opening card offer", not is_instance_valid(stage.selection) and stage._reward_context == "")
 		await get_tree().process_frame
 		var actor: Player = stage.player
 		var ammo := actor.weapon.ammo

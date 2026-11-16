@@ -1,0 +1,288 @@
+{
+  "date": "2026-11-16",
+  "base_commit": "0a1a6ffe1c39215656d36705853206a4be265e9e",
+  "branch": "fix/fear-orb-combat-hitches",
+  "engine": "4.7.2-stable",
+  "gpu": "RTX4060 Laptop GPU",
+  "renderer": "Vulkan Forward+",
+  "resolution": [
+    1280,
+    720
+  ],
+  "native_checks": 28,
+  "initial_regression_suites": 15,
+  "after_catalog_suites": 4,
+  "final_flow_checks": 26,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5008,
+      "sha256": "b4fe56f17c8652ed7cec66b5c4660f710f874fc06c6f140cfe97a5a6f5434a3d"
+    },
+    {
+      "path": "after-catalog.json",
+      "bytes": 721,
+      "sha256": "2d43e3f25b8aaea1755588d8cfe822169dba72999a4c5a29ab20f70455628f8c"
+    },
+    {
+      "path": "after-probe.json",
+      "bytes": 1565,
+      "sha256": "ef5f4e41cd0215218882d82cbe3e1f5cfe0b2c046f0e493f083bc93951b4026a"
+    },
+    {
+      "path": "after-probe.log",
+      "bytes": 1340,
+      "sha256": "154c769dc9548188f3ed657c57f5b46eef277d49fbc2529bd5bf22ecf778f051"
+    },
+    {
+      "path": "before-first.json",
+      "bytes": 1565,
+      "sha256": "6edadcc8cde383d6a5830b9ab354983d4b8be9fe3027e8dfc5353c52bff0b319"
+    },
+    {
+      "path": "before-first.log",
+      "bytes": 1293,
+      "sha256": "85ffdd92f51f215eaacb8e358ffaeab756922a12e183d970b6c8a6f1fbe83424"
+    },
+    {
+      "path": "before-probe.json",
+      "bytes": 1568,
+      "sha256": "cc7559980ec65e464e568748b5a435af517d1bcd88ae8430d69067f17b9017cd"
+    },
+    {
+      "path": "before-probe.log",
+      "bytes": 1344,
+      "sha256": "c0b5d20a91aa184be9a870eca360f05505656797de003bcb81c02f26c6ee6a10"
+    },
+    {
+      "path": "fear-orb-assembling.jpg",
+      "bytes": 97471,
+      "sha256": "c930785b72a067ec1384a60f0e711303ed9492e2785d4a7532cbb21334b26ab3"
+    },
+    {
+      "path": "fear-orb-ready.jpg",
+      "bytes": 88417,
+      "sha256": "50c26a3e336f244370f8525cb99c751be7c965a6a8b12c71a3b35c5dfc6e5c64"
+    },
+    {
+      "path": "final-1.json",
+      "bytes": 1840,
+      "sha256": "b1eae0b7311d6ef22b599a7e49b70d4df67ee663f1e9b17c99ab8752c5f7979d"
+    },
+    {
+      "path": "final-1.log",
+      "bytes": 1496,
+      "sha256": "620412db4bef03cd81cc4c8bef3ab8bc5314920bee043298f596f5d40e0bc815"
+    },
+    {
+      "path": "final-2.json",
+      "bytes": 1838,
+      "sha256": "e33f7afb378de0d13ecc1fde5848428aeff9f18277c7e24a8d4f67e101e6a7c0"
+    },
+    {
+      "path": "final-2.log",
+      "bytes": 1494,
+      "sha256": "f8b902f2d2d42ed8a8e7fdb0fcb0dc44028dd722233cdd574ce1a9a5fe0156cd"
+    },
+    {
+      "path": "fixture.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "import.log",
+      "bytes": 1850,
+      "sha256": "9efe29ca64579d9e1c67deddf39489ac5c56cc80e5767e33c615e00188472a2a"
+    },
+    {
+      "path": "initial-batch.json",
+      "bytes": 2765,
+      "sha256": "5390234fe631bafcda668a2bd4eefc782f03b16048a0eb9f1dd1834f275a038c"
+    },
+    {
+      "path": "native.log",
+      "bytes": 1635,
+      "sha256": "c346ae90dd800b816c4dc46c14142fd3462955216b209143c48ffa4d4ab0bc7d"
+    },
+    {
+      "path": "probe-driver.gd.txt",
+      "bytes": 3505,
+      "sha256": "0866e4d2ae3db81ff86c8933bb75a688f08cf2fc7b0d1d0775a02dc2874c655b"
+    },
+    {
+      "path": "probe-map.tscn.txt",
+      "bytes": 560,
+      "sha256": "6de5c97edf594fd0de065b99cddb5723752569be3e7133f0183142bd545fa7c3"
+    },
+    {
+      "path": "probe-stage.gd.txt",
+      "bytes": 346,
+      "sha256": "31eb9fd6a7eaab49dce9bc3810ebff7c32a91d8c0fee3dd54dac1d55e9091daf"
+    },
+    {
+      "path": "regression-boon_offers.log",
+      "bytes": 4311,
+      "sha256": "73b67b7c29c784cd28ecfb261614f4837c1ec5f89595fc0e6ffd31d5e0d66c7c"
+    },
+    {
+      "path": "regression-buff_run.log",
+      "bytes": 8531,
+      "sha256": "f60d8a85fbb437ad42197212001ce4fab7d71ebb7daa90814fe5c12bf2fee5ec"
+    },
+    {
+      "path": "regression-campaign_realms.log",
+      "bytes": 4404,
+      "sha256": "3e95998413a1a11a13755b9bddbc664f22da7baa04eb06cb75b7a06ab3aee62a"
+    },
+    {
+      "path": "regression-capture_hammer.log",
+      "bytes": 2674,
+      "sha256": "3913ce95b430964346584e90da8326fa065e488fa1f3839028b8c2ea7d364456"
+    },
+    {
+      "path": "regression-fear_hitches.log",
+      "bytes": 1477,
+      "sha256": "007848316ad65217ff6b520b337217f6bb2e12201801b221543809b9a3c5235f"
+    },
+    {
+      "path": "regression-fear_morph_crawler.log",
+      "bytes": 1123,
+      "sha256": "2b77bf7e294c1fac6dc2ee07106d958cd97588d65d9e748708af9ecb22071037"
+    },
+    {
+      "path": "regression-fear_orb_flow.log",
+      "bytes": 1471,
+      "sha256": "3fb92882eefaac1a831b21e3a4b3ea12a1982229ebb362317b6c850ec2ab0847"
+    },
+    {
+      "path": "regression-fear_playtest.log",
+      "bytes": 1805,
+      "sha256": "1b1a5ed6e857ebc0930eae2958f04d0510e5aa62fec849721c61199fda1d6a73"
+    },
+    {
+      "path": "regression-fear_reaper.log",
+      "bytes": 1616,
+      "sha256": "704b281dd7efe95a2315e856695308b0392669f8256140be3fce87ce6480cbca"
+    },
+    {
+      "path": "regression-hud.log",
+      "bytes": 18639,
+      "sha256": "15c140047683856f13e65172c05894b05589e5b65c7b1153eeddedc4c5be54cd"
+    },
+    {
+      "path": "regression-realm_boss_stage.log",
+      "bytes": 1103,
+      "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+    },
+    {
+      "path": "regression-realm_stage.log",
+      "bytes": 1690,
+      "sha256": "9e6ccceac383cf9591c326db57c88c0752aa49190ed6c6996cc9ded16d52c9e7"
+    },
+    {
+      "path": "regression-reinforcement.log",
+      "bytes": 5889,
+      "sha256": "d1740147b4b71c4ffde1e0e82a586bce2509abe4966d1a15a8c00161d5908f15"
+    },
+    {
+      "path": "regression-talent_orb_ingame.log",
+      "bytes": 3195,
+      "sha256": "58f0fa033a28b7732ca7845928bd973b6b7c719cd924f085b0d56b7e33313ebb"
+    },
+    {
+      "path": "regression-wrath_audio.log",
+      "bytes": 3940,
+      "sha256": "d35d77b0042789fcb00ad16b232233d32e49341a58050f1abab2044ed4b6e248"
+    },
+    {
+      "path": "without-catalog-1.json",
+      "bytes": 1843,
+      "sha256": "ff18eda961e8216a4c1c3a8467ef9b91498cb0c05803501c7d3938db29f05d19"
+    },
+    {
+      "path": "without-catalog-1.log",
+      "bytes": 1499,
+      "sha256": "d356e48c5f1d7a7527a54ec1e7b6d3cad5547b09a7d31a04f0e89eff491694ce"
+    },
+    {
+      "path": "without-catalog-2.json",
+      "bytes": 1843,
+      "sha256": "fb02cdca1b127087d8e67269914a5eb80b986635589b9fac4ff4a0d008775f85"
+    },
+    {
+      "path": "without-catalog-2.log",
+      "bytes": 1499,
+      "sha256": "917814f16d9b772830bdc2c6008f6be69b27685b26267d41ed3f0a0851069c57"
+    }
+  ],
+  "sources": [
+    {
+      "path": "GLOSSARY.md",
+      "bytes": 36747,
+      "sha256": "ca2d0abf3d82747d9a5bed14457135d3fd8ba2c34d3cdd0a48da27206573d44c"
+    },
+    {
+      "path": "README.md",
+      "bytes": 14681,
+      "sha256": "5154dec4c6f443e12a674024f91dd54062438cc18cfc2b1ea280dd1750c45999"
+    },
+    {
+      "path": "docs/ASSETS.md",
+      "bytes": 55435,
+      "sha256": "34860de5eed028940afa618b4f44dba47f0a33a941da8f8c782dc813f785cbb0"
+    },
+    {
+      "path": "objects/talent_orb/talent_orb.gd",
+      "bytes": 11880,
+      "sha256": "bf7f551208d9d9794ef51fed320c0a00394b6ad040c4070b56d2baf11d30c16a"
+    },
+    {
+      "path": "tests/fear_hitches_bench.gd",
+      "bytes": 4157,
+      "sha256": "aaea64eab21cf25e5a552c40371a7f5d12995b9d4c89756d27441ccbfd4081dd"
+    },
+    {
+      "path": "tests/fear_orb_flow_test.gd",
+      "bytes": 6457,
+      "sha256": "8332d42a590874ffdb1b3762f5172931d4ae6ed3b85c46b899a242bbfef0718d"
+    },
+    {
+      "path": "tests/fear_orb_flow_test.gd.uid",
+      "bytes": 19,
+      "sha256": "98cd8e7e99eaf4e95fe2b8b1f93276d4417c78b6d0a800ea09ca912084173648"
+    },
+    {
+      "path": "tests/fear_orb_flow_test.tscn",
+      "bytes": 178,
+      "sha256": "ce97772c545895f35287704a479fd4c39a87d63fd5dc641238b7dcbaeb783014"
+    },
+    {
+      "path": "zone/realm_stage.gd",
+      "bytes": 23373,
+      "sha256": "ec6676611a9a7091f88dcfd9e5c8bd7f1c906d14d877427d6c8102bff3f525de"
+    }
+  ],
+  "models": [
+    {
+      "path": "objects/talent_orb/orb_shell.glb",
+      "git_blob": "3ac5ad5e62542ad71b3c6c6bf6f0aa2f01f32d32",
+      "bytes": 1121976,
+      "sha256": "ee634e0bb9fd9b7fd0f749d72997775c38fd159c625392c480d9b1fdc45a357f",
+      "unchanged": true
+    },
+    {
+      "path": "objects/talent_orb/orb_core.glb",
+      "git_blob": "bdc2dd2e21d2a0516cb4715a8d87de1c636727a2",
+      "bytes": 156500,
+      "sha256": "cd6a45a766f05857c848f8bf6f785e8fc5a816441c9c2a55422f0f44e986d219",
+      "unchanged": true
+    }
+  ],
+  "limits": [
+    "Driver persistent cache not cleared; 916ms is not a paired cold-cache comparison.",
+    "Later-process spawn: 32.119ms before, 10.819/10.646ms after.",
+    "Picker UI still costs 44-46ms; one assembly frame reached 20.782ms.",
+    "Preparation moves work into room entry and retains standby mesh/material resources.",
+    "Import exits 0 with known host Safe save failed diagnostic."
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "fear_orb_flow",
+    "exit": 0,
+    "seconds": 13.3,
+    "passed": true,
+    "summary": [
+      "FEAR ORB FLOW: 26 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_hitches",
+    "exit": 0,
+    "seconds": 6.27,
+    "passed": true,
+    "summary": [
+      "FEAR HITCHES: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "boon_offers",
+    "exit": 0,
+    "seconds": 3.02,
+    "passed": true,
+    "summary": [
+      "BOON OFFERS: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "campaign_realms",
+    "exit": 0,
+    "seconds": 25.14,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (98 checks)"
+    ],
+    "diagnostics": []
+  }
+]

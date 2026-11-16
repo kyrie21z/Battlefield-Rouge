@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+{"cpu_ms":0.0,"event":"idle","frame_max_ms":2.94,"frame_p95_ms":2.471,"time_scale":1.0}
+{"cpu_ms":0.242,"event":"summon-0","frame_max_ms":2.27,"frame_p95_ms":1.879,"time_scale":1.0}
+{"cpu_ms":0.057,"event":"dismiss-0","frame_max_ms":2.068,"frame_p95_ms":1.974,"time_scale":1.0}
+{"cpu_ms":0.224,"event":"summon-1","frame_max_ms":2.037,"frame_p95_ms":2.002,"time_scale":1.0}
+{"cpu_ms":0.059,"event":"dismiss-1","frame_max_ms":2.072,"frame_p95_ms":1.978,"time_scale":1.0}
+{"cpu_ms":0.233,"event":"summon-2","frame_max_ms":3.755,"frame_p95_ms":1.962,"time_scale":1.0}
+{"cpu_ms":0.057,"event":"dismiss-2","frame_max_ms":2.024,"frame_p95_ms":1.967,"time_scale":1.0}
+{"cpu_ms":4.269,"event":"death-0","frame_max_ms":6.248,"frame_p95_ms":2.147,"time_scale":1.0}
+{"cpu_ms":0.749,"event":"death-1","frame_max_ms":2.314,"frame_p95_ms":2.083,"time_scale":1.0}
+{"cpu_ms":0.629,"event":"death-2","frame_max_ms":2.733,"frame_p95_ms":1.949,"time_scale":1.0}
+ORB effect CPU ms 9.117
+ORB spawn CPU ms 16.765
+{"cpu_ms":0.678,"event":"death-3","frame_max_ms":32.119,"frame_p95_ms":5.256,"time_scale":1.0}
+{"cpu_ms":0.665,"event":"death-boss","frame_max_ms":4.678,"frame_p95_ms":2.115,"time_scale":1.0}

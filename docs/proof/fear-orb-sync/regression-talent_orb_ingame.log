@@ -1,0 +1,84 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== res://maps/realms/sloth_1.tscn
+  [ok] scene loads
+  [ok] root instantiates as RealmStage
+  [ok] exit gate exists
+  [ok] no orb while enemies are alive
+  [ok] stage reports cleared after the last kill
+  [ok] talent orb spawned
+  [ok] orb is pending (awaiting F)
+     orb at (0.0, 1.28, -18.05), gate at (0.0, 0.0, -20.0), gap 2.33 m
+  [ok] orb stands in front of the gate (2.33 m)
+  [ok] orb hovers above the floor (y=1.28)
+     player is 34.1 m from the orb
+  [ok] range check agrees with real distance
+  [ok] orb has a solid body
+  [ok] body is on the WORLD layer
+  [ok] body has a sphere shape
+  [ok] body radius (0.52) is smaller than the interact range (2.80)
+  [ok] orb is consumed on claim
+  [ok] claiming turns the solid body off
+  [ok] three-card picker opened
+== res://maps/realms/fear_1.tscn
+  [ok] scene loads
+  [ok] root instantiates as RealmStage
+  [ok] exit gate exists
+  [ok] no orb while enemies are alive
+  [ok] stage reports cleared after the last kill
+  [ok] talent orb spawned
+  [ok] orb is pending (awaiting F)
+     orb at (0.0, 1.28, -18.05), gate at (0.0, 0.0, -20.0), gap 2.33 m
+  [ok] orb stands in front of the gate (2.33 m)
+  [ok] orb hovers above the floor (y=1.28)
+     player is 34.1 m from the orb
+  [ok] range check agrees with real distance
+  [ok] orb has a solid body
+  [ok] body is on the WORLD layer
+  [ok] body has a sphere shape
+  [ok] body radius (0.52) is smaller than the interact range (2.80)
+  [ok] orb is consumed on claim
+  [ok] claiming turns the solid body off
+  [ok] three-card picker opened
+== res://maps/realms/wrath_1.tscn
+  [ok] scene loads
+  [ok] root instantiates as RealmStage
+  [ok] exit gate exists
+  [ok] no orb while enemies are alive
+  [ok] stage reports cleared after the last kill
+  [ok] talent orb spawned
+  [ok] orb is pending (awaiting F)
+     orb at (0.0, 1.28, -18.05), gate at (0.0, 0.0, -20.0), gap 2.33 m
+  [ok] orb stands in front of the gate (2.33 m)
+  [ok] orb hovers above the floor (y=1.28)
+     player is 34.1 m from the orb
+  [ok] range check agrees with real distance
+  [ok] orb has a solid body
+  [ok] body is on the WORLD layer
+  [ok] body has a sphere shape
+  [ok] body radius (0.52) is smaller than the interact range (2.80)
+  [ok] orb is consumed on claim
+  [ok] claiming turns the solid body off
+  [ok] three-card picker opened
+== res://maps/realms/sorrow_1.tscn
+  [ok] scene loads
+  [ok] root instantiates as RealmStage
+  [ok] exit gate exists
+  [ok] no orb while enemies are alive
+  [ok] stage reports cleared after the last kill
+  [ok] talent orb spawned
+  [ok] orb is pending (awaiting F)
+     orb at (0.0, 1.28, -18.05), gate at (0.0, 0.0, -20.0), gap 2.33 m
+  [ok] orb stands in front of the gate (2.33 m)
+  [ok] orb hovers above the floor (y=1.28)
+     player is 34.1 m from the orb
+  [ok] range check agrees with real distance
+  [ok] orb has a solid body
+  [ok] body is on the WORLD layer
+  [ok] body has a sphere shape
+  [ok] body radius (0.52) is smaller than the interact range (2.80)
+  [ok] orb is consumed on claim
+  [ok] claiming turns the solid body off
+  [ok] three-card picker opened
+
+ALL PASSED (68 checks, 0 failed)

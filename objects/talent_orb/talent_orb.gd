@@ -155,7 +155,7 @@ func scatter(radius: float = 1.9) -> void:
 		})
 		i += 1
 	# every mesh takes part, so the count is the full piece total - assembly_seconds()
-	# needs it to report the real duration (113 pieces -> ~4.56 s, not 2.30 s)
+	# needs the actual imported count to report the duration (102 -> 4.34 s).
 	_piece_count = i
 
 
@@ -215,6 +215,13 @@ func assembly_seconds() -> float:
 func set_core_visible(value: bool) -> void:
 	if _core != null:
 		_core.visible = value
+
+
+## Loading-only draw preparation; no tweens, clocks, or arrival progress advance.
+func set_prepared_transparency(value: float) -> void:
+	if _shell == null: return
+	for node in _shell.find_children("*", "MeshInstance3D", true, false):
+		(node as MeshInstance3D).transparency = value
 
 
 ## Pops the cube in with a small overshoot instead of hard-switching it on.

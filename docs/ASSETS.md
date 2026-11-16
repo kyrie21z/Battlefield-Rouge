@@ -1,5 +1,9 @@
 # 素材登记
 
+## 最新天赋球与恐惧优化取证（2026-11-16，#222）
+
+`docs/proof/fear-orb-sync/fear-orb-assembling.jpg`与`fear-orb-ready.jpg`来自本项目Godot4.7.2原生`fear_orb_flow_test.tscn`，展示恐惧关真实清场后拼合和成球。仅PNG转JPEG，无重绘。复用main已合并的`objects/talent_orb/orb_shell.glb`与`orb_core.glb`，两份模型逐字节不变；当前实际导入的壳体为102个MeshInstance，完整保留，未按旧说明中的113人为增删。源码、原始模型及截图SHA256见同目录`validation.json`。没有新增第三方模型、贴图或音频。
+
 ## 恐惧卡顿优化取证（2026-11-16，#219）
 
 `docs/proof/fear-hitches/wisp-warning.jpg`为本项目Godot4.7.2原生`fear_reaper_test.tscn`截图，展示预建演员激活后仍保留原张嘴表情。仅PNG转JPEG，没有重绘或生成式替换；SHA256与字节数见同目录`validation.json`。性能改动复用已登记的模型、材质和声音，没有增加第三方素材。

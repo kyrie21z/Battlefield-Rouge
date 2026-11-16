@@ -1,0 +1,86 @@
+[
+  {
+    "cpu_ms": 0.0,
+    "event": "idle",
+    "frame_max_ms": 3.081,
+    "frame_p95_ms": 2.573,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.247,
+    "event": "summon-0",
+    "frame_max_ms": 2.311,
+    "frame_p95_ms": 2.09,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.119,
+    "event": "dismiss-0",
+    "frame_max_ms": 2.368,
+    "frame_p95_ms": 2.018,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.219,
+    "event": "summon-1",
+    "frame_max_ms": 2.085,
+    "frame_p95_ms": 2.027,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.058,
+    "event": "dismiss-1",
+    "frame_max_ms": 2.426,
+    "frame_p95_ms": 2.003,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.202,
+    "event": "summon-2",
+    "frame_max_ms": 3.099,
+    "frame_p95_ms": 2.048,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.064,
+    "event": "dismiss-2",
+    "frame_max_ms": 2.468,
+    "frame_p95_ms": 1.962,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 4.3,
+    "event": "death-0",
+    "frame_max_ms": 6.18,
+    "frame_p95_ms": 2.576,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.614,
+    "event": "death-1",
+    "frame_max_ms": 2.395,
+    "frame_p95_ms": 2.22,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.735,
+    "event": "death-2",
+    "frame_max_ms": 2.472,
+    "frame_p95_ms": 2.072,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.744,
+    "event": "death-3",
+    "frame_max_ms": 11.508,
+    "frame_p95_ms": 4.184,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.729,
+    "event": "death-boss",
+    "frame_max_ms": 4.808,
+    "frame_p95_ms": 1.961,
+    "time_scale": 1.0
+  }
+]

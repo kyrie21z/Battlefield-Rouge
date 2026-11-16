@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS reward definitions are resident before any pickup
+AUTHORED ORB: pieces=102 seconds=4.34
+PASS Fear loads one unclaimed standby orb
+PASS standby cannot block actors or bullets
+PASS standby clock and animations do not advance
+PASS assembly keeps the imported model's 4.34-second schedule
+PASS pause freezes preparation progress
+PASS standby is hidden after warmup
+PASS warmup restores all fragments to unrevealed state
+PASS warmup does not expose the cube
+PASS combat still hides the pickup prompt
+PASS real final kill activates the exact prepared orb
+PASS clear stays unpaused and waits for interact
+PASS pickup regains authored size and real WORLD collision
+PASS pickup stands in front of the current gate
+PASS pause freezes an active assembly tween
+PASS all 102 imported fragments reach their original authored poses
+PASS cube ignites and idle motion resumes
+PASS player can reach the solid orb within 2.8m
+PASS actual F input consumes the orb and opens the paused picker
+PASS claim immediately removes its invisible-wall risk
+PASS repeated F cannot open another picker
+PASS accepting the actual card unlocks the gate and resumes play
+PASS consumed orb fully frees after absorption
+PASS next F requests exactly one next-room transition
+PASS immediate debug clear safely interrupts startup warmup
+PASS leaving mid-assembly frees the prepared model and tweens
+FEAR ORB FLOW: 26 checks, 0 failed

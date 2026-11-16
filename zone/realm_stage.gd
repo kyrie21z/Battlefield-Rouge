@@ -52,6 +52,8 @@ var _reward_offer: Array[BoonData] = []
 ## is clear. The player walks up and presses interact to open the reward offer.
 var talent_orb: TalentOrb
 var _orb_ready := false
+var _prepared_orb: TalentOrb
+var _orb_warm_frames := 0
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -66,6 +68,8 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	# Keep definitions resident before pickup; eligibility/RNG stay at claim time.
+	if realm == 1: BoonCatalog.all()
 	CrystalBurst.prepare(self)
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)
@@ -102,6 +106,36 @@ func _ready() -> void:
 	add_child(hud)
 	get_tree().paused = false
 	_install_audio()
+	if realm == 1 and not boss_room: _prepare_talent_orb()
+
+func _prepare_talent_orb() -> void:
+	_prepared_orb = TalentOrb.new()
+	_prepared_orb.name = "PreparedTalentOrb"
+	_prepared_orb.set_player(player)
+	_prepared_orb.set_idle_enabled(false)
+	add_child(_prepared_orb)
+	_prepared_orb.set_collision_enabled(false)
+	_prepared_orb.process_mode = Node.PROCESS_MODE_DISABLED
+	_prepared_orb.scatter(1.9)
+	_prepared_orb.set_accent(BoonIdentity.COLORS[realm])
+	# Real tiny draws prepare both translucent fragments and settled opaque plates.
+	_prepared_orb.position = player.position + Vector3(0,1.4,-3)
+	_prepared_orb.scale = Vector3.ONE*0.01
+	_prepared_orb.set_prepared_transparency(0.5)
+	_orb_warm_frames = 4
+
+func _process(_delta: float) -> void:
+	if _orb_warm_frames <= 0: return
+	_orb_warm_frames -= 1
+	if _orb_warm_frames == 2: _prepared_orb.set_prepared_transparency(0.0)
+	if _orb_warm_frames == 0: _finish_orb_preparation()
+
+func _finish_orb_preparation() -> void:
+	_orb_warm_frames = 0
+	_prepared_orb.hide()
+	_prepared_orb.scale = Vector3.ONE
+	_prepared_orb.set_prepared_transparency(1.0)
+	_prepared_orb.set_core_visible(false)
 
 func _install_audio() -> void:
 	var path := "res://audio/realms/%s_audio_director.gd" % REALMS[realm]
@@ -255,7 +289,13 @@ func _spawn_talent_orb() -> void:
 	if is_instance_valid(talent_orb) or fallen:
 		return
 	_orb_ready = true
-	talent_orb = TalentOrb.new()
+	var prepared := is_instance_valid(_prepared_orb)
+	if prepared:
+		_finish_orb_preparation()
+		talent_orb = _prepared_orb
+		_prepared_orb = null
+	else:
+		talent_orb = TalentOrb.new()
 	talent_orb.name = "TalentOrb"
 	talent_orb.set_player(player)
 	# stand it between the gate and the player, so it reads as "the door's reward"
@@ -270,10 +310,13 @@ func _spawn_talent_orb() -> void:
 	talent_orb.position = anchor + away * 1.95
 	talent_orb.position.y = talent_orb.base_height
 	talent_orb.set_idle_enabled(false)
-	add_child(talent_orb)
+	if not prepared: add_child(talent_orb)
+	talent_orb.process_mode = Node.PROCESS_MODE_INHERIT
+	talent_orb.set_collision_enabled(true)
+	talent_orb.show()
 	# shatter the shell into its own armour pieces, then fly them back together
 	talent_orb.set_core_visible(false)
-	talent_orb.scatter(1.9)
+	if not prepared: talent_orb.scatter(1.9)
 	talent_orb.set_accent(BoonIdentity.COLORS[realm])
 	_play_orb_arrival()
 

@@ -1,0 +1,9 @@
+extends RealmStage
+func _spawn_talent_orb() -> void:
+	var start := Time.get_ticks_usec()
+	super._spawn_talent_orb()
+	print("ORB spawn CPU ms ", (Time.get_ticks_usec()-start)/1000.0)
+func _play_orb_arrival() -> void:
+	var start := Time.get_ticks_usec()
+	super._play_orb_arrival()
+	print("ORB effect CPU ms ", (Time.get_ticks_usec()-start)/1000.0)

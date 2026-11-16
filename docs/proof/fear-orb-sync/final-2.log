@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+{"cpu_ms":0.0,"event":"idle","frame_max_ms":2.312,"frame_p95_ms":2.056,"time_scale":1.0}
+{"cpu_ms":0.241,"event":"summon-0","frame_max_ms":1.83,"frame_p95_ms":1.71,"time_scale":1.0}
+{"cpu_ms":0.058,"event":"dismiss-0","frame_max_ms":2.297,"frame_p95_ms":1.811,"time_scale":1.0}
+{"cpu_ms":0.216,"event":"summon-1","frame_max_ms":1.777,"frame_p95_ms":1.686,"time_scale":1.0}
+{"cpu_ms":0.061,"event":"dismiss-1","frame_max_ms":1.99,"frame_p95_ms":1.766,"time_scale":1.0}
+{"cpu_ms":0.199,"event":"summon-2","frame_max_ms":1.764,"frame_p95_ms":1.667,"time_scale":1.0}
+{"cpu_ms":0.063,"event":"dismiss-2","frame_max_ms":2.05,"frame_p95_ms":1.764,"time_scale":1.0}
+{"cpu_ms":4.211,"event":"death-0","frame_max_ms":5.92,"frame_p95_ms":1.842,"time_scale":1.0}
+{"cpu_ms":0.652,"event":"death-1","frame_max_ms":2.891,"frame_p95_ms":2.113,"time_scale":1.0}
+{"cpu_ms":0.63,"event":"death-2","frame_max_ms":2.826,"frame_p95_ms":2.53,"time_scale":1.0}
+{"cpu_ms":0.608,"event":"death-3","frame_max_ms":10.646,"frame_p95_ms":4.915,"time_scale":1.0}
+{"cpu_ms":0.0,"event":"orb-assembly","frame_max_ms":20.782,"frame_p95_ms":4.391,"time_scale":1.0}
+{"cpu_ms":25.509,"event":"orb-claim-picker","frame_max_ms":44.283,"frame_p95_ms":1.672,"time_scale":1.0}
+{"cpu_ms":0.598,"event":"death-boss","frame_max_ms":4.572,"frame_p95_ms":1.614,"time_scale":1.0}

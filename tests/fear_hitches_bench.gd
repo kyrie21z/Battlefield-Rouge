@@ -11,8 +11,9 @@ func _process(_delta: float) -> void:
 	last = now
 func frames(count: int) -> void:
 	for index in count: await get_tree().process_frame
-func window(label: String, cost: float, count := 24) -> void:
-	await frames(count)
+func window(label: String, cost: float, count := 24, seconds := 0.0) -> void:
+	if seconds > 0.0: await get_tree().create_timer(seconds).timeout
+	else: await frames(count)
 	var sorted := samples.duplicate()
 	sorted.sort()
 	var row := {"event":label,"cpu_ms":cost,"frame_max_ms":sorted[-1] if not sorted.is_empty() else 0.0,"frame_p95_ms":sorted[int((sorted.size()-1)*0.95)] if not sorted.is_empty() else 0.0,"time_scale":Engine.time_scale}
@@ -66,6 +67,18 @@ func _ready() -> void:
 		var cost := (Time.get_ticks_usec()-started)/1000.0
 		await window("death-%d" % stage.enemies.find(actor),cost,40)
 		get_tree().paused = false
+	# Clear now creates a world pickup. Sample its full animation and claim apart
+	# from the killing frame, rather than calling all three events a reward popup.
+	if stage.orb_pending():
+		stage.player.aim_at(stage.talent_orb.global_position)
+		samples.clear()
+		await window("orb-assembly",0.0,0,stage.talent_orb.assembly_seconds()+1.3)
+		samples.clear()
+		var claim_start := Time.get_ticks_usec()
+		stage.claim_talent()
+		await window("orb-claim-picker",(Time.get_ticks_usec()-claim_start)/1000.0,40)
+		stage.selection._choose(stage._reward_offer[0])
+		await frames(3)
 	await frames(180)
 	stage.queue_free()
 	await frames(5)

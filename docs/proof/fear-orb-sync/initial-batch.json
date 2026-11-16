@@ -1,0 +1,152 @@
+[
+  {
+    "name": "fear_orb_flow",
+    "exit": 0,
+    "seconds": 14.11,
+    "passed": true,
+    "summary": [
+      "FEAR ORB FLOW: 25 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "talent_orb_ingame",
+    "exit": 0,
+    "seconds": 9.66,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (68 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_hitches",
+    "exit": 0,
+    "seconds": 6.91,
+    "passed": true,
+    "summary": [
+      "FEAR HITCHES: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_reaper",
+    "exit": 0,
+    "seconds": 13.38,
+    "passed": true,
+    "summary": [
+      "FEAR REAPER: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_morph_crawler",
+    "exit": 0,
+    "seconds": 20.41,
+    "passed": true,
+    "summary": [
+      "FEAR MORPH CRAWLER: 18 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fear_playtest",
+    "exit": 0,
+    "seconds": 34.17,
+    "passed": true,
+    "summary": [
+      "FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_stage",
+    "exit": 0,
+    "seconds": 3.06,
+    "passed": true,
+    "summary": [
+      "REALM STAGE: 28 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_boss_stage",
+    "exit": 0,
+    "seconds": 2.56,
+    "passed": true,
+    "summary": [
+      "REALM BOSS STAGE: 20 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "campaign_realms",
+    "exit": 0,
+    "seconds": 23.91,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (98 checks)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "boon_offers",
+    "exit": 0,
+    "seconds": 3.34,
+    "passed": true,
+    "summary": [
+      "BOON OFFERS: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "wrath_audio",
+    "exit": 0,
+    "seconds": 7.67,
+    "passed": true,
+    "summary": [
+      "WRATH AUDIO: 40 checks, 0 failures"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "hud",
+    "exit": 0,
+    "seconds": 4.8,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (282 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "reinforcement",
+    "exit": 0,
+    "seconds": 64.08,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (77 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "buff_run",
+    "exit": 0,
+    "seconds": 11.8,
+    "passed": true,
+    "summary": [
+      "boon-two-small-zones-and-boss-epic2-seed-40408: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "capture_hammer",
+    "exit": 0,
+    "seconds": 7.3,
+    "passed": true,
+    "summary": [
+      "ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  }
+]

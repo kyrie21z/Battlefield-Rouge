@@ -1,0 +1,100 @@
+[
+  {
+    "cpu_ms": 0.0,
+    "event": "idle",
+    "frame_max_ms": 3.678,
+    "frame_p95_ms": 2.642,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.247,
+    "event": "summon-0",
+    "frame_max_ms": 2.792,
+    "frame_p95_ms": 1.814,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.066,
+    "event": "dismiss-0",
+    "frame_max_ms": 2.718,
+    "frame_p95_ms": 1.943,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.208,
+    "event": "summon-1",
+    "frame_max_ms": 2.848,
+    "frame_p95_ms": 1.729,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.06,
+    "event": "dismiss-1",
+    "frame_max_ms": 2.628,
+    "frame_p95_ms": 1.919,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.238,
+    "event": "summon-2",
+    "frame_max_ms": 3.381,
+    "frame_p95_ms": 1.989,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.059,
+    "event": "dismiss-2",
+    "frame_max_ms": 2.76,
+    "frame_p95_ms": 1.995,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 3.927,
+    "event": "death-0",
+    "frame_max_ms": 5.329,
+    "frame_p95_ms": 2.725,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.645,
+    "event": "death-1",
+    "frame_max_ms": 3.28,
+    "frame_p95_ms": 2.644,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.625,
+    "event": "death-2",
+    "frame_max_ms": 3.543,
+    "frame_p95_ms": 2.208,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.739,
+    "event": "death-3",
+    "frame_max_ms": 10.972,
+    "frame_p95_ms": 5.359,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.0,
+    "event": "orb-assembly",
+    "frame_max_ms": 6.602,
+    "frame_p95_ms": 4.272,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 256.159,
+    "event": "orb-claim-picker",
+    "frame_max_ms": 275.136,
+    "frame_p95_ms": 1.645,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.631,
+    "event": "death-boss",
+    "frame_max_ms": 4.699,
+    "frame_p95_ms": 1.707,
+    "time_scale": 1.0
+  }
+]

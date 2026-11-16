@@ -39,7 +39,10 @@ func _ready() -> void:
 		enemy.health.apply_damage(9999,Hitbox.BodyPart.BODY,stage.player)
 	await frames(3)
 	check("actual final Health death clears the room once",stage.cleared and deaths[0]==1)
-	check("clear opens the real BoonPicker and pauses combat",is_instance_valid(stage.selection) and get_tree().paused)
+	check("the talent orb waits in front of the gate",stage.orb_pending())
+	stage.claim_talent()
+	await frames(2)
+	check("claiming the orb opens the real BoonPicker and pauses combat",is_instance_valid(stage.selection) and get_tree().paused)
 	check("reward draws three cards belonging to the realm",stage.selection._offered.size()==3 and stage.selection._offered.all(func(card):return card.sin==BoonData.Sin.SLOTH))
 	check("exit remains locked before reward choice",not stage.exit_ready and not stage.request_exit())
 	var selected := stage.selection._offered[0]

@@ -2,6 +2,9 @@ class_name CollisionLayers
 ## Physics layer bits, in one place. Bullets test WORLD | HITBOXES only, so
 ## an actor's movement capsule never stops a bullet before its hitboxes.
 
+## Nothing at all. Use it where a body should not scan or be scanned, instead
+## of writing a bare 0 that reads like a mistyped layer.
+const NONE := 0
 ## Level geometry and props. Layer 1.
 const WORLD := 1 << 0
 ## The player's movement capsule. Layer 2.

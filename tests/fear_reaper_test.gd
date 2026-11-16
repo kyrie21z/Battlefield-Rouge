@@ -181,6 +181,10 @@ func _combat() -> void:
 	for actor in stage.enemies:
 		if not actor.health.is_dead(): actor.health.apply_damage(9999,Hitbox.BodyPart.BODY,player,{"true_damage":true})
 	await frames(3)
+	if stage.orb_pending():
+		stage.claim_talent()
+		await get_tree().process_frame
+		await get_tree().process_frame
 	check("normal clear still opens reward without chasing orphan summons",stage.cleared and is_instance_valid(stage.selection) and stage.living_enemies() == 0)
 	get_tree().paused = false
 	stage.queue_free()

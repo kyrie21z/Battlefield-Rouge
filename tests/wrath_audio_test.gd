@@ -289,7 +289,13 @@ func last_piercer_reward_checks() -> void:
 	actor.start_attack()
 	actor.set_physics_process(true)
 	var deadline := Time.get_ticks_msec()+15000
+	# the last piercer must die before the room clears, which is when the talent
+	# orb appears in front of the gate - claim it so the picker opens
+	var claimed_orb := false
 	while not is_instance_valid(room.selection) and Time.get_ticks_msec()<deadline:
+		if not claimed_orb and room.orb_pending():
+			claimed_orb = true
+			room.claim_talent()
 		await get_tree().process_frame
 	var real_path := is_instance_valid(room.selection) and actor.wall_detonations==1 and actor.health.is_dead() and room.cleared and get_tree().paused
 	check("last piercer really self-detonates and opens the paused reward picker",real_path)

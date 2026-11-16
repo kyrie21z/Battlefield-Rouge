@@ -1,0 +1,39 @@
+name: PR Review Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run_checks:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout PR head with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Godot 4.7.2-stable
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/godot/4.7.2-stable
+          key: godot-4.7.2-stable-linux-x86_64
+
+      - name: Install Godot and warm import cache
+        run: bash tools/review/install_godot.sh
+
+      - name: Run PR review checks (R1-R6)
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=0 || git fetch origin "${{ github.base_ref }}"
+          bash tools/review/run_checks.sh "origin/${{ github.base_ref }}"
+
+      - name: Upload review logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-logs
+          path: /tmp/review_logs
+          if-no-files-found: ignore

@@ -89,22 +89,22 @@ git merge main        # 把别人已合并的改动并进来，有冲突在这�
 
 #### PR 审查者
 
-- **kk（Grok Bot，运行在 Cursor Cloud Agent 上）** 是本仓库的常驻 PR 审查者。PR 打开或更新时自动审查（草稿除外）：在云端虚拟机上运行 `tools/review/run_checks.sh`，再按 [`docs/REVIEW.md`](docs/REVIEW.md) 审 diff。能不能合并以该文件为准。
-- kk 只审查，不推提交、不合并。
+- **HydrogenJr** 是本仓库的常驻 PR 审查 Agent（替代原 Cursor Cloud Agent 上的 kk）。**Kyrie（`kyrie21z`）本人提交的非草稿 PR 免审并由后台守护进程直接合并**；其他人打开或更新非草稿 PR 时，后台守护进程自动在隔离沙箱中拉起 HydrogenJr 运行 `tools/review/run_checks.sh` 并按 [`docs/REVIEW.md`](docs/REVIEW.md) 审 diff（同时 CI `.github/workflows/pr-checks.yml` 亦会运行检查）。能不能合并以该文件为准。
+- 审查通过（`Approve` 且不涉及 [`docs/REVIEW.md`](docs/REVIEW.md) 第四节受保护项）时，HydrogenJr 直接批准并 **Squash and merge**；否则发布审查评论，不合并。HydrogenJr 不向 PR 分支推提交、不关闭 PR。
 - 组员之间觉得有用时，仍然互相审查。
-- 原则上每个 PR 都等 kk 审完再合并。kk 暂时无法审查时，仍要满足下面的合并规则，由 Kyrie 决定是否先合。
-- **Kyrie**（仓库管理员，GitHub `kyrie21z`）负责点击合并。其他人不把 PR 合并进 `main`。
+- 原则上每个外部/组员 PR 都由 HydrogenJr 审完处理。HydrogenJr 暂时无法审查时，仍要满足下面的合并规则，由 Kyrie 决定是否先合。
+- **Kyrie**（仓库管理员，GitHub `kyrie21z`）本人提交的 PR 直接合并；涉及第四节受保护项的他人 PR 须由 Kyrie 本人批准合并。其他人不把 PR 合并进 `main`。
 
 #### 合并规则
 
-- 至少 **1 个 Approve**。kk 的审查算这一票，组员的 Approve 也同样算。`docs/REVIEW.md` 第四节列出的情况（架构文档、`autoload/`、`project.godot`、删除文件、fixture 哈希变化等）必须由 Kyrie 本人批准。
-- 由 Kyrie 使用 **Squash and merge** 合并，合并后删除远端分支。
+- 至少 **1 个 Approve**（HydrogenJr 的 Approve 或组员的 Approve 均算）。`docs/REVIEW.md` 第四节列出的情况（架构文档、`autoload/`、`project.godot`、删除文件、fixture 哈希变化等）仍须由 Kyrie 本人批准。
+- 使用 **Squash and merge** 合并，合并后删除远端分支。
 - 不要对 `main` force-push（禁止 `git push --force` 到 `main`）。
 - 合并后所有人 `git pull` 更新本地 `main`。
 
 审查意见对事不对人。看不懂的地方直接问，作者负责解释或改得更清楚。
 
-纯文档、错别字看 diff 即可。无界面测试和 fixture 由 kk 跑；玩法、碰撞、存档仍然要作者在本地用 Godot 实际玩过，因为手感和画面机器看不出来。自查项见第六节。
+纯文档、错别字看 diff 即可。无界面测试和 fixture 由 CI / HydrogenJr 跑；玩法、碰撞、存档仍然要作者在本地用 Godot 实际玩过，因为手感和画面机器看不出来。自查项见第六节。
 
 ## 四、Godot 特有的注意事项
 

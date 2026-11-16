@@ -262,6 +262,11 @@ func _read_payload(path: String) -> Dictionary:
 		if not data.archive is Dictionary or not data.archive.get("reconciled") is bool:
 			return {}
 		for field in ["visited_realms","defeated_realms","introduced_realms"]:
+			# A save written before a field existed simply does not carry it. Reading
+			# it as corruption would have thrown away every older profile, so a
+			# missing field means "empty list", not "damaged file".
+			if not data.archive.has(field):
+				continue
 			var values: Variant = data.archive.get(field)
 			if not values is Array or values.size()>4:
 				return {}

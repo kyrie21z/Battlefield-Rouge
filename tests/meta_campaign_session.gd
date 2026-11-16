@@ -45,7 +45,9 @@ func _run() -> void:
 	var stage: RealmStage = RunDirector.current_stage
 	check("talents and exactly one starting boon are prepared before first room",stage.player.health.max_health>=120 and stage.player.health.health==120 and RunDirector.boons.size()==1 and stage.player.boons.all_equipped().size()==1 and RunDirector.rerolls==3)
 	check("production pistol and dash receive capacity upgrades",stage.player.weapon.magazine_capacity()==11 and stage.player.dash.max_charges==3)
-	stage.selection._buttons[0].pressed.emit()
+	# the opening three-card gift was removed, so the borrowed first boon above is
+	# the only card a fresh run starts with and nothing is waiting to be chosen
+	check("no opening card offer is waiting",not is_instance_valid(stage.selection))
 	await frames()
 	stage.player.set_physics_process(false)
 	var crown := stage.player.get_node("CrownVoiceSystem") as CrownVoiceSystem

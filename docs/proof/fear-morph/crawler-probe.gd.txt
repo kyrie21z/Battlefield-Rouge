@@ -1,0 +1,21 @@
+extends Node
+func _ready() -> void: run.call_deferred()
+func run() -> void:
+	var stage := load("res://maps/realms/fear_2.tscn").instantiate() as RealmStage
+	add_child(stage)
+	var crawler: FearRealmEnemy
+	for actor in stage.enemies:
+		actor.set_physics_process(false)
+		if actor is FearRealmEnemy and actor.variant == 2: crawler = actor
+	stage.player.set_physics_process(false)
+	stage.player.health.max_health = 1000
+	stage.player.health.health = 1000
+	stage.player.position = Vector3(9,1.25,0)
+	crawler.position = Vector3(9,0.05,8)
+	crawler.set_physics_process(true)
+	for frame in 480:
+		await get_tree().physics_frame
+		if frame%60 == 0: print("PROBE ",frame," position=",crawler.position," attack=",crawler.attack_elapsed," hp=",stage.player.health.health," next=",crawler._agent.get_next_path_position())
+	stage.queue_free()
+	await get_tree().physics_frame
+	get_tree().quit()

@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+{"cpu_ms":0.0,"event":"idle","frame_max_ms":2.957,"frame_p95_ms":2.322,"time_scale":1.0}
+{"cpu_ms":0.263,"event":"summon-0","frame_max_ms":2.199,"frame_p95_ms":2.073,"time_scale":1.0}
+{"cpu_ms":0.055,"event":"dismiss-0","frame_max_ms":2.392,"frame_p95_ms":2.303,"time_scale":1.0}
+{"cpu_ms":0.214,"event":"summon-1","frame_max_ms":2.157,"frame_p95_ms":2.089,"time_scale":1.0}
+{"cpu_ms":0.058,"event":"dismiss-1","frame_max_ms":2.521,"frame_p95_ms":2.348,"time_scale":1.0}
+{"cpu_ms":0.218,"event":"summon-2","frame_max_ms":2.505,"frame_p95_ms":2.145,"time_scale":1.0}
+{"cpu_ms":0.066,"event":"dismiss-2","frame_max_ms":2.568,"frame_p95_ms":2.179,"time_scale":1.0}
+{"cpu_ms":4.002,"event":"death-CharacterBody3D-FearEnemy","frame_max_ms":5.507,"frame_p95_ms":2.485,"time_scale":1.0}
+{"cpu_ms":0.628,"event":"death-CharacterBody3D-@CharacterBody3D@514","frame_max_ms":2.838,"frame_p95_ms":2.583,"time_scale":1.0}
+{"cpu_ms":0.626,"event":"death-CharacterBody3D-@CharacterBody3D@686","frame_max_ms":2.783,"frame_p95_ms":2.653,"time_scale":1.0}
+{"cpu_ms":0.663,"event":"death-CharacterBody3D-FearReaper","frame_max_ms":44.038,"frame_p95_ms":2.545,"time_scale":1.0}
+{"cpu_ms":0.627,"event":"death-boss","frame_max_ms":4.707,"frame_p95_ms":2.287,"time_scale":1.0}

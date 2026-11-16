@@ -49,6 +49,7 @@ func _build() -> void:
 	for point in inner: edge.append(Vector3(point.x,point.y,-0.272))
 	_polyline(shape,edge,0.012,_light)
 	_box(_outfit,Vector3(0,1.8,-0.19),Vector3(0.22,0.055,0.04),_light)
+	FearShatter.prepare_for(self,_crystal)
 
 func set_ritual(progress: float, melee: bool) -> void:
 	set_cast(progress)
@@ -58,7 +59,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	if _dead: return
 	_dead = true
 	if animation != null: animation.pause()
-	var burst := FearShatter.new()
+	var burst := FearShatter.take(self,_crystal)
 	get_parent().get_parent().add_child(burst)
 	burst.build(self,global_position+Vector3.UP if point == Vector3.INF else point,direction)
 	model.hide()

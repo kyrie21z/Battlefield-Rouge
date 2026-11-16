@@ -1,0 +1,339 @@
+{
+  "date": "2026-11-16",
+  "base": "5ac99af6eb690313b604df27a7962584619cad14",
+  "base_tree": "7d372e63c875483c65238d1986f5097e21ea6736",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "native": "Vulkan Forward+ / RTX4060 Laptop GPU / 1280x720",
+  "native_checks": 33,
+  "regressions": [
+    {
+      "name": "fear_morph_crawler",
+      "exit": 0,
+      "seconds": 20.84,
+      "passed": true,
+      "summary": [
+        "FEAR MORPH CRAWLER: 18 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_reaper",
+      "exit": 0,
+      "seconds": 13.75,
+      "passed": true,
+      "summary": [
+        "FEAR REAPER: 27 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_sanctum",
+      "exit": 0,
+      "seconds": 22.83,
+      "passed": true,
+      "summary": [
+        "FEAR SANCTUM: 37 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_realm",
+      "exit": 0,
+      "seconds": 12.2,
+      "passed": true,
+      "summary": [
+        "FEAR REALM: ALL PASSED (32 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_oculus",
+      "exit": 0,
+      "seconds": 8.06,
+      "passed": true,
+      "summary": [
+        "FEAR OCULUS: ALL PASSED (29 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_audio",
+      "exit": 0,
+      "seconds": 6.97,
+      "passed": true,
+      "summary": [
+        "FEAR AUDIO: 24 checks, 0 failures"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "fear_playtest",
+      "exit": 0,
+      "seconds": 36.25,
+      "passed": true,
+      "summary": [
+        "FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_stage",
+      "exit": 0,
+      "seconds": 3.0,
+      "passed": true,
+      "summary": [
+        "REALM STAGE: 27 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_boss_stage",
+      "exit": 0,
+      "seconds": 2.36,
+      "passed": true,
+      "summary": [
+        "REALM BOSS STAGE: 20 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "campaign_realms",
+      "exit": 0,
+      "seconds": 29.31,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (98 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "run_director",
+      "exit": 0,
+      "seconds": 3.33,
+      "passed": true,
+      "summary": [
+        "ALL PASSED (54 checks)"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "realm_feedback",
+      "exit": 0,
+      "seconds": 10.25,
+      "passed": true,
+      "summary": [
+        "REALM FEEDBACK: 37 checks, 0 failed"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "sorrow_audio_integration",
+      "exit": 0,
+      "seconds": 7.02,
+      "passed": true,
+      "summary": [
+        "SORROW AUDIO INTEGRATION: 12 checks, 0 failures"
+      ],
+      "diagnostics": []
+    }
+  ],
+  "fixture_hashes": {
+    "FX-001": "18f02a294f3e538a",
+    "FX-002": "ad3703cd93d3073e"
+  },
+  "import_note": "Exit 0 with pre-existing host Safe save failed diagnostic.",
+  "sources": [
+    {
+      "path": "actors/enemy/fear/fear_realm_enemy.gd",
+      "bytes": 9707,
+      "sha256": "0f83ffcb4dc6a88c60b07ae39334bb3886da4926f9076a05b04519fae8e65522"
+    },
+    {
+      "path": "actors/enemy/fear/fear_wisp.gd",
+      "bytes": 3336,
+      "sha256": "8ff2fb5fe3883bab7fe56e2ae1ced7a7fc960f434e914d963b7d74351ecf842a"
+    },
+    {
+      "path": "actors/enemy/fear/fear_wisp.tscn",
+      "bytes": 1046,
+      "sha256": "92945ab84c670cc92340a44a7aa944953ebdab073e78c3b02ed4b98e15cc8f14"
+    },
+    {
+      "path": "actors/enemy/fear/wisp_visual.gd",
+      "bytes": 6344,
+      "sha256": "669e61f6fce933f67d4bdaa4bd02119ddda2392dbb39e85ab28785999aa35b4a"
+    },
+    {
+      "path": "actors/enemy/fear/wisp_shroud.gdshader",
+      "bytes": 445,
+      "sha256": "91790aa8cf3b89359170d0f394e3d17dca7ac80bedd460472d2c55502032123f"
+    },
+    {
+      "path": "actors/enemy/fear/wisp_tongue.gdshader",
+      "bytes": 263,
+      "sha256": "5ff887908f6201027f50923793b147d16ec3d449e89d7a2303a56529e8830119"
+    },
+    {
+      "path": "tests/fear_morph_crawler_test.gd",
+      "bytes": 5715,
+      "sha256": "6414195fdfc548664e63e31c8eccc1fce8a7d87056f65a44ce9d5165816b20e5"
+    }
+  ],
+  "files": [
+    {
+      "path": "crawler-before.log",
+      "bytes": 899,
+      "sha256": "f118c3f56596404933a3207d64315a921e11beebf75ea4d9de8867dce29f1e7d"
+    },
+    {
+      "path": "crawler-on-balcony.jpg",
+      "bytes": 145226,
+      "sha256": "1d3407f7e5aa4efa2e9c2949d31cfaf2d2bbc1b21af760e75d46b3ac4b2e8924",
+      "size": [
+        1280,
+        720
+      ],
+      "frames": 1
+    },
+    {
+      "path": "crawler-probe.gd.txt",
+      "bytes": 879,
+      "sha256": "cab474337d05731c6d68ea54e1bac6cdd6b99464cca9c46d9f5cbf63efbae507"
+    },
+    {
+      "path": "fixture-base.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "fixture-new.log",
+      "bytes": 2206,
+      "sha256": "7e1417a1268121069e40c25b2dc2050ba72d44827d34e3adb99fe2641f36975f"
+    },
+    {
+      "path": "ghost-calm.jpg",
+      "bytes": 162015,
+      "sha256": "152a52c20b964560220d962ddaed220c7ca35a6e799eecf2aee39ee34fcfa6b8",
+      "size": [
+        1280,
+        720
+      ],
+      "frames": 1
+    },
+    {
+      "path": "ghost-changing.jpg",
+      "bytes": 165407,
+      "sha256": "6a42fe4a6ba99235471b7fd435054ac876e94ef84d3b315a58b8a6bfbcb3055f",
+      "size": [
+        1280,
+        720
+      ],
+      "frames": 1
+    },
+    {
+      "path": "ghost-maw.jpg",
+      "bytes": 169752,
+      "sha256": "773fe795566f0f1316362d067754843ede5a83e0ba99ec5eddfa71b297c9e021",
+      "size": [
+        1280,
+        720
+      ],
+      "frames": 1
+    },
+    {
+      "path": "import.log",
+      "bytes": 1359,
+      "sha256": "24a8728a0d73bdefc78656272b99beca1e80d02f76032151e56c4f5b29b42842"
+    },
+    {
+      "path": "morph.gif",
+      "bytes": 188968,
+      "sha256": "df4df34a991dd81aeeb28d9ef11f5a55ce561dff86408148199cfd4595fdc5c0",
+      "size": [
+        640,
+        360
+      ],
+      "frames": 20
+    },
+    {
+      "path": "native.log",
+      "bytes": 1666,
+      "sha256": "41322c5a7303287122ded6e3ec103dca6ee7326431c70e7df877c5493fe6fc9e"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2777,
+      "sha256": "1e32fa85742a6e2ba833df21014b4b7936472d29b33de101aed22bffbf007ead"
+    },
+    {
+      "path": "regenerate.log",
+      "bytes": 485,
+      "sha256": "8a0c67d6a74c7b37bdb8524e370fe59a96575c203d1d2dc61b8468af2f5a0400"
+    },
+    {
+      "path": "regression/campaign_realms.log",
+      "bytes": 4404,
+      "sha256": "3e95998413a1a11a13755b9bddbc664f22da7baa04eb06cb75b7a06ab3aee62a"
+    },
+    {
+      "path": "regression/fear_audio.log",
+      "bytes": 1464,
+      "sha256": "92b3f097c9b8cc614d2d022a422fa2d8d4829917fd6556de17899d54f7654597"
+    },
+    {
+      "path": "regression/fear_morph_crawler.log",
+      "bytes": 1123,
+      "sha256": "2b77bf7e294c1fac6dc2ee07106d958cd97588d65d9e748708af9ecb22071037"
+    },
+    {
+      "path": "regression/fear_oculus.log",
+      "bytes": 1824,
+      "sha256": "601b8c095b91836c32a39c4d38e94a3557f4053befeff8992597d26e81e93c05"
+    },
+    {
+      "path": "regression/fear_playtest.log",
+      "bytes": 1805,
+      "sha256": "1b1a5ed6e857ebc0930eae2958f04d0510e5aa62fec849721c61199fda1d6a73"
+    },
+    {
+      "path": "regression/fear_realm.log",
+      "bytes": 1944,
+      "sha256": "c3cb377de7d88e4aa2dac30cfeef5bd9983aa256e76b48640aef5c8dd11ca7c9"
+    },
+    {
+      "path": "regression/fear_reaper.log",
+      "bytes": 1616,
+      "sha256": "704b281dd7efe95a2315e856695308b0392669f8256140be3fce87ce6480cbca"
+    },
+    {
+      "path": "regression/fear_sanctum.log",
+      "bytes": 2358,
+      "sha256": "0a47d6edd574236b601f41bc4dd0f2c9bec18858c63221941305fad80a9b9125"
+    },
+    {
+      "path": "regression/realm_boss_stage.log",
+      "bytes": 1103,
+      "sha256": "c7f89c712e1e3102e675c30beab0f9eb1ca4e8c0abf25600355a3587ddfed7f3"
+    },
+    {
+      "path": "regression/realm_feedback.log",
+      "bytes": 2108,
+      "sha256": "6e32bbc1a53726e6f69fd8fa56077e4fdc48984e1e8b7a6e1627abc7206ef1e1"
+    },
+    {
+      "path": "regression/realm_stage.log",
+      "bytes": 1632,
+      "sha256": "46b5ef6192351c23af0861183a9c872932d606cd4ce65b3f16d2a7b95e636c31"
+    },
+    {
+      "path": "regression/run_director.log",
+      "bytes": 2551,
+      "sha256": "87454fe5665ed6db01f5d3e7b1fdfc82bfadafc8a9f0b2365dffbd9d318cc244"
+    },
+    {
+      "path": "regression/sorrow_audio_integration.log",
+      "bytes": 933,
+      "sha256": "0f2f74adffaf559008e71f8fd0b9dd2d5ee0a3fc896f6edc45ad9cee96b324ac"
+    }
+  ]
+}

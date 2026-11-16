@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PROBE 0 position=(9.0, 0.05, 8.0) attack=-1.0 hp=1000.0 next=(9.0, 0.05, 8.0)
+PROBE 60 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 120 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 180 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 240 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 300 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 360 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)
+PROBE 420 position=(9.129986, -0.00909, 8.051995) attack=-1.0 hp=1000.0 next=(9.082873, 0.712983, 8.03315)

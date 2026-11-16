@@ -19,6 +19,9 @@ func _ready() -> void:
 	material.set_shader_parameter("emission_strength", 0.12)
 	material.set_shader_parameter("rim_strength", 0.3)
 	material.set_shader_parameter("spec_color", Color(0.49, 0.38, 0.71))
+	var prepared := FearShatter.prepare_for(self,material)
+	# The boss shards keep their original non-bouncing physics material.
+	for piece in prepared.pieces: piece.physics_material_override = null
 	var body := preload("res://assets/models/characters/red_crystal_enemy_animated.glb").instantiate()
 	add_child(body)
 	var parts: Array[Mesh] = []
@@ -122,27 +125,15 @@ func shatter() -> void:
 		return
 	dead = true
 	FearShatter.prepare_templates()
-	var burst := FearShatter.new()
+	var burst := FearShatter.take(self,material)
 	get_parent().get_parent().add_child(burst)
 	for index in SlothShatter._templates.size():
-		var entry: Dictionary = SlothShatter._templates[index]
-		var piece := RigidBody3D.new()
-		piece.collision_layer = 0
-		piece.collision_mask = CollisionLayers.WORLD
+		var piece := burst.pieces[index]
 		piece.mass = 0.15
-		piece.continuous_cd = true
-		var mesh := MeshInstance3D.new()
-		mesh.mesh = entry.mesh
-		mesh.material_override = material
-		piece.add_child(mesh)
-		var shape := CollisionShape3D.new()
-		shape.shape = FearShatter._collision_shapes[index]
-		piece.add_child(shape)
-		burst.add_child(piece)
 		var ring := index % 3
 		var angle := index * 2.4 + rings[ring].rotation.z
 		piece.global_position = global_position + Vector3(cos(angle), sin(angle), 0) * (1.7 + ring * 1.3) + Vector3.UP * 5.3
 		piece.linear_velocity = Vector3(cos(angle) * 4, sin(angle) * 3 + 2, cos(index * 1.5) * 3)
 		piece.angular_velocity = Vector3(1, cos(angle), sin(angle)) * 4
-		burst.pieces.append(piece)
+	burst.release(material,false)
 	hide()

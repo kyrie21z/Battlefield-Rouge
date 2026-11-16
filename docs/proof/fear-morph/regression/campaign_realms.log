@@ -1,0 +1,101 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first production room installs
+PASS room 0 has baked traversable geometry
+PASS room 0 applies current depth to real damage
+PASS room 0 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 0 unlocks only after completion
+PASS room 0 physical gate advances
+PASS room 0 loads next scene without duplicate exit
+PASS room 1 has baked traversable geometry
+PASS room 1 applies current depth to real damage
+PASS room 1 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 1 unlocks only after completion
+PASS room 1 physical gate advances
+PASS room 1 loads next scene without duplicate exit
+PASS room 2 has baked traversable geometry
+PASS room 2 applies current depth to real damage
+PASS room 2 inherits all previous losses
+PASS boss 2 records death before pickup
+PASS boss 2 drops actual shard
+PASS boss 2 pickup activates independent core
+PASS room 2 unlocks only after completion
+PASS room 2 physical gate advances
+PASS room 2 loads next scene without duplicate exit
+PASS room 3 has baked traversable geometry
+PASS room 3 applies current depth to real damage
+PASS room 3 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 3 unlocks only after completion
+PASS room 3 physical gate advances
+PASS room 3 loads next scene without duplicate exit
+PASS room 4 has baked traversable geometry
+PASS room 4 applies current depth to real damage
+PASS room 4 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 4 unlocks only after completion
+PASS room 4 physical gate advances
+PASS room 4 loads next scene without duplicate exit
+PASS room 5 has baked traversable geometry
+PASS room 5 applies current depth to real damage
+PASS room 5 inherits all previous losses
+PASS boss 3 records death before pickup
+PASS boss 3 drops actual shard
+PASS boss 3 pickup activates independent core
+PASS room 5 unlocks only after completion
+PASS room 5 physical gate advances
+PASS room 5 loads next scene without duplicate exit
+PASS room 6 has baked traversable geometry
+PASS room 6 applies current depth to real damage
+PASS room 6 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 6 unlocks only after completion
+PASS room 6 physical gate advances
+PASS room 6 loads next scene without duplicate exit
+PASS room 7 has baked traversable geometry
+PASS room 7 applies current depth to real damage
+PASS room 7 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 7 unlocks only after completion
+PASS room 7 physical gate advances
+PASS room 7 loads next scene without duplicate exit
+PASS room 8 has baked traversable geometry
+PASS room 8 applies current depth to real damage
+PASS room 8 inherits all previous losses
+PASS boss 1 records death before pickup
+PASS boss 1 drops actual shard
+PASS boss 1 pickup activates independent core
+PASS room 8 unlocks only after completion
+PASS room 8 physical gate advances
+PASS room 8 loads next scene without duplicate exit
+PASS room 9 has baked traversable geometry
+PASS room 9 applies current depth to real damage
+PASS room 9 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 9 unlocks only after completion
+PASS room 9 physical gate advances
+PASS room 9 loads next scene without duplicate exit
+PASS room 10 has baked traversable geometry
+PASS room 10 applies current depth to real damage
+PASS room 10 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 10 unlocks only after completion
+PASS room 10 physical gate advances
+PASS room 10 loads next scene without duplicate exit
+PASS room 11 has baked traversable geometry
+PASS room 11 applies current depth to real damage
+PASS room 11 inherits all previous losses
+PASS boss 0 records death before pickup
+PASS boss 0 drops actual shard
+PASS boss 0 pickup activates independent core
+PASS room 11 unlocks only after completion
+PASS room 11 physical gate advances
+PASS room 11 loads next scene without duplicate exit
+PASS all twelve actual rooms visited without repetition
+PASS final destination is the real return corridor
+PASS final player owns all four cores and losses
+PASS threshold keeps equipped combat boons
+PASS final body has actual fourth fracture level
+ALL PASSED (98 checks)

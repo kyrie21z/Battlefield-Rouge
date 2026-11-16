@@ -1,0 +1,93 @@
+[
+  {
+    "cpu_ms": 0.0,
+    "event": "idle",
+    "frame_max_ms": 2.861,
+    "frame_p95_ms": 2.564,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 219.133,
+    "event": "catalog-preload",
+    "frame_max_ms": 220.789,
+    "frame_p95_ms": 2.231,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 30.544,
+    "event": "summon-0",
+    "frame_max_ms": 43.826,
+    "frame_p95_ms": 2.684,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.068,
+    "event": "dismiss-0",
+    "frame_max_ms": 2.191,
+    "frame_p95_ms": 1.753,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.679,
+    "event": "summon-1",
+    "frame_max_ms": 2.191,
+    "frame_p95_ms": 1.789,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.057,
+    "event": "dismiss-1",
+    "frame_max_ms": 2.948,
+    "frame_p95_ms": 1.907,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.658,
+    "event": "summon-2",
+    "frame_max_ms": 2.355,
+    "frame_p95_ms": 1.805,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.058,
+    "event": "dismiss-2",
+    "frame_max_ms": 1.915,
+    "frame_p95_ms": 1.814,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 4.684,
+    "event": "death-CharacterBody3D-FearEnemy",
+    "frame_max_ms": 7.246,
+    "frame_p95_ms": 2.177,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 1.17,
+    "event": "death-CharacterBody3D-@CharacterBody3D@346",
+    "frame_max_ms": 3.301,
+    "frame_p95_ms": 2.167,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 1.379,
+    "event": "death-CharacterBody3D-@CharacterBody3D@350",
+    "frame_max_ms": 3.447,
+    "frame_p95_ms": 2.391,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 1.3,
+    "event": "death-CharacterBody3D-FearReaper",
+    "frame_max_ms": 53.772,
+    "frame_p95_ms": 2.617,
+    "time_scale": 1.0
+  },
+  {
+    "cpu_ms": 0.976,
+    "event": "death-boss",
+    "frame_max_ms": 5.729,
+    "frame_p95_ms": 2.02,
+    "time_scale": 1.0
+  }
+]

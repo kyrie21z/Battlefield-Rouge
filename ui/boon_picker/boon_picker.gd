@@ -133,8 +133,11 @@ func _make_card(data: BoonData, index: int) -> Button:
 	var accent := BoonPresentation.accent(data)
 	var button := Button.new()
 	button.name = "Choice%d" % (index + 1)
-	var viewport_width := get_viewport().get_visible_rect().size.x
-	button.custom_minimum_size = Vector2(clampf((viewport_width - 140.0) / 3.0, 280.0, 400.0), 500)
+	var viewport := get_viewport().get_visible_rect().size
+	# Cards now carry up to five lines of description, so the height has to track
+	# the window instead of a fixed 500 or the accept row falls off the bottom.
+	var card_height := clampf(viewport.y - 390.0, 430.0, 560.0)
+	button.custom_minimum_size = Vector2(clampf((viewport.x - 140.0) / 3.0, 280.0, 400.0), card_height)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var border_width := 1 + mini(int(data.rarity), 3)
 	var normal := BoonPresentation.panel(Color("12151e"), accent.darkened(0.4), border_width)
@@ -149,7 +152,7 @@ func _make_card(data: BoonData, index: int) -> Button:
 	button.button_up.connect(func(): button.scale = Vector2.ONE)
 	var content := VBoxContainer.new()
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_theme_constant_override("separation", 16)
+	content.add_theme_constant_override("separation", 10)
 	button.add_child(content)
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	content.offset_left = 26
@@ -165,7 +168,7 @@ func _make_card(data: BoonData, index: int) -> Button:
 	row.add_child(BoonPresentation.label(BoonPresentation.RARITIES[data.rarity], 16, accent))
 	var icon := TextureRect.new()
 	icon.texture = BoonPresentation.icon(data)
-	icon.custom_minimum_size = Vector2(90, 100)
+	icon.custom_minimum_size = Vector2(80, 72)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -174,12 +177,13 @@ func _make_card(data: BoonData, index: int) -> Button:
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(title)
 	content.add_child(BoonPresentation.label("◇  " + BoonPresentation.SLOT_NAMES[data.slot] + ("槽位" if data.core else "特性"), 17, accent))
-	var description := BoonPresentation.label(data.description, 20, Color("c9c9d1"))
+	var description := BoonPresentation.label(data.description, 18, Color("c9c9d1"))
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(description)
 	var old := _replaced(data)
-	var warning := BoonPresentation.label("替换「%s」" % old.name if old != null else "[ %d ]  接受馈赠" % (index + 1), 18, Color("ff8888") if old != null else accent)
+	var warning := BoonPresentation.label("替换「%s」" % old.name if old != null else "[ %d ]  接受馈赠" % (index + 1), 17, Color("ff8888") if old != null else accent)
+	warning.custom_minimum_size.y = 26
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(warning)
 	return button

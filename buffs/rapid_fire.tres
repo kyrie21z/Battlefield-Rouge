@@ -4,7 +4,6 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_rate.svg" id="2_icon"]
 
 [resource]
-display_name = "高速扳机"
 script = ExtResource("1_buff")
 school_id = &"firearm"
 title = "快速扳机"

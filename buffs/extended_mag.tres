@@ -4,7 +4,6 @@
 [ext_resource type="Texture2D" path="res://assets/ui/buffs/firearm_magazine.svg" id="2_icon"]
 
 [resource]
-display_name = "大容量弹匣"
 script = ExtResource("1_buff")
 school_id = &"firearm"
 title = "扩容弹匣"

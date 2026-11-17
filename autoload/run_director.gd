@@ -302,9 +302,9 @@ func install_stage(packed: PackedScene) -> Error:
 		MetaProgression.record_archive(current_realm())
 	if floor_index >= 4:
 		threshold_reached.emit()
-	elif not _starter_given and next.has_method("offer_entry_reward"):
-		_starter_given = true
-		next.offer_entry_reward.call_deferred()
+	# The opening three-card gift is gone: a fresh run starts with the base
+	# loadout and meets its first realm card when the first room is cleared,
+	# which is also where the realm's mechanic card gets explained.
 	_transitioning = false
 	changed.emit()
 	return OK

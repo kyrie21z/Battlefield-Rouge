@@ -27,14 +27,8 @@ func _ready() -> void:
 	var rerolls := [0]
 	stage.reward_selected.connect(func(_stage,_card):rewards[0]+=1)
 	stage.reroll_spent.connect(func(_stage):rerolls[0]+=1)
-	stage.offer_entry_reward()
-	check("entry starter offer pauses without unlocking the gate",get_tree().paused and not stage.exit_ready and stage.selection._offered.size()==3)
-	var opening: Array[BoonData] = stage.selection._offered.duplicate()
-	stage.selection._request_reroll()
-	check("real reroll spends one injected charge and refreshes choices",stage.rerolls_remaining==1 and rerolls[0]==1 and stage.selection._offered!=opening)
-	stage.selection._choose(stage.selection._offered[0])
-	await frames(2)
-	check("starter choice resumes combat without awarding a room clear",rewards[0]==1 and not get_tree().paused and not stage.cleared and not stage.exit_ready)
+	# a fresh run has no opening gift any more - the first card comes from the orb
+	check("a fresh run starts with no card offer",not is_instance_valid(stage.selection) and not stage.exit_ready)
 	var deaths := [0]
 	stage.stage_cleared.connect(func(_stage): deaths[0]+=1)
 	for enemy in stage.enemies:
@@ -46,6 +40,9 @@ func _ready() -> void:
 	await frames(2)
 	check("claiming the orb opens the real BoonPicker and pauses combat",is_instance_valid(stage.selection) and get_tree().paused)
 	check("reward draws three cards belonging to the realm",stage.selection._offered.size()==3 and stage.selection._offered.all(func(card):return card.sin==BoonData.Sin.SLOTH))
+	var opening: Array[BoonData] = stage.selection._offered.duplicate()
+	stage.selection._request_reroll()
+	check("real reroll spends one injected charge and refreshes choices",stage.rerolls_remaining==1 and rerolls[0]==1 and stage.selection._offered!=opening)
 	check("exit remains locked before reward choice",not stage.exit_ready and not stage.request_exit())
 	var selected := stage.selection._offered[0]
 	stage.selection._choose(selected)

@@ -12,7 +12,7 @@ slot = 3
 rarity = 0
 core = false
 description = "每 1.5 秒，你攒下一次重击
-这一击挂上的钟会让敌人速度慢 70%
-普通钟只让敌人慢 40%"
+这一击挂上的钟会让敌人移动速度 −70%
+普通钟只减 −40%"
 parameters = {"interval": 1.5, "latency_duration": 1.5, "burst_damage": 60.0, "burst_radius": 3.0}
 script_hook = ExtResource("2")

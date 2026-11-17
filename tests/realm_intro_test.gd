@@ -9,7 +9,7 @@ var failures := 0
 func _ready() -> void:
 	MetaProgression.introduced_realms.clear()
 	await _check_intro_appears_once()
-	await _check_entry_gift_uses_one_realm()
+	await _check_cursor_comes_back()
 	print("REALM INTRO: %d checks, %d failed" % [checks, failures])
 	get_tree().quit(1 if failures else 0)
 
@@ -59,25 +59,27 @@ func _check_intro_appears_once() -> void:
 	await _frames(2)
 
 
-func _check_entry_gift_uses_one_realm() -> void:
+func _check_cursor_comes_back() -> void:
 	MetaProgression.introduced_realms.clear()
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	var stage := preload("res://maps/realms/fear_1.tscn").instantiate() as RealmStage
 	add_child(stage)
 	await _frames(3)
-	stage.offer_entry_reward()
+	stage.enemies.clear()
+	stage._check_clear()
 	await _frames(3)
+	if stage.orb_pending():
+		stage.claim_talent()
+		await _frames(3)
+	_check(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE, "mechanic card frees the cursor")
 	var intro := _find_intro(stage)
-	_check(intro != null, "opening gift explains its realm before the cards")
 	if intro != null:
 		intro._dismiss()
 		await _frames(3)
-	_check(is_instance_valid(stage.selection), "opening picker opens after the card")
-	if is_instance_valid(stage.selection):
-		var offered := stage.selection._offered
-		var sins := {}
-		for card: BoonData in offered:
-			sins[card.sin] = true
-		_check(sins.size() == 1, "all opening cards come from a single realm")
+	# the picker opens right after and it needs the cursor too, so the panel only
+	# has to free it - never leave it captured while a UI is on screen
+	_check(_find_intro(stage) == null, "card closes on dismiss")
+	_check(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE, "picker keeps the cursor visible")
 	stage.queue_free()
 	await _frames(2)
 

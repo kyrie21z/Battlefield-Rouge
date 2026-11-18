@@ -92,7 +92,7 @@
 
 ## 五、HydrogenJr 的工作方式
 
-**触发**：Kyrie（`kyrie21z`）本人提交的非草稿 PR 由常驻后台进程免审直接 Squash and merge；其他作者打开 PR、更新 PR、或者从草稿转为 Ready for review 时，常驻后台进程自动拉起 HydrogenJr 在隔离沙箱中运行 R1–R6 检查并执行审查（CI `.github/workflows/pr-checks.yml` 亦会运行检查）。草稿 PR 不触发。
+**触发**：Kyrie（`kyrie21z`）本人提交的常规 PR 由守护进程直接 Squash and merge。第四节列出的仓库规则和审查机制变更由维护者手动合并。其他作者打开、更新或将 PR 转为 Ready for review 时，由守护进程调用 HydrogenJr 在隔离沙箱中审查。CI 在 PR 就绪时运行检查，草稿 PR 跳过检查。
 
 **每次审查的步骤**
 

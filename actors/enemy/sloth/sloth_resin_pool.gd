@@ -8,12 +8,42 @@ const MIN_FLOOR_NORMAL := 0.64
 const TICK_SECONDS := 0.25
 const TICK_DAMAGE := 2.5
 const SLOW_MULTIPLIER := 0.65
-const SECTORS := 32
-const RINGS := 6
+const SECTORS := 24
+const RINGS := 4
 const MAX_STEP := 0.34
 const SURFACE_OFFSET := 0.035
 const SLOW_EFFECT := &"sloth_resin"
 const GEL := preload("res://assets/materials/sloth_resin_pool.gdshader")
+
+
+class ShaderWarmup extends Node3D:
+	var _frames := 0
+
+	func _process(_delta: float) -> void:
+		_frames += 1
+		if _frames >= 4:
+			queue_free()
+
+
+static func prepare_shader(parent: Node) -> void:
+	if not is_instance_valid(parent) or parent.has_meta("sloth_resin_warmed"):
+		return
+	parent.set_meta("sloth_resin_warmed", true)
+	var warmup := ShaderWarmup.new()
+	warmup.name = "SlothResinWarmup"
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.005, 0.005)
+	for is_landed in [false, true]:
+		var mat := ShaderMaterial.new()
+		mat.shader = GEL
+		mat.set_shader_parameter("landed", is_landed)
+		var mi := MeshInstance3D.new()
+		mi.mesh = quad
+		mi.material_override = mat
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.extra_cull_margin = 16384.0
+		warmup.add_child(mi)
+	parent.add_child(warmup)
 
 var victim: Player
 var attacker: Enemy

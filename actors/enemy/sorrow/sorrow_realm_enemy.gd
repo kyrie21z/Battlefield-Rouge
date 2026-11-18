@@ -19,6 +19,7 @@ func _enter_tree() -> void:
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
 
 func _ready() -> void:
+	SorrowCry.prepare()
 	enable_crystal_feedback(3)
 	visual = $Model as SorrowVisual
 	if not is_boss:
@@ -29,9 +30,7 @@ func _ready() -> void:
 	effect_key = StringName("sorrow_%d" % get_instance_id())
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
-	_hitbox_rids.append(get_rid())
-	for box in find_children("*","Hitbox",true,false):
-		_hitbox_rids.append((box as Hitbox).get_rid())
+	_cache_hitboxes()
 	Events.enemy_registered.emit(self)
 
 func setup(value: CharacterBody3D, covers: Array[CoverPoint], board: FiringPositionBoard = null) -> void:
@@ -124,8 +123,7 @@ func start_dive() -> void:
 	action = 1
 	action_left = 1.1*boon_windup_scale
 	visual.set_submerged(true)
-	for box in find_children("*","Hitbox",true,false):
-		(box as Hitbox).collision_layer = 0
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	if is_instance_valid(arena):
 		arena.add_ripple(global_position)
 
@@ -148,8 +146,7 @@ func resurface() -> void:
 	if get_world_3d().direct_space_state.intersect_shape(query,1).is_empty():
 		global_position = candidate
 	visual.set_submerged(false)
-	for box in find_children("*","Hitbox",true,false):
-		(box as Hitbox).collision_layer = CollisionLayers.HITBOXES
+	_set_hitboxes_layer(CollisionLayers.HITBOXES)
 	dives += 1
 	action = 2
 	action_left = 0.65*boon_windup_scale
@@ -198,9 +195,8 @@ func _on_died(_source: Node) -> void:
 	_stop()
 	_leave_cover()
 	_release_firing_position()
-	collision_layer = 0
-	for box in find_children("*","Hitbox",true,false):
-		(box as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	_clear_owned()
 	visual.die(global_position+Vector3.UP,Vector3.BACK)
 	Events.enemy_killed.emit(self)

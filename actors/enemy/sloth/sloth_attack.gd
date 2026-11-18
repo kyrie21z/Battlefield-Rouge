@@ -381,6 +381,11 @@ static func _material(color: Color) -> StandardMaterial3D:
 	return material
 
 
+static func prepare_audio() -> void:
+	_tone(false)
+	_tone(true)
+
+
 static func _tone(release: bool) -> AudioStreamWAV:
 	var cached := _release_tone if release else _cast_tone
 	if cached != null:

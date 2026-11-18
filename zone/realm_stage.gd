@@ -52,6 +52,19 @@ var _reward_offer: Array[BoonData] = []
 ## is clear. The player walks up and presses interact to open the reward offer.
 var talent_orb: TalentOrb
 var _orb_ready := false
+var _prepared_orb: TalentOrb
+var _prepared_picker: BoonPicker
+static var _orb_halo_mesh: TorusMesh
+static var _orb_column_mesh: CylinderMesh
+
+
+class RewardShaderWarmup extends Node3D:
+	var _frames := 0
+
+	func _process(_delta: float) -> void:
+		_frames += 1
+		if _frames >= 4:
+			queue_free()
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -67,6 +80,7 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 
 func _ready() -> void:
 	CrystalBurst.prepare(self)
+	BoonCatalog.all()
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)
 	_offer_rng.seed = run_seed + 16338 + realm*100 + room_index + depth*1000
@@ -102,6 +116,8 @@ func _ready() -> void:
 	add_child(hud)
 	get_tree().paused = false
 	_install_audio()
+	if not boss_room:
+		_prepare_room_rewards()
 	# Opening three-card choice. Deferred on purpose: the run controller restores
 	# the saved loadout right after add_child, and that restore replaces the whole
 	# card set. Choosing here would be erased by it.
@@ -281,7 +297,11 @@ func _spawn_talent_orb() -> void:
 	if is_instance_valid(talent_orb) or fallen:
 		return
 	_orb_ready = true
-	talent_orb = TalentOrb.new()
+	if is_instance_valid(_prepared_orb):
+		talent_orb = _prepared_orb
+		_prepared_orb = null
+	else:
+		talent_orb = TalentOrb.new()
 	talent_orb.name = "TalentOrb"
 	talent_orb.set_player(player)
 	# stand it between the gate and the player, so it reads as "the door's reward"
@@ -310,11 +330,12 @@ func _play_orb_arrival() -> void:
 	var origin := talent_orb.position
 
 	# ground halo
-	var halo_mesh := TorusMesh.new()
-	halo_mesh.inner_radius = 0.55
-	halo_mesh.outer_radius = 0.68
+	if _orb_halo_mesh == null:
+		_orb_halo_mesh = TorusMesh.new()
+		_orb_halo_mesh.inner_radius = 0.55
+		_orb_halo_mesh.outer_radius = 0.68
 	var halo := MeshInstance3D.new()
-	halo.mesh = halo_mesh
+	halo.mesh = _orb_halo_mesh
 	halo.position = origin + Vector3(0.0, 0.06, 0.0)
 	halo.scale = Vector3(0.25, 1.0, 0.25)
 	var halo_mat := StandardMaterial3D.new()
@@ -329,11 +350,12 @@ func _play_orb_arrival() -> void:
 
 	# light column
 	var column := MeshInstance3D.new()
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = 0.42
-	cyl.bottom_radius = 0.78
-	cyl.height = 4.5
-	column.mesh = cyl
+	if _orb_column_mesh == null:
+		_orb_column_mesh = CylinderMesh.new()
+		_orb_column_mesh.top_radius = 0.42
+		_orb_column_mesh.bottom_radius = 0.78
+		_orb_column_mesh.height = 4.5
+	column.mesh = _orb_column_mesh
 	column.position = origin + Vector3(0.0, 2.25, 0.0)
 	var col_mat := StandardMaterial3D.new()
 	col_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -422,8 +444,83 @@ func _offer_reward(entry := false) -> void:
 ## 领域机制说明从选卡前的一次性面板，改成了卡片自己的悬浮提示（见
 ## BoonPresentation.realm_help_inline）。面板类仍保留给截图与独立诊断，但正式
 ## 流程不再弹出，也就不再需要"这个领域已经介绍过"的存档状态。
+func _prepare_room_rewards() -> void:
+	if _orb_halo_mesh == null:
+		_orb_halo_mesh = TorusMesh.new()
+		_orb_halo_mesh.inner_radius = 0.55
+		_orb_halo_mesh.outer_radius = 0.68
+	if _orb_column_mesh == null:
+		_orb_column_mesh = CylinderMesh.new()
+		_orb_column_mesh.top_radius = 0.42
+		_orb_column_mesh.bottom_radius = 0.78
+		_orb_column_mesh.height = 4.5
+	if not is_instance_valid(_prepared_orb):
+		_prepared_orb = TalentOrb.new()
+		_prepared_orb.prepare()
+	if not is_instance_valid(_prepared_picker):
+		_prepared_picker = PICKER.instantiate() as BoonPicker
+		_prepared_picker.prebuild_ui()
+	if not has_meta("reward_shader_warmed"):
+		set_meta("reward_shader_warmed", true)
+		var warmup := RewardShaderWarmup.new()
+		warmup.name = "RewardShaderWarmup"
+		var halo := MeshInstance3D.new()
+		halo.mesh = _orb_halo_mesh
+		halo.scale = Vector3.ONE * 0.001
+		halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		halo.extra_cull_margin = 16384.0
+		var halo_mat := StandardMaterial3D.new()
+		halo_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		halo_mat.albedo_color = Color(0.55, 0.95, 1.0, 0.0)
+		halo_mat.emission_enabled = true
+		halo.material_override = halo_mat
+		warmup.add_child(halo)
+		var col := MeshInstance3D.new()
+		col.mesh = _orb_column_mesh
+		col.scale = Vector3.ONE * 0.001
+		col.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		col.extra_cull_margin = 16384.0
+		var col_mat := StandardMaterial3D.new()
+		col_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		col_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		col_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		col_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		col_mat.albedo_color = Color(0.5, 0.9, 1.0, 0.0)
+		col_mat.emission_enabled = true
+		col.material_override = col_mat
+		warmup.add_child(col)
+		if not _prepared_orb._shell_meshes.is_empty():
+			var orb_mi := MeshInstance3D.new()
+			orb_mi.mesh = _prepared_orb._shell_meshes[0].mesh
+			orb_mi.scale = Vector3.ONE * 0.001
+			orb_mi.transparency = 0.99
+			orb_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			orb_mi.extra_cull_margin = 16384.0
+			var base_mat := _prepared_orb._shell_materials[0]
+			if base_mat != null:
+				var warm_mat := base_mat.duplicate() as StandardMaterial3D
+				warm_mat.emission_enabled = true
+				orb_mi.material_override = warm_mat
+			warmup.add_child(orb_mi)
+		add_child(warmup)
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(_prepared_orb) and not _prepared_orb.is_inside_tree():
+		_prepared_orb.queue_free()
+	_prepared_orb = null
+	if is_instance_valid(_prepared_picker) and not _prepared_picker.is_inside_tree():
+		_prepared_picker.queue_free()
+	_prepared_picker = null
+
+
 func _build_picker() -> void:
-	selection = PICKER.instantiate() as BoonPicker
+	if is_instance_valid(_prepared_picker):
+		selection = _prepared_picker
+		_prepared_picker = null
+	else:
+		selection = PICKER.instantiate() as BoonPicker
 	add_child(selection)
 	var entry := _reward_context == "enter"
 	selection.setup(_reward_offer,player.boons,"选择初始馈赠" if entry else "%s · 门扉馈赠" % TITLES[realm],rerolls_remaining)
@@ -454,6 +551,9 @@ func _finish_reward() -> void:
 	var completed := _reward_context
 	_reward_context = ""
 	if completed == "enter":
+		if not boss_room and not is_instance_valid(_prepared_picker):
+			_prepared_picker = PICKER.instantiate() as BoonPicker
+			_prepared_picker.prebuild_ui()
 		return
 	exit_ready = true
 	_gate_material.albedo_color = Color(0.55,0.82,0.77)

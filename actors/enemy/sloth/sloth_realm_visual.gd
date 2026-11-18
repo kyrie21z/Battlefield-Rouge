@@ -51,6 +51,9 @@ func _build() -> void:
 		play_motion("CowerIdle")
 	_apply_pose()
 
+func _prepare_shatter() -> void:
+	SlothRealmShatter.prepare_for(self, _crystal)
+
 func _apply_pose() -> void:
 	if skeleton == null:
 		return
@@ -83,7 +86,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	_dead = true
 	if animation != null:
 		animation.pause()
-	realm_shatter = SlothRealmShatter.new()
+	realm_shatter = SlothRealmShatter.take(self, _crystal)
 	get_parent().get_parent().add_child(realm_shatter)
 	realm_shatter.build(self, global_position + Vector3.UP if point == Vector3.INF else point, direction)
 	model.hide()

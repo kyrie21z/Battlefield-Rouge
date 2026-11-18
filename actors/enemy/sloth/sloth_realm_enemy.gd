@@ -23,6 +23,7 @@ func _enter_tree() -> void:
 	($Model as SlothRealmVisual).configure(variant)
 
 func _ready() -> void:
+	SlothAttack.prepare_audio()
 	enable_crystal_feedback(0)
 	visual = $Model
 	run_speed = [2.2,0.0,2.8][variant]
@@ -33,9 +34,7 @@ func _ready() -> void:
 	health.headshot_multiplier = 2.0
 	cooldown_left = opening_delay
 	_effect_source = StringName("sloth_anchor_%d" % get_instance_id())
-	_hitbox_rids.append(get_rid())
-	for hitbox in find_children("*","Hitbox",true,false):
-		_hitbox_rids.append((hitbox as Hitbox).get_rid())
+	_cache_hitboxes()
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	if variant == Variant.ANCHOR:
@@ -188,9 +187,8 @@ func _on_died(_source: Node) -> void:
 	_clear_anchor()
 	_leave_cover()
 	_release_firing_position()
-	collision_layer = 0
-	for hitbox in find_children("*","Hitbox",true,false):
-		(hitbox as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	visual.die(_last_hit_point,_last_hit_direction)
 	Events.enemy_killed.emit(self)
 

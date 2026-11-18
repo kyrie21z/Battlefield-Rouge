@@ -74,6 +74,7 @@ func _build() -> void:
 	if animation != null:
 		animation.advance(0)
 	_update_bones()
+	WrathShatter.prepare_for(self, _crystal)
 
 func _spike(parent: Node3D, start: Vector3, end: Vector3, radius: float) -> void:
 	var mesh := CylinderMesh.new()
@@ -117,7 +118,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	_dead = true
 	if animation != null:
 		animation.stop()
-	shatter = WrathShatter.new()
+	shatter = WrathShatter.take(self, _crystal)
 	get_parent().get_parent().add_child(shatter)
 	shatter.build(self, global_position + Vector3.UP if point == Vector3.INF else point, direction)
 	model.hide()

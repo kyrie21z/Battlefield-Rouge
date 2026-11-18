@@ -8,15 +8,23 @@ var hit_player := false
 var ring: MeshInstance3D
 var audio: AudioStreamPlayer3D
 const WAVE_BLUE := Color(0.06,0.42,0.95)
+static var _ring_mesh: TorusMesh
+static var _voice_stream: AudioStreamWAV
+
+static func prepare() -> void:
+	if _ring_mesh == null:
+		_ring_mesh = TorusMesh.new()
+		_ring_mesh.inner_radius = 0.94
+		_ring_mesh.outer_radius = 1.0
+		_ring_mesh.rings = 48
+		_ring_mesh.ring_segments = 4
+	if _voice_stream == null:
+		_voice_stream = _build_voice()
 
 func _ready() -> void:
+	prepare()
 	ring = MeshInstance3D.new()
-	var mesh := TorusMesh.new()
-	mesh.inner_radius = 0.94
-	mesh.outer_radius = 1.0
-	mesh.rings = 48
-	mesh.ring_segments = 4
-	ring.mesh = mesh
+	ring.mesh = _ring_mesh
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.albedo_color = WAVE_BLUE
@@ -53,6 +61,11 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _voice() -> AudioStreamWAV:
+	if _voice_stream == null:
+		_voice_stream = _build_voice()
+	return _voice_stream
+
+static func _build_voice() -> AudioStreamWAV:
 	var data := PackedByteArray()
 	var rate := 22050
 	data.resize(rate*2)

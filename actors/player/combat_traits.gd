@@ -33,6 +33,8 @@ var _audio := AudioStreamPlayer.new()
 
 
 func _ready() -> void:
+	ProceduralAudio.prepare_common()
+	ReloadCharge.prepare_audio()
 	weapon.fired.connect(_on_fired)
 	melee.swing_started.connect(_on_swing_started)
 	health.parried.connect(_on_parried)

@@ -6,6 +6,7 @@ uniform float visual_time = 0.0;
 uniform float sway = 0.018;
 uniform float mantle_open = 0.0;
 uniform float cast_amount = 0.0;
+uniform vec3 cast_glow = vec3(0.11, 0.18, 0.22);
 
 void vertex() {
 	// UV.y is distance down the mantle. The shoulders and hood stay attached.
@@ -24,5 +25,5 @@ void fragment() {
 	SPECULAR = 0.18;
 	RIM = 0.16;
 	RIM_TINT = 0.35;
-	EMISSION = vec3(0.11, 0.18, 0.22) * cast_amount * 0.13;
+	EMISSION = cast_glow * cast_amount * 0.13;
 }

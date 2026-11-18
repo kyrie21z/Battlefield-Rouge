@@ -1,0 +1,132 @@
+[
+  {
+    "name": "boon_offers",
+    "exit": 0,
+    "summary": [
+      "BOON OFFERS: ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "campaign_realms",
+    "exit": 0,
+    "summary": [
+      "ALL PASSED (98 checks)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fixture",
+    "exit": 0,
+    "summary": [
+      "   FX-001  edc3fc82c34f1bc0",
+      "   FX-002  ad3703cd93d3073e",
+      "ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "fixture-base",
+    "exit": 0,
+    "summary": [
+      "   FX-001  edc3fc82c34f1bc0",
+      "   FX-002  ad3703cd93d3073e",
+      "ALL PASSED (0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "meta_campaign",
+    "exit": 0,
+    "summary": [
+      "META CAMPAIGN: 24 checks, 0 failures"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "opening_transition",
+    "exit": 0,
+    "summary": [
+      "ALL PASSED (58 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_stage",
+    "exit": 0,
+    "summary": [
+      "REALM STAGE: 27 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "realm_void",
+    "exit": 0,
+    "summary": [
+      "REALM VOID: 24 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_audio",
+    "exit": 0,
+    "summary": [
+      "SLOTH AUDIO: 18 checks, 0 failures"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_colossus",
+    "exit": 0,
+    "summary": [
+      "SLOTH COLOSSUS: ALL PASSED (25 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_enemy",
+    "exit": 0,
+    "summary": [
+      "SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_integration",
+    "exit": 0,
+    "summary": [],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_pursuit",
+    "exit": 0,
+    "summary": [
+      "SLOTH PURSUIT: ALL PASSED (12 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_realm",
+    "exit": 0,
+    "summary": [
+      "SLOTH REALM: ALL PASSED (25 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "sloth_sanctum_combat",
+    "exit": 0,
+    "summary": [
+      "SLOTH SANCTUM COMBAT: 29 checks, 0 failed"
+    ],
+    "diagnostics": []
+  },
+  {
+    "name": "talent_orb_ingame",
+    "exit": 0,
+    "summary": [
+      "ALL PASSED (68 checks, 0 failed)"
+    ],
+    "diagnostics": []
+  }
+]

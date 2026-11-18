@@ -10,6 +10,9 @@ const CLOTH: Shader = preload("res://assets/materials/sloth_cloth.gdshader")
 static var _outfit_templates: Dictionary = {}
 
 var kind := 0
+var gold_palette := false
+var staff_enabled := false
+var staff_tip: Node3D
 var model: Node3D
 var skeleton: Skeleton3D
 var animation: AnimationPlayer
@@ -75,6 +78,8 @@ func _build() -> void:
 	_crystal.set_shader_parameter("spec_color", Color(0.36, 0.52, 0.68))
 	_crystal.set_shader_parameter("inner_glow", 0.06)
 	_crystal.set_shader_parameter("roughness_value", 0.32)
+	if gold_palette:
+		_apply_gold_palette()
 	model = BODY.instantiate() as Node3D
 	model.name = "RedCrystalBody"
 	add_child(model)
@@ -98,12 +103,29 @@ func _build() -> void:
 			2: _build_recluse()
 		_batch_meshes(_outfit)
 		_cache_outfit()
+	if staff_enabled:
+		_build_staff()
 	play_motion("idle")
 	if animation != null:
 		animation.advance(0.0)
 	_update_bones()
 	set_cast(_cast)
 	set_shell_open(_opening)
+
+func _apply_gold_palette() -> void:
+	_cloth.set_shader_parameter("cloth_color", Color("946322"))
+	_lining.set_shader_parameter("cloth_color", Color("c88e38"))
+	_cloth.set_shader_parameter("cast_glow", Vector3(0.55, 0.26, 0.045))
+	_lining.set_shader_parameter("cast_glow", Vector3(0.55, 0.26, 0.045))
+	_metal.albedo_color = Color("906a32")
+	_edge.albedo_color = Color("dfb25e")
+	_dark.albedo_color = Color("432a16")
+	_light.albedo_color = Color("ffd17a")
+	_light.emission = Color("fca83c")
+	_crystal.set_shader_parameter("base_color", Color("9a5e21"))
+	_crystal.set_shader_parameter("emission_color", Color("c47624"))
+	_crystal.set_shader_parameter("rim_color", Color("ffc86a"))
+	_crystal.set_shader_parameter("spec_color", Color("ffe0a3"))
 
 
 func set_cast(amount: float) -> void:
@@ -112,6 +134,23 @@ func set_cast(amount: float) -> void:
 		_cloth.set_shader_parameter("cast_amount", _cast)
 		_light.emission_energy_multiplier = 0.35 + _cast * 0.8
 		_crystal.set_shader_parameter("emission_strength", 0.12 + _cast * 0.10)
+
+
+func _build_staff() -> void:
+	var hand := _follow("RightHand", "LingererStaff")
+	var heel := Vector3(0.60,0.14,-0.10)
+	var crown := Vector3(0.68,2.16,-0.28)
+	_line(hand,heel,crown,0.045,_dark)
+	for height in [0.22,0.93,1.08,1.93]:
+		_plate(hand,Vector3(0.64,height,-0.18),Vector3(0.12,0.07,0.13),_metal)
+	_torus(hand,crown,0.23,0.034,_metal,Vector3(PI*0.5,0,0))
+	_torus(hand,crown,0.18,0.018,_edge,Vector3(PI*0.5,0.9,0))
+	_sphere(hand,crown,0.115,_light).scale.y = 1.65
+	staff_tip = Node3D.new()
+	staff_tip.name = "StaffTip"
+	staff_tip.position = crown
+	hand.add_child(staff_tip)
+	_update_bones()
 
 
 func set_shell_open(amount: float) -> void:
@@ -654,6 +693,6 @@ func play_evade(side: float) -> void:
 		_evade_label.pixel_size = 0.003
 		_evade_label.position = Vector3(0,2.16,0)
 		_evade_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		_evade_label.modulate = Color(0.72,0.87,1.0)
+		_evade_label.modulate = Color("ffe39b") if gold_palette else Color(0.72,0.87,1.0)
 		add_child(_evade_label)
 	_evade_label.show()

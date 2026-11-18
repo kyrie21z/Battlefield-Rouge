@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first room contains two staff bearers, one Anchor, one Recluse and one Resin Husk
+PASS all four variants are real counted guardians
+PASS staff has an authored physical tip attached to the hand
+PASS overhead scenery adds no physical obstacles
+PASS the entry-to-gate distance is still 36 metres
+PASS real Player climbs the shallow ramp onto the 1.25m terrace
+PASS baked navigation reaches the raised terrace
+PASS the production Lingerer starts casting with real AI
+PASS formation contains four crystals beside the actual staff tip
+PASS last portion of staff windup locks the aim
+PASS side-stepping after lock does not change the four shot paths
+PASS one cast releases four real projectiles and dodged shots do no damage
+PASS Anchor casts a fixed 3.2m field
+PASS Anchor applies 25% walking slowdown and keeps its field fixed
+PASS walking out of the field restores speed
+PASS Recluse opens its shell with a low-wave warning
+PASS the aimed 44 degree gap is safe for a standing player
+PASS Recluse can make a second wave
+PASS crossing the wave outside its gap delivers one 14 HP hit
+PASS the crooked Husk starts charging with real AI
+PASS resin glob grows visibly during windup without inflicting damage
+PASS a swept resin hit slows walking by 35% before the first tick
+PASS pausing freezes the coating
+PASS four timed hits total 10 HP and remove the coating
+PASS solid cover stops the glob and prevents slow and damage
+PASS a shove interrupts the windup without releasing an extra projectile
+PASS second room has three staff bearers and seven total opponents
+PASS second room shifts both terraces
+PASS Boss keeps its solo encounter and receives the overhead clock
+SLOTH SANCTUM COMBAT: 29 checks, 0 failed

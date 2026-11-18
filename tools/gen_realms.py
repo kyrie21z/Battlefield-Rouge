@@ -19,7 +19,7 @@ def generate(root: Path) -> list[Path]:
             suffix = "boss" if boss else str(room + 1)
             path = root / f"maps/realms/{name}_{suffix}.tscn"
             path.parent.mkdir(parents=True, exist_ok=True)
-            geometry_options = "chamber_style = 1\n" if name == "fear" and room == 1 else ""
+            geometry_options = "chamber_style = 1\n" if name in ("fear", "sloth") and room == 1 else ""
             path.write_text(f'''[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://zone/realm_stage.gd" id="1"]

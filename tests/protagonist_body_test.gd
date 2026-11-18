@@ -21,7 +21,11 @@ func _ready() -> void:
 	for node in body.find_children("GEO_m_*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		var source := original.find_child(mesh.name, true, false) as MeshInstance3D
-		_check("%s shares original mesh and skin" % mesh.name, source != null and mesh.mesh == source.mesh and mesh.skin == source.skin)
+		if String(mesh.name).begins_with("GEO_m_forearm_"):
+			_check("%s has authored grip geometry bound to the original rig" % mesh.name,
+				source != null and mesh.mesh != source.mesh and mesh.skeleton == source.skeleton)
+		else:
+			_check("%s shares original mesh and skin" % mesh.name, source != null and mesh.mesh == source.mesh and mesh.skin == source.skin)
 		var expected := GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if mesh.name == "GEO_m_head" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 		_check("%s visible body / head shadow policy" % mesh.name, mesh.visible and mesh.cast_shadow == expected)
 		count += 1
@@ -82,12 +86,19 @@ func _ready() -> void:
 	_check("the pistol is reassembling", player.weapon.is_reloading())
 	_check_left_pistol_grip(player, body, "reassembly")
 	player.weapon.complete_reload()
+	var left_arm := body.find_child("GEO_m_forearm_L", true, false) as MeshInstance3D
+	_check("the pristine and fractured left hand use the authored grip shape", left_arm.find_blend_shape_by_name(&"BladeGrip") >= 0)
+	body.set_fracture_level(4)
 	player.melee.swing_now()
 	for delta in [0.03, 0.05, 0.06, 0.06]:
 		player.melee._process(delta)
 		body.pose_arms()
 		var grip := player.melee.grip_transform()
 		_check("swinging left hand follows actual blade grip", _left_wrist(skeleton).distance_to(grip * ProtagonistBody.LEFT_BLADE_WRIST) < 0.065)
+	var left_shard := body.fracture._left_hand_shard as MeshInstance3D
+	_check("blade grip is active at final fracture level", left_shard.visible and is_equal_approx(_blade_weight(left_shard), 1.0))
+	body.set_fracture_level(1)
+	_check("the blade shape survives the fracture mesh replacement", left_arm.visible and is_equal_approx(_blade_weight(left_arm), 1.0))
 	var release_wrist := _left_wrist(skeleton)
 	for i in 30:
 		player.melee._process(1.0 / 60.0)
@@ -105,9 +116,11 @@ func _ready() -> void:
 	_check("the left hand moves partway back to the pistol", mid_return.distance_to(release_wrist) > 0.03
 		and mid_return.distance_to(pistol_target) > 0.03
 		and mid_return.distance_to(pistol_target) < release_wrist.distance_to(pistol_target))
+	_check("left fingers blend back during the wrist return", is_equal_approx(_blade_weight(left_arm), 0.5))
 	body._process(ProtagonistBody.REGRIP_TIME * 0.5)
 	body.pose_arms()
 	_check_left_pistol_grip(player, body, "after the blade recovery")
+	_check("the pistol grip shape returns after blade recovery", is_zero_approx(_blade_weight(left_arm)))
 	player.queue_free()
 	await get_tree().process_frame
 	# The audio thread drains its stopped swing playback before engine exit.
@@ -117,6 +130,10 @@ func _ready() -> void:
 
 func _left_wrist(skeleton: Skeleton3D) -> Vector3:
 	return skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("LeftHand")).origin)
+
+func _blade_weight(hand: MeshInstance3D) -> float:
+	var shape := hand.find_blend_shape_by_name(&"BladeGrip")
+	return hand.get_blend_shape_value(shape) if shape >= 0 else -1.0
 
 func _check_left_pistol_grip(player: Player, body: ProtagonistBody, state: String) -> void:
 	var target := player.weapon.grip_transform() * ProtagonistBody.LEFT_PISTOL_WRIST
@@ -136,14 +153,24 @@ func _check_hand_meshes_at_grip(player: Player, body: ProtagonistBody, state: St
 		var samples := _skinned_hand_points(part, skeleton, hand, pistol_from_skeleton)
 		var nearest := INF
 		var deepest := 0.0
+		var wraps_front := false
+		var supports_back := false
 		for point in samples:
 			var distance := -INF
 			for plane in planes:
 				distance = maxf(distance, plane.distance_to(point))
 			nearest = minf(nearest, absf(distance))
 			deepest = maxf(deepest, -distance)
+			# Within the contact band, the right palm is behind the grip and its
+			# fingertips reach across the front to the side opposite the wrist.
+			if absf(point.y) < 0.027 and absf(distance) < 0.013:
+				var depth := point.z + 0.47 * point.y
+				wraps_front = wraps_front or (point.x < -0.008 and depth < -0.025)
+				supports_back = supports_back or (absf(point.x) < 0.023 and depth > 0.025)
 		_check("%s %s hand mesh meets the grip (gap %.1f mm, depth %.1f mm)" % [state, side, nearest * 1000, deepest * 1000],
 			nearest < 0.006 and deepest < 0.006)
+		if side == "Right":
+			_check("%s right fingertips wrap the front of the grip opposite the palm" % state, wraps_front and supports_back)
 
 func _grip_planes(grip_mesh: MeshInstance3D, pistol_from_grip: Transform3D) -> Array[Plane]:
 	var points := grip_mesh.mesh.get_faces()

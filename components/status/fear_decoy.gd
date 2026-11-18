@@ -64,6 +64,15 @@ func _ready() -> void:
 
 
 func _snapshot_pose() -> void:
+	if is_instance_valid(pose_source):
+		for arm in _visual.find_children("GEO_m_forearm_*", "MeshInstance3D", true, false):
+			var source_arm := pose_source.find_child(arm.name, true, false) as MeshInstance3D
+			if source_arm == null:
+				continue
+			arm.mesh = source_arm.mesh
+			arm.skin = source_arm.skin
+			for shape in source_arm.get_blend_shape_count():
+				arm.set_blend_shape_value(shape, source_arm.get_blend_shape_value(shape))
 	var animation := _visual.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if animation != null:
 		if animation.has_animation("idle"):

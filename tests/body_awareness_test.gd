@@ -24,7 +24,12 @@ func _ready() -> void:
 	for fragment in fracture.fragments:
 		var piece := fragment.node as MeshInstance3D
 		var original := library.find_child(piece.name, true, false) as MeshInstance3D
-		_check("%s shares original shard geometry" % piece.name, original != null and fragment.original_mesh == original.mesh)
+		if fragment.is_hand:
+			var side := "Left" if fragment.part == "forearm_L" else "Right"
+			_check("%s keeps the authored grip on its own hand bone" % piece.name,
+				fragment.original_mesh != original.mesh and body._skeleton.get_bone_name(fragment.bone) == side + "Hand")
+		else:
+			_check("%s shares original shard geometry" % piece.name, original != null and fragment.original_mesh == original.mesh)
 	library.free()
 	_check("materials are isolated per player", fracture.fracture_materials[0] != other.fracture.fracture_materials[0])
 	for level in 5:

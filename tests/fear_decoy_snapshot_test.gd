@@ -33,6 +33,7 @@ func _run() -> void:
 	var original := source.find_child("GEO_m_head", true, false) as MeshInstance3D
 	var original_material := original.material_override
 	var original_overlay := original.material_overlay
+	source.fracture.set_blade_grip(0.72)
 	var first := FearDecoy.new()
 	first.pose_source = source
 	add_child(first)
@@ -47,6 +48,11 @@ func _run() -> void:
 		poses_equal = poses_equal and first.skeleton.get_bone_pose_scale(index).is_equal_approx(source._skeleton.get_bone_pose_scale(source_index))
 	_check("all local bone positions rotations and scales match snapshot", poses_equal)
 	_check("snapshot retains current protagonist facing", first.global_basis.is_equal_approx(source.global_basis))
+	var left_arm := first.find_child("GEO_m_forearm_L", true, false) as MeshInstance3D
+	var grip_shape := left_arm.find_blend_shape_by_name(&"BladeGrip")
+	source.fracture.set_blade_grip(0.0)
+	_check("snapshot freezes the hand shape independently of later player motion",
+		grip_shape >= 0 and is_equal_approx(left_arm.get_blend_shape_value(grip_shape), 0.72))
 	var full_body := true
 	for part in ["head", "torso", "hips", "upper_arm_L", "upper_arm_R", "forearm_L", "forearm_R", "thigh_L", "thigh_R", "shin_L", "shin_R"]:
 		var mesh := first.find_child("GEO_m_" + part, true, false) as MeshInstance3D

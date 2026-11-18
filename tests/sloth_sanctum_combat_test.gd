@@ -58,6 +58,7 @@ func _ready() -> void:
 	check("the entry-to-gate distance is still 36 metres",is_equal_approx(player.position.z - room.gate.position.z,36.0))
 	player.aim_at(Vector3(0,12,-26))
 	await capture("sloth-clockwork")
+	await verify_anchor_navigation(anchor)
 	await verify_ramp()
 	for index in room.enemies.size():
 		room.enemies[index].position = Vector3(17.1,0.1,7 - index * 2.4)
@@ -136,6 +137,39 @@ func verify_staff(lingerer: SlothEnemy) -> void:
 	check("one cast releases four real projectiles and dodged shots do no damage",bursts[0] == 4 and is_equal_approx(player.health.health,hp))
 	lingerer.position = Vector3(17,0.08,5)
 
+func verify_anchor_navigation(anchor: SlothEnemy) -> void:
+	var spawn := anchor.global_position
+	check("the opening spawn starts outside the Anchor's casting range",
+		spawn.distance_to(player.global_position) > anchor.engage_range)
+	anchor.set_physics_process(true)
+	for index in 240:
+		await frames(1)
+		if is_instance_valid(anchor.active_attack):
+			break
+	check("the Anchor walks into range and casts from its authored spawn",
+		anchor.global_position.distance_to(spawn) > 1.0 and is_instance_valid(anchor.active_attack))
+	anchor.set_physics_process(false)
+	anchor._cancel_attack()
+
+	player.position = Vector3(11.35,1.33,2.45)
+	anchor.position = Vector3(17.45,0.08,2.45)
+	anchor.velocity = Vector3.ZERO
+	anchor.cooldown_left = 0.0
+	anchor.begin_hunt()
+	await frames(3)
+	anchor._update_sight()
+	check("the real east terrace plinth blocks the opening sight ray",not anchor._sees_target)
+	var blocked := anchor.global_position
+	anchor.set_physics_process(true)
+	for index in 420:
+		await frames(1)
+		if is_instance_valid(anchor.active_attack):
+			break
+	check("the Anchor routes around the terrace cover and resumes its attack",
+		anchor.global_position.distance_to(blocked) > 1.0 and is_instance_valid(anchor.active_attack))
+	anchor.set_physics_process(false)
+	anchor._cancel_attack()
+
 func verify_anchor_and_recluse(anchor: SlothEnemy, recluse: SlothEnemy) -> void:
 	anchor.position = Vector3(0,0.08,0)
 	player.position = Vector3(0,0.08,5)
@@ -143,11 +177,18 @@ func verify_anchor_and_recluse(anchor: SlothEnemy, recluse: SlothEnemy) -> void:
 	check("Anchor casts a fixed 3.2m field",anchor.cast_attack())
 	var field := anchor.active_attack
 	var locked := field.field_center
-	await frames(62)
+	await frames(72)
 	check("Anchor applies 25% walking slowdown and keeps its field fixed",is_equal_approx(player.stasis_multiplier(),0.75) and field.field_center == locked)
-	player.position.x = 3.7
-	await frames(2)
+	var hud := room.hud
+	check("the amber screen edge accompanies the actual movement slow",hud._stasis.visible and hud._stasis_strength > 0.0)
+	player.aim_at(Vector3(0,0.36,1.0))
+	await capture("sloth-stasis-feedback")
+	player.position = Vector3(0,0.08,10.6)
+	player.aim_at(Vector3(0,0.18,4.2))
+	await frames(15)
 	check("walking out of the field restores speed",is_equal_approx(player.stasis_multiplier(),1.0))
+	check("the amber screen edge fades after leaving the field",not hud._stasis.visible)
+	await capture("sloth-stasis-dial")
 	anchor.begin_retreat(Vector3.ZERO,1.0)
 	anchor.position = Vector3(17,0.08,4)
 	recluse.position = Vector3(0,0.08,0)
@@ -155,14 +196,27 @@ func verify_anchor_and_recluse(anchor: SlothEnemy, recluse: SlothEnemy) -> void:
 	await frames(2)
 	check("Recluse opens its shell with a low-wave warning",recluse.cast_attack())
 	var hp := player.health.health
-	await frames(116)
+	player.position.z = 6.5
+	player.aim_at(Vector3(0,0.35,0.0))
+	await frames(77)
+	var wave := recluse.active_attack
+	check("the active gold front uses the same radius and escape angle as the damage wave",
+		is_instance_valid(wave) and is_equal_approx(wave._time_field._effect.get_shader_parameter("front"), wave._last_radius)
+		and is_equal_approx(wave._time_field.safe_half_angle, SlothAttack.GAP_HALF_ANGLE))
+	await capture("sloth-recluse-wave")
+	await frames(39)
 	check("the aimed 44 degree gap is safe for a standing player",is_equal_approx(player.health.health,hp))
 	player.position = Vector3(0,0.08,4)
+	recluse.warnings_enabled = false
 	check("Recluse can make a second wave",recluse.cast_attack())
 	await frames(20)
+	check("losing Fear hides the charge warning",not recluse.active_attack._graphics.visible)
 	player.position = Vector3(4,0.08,0)
-	await frames(96)
+	await frames(58)
+	check("the active wave remains visible with the charge warning hidden",recluse.active_attack._graphics.visible)
+	await frames(38)
 	check("crossing the wave outside its gap delivers one 14 HP hit",is_equal_approx(player.health.health,hp-14.0))
+	recluse.warnings_enabled = true
 	recluse.position = Vector3(17,0.08,3)
 
 func verify_resin(mire: SlothMire) -> void:

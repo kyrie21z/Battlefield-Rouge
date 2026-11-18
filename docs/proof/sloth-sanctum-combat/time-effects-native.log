@@ -1,0 +1,60 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS first room contains two staff bearers, one Anchor, one Recluse and one Resin Husk
+PASS all four variants are real counted guardians
+PASS staff has an authored physical tip attached to the hand
+PASS overhead scenery adds no physical obstacles
+PASS the entry-to-gate distance is still 36 metres
+PASS sloth-clockwork image captured
+PASS the opening spawn starts outside the Anchor's casting range
+PASS the Anchor walks into range and casts from its authored spawn
+PASS the real east terrace plinth blocks the opening sight ray
+PASS the Anchor routes around the terrace cover and resumes its attack
+PASS real Player climbs the shallow ramp onto the 1.25m terrace
+PASS baked navigation reaches the raised terrace
+PASS the production Lingerer starts casting with real AI
+PASS formation contains four crystals beside the actual staff tip
+PASS sloth-staff-volley image captured
+PASS last portion of staff windup locks the aim
+PASS side-stepping after lock does not change the four shot paths
+PASS one cast releases four real projectiles and dodged shots do no damage
+PASS Anchor casts a fixed 3.2m field
+PASS Anchor applies 25% walking slowdown and keeps its field fixed
+PASS the amber screen edge accompanies the actual movement slow
+PASS sloth-stasis-feedback image captured
+PASS walking out of the field restores speed
+PASS the amber screen edge fades after leaving the field
+PASS sloth-stasis-dial image captured
+PASS Recluse opens its shell with a low-wave warning
+PASS the active gold front uses the same radius and escape angle as the damage wave
+PASS sloth-recluse-wave image captured
+PASS the aimed 44 degree gap is safe for a standing player
+PASS Recluse can make a second wave
+PASS losing Fear hides the charge warning
+PASS the active wave remains visible with the charge warning hidden
+PASS crossing the wave outside its gap delivers one 14 HP hit
+PASS the crooked Husk starts charging with real AI
+PASS resin glob grows visibly during windup without inflicting damage
+PASS sloth-resin-windup image captured
+PASS late windup shows a harmless warning on the player's ground
+PASS sidestepping avoids the attack and the glue lands on the original spot
+PASS sloth-resin-pool image captured
+PASS stepping in well away from the centre immediately slows walking by 35%
+PASS pause freezes the pool and its damage
+PASS one full second in the glue deals 10 HP and the slow persists
+PASS leaving the pool clears the slow and stops damage
+PASS jumping above the pool avoids damage and slow
+PASS stepping back in reapplies the slow and starts a new damage tick
+PASS expiry clears the pool and its slow while the player is still inside
+PASS solid cover stops the lob before the marked pool activates
+PASS a shove clears the warned footprint without releasing an extra projectile
+PASS the throw registers one parryable projectile
+PASS the projectile rises along a lob before descending
+PASS reflecting the glob transfers ownership and removes the marked pool
+PASS the footprint conforms to the ramp and does not affect the floor below
+PASS second room has three staff bearers and seven total opponents
+PASS second room shifts both terraces
+PASS Boss keeps its solo encounter and receives the overhead clock
+PASS sloth-colossus-clock image captured
+SLOTH SANCTUM COMBAT: 56 checks, 0 failed

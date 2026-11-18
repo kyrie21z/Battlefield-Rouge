@@ -6,6 +6,8 @@
 
 迟滞者的黑布、细金线和金色晶体身体使用游戏内实例材质。施法时的微光沿用现有披风着色器的施法光色参数。金黄色胶池的地表网格、落点预警和流动高光由项目内代码与 `sloth_resin_pool.gdshader` 生成。实机图见同一验证目录。
 
+锚定者钟阵和退缩者双层扩散波由 `sloth_time_field.gdshader` 绘制在现有地形上。减速期间的屏幕边缘刻度使用项目自制的 `sloth_stasis.gdshader`。截图来自同一原生验证场景。
+
 ## 恐惧卡顿优化取证（2026-11-16，#219）
 
 `docs/proof/fear-hitches/wisp-warning.jpg`为本项目Godot4.7.2原生`fear_reaper_test.tscn`截图，展示预建演员激活后仍保留原张嘴表情。仅PNG转JPEG，没有重绘或生成式替换；SHA256与字节数见同目录`validation.json`。性能改动复用已登记的模型、材质和声音，没有增加第三方素材。

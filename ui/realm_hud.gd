@@ -14,6 +14,8 @@ var _boons: Label
 var _boss_bar: ProgressBar
 var _boss_name: Label
 var _monochrome: ColorRect
+var _stasis: ColorRect
+var _stasis_strength := 0.0
 var _base_sensitivity := 0.0022
 var _root: Control
 var _resonance: Label
@@ -39,6 +41,15 @@ func _ready() -> void:
 	material_value.shader = shader
 	_monochrome.material = material_value
 	_root.add_child(_monochrome)
+	if stage.realm == PsycheFragments.SLOTH:
+		_stasis = ColorRect.new()
+		_stasis.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_stasis.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var stasis_material := ShaderMaterial.new()
+		stasis_material.shader = preload("res://ui/shaders/sloth_stasis.gdshader")
+		_stasis.material = stasis_material
+		_stasis.hide()
+		_root.add_child(_stasis)
 	hurt_feedback = RealmHurtFeedback.new()
 	hurt_feedback.health = stage.player.health
 	_root.add_child(hurt_feedback)
@@ -244,6 +255,11 @@ func _process(_delta: float) -> void:
 	damage_indicator.visible = player.realm_effects.warnings_enabled
 	_monochrome.visible = player.realm_effects.monochrome > 0
 	(_monochrome.material as ShaderMaterial).set_shader_parameter("amount",player.realm_effects.monochrome)
+	if _stasis != null:
+		var strength := 0.0 if player.health.is_dead() else (1.0 - player.stasis_multiplier()) / 0.25
+		_stasis_strength = move_toward(_stasis_strength, strength, _delta * 7.0)
+		_stasis.visible = _stasis_strength > 0.0
+		(_stasis.material as ShaderMaterial).set_shader_parameter("amount", _stasis_strength)
 	var boss_live := is_instance_valid(stage.boss) and not stage.boss.health.is_dead()
 	_boss_bar.visible = boss_live
 	_boss_name.visible = boss_live

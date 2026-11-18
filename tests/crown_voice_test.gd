@@ -35,7 +35,18 @@ func _ready() -> void:
 	for level in 5:
 		Events.sin_defeated.emit(level)
 		check("fracture %d updates actual emissive material" % level, is_equal_approx(crown.strength, values[level]) and is_equal_approx(float(crown.material.get_shader_parameter("emission_strength")), values[level]))
-	check("level four exceeds fifteen without replacing the gameplay camera", crown.strength > 15 and player.view_camera.current and crown.edge_meshes.size() == 2)
+	check("level four exceeds fifteen without replacing the gameplay camera", crown.strength > 15 and player.view_camera.current)
+	var camera_meshes := player.view_camera.find_children("*", "MeshInstance3D", true, false)
+	check("the view camera has no crown prisms", camera_meshes.all(func(part: MeshInstance3D) -> bool:
+		return not part.mesh is PrismMesh))
+	var worn_meshes := crown.model.find_children("*", "MeshInstance3D", true, false)
+	check("the worn crown is present as shadow-casting geometry", worn_meshes.size() == 42 and worn_meshes.all(func(part: MeshInstance3D) -> bool:
+		return part.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY))
+	player._pitch = deg_to_rad(-75.0)
+	player._apply_look()
+	crown._process(0.0)
+	check("looking down leaves the crown in body space above the skull", crown.model.global_basis.is_equal_approx(player.global_basis)
+		and (crown.model.global_position - player._head.global_position).is_equal_approx(player.global_basis * CrownModel.WEAR_OFFSET))
 	check("level four binds the production starburst postprocess",crown.glare.shader==preload("res://ui/shaders/blinding_glare.gdshader") and is_equal_approx(crown.glare.get_shader_parameter("intensity"),1.0) and int(crown.glare.get_shader_parameter("fracture_level"))==4)
 	await get_tree().process_frame
 	var glare_time:float=crown.glare.get_shader_parameter("visual_time")
@@ -48,7 +59,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	check("reduced motion reaches the glare shader",crown.glare.get_shader_parameter("reduced_motion"))
 	crown.set_cinematic_hidden(true)
-	check("opening can suppress every Crown presentation including camera children", not crown.layer.visible and crown.edge_meshes.all(func(m: MeshInstance3D) -> bool: return not m.visible))
+	check("cinematics can suppress the Crown overlay and worn model", not crown.layer.visible and not crown.model.is_visible_in_tree())
 	crown.set_cinematic_hidden(false)
 	crown.configure_history(5,4,"combat")
 	await get_tree().process_frame

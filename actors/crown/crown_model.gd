@@ -45,6 +45,15 @@ func _ready() -> void:
 
 func set_worn(value: bool) -> void:
 	worn = value
+	for part in find_children("*", "MeshInstance3D", true, false):
+		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if worn \
+			else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+
+static func worn_transform(eye: Node3D) -> Transform3D:
+	# The body sets the eye position from the animated skull. Camera pitch and
+	# recoil rotate the eye node, so use the character's axes for the crown.
+	var body_basis := eye.get_parent_node_3d().global_basis
+	return Transform3D(body_basis, eye.global_position + body_basis * WEAR_OFFSET)
 
 func set_emission_strength(value: float) -> void:
 	emission_strength = maxf(value, 0.0)

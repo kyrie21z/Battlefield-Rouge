@@ -94,8 +94,13 @@ func _ready() -> void:
 	var camera := Camera3D.new()
 	add_child(camera)
 	camera.fov = 48.0
-	camera.look_at_from_position(Vector3(-2.5, 1.5, -2.6), Vector3(0.0, 0.85, 0.0))
 	camera.current = true
+	var pistol := _player.weapon.grip_transform()
+	var grip_center := pistol * Vector3(0.0, 0.02, 0.013)
+	camera.look_at_from_position(pistol * Vector3(-0.37, 0.11, -0.16), grip_center)
+	await _frames(5)
+	await _shot("body_grip_detail.png")
+	camera.look_at_from_position(Vector3(-2.5, 1.5, -2.6), Vector3(0.0, 0.85, 0.0))
 	# The head remains shadows-only in every first-person frame. This external
 	# audit restores it only to show that the original full body is retained.
 	var head_mesh := _body.find_child("GEO_m_head", true, false) as MeshInstance3D

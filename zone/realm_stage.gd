@@ -142,6 +142,9 @@ func _spawn_encounter() -> void:
 	if boss_room:
 		_spawn_boss()
 		return
+	if geometry is SlothRealm:
+		_spawn_sloth_encounter(geometry as SlothRealm)
+		return
 	var path := "res://actors/enemy/%s/%s_realm_enemy.tscn" % [REALMS[realm],REALMS[realm]]
 	if not ResourceLoader.exists(path):
 		push_error("Missing realm enemy: " + path)
@@ -165,6 +168,24 @@ func _spawn_encounter() -> void:
 		reaper.position = Vector3(7,0.05,-8) if room_index == 0 else Vector3(-9.8,1.25,0)
 		add_child(reaper)
 		_register_actor(reaper)
+
+func _spawn_sloth_encounter(court: SlothRealm) -> void:
+	var positions := court.guard_positions()
+	var roster := [SlothEnemy.Kind.LINGERER, SlothEnemy.Kind.ANCHOR, SlothEnemy.Kind.RECLUSE, SlothEnemy.Kind.LINGERER]
+	if court.chamber_style == 1:
+		roster.append_array([SlothEnemy.Kind.ANCHOR, SlothEnemy.Kind.LINGERER])
+	for i in roster.size():
+		var guardian := preload("res://actors/enemy/sloth/sloth_enemy.tscn").instantiate() as SlothEnemy
+		guardian.kind = roster[i]
+		guardian.realm_encounter = true
+		guardian.opening_delay = 0.75 + i * 0.22
+		guardian.position = positions[i]
+		add_child(guardian)
+		_register_actor(guardian)
+	var mire := preload("res://actors/enemy/sloth/sloth_mire.tscn").instantiate() as SlothMire
+	mire.position = positions[-1]
+	add_child(mire)
+	_register_actor(mire)
 
 func _spawn_boss() -> void:
 	var path := "res://actors/boss/%s/%s.tscn" % [BOSSES[realm],BOSSES[realm]]
@@ -532,6 +553,18 @@ func _build_world() -> void:
 	var environment := preload("res://environments/default_env.tres").duplicate() as Environment
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = [Color("bfb8a6"),Color("969faa"),Color("b9a1a0"),Color("a8b9c7")][realm]
+	if realm == 0:
+		var sky_material := ShaderMaterial.new()
+		sky_material.shader = preload("res://environments/sloth/sanctum_sky.gdshader")
+		var sky := Sky.new()
+		sky.radiance_size = Sky.RADIANCE_SIZE_128
+		sky.sky_material = sky_material
+		environment.background_mode = Environment.BG_SKY
+		environment.sky = sky
+		environment.fog_enabled = true
+		environment.fog_light_color = Color("b8c2c8")
+		environment.fog_density = 0.0022
+		environment.fog_sky_affect = 0.14
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color("e1e5ed")
 	environment.ambient_light_energy = 0.48
@@ -544,6 +577,10 @@ func _build_world() -> void:
 	sun.rotation_degrees = Vector3(-52,-28,0)
 	sun.light_energy = 1.45
 	sun.shadow_enabled = true
+	if realm == 0:
+		sun.light_color = Color("ffeece")
+		sun.light_energy = 1.22
+		sun.directional_shadow_max_distance = 74.0
 	add_child(sun)
 
 func _bake_navigation() -> void:

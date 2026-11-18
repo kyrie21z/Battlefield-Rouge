@@ -16,12 +16,12 @@ func _ready() -> void:
 	stage.player.set_physics_process(false)
 	for enemy in stage.enemies:
 		enemy.set_physics_process(false)
-	check("generated map constructs geometry, player, HUD and three realm variants",stage.geometry != null and stage.player != null and stage.hud != null and stage.enemies.size()==3)
+	check("generated map constructs geometry, player, HUD and the five-guardian opening encounter",stage.geometry != null and stage.player != null and stage.hud != null and stage.enemies.size()==5)
 	check("baked WORLD geometry produces a navigation polygon",stage._region.navigation_mesh.get_polygon_count()>0)
 	check("injected HP, depth and deprivations survive stage setup",stage.player.health.health==65 and stage.depth==2 and stage.deprivations==[0,1])
 	check("inherited loss of Sloth extinguishes all Rest Zones",not stage.geometry.get("rest_enabled"))
 	check("inherited loss of Fear removes enemy tells and damage arrows",not stage.enemies[0].get("warnings_enabled") and not stage.player.realm_effects.warnings_enabled)
-	check("injected difficulty changes both enemy HP and damage",is_equal_approx(stage.enemies[0].health.max_health,165) and stage.enemies[0].get("realm_damage_scale")==1.5)
+	check("injected difficulty changes both enemy HP and damage",is_equal_approx(stage.enemies[0].health.max_health,135) and stage.enemies[0].get("realm_damage_scale")==1.5)
 	check("locked exit refuses premature progress",not stage.request_exit())
 	var rewards := [0]
 	var rerolls := [0]
@@ -98,7 +98,7 @@ func _ready() -> void:
 	for actor in next.enemies:
 		actor.set_physics_process(false)
 	await frames(2)
-	check("second generated room has five live actors",next.enemies.size()==5 and next.living_enemies()==5)
+	check("second generated room has seven live actors",next.enemies.size()==7 and next.living_enemies()==7)
 	check("room handoff restores actual HP, boons and independent shard",next.player.health.health==47 and next.player.boons.all_equipped()==carried and next.player.fragments.has_shard(0))
 	check("restoring Slumber still preserves inherited dark Rest Zones",not next.geometry.get("rest_enabled"))
 	next.queue_free()

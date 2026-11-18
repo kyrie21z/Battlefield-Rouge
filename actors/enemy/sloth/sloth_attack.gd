@@ -37,6 +37,8 @@ var _mat: StandardMaterial3D
 var _detail_mat: StandardMaterial3D
 var _last_radius := 0.0
 var _ground_heights: Dictionary = {}
+static var _cast_tone: AudioStreamWAV
+static var _release_tone: AudioStreamWAV
 
 
 func warning_time() -> float:
@@ -47,11 +49,16 @@ func _ready() -> void:
 	top_level = true
 	global_transform = Transform3D.IDENTITY
 	_origin = caster.global_position + Vector3.UP * 1.42
+	if kind == 0 and is_instance_valid(caster.visual.staff_tip):
+		var tip := caster.visual.staff_tip.global_position
+		if _clear_path(_origin,tip):
+			_origin = tip
 	field_center = target.global_position if kind == 1 else caster.global_position
 	field_center.y += 0.065
 	locked_direction = (target.global_position + Vector3.UP * Enemy.AIM_HEIGHT - _origin).normalized()
 	_graphics = Node3D.new()
 	add_child(_graphics)
+	_graphics.visible = caster.warnings_enabled
 	_mat = _material(Color(0.18, 0.40, 0.62, 0.72))
 	_detail_mat = _material(Color(0.65, 0.79, 0.88, 0.6))
 	if kind == 0:
@@ -64,7 +71,8 @@ func _ready() -> void:
 	_audio.unit_size = 9.0
 	_audio.volume_db = -8.0
 	add_child(_audio)
-	_audio.play()
+	if caster.warnings_enabled:
+		_audio.play()
 
 
 func _physics_process(delta: float) -> void:
@@ -79,6 +87,7 @@ func _physics_process(delta: float) -> void:
 		return
 	delta *= caster.boon_time_scale * caster.boon_attack_scale
 	elapsed += delta
+	_graphics.visible = caster.warnings_enabled
 	if elapsed < warning_time():
 		var progress := elapsed / warning_time()
 		_mat.emission_energy_multiplier = 0.35 + progress * 0.5
@@ -88,7 +97,8 @@ func _physics_process(delta: float) -> void:
 				if elapsed >= warning_time() - LINGER_LOCK_WARNING:
 					aim_locked = true
 					_audio.pitch_scale = 1.4
-					_audio.play()
+					if caster.warnings_enabled:
+						_audio.play()
 			_mat.albedo_color = Color(0.75,0.9,1.0,0.95) if aim_locked else Color(0.18,0.40,0.62,0.65)
 			caster.visual.set_mantle_open(smoothstep(0.45, 0.9, progress))
 			caster.set_core_exposed(progress > 0.65)
@@ -116,7 +126,7 @@ func _physics_process(delta: float) -> void:
 			while _released < LINGER_VOLLEY_COUNT and active_time >= float(_released) * LINGER_SHOT_INTERVAL:
 				var from := _volley[_released]
 				Projectile.spawn(caster.get_parent(), from, _volley_directions[_released], caster,
-					LINGER_SHOT_DAMAGE, LINGER_SHOT_SPEED, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
+					LINGER_SHOT_DAMAGE * caster.realm_damage_scale, LINGER_SHOT_SPEED, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
 				_orbs[_released].hide()
 				_released += 1
 			if active_time >= float(LINGER_VOLLEY_COUNT - 1) * LINGER_SHOT_INTERVAL + LINGER_RELEASE_TAIL:
@@ -168,7 +178,7 @@ func _test_wave(radius: float) -> void:
 			player.global_position + Vector3.UP * 0.45):
 		return
 	_hit = true
-	(player.get_node("Health") as Health).apply_damage(14.0, Hitbox.BodyPart.BODY, caster)
+	(player.get_node("Health") as Health).apply_damage(14.0 * caster.realm_damage_scale, Hitbox.BodyPart.BODY, caster)
 
 
 func _clear_path(from: Vector3, to: Vector3) -> bool:
@@ -357,6 +367,9 @@ static func _material(color: Color) -> StandardMaterial3D:
 
 
 static func _tone(release: bool) -> AudioStreamWAV:
+	var cached := _release_tone if release else _cast_tone
+	if cached != null:
+		return cached
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = 22050
@@ -371,4 +384,8 @@ static func _tone(release: bool) -> AudioStreamWAV:
 		value *= sin(PI * t / duration) * (1.0 - t / duration) * 0.22
 		bytes.encode_s16(i * 2, int(value * 32767.0))
 	stream.data = bytes
+	if release:
+		_release_tone = stream
+	else:
+		_cast_tone = stream
 	return stream

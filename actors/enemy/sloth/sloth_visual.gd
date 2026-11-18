@@ -10,6 +10,8 @@ const CLOTH: Shader = preload("res://assets/materials/sloth_cloth.gdshader")
 static var _outfit_templates: Dictionary = {}
 
 var kind := 0
+var staff_enabled := false
+var staff_tip: Node3D
 var model: Node3D
 var skeleton: Skeleton3D
 var animation: AnimationPlayer
@@ -98,6 +100,8 @@ func _build() -> void:
 			2: _build_recluse()
 		_batch_meshes(_outfit)
 		_cache_outfit()
+	if staff_enabled:
+		_build_staff()
 	play_motion("idle")
 	if animation != null:
 		animation.advance(0.0)
@@ -112,6 +116,23 @@ func set_cast(amount: float) -> void:
 		_cloth.set_shader_parameter("cast_amount", _cast)
 		_light.emission_energy_multiplier = 0.35 + _cast * 0.8
 		_crystal.set_shader_parameter("emission_strength", 0.12 + _cast * 0.10)
+
+
+func _build_staff() -> void:
+	var hand := _follow("RightHand", "LingererStaff")
+	var heel := Vector3(0.60,0.14,-0.10)
+	var crown := Vector3(0.68,2.16,-0.28)
+	_line(hand,heel,crown,0.045,_dark)
+	for height in [0.22,0.93,1.08,1.93]:
+		_plate(hand,Vector3(0.64,height,-0.18),Vector3(0.12,0.07,0.13),_metal)
+	_torus(hand,crown,0.23,0.034,_metal,Vector3(PI*0.5,0,0))
+	_torus(hand,crown,0.18,0.018,_edge,Vector3(PI*0.5,0.9,0))
+	_sphere(hand,crown,0.115,_light).scale.y = 1.65
+	staff_tip = Node3D.new()
+	staff_tip.name = "StaffTip"
+	staff_tip.position = crown
+	hand.add_child(staff_tip)
+	_update_bones()
 
 
 func set_shell_open(amount: float) -> void:

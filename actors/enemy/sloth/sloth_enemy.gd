@@ -7,6 +7,9 @@ enum Kind { LINGERER, ANCHOR, RECLUSE }
 @export_enum("Lingerer", "Anchor", "Recluse") var kind: int = Kind.LINGERER
 ## A short authored offset keeps the larger opening wave from casting in unison.
 @export_range(0.0, 2.0) var opening_delay := 0.25
+var realm_encounter := false
+var realm_damage_scale := 1.0
+var warnings_enabled := true
 var visual: SlothVisual
 var active_attack: SlothAttack
 var cooldown_left := 1.3
@@ -23,7 +26,9 @@ var evade_count := 0
 
 func _enter_tree() -> void:
 	# Child _ready runs first; choose its outfit before it builds any meshes.
-	($Model as SlothVisual).configure(kind)
+	var model := $Model as SlothVisual
+	model.staff_enabled = realm_encounter and kind == Kind.LINGERER
+	model.configure(kind)
 
 
 func _ready() -> void:
@@ -41,6 +46,9 @@ func _ready() -> void:
 		_hitbox_rids.append((hitbox as Hitbox).get_rid())
 	health.max_health = [90.0, 140.0, 180.0][kind]
 	health.health = health.max_health
+	if realm_encounter:
+		_agent.path_height_offset = 0.5
+		enable_crystal_feedback(0)
 	health.headshot_multiplier = 2.0
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -134,6 +142,9 @@ func _physics_process(delta: float) -> void:
 			cast_attack()
 	elif state == State.SEEK and kind == Kind.LINGERER:
 		_process_seek(delta)
+	elif realm_encounter and kind == Kind.ANCHOR:
+		# The anchor's fixed body gives the player a stable target to prioritize.
+		pass
 	else:
 		# A deterministic path toward the last observed position also brings a
 		# cloaked reinforcement around cover instead of shooting through it.
@@ -148,7 +159,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _can_fight_here() -> bool:
-	if kind == Kind.LINGERER and _distance_to_target() < min_engage_distance:
+	if not realm_encounter and kind == Kind.LINGERER and _distance_to_target() < min_engage_distance:
 		return false
 	return _firing_board == null or not _firing_board.is_taken(global_position, seek_spacing, self)
 

@@ -2,6 +2,8 @@ class_name SlothRealm
 extends Node3D
 ## Generated maps instantiate this passive environment. Narrative state is injected.
 @export var boss_arena := false
+@export_range(0,1) var chamber_style := 0
+const TERRACE_HEIGHT := 1.25
 var rest_zones: Array[Node3D] = []
 var rest_lights: Array[OmniLight3D] = []
 var rings: Array[Node3D] = []
@@ -20,10 +22,14 @@ var player: Player
 var void_fall: RealmVoid
 
 func _ready() -> void:
-	_stone = material(Color(0.88,0.88,0.85),0.05,0.72)
+	_stone = material(Color("e4dfd4"),0.06,0.68)
 	_amber = material(Color(0.80,0.44,0.12),0.25,0.33,0.4)
 	var dark := material(Color(0.10,0.085,0.06),0.1,0.8)
-	box(self,Vector3(0,-0.6,0),Vector3(40,1.2,48),_stone,true)
+	var paving := ShaderMaterial.new()
+	paving.shader = preload("res://environments/sloth/floor.gdshader")
+	paving.set_shader_parameter("stone_color",Color("e2dbcc"))
+	paving.set_shader_parameter("radial_mode",boss_arena)
+	box(self,Vector3(0,-0.6,0),Vector3(40,1.2,48),paving,true)
 	# Physical edges define the walkable floor. Scenery never enters navigation.
 	for side in [-1.0,1.0]:
 		box(self,Vector3(side*20,-0.1,0),Vector3(0.3,0.8,48),_stone,true)
@@ -39,10 +45,9 @@ func _ready() -> void:
 			var block := box(self,Vector3(side*(26+i*4),6+i*2,-22+i*6),
 				Vector3(5+i*0.6,3.5,5),_stone,false)
 			block.rotation = Vector3(0.07*i,0.15*i,0.05*side*i)
-	# A readable central route remains open; cover is only on the flanks.
+	# The central causeway keeps its original elevation and door distance.
 	if not boss_arena:
-		for pos in [Vector3(-8,0.8,2),Vector3(8,0.8,-8),Vector3(-8,1.1,-13)]:
-			box(self,pos,Vector3(3.2,pos.y*2,2),_stone,true)
+		_build_terraces()
 	else:
 		for side in [-1.0,1.0]:
 			box(self,Vector3(side*10,0.65,-8),Vector3(3.5,1.3,3.5),_stone,true)
@@ -60,6 +65,10 @@ func _ready() -> void:
 		for y in [4.0,7.0,10.0]:
 			line(self,Vector3(side*18,y,19),Vector3(side*14,11,-17),0.018,_amber)
 		_build_rest(Vector3(side*13,0,12),dark)
+	var clockwork := SlothClockwork.new()
+	clockwork.name = "SuspendedClockwork"
+	add_child(clockwork)
+	clockwork.build(boss_arena, chamber_style, _stone, _amber)
 	var mist := CPUParticles3D.new()
 	mist.name = "StillAmberMist"
 	mist.amount = 42
@@ -95,6 +104,48 @@ func _ready() -> void:
 	add_child(_industrial_audio)
 	set_deprivation(deprived)
 	_install_void()
+
+func _build_terraces() -> void:
+	var trim := material(Color("b18c56"),0.53,0.37)
+	for side in [-1.0,1.0]:
+		var x: float = side * 12.4
+		var z := _terrace_z(side)
+		var terrace := box(self,Vector3(x,TERRACE_HEIGHT * 0.5,z),Vector3(6.8,TERRACE_HEIGHT,7.6),_stone,true)
+		terrace.name = "WestTerrace" if side < 0.0 else "EastTerrace"
+		for end in [-1.0,1.0]:
+			var angle: float = atan2(TERRACE_HEIGHT,4.5) * end
+			var ramp_length := Vector2(TERRACE_HEIGHT,4.5).length()
+			var center := Vector3(x,TERRACE_HEIGHT * 0.5 - cos(angle) * 0.22,z + end * 6.05 - sin(angle) * 0.22)
+			var ramp := box(self,center,Vector3(4.8,0.44,ramp_length + 0.16),_stone,true)
+			ramp.name = "TerraceRamp"
+			ramp.rotation.x = angle
+		# Two separate plinths provide cover without sealing either approach.
+		for corner in [-1.0,1.0]:
+			var cover := box(self,Vector3(x + side * 1.9,TERRACE_HEIGHT + 0.75,z + corner * 2.45),Vector3(1.9,1.5,1.55),_stone,true)
+			box(cover,Vector3(0,0.80,0),Vector3(1.96,0.06,1.61),trim,false)
+		box(self,Vector3(x - side * 3.37,TERRACE_HEIGHT * 0.76,z),Vector3(0.075,0.12,7.6),trim,false)
+	for index in 3:
+		var side := -1.0 if (index + chamber_style) % 2 == 0 else 1.0
+		var z := 6.0 - index * 9.25
+		var screen := box(self,Vector3(side*6.0,0.66,z),Vector3(2.15,1.32,1.22),_stone,true)
+		screen.rotation.y = side * 0.16
+		box(screen,Vector3(0,0.695,0),Vector3(2.23,0.06,1.32),trim,false)
+
+func _terrace_z(side: float) -> float:
+	if chamber_style == 0:
+		return -2.0 if side < 0.0 else 0.0
+	return 3.0 if side < 0.0 else -5.0
+
+func guard_positions() -> Array[Vector3]:
+	var points: Array[Vector3] = [
+		Vector3(-7.8,0.08,3), Vector3(7.7,0.08,-6), Vector3(0,0.08,-12),
+		Vector3(12.4,TERRACE_HEIGHT + 0.08,_terrace_z(1.0)),
+	]
+	if chamber_style == 1:
+		points.append(Vector3(-12.4,TERRACE_HEIGHT + 0.08,_terrace_z(-1.0)))
+		points.append(Vector3(-12,0.08,-13))
+	points.append(Vector3(-9,0.08,-8))
+	return points
 
 func _build_rest(pos: Vector3,dark: Material) -> void:
 	var area := Node3D.new()

@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://actors/enemy/sloth/sloth_realm_enemy.tscn" id="1"]
+[ext_resource type="Script" path="res://actors/enemy/sloth/sloth_mire.gd" id="2"]
+[ext_resource type="Script" path="res://actors/enemy/sloth/sloth_mire_visual.gd" id="3"]
+
+[node name="ResinHusk" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="Model" parent="." index="2"]
+script = ExtResource("3")
+
+[node name="HeadHitbox" parent="." index="4"]
+position = Vector3(0.12, 1.68, -0.10)

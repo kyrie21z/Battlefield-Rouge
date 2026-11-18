@@ -111,6 +111,10 @@ func _build() -> void:
 	_update_bones()
 	set_cast(_cast)
 	set_shell_open(_opening)
+	_prepare_shatter()
+
+func _prepare_shatter() -> void:
+	SlothShatter.prepare_for(self, _crystal)
 
 func _apply_gold_palette() -> void:
 	_cloth.set_shader_parameter("cloth_color", Color("181715"))
@@ -207,7 +211,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	set_cast(0.0)
 	if animation != null:
 		animation.pause()
-	shatter = SlothShatter.new()
+	shatter = SlothShatter.take(self, _crystal)
 	# Sibling of the actor, so removing a dead enemy does not orphan the burst.
 	get_parent().get_parent().add_child(shatter)
 	shatter.build(self, global_position + Vector3.UP if point == Vector3.INF else point, direction)

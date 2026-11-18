@@ -34,6 +34,14 @@ var _audio: AudioStreamPlayer
 var _previous_pause := false
 var _previous_mouse := Input.MOUSE_MODE_VISIBLE
 var _completed := false
+var _built := false
+
+
+func prebuild_ui() -> void:
+	if _built:
+		return
+	_built = true
+	_build()
 
 
 func _ready() -> void:
@@ -42,7 +50,7 @@ func _ready() -> void:
 	_previous_mouse = Input.mouse_mode
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	_build()
+	prebuild_ui()
 
 
 func setup(boons: Array[BoonData], owner_manager: BoonManager, title: String = "选择心魔的馈赠", charges: int = 0) -> void:
@@ -395,7 +403,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _exit_tree() -> void:
-	if not _completed and get_tree() != null:
+	if not _completed and is_inside_tree() and get_tree() != null:
 		if _pending != null and is_instance_valid(manager):
 			manager.confirm_replace(false)
 		get_tree().paused = _previous_pause

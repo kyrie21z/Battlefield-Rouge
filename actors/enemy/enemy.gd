@@ -109,6 +109,7 @@ var _cover_left := 0.0
 var _cover_ready_at := 0.0
 var _strafe_dir := 1.0
 var _strafe_left := 0.0
+var _hitboxes: Array[Hitbox] = []
 var _hitbox_rids: Array[RID] = []
 var _gunshot: AudioStreamWAV
 var _firing_board: FiringPositionBoard
@@ -158,9 +159,7 @@ func _ready() -> void:
 		_anim.get_animation(anim).loop_mode = Animation.LOOP_LINEAR
 	for mesh in $Model/CharacterArmature/Skeleton3D/Index1_R.get_children():
 		mesh.visible = mesh.name == held_weapon
-	_hitbox_rids.append(get_rid())
-	for hitbox in find_children("*", "Hitbox", true, false):
-		_hitbox_rids.append((hitbox as Hitbox).get_rid())
+	_cache_hitboxes()
 	_gunshot = ProceduralAudio.generate("enemy_shot")
 	_audio.stream = _gunshot
 	_audio.volume_db = ENEMY_GUNSHOT_DB
@@ -593,14 +592,29 @@ func _on_clock_struck(position: Vector3) -> void:
 		_alert(position)
 
 
+func _cache_hitboxes() -> void:
+	_hitboxes.clear()
+	_hitbox_rids.clear()
+	_hitbox_rids.append(get_rid())
+	for child in find_children("*", "Hitbox", true, false):
+		var hitbox := child as Hitbox
+		if hitbox != null:
+			_hitboxes.append(hitbox)
+			_hitbox_rids.append(hitbox.get_rid())
+
+
+func _set_hitboxes_layer(layer: int) -> void:
+	for hitbox in _hitboxes:
+		hitbox.collision_layer = layer
+
+
 func _on_died(_source: Node) -> void:
 	_leave_cover()
 	_release_firing_position()
 	state = State.DEAD
 	velocity = Vector3.ZERO
-	collision_layer = 0
-	for hitbox in find_children("*", "Hitbox", true, false):
-		(hitbox as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	_anim.play("Death")
 	Events.enemy_killed.emit(self)
 

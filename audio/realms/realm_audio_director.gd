@@ -25,7 +25,12 @@ func setup_combat(owner_player: Player) -> void:
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	for path in ["res://audio/realms/fear_sound_bank.gd","res://audio/realms/wrath_sound_bank.gd"]:
-		if ResourceLoader.exists(path): _cue_banks.append(load(path) as Script)
+		if ResourceLoader.exists(path):
+			var bank := load(path) as Script
+			_cue_banks.append(bank)
+			var kinds: Array = bank.get_script_constant_map().get("KINDS",[])
+			for cue in [&"fear_flaw_shatter",&"wrath_wall_slam",&"wrath_spike"]:
+				if kinds.has(cue): bank.call("get_sound",cue,false)
 	ambient = AudioStreamPlayer.new()
 	ambient.name = "RealmAmbience"
 	ambient.bus = &"Music" if AudioServer.get_bus_index(&"Music") >= 0 else &"Master"

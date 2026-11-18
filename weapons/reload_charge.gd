@@ -30,6 +30,12 @@ const EXPLOSION_LIFETIME := 0.85
 static var _blast_sound: AudioStreamWAV
 static var _shield_sound: AudioStreamWAV
 
+static func prepare_audio() -> void:
+	if _blast_sound == null:
+		_blast_sound = _make_blast_sound()
+	if _shield_sound == null:
+		_shield_sound = _make_shield_sound()
+
 var shooter: CollisionObject3D
 var damage := 0.0
 var radius := 5.0

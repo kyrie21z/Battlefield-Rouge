@@ -12,9 +12,29 @@ const GUN_TAPS := [[0.023, 0.18], [0.037, 0.11], [0.061, 0.07]]
 const GUN_MASTER_ATTACK := 0.003
 ## Every generated impact peaks here, so swapping sounds does not jump in level.
 const PEAK_TARGET_DB := -3.0
+const COMMON_KINDS := [
+	"gun_pistol", "enemy_shot", "hit_kill", "hit_kill_head", "hit_tink",
+	"brittle_glass", "player_hurt", "player_hurt_heavy", "heartbeat", "dry",
+	"hit_flesh", "hit_metal", "melee_swing", "melee_hit", "dash",
+	"clock_hit", "clock_perfect", "clock_break", "shockwave",
+]
+static var _cache: Dictionary = {}
+
+
+static func prepare_common() -> void:
+	for kind in COMMON_KINDS:
+		generate(kind)
 
 
 static func generate(kind: String) -> AudioStreamWAV:
+	if _cache.has(kind):
+		return _cache[kind] as AudioStreamWAV
+	var stream := _generate_uncached(kind)
+	_cache[kind] = stream
+	return stream
+
+
+static func _generate_uncached(kind: String) -> AudioStreamWAV:
 	match kind:
 		# Layered player guns: a low thump, a bright crack, the body of the blast
 		# and a tail. The older single-burst kinds below stay for enemies.

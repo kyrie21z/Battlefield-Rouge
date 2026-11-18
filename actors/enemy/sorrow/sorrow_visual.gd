@@ -73,6 +73,7 @@ func _build() -> void:
 		model.position.y = 0.45
 		_drops()
 	_update_bones()
+	WrathShatter.prepare_for(self, _crystal)
 
 func _place_bone(label: String, point: Vector3) -> void:
 	var index := skeleton.find_bone(label)
@@ -180,7 +181,7 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	if _dead:
 		return
 	_dead = true
-	shatter = WrathShatter.new()
+	shatter = WrathShatter.take(self, _crystal)
 	get_parent().get_parent().add_child(shatter)
 	shatter.build(self,global_position+Vector3.UP if point == Vector3.INF else point,direction)
 	model.hide()

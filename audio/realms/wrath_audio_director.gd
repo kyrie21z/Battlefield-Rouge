@@ -6,6 +6,8 @@ var _next_metal := 3.5
 var _metal_index := 0
 
 func _ready() -> void:
+	for kind in WrathSoundBank.KINDS:
+		WrathSoundBank.get_sound(kind, kind in [&"wrath_kiln", &"wrath_charge", &"wrath_rush", &"wrath_saw"])
 	if stage.geometry.has_method("set_audio_managed"):
 		stage.geometry.call("set_audio_managed", true)
 	super._ready()

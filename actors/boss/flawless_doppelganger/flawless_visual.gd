@@ -74,6 +74,7 @@ func _build() -> void:
 		for child in root.find_children("*","MeshInstance3D",true,false):
 			_print_meshes.append(child as MeshInstance3D)
 	set_print_progress(0)
+	WrathShatter.prepare_for(self, _crystal)
 func _equipment(bone: String,label: String,scene: PackedScene) -> Node3D:
 	var follow := _follow(bone,label)
 	var equipment := scene.instantiate() as Node3D
@@ -157,7 +158,7 @@ func die(point := Vector3.INF,direction := Vector3.FORWARD) -> void:
 	_dead = true
 	animation.stop()
 	guard_shell.hide()
-	shatter = WrathShatter.new()
+	shatter = WrathShatter.take(self, _crystal)
 	get_parent().get_parent().add_child(shatter)
 	shatter.build(self,global_position+Vector3.UP if point == Vector3.INF else point,direction)
 	model.hide()

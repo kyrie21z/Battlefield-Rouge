@@ -42,19 +42,52 @@ var _bob_phase := 0.0
 var _bob_clock := 0.0
 var _pieces: Array[Dictionary] = []
 var _piece_count := 0
+var _shell_meshes: Array[MeshInstance3D] = []
+var _shell_materials: Array[StandardMaterial3D] = []
+var _core_meshes: Array[MeshInstance3D] = []
+var _anim_reveal := false
+var _reveal_start := 0.0
+var _reveal_fade := 0.85
+var _anim_assemble := false
+var _assemble_start := 0.0
+var _assemble_duration := ASSEMBLE_TIME
 
 
 func _ready() -> void:
+	prepare()
+
+
+func prepare() -> void:
 	_build_models()
 	_build_collision()
 
 
 func _build_models() -> void:
+	if _shell != null:
+		return
 	_shell = SHELL_SCENE.instantiate() as Node3D
 	add_child(_shell)
 	_core = CORE_SCENE.instantiate() as Node3D
 	_core.position = Vector3(0.0, 0.0, CORE_FORWARD)
 	add_child(_core)
+	_shell_meshes.clear()
+	_shell_materials.clear()
+	for node in _shell.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi == null:
+			continue
+		var base := mi.get_active_material(0) as StandardMaterial3D
+		var mat := base.duplicate() as StandardMaterial3D if base != null else null
+		if mat != null:
+			mi.material_override = mat
+		_shell_meshes.append(mi)
+		_shell_materials.append(mat)
+	_core_meshes.clear()
+	for node in _core.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi == null:
+			continue
+		_core_meshes.append(mi)
 
 
 ## Solid body so the orb reads as a real object: the player cannot walk through it
@@ -63,6 +96,8 @@ func _build_models() -> void:
 ## plates still poke out, and it stays well inside INTERACT_RANGE so you can
 ## always reach the orb even while standing against it.
 func _build_collision() -> void:
+	if _body != null:
+		return
 	_body = StaticBody3D.new()
 	_body.name = "Body"
 	_body.collision_layer = CollisionLayers.WORLD
@@ -107,13 +142,14 @@ func is_ready() -> bool:
 ## replay assembles into the identical pose (AC-07).
 func scatter(radius: float = 1.9) -> void:
 	_pieces.clear()
+	_anim_reveal = false
+	_anim_assemble = false
 	if _shell == null:
 		return
-	var meshes := _shell.find_children("*", "MeshInstance3D", true, false)
-	var i := 0
-	for entry in meshes:
-		var mi := entry as MeshInstance3D
-		if mi == null:
+	var count := _shell_meshes.size()
+	for i in count:
+		var mi := _shell_meshes[i]
+		if mi == null or not is_instance_valid(mi):
 			continue
 		var target := mi.transform
 		# big shells barely move; small armour blocks fly further out
@@ -126,15 +162,12 @@ func scatter(radius: float = 1.9) -> void:
 		var basis := target.basis.rotated(Vector3.UP, ang * 1.7).rotated(Vector3.RIGHT, tilt)
 		mi.transform = Transform3D(basis.scaled(Vector3.ONE * lerpf(1.0, 0.78, weight)), target.origin + dir * spread)
 
-		# own material copy so each piece can glow and cool down on its own
-		var glow_mat: StandardMaterial3D = null
-		var base := mi.get_active_material(0) as StandardMaterial3D
-		if base != null:
-			glow_mat = base.duplicate() as StandardMaterial3D
+		# pre-cloned material copy glows and cools down without runtime duplication
+		var glow_mat := _shell_materials[i] if i < _shell_materials.size() else null
+		if glow_mat != null:
 			glow_mat.emission_enabled = true
 			glow_mat.emission = PIECE_GLOW
 			glow_mat.emission_energy_multiplier = 3.6
-			mi.material_override = glow_mat
 		# it starts fully transparent far out in the void, well past its scatter
 		# position, and drifts in while fading up
 		var home := mi.transform
@@ -149,57 +182,35 @@ func scatter(radius: float = 1.9) -> void:
 			"node": mi,
 			"target": target,
 			"home": home,
+			"far": far,
 			"material": glow_mat,
-			"delay": slot,
-			"reveal": slot,
+			"slot": slot,
 		})
-		i += 1
 	# every mesh takes part, so the count is the full piece total - assembly_seconds()
 	# needs it to report the real duration (113 pieces -> ~4.56 s, not 2.30 s)
-	_piece_count = i
+	_piece_count = _pieces.size()
 
 
 ## Brings the pieces out of the void: each one drifts in from far away while its
 ## opacity comes up, one after another - never all at once. Returns how long the
 ## whole reveal takes so the zone can chain the assembly right after it.
 func reveal_pieces(fade: float = 0.85) -> float:
-	var total := 0.0
-	for entry in _pieces:
-		var mi := entry["node"] as MeshInstance3D
-		if mi == null or not is_instance_valid(mi):
-			continue
-		var wait: float = entry["reveal"]
-		total = maxf(total, wait + fade)
-		var drift := create_tween().bind_node(mi)
-		drift.tween_property(mi, "transform", entry["home"], fade) \
-			.set_delay(wait) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		var appear := create_tween().bind_node(mi)
-		appear.tween_property(mi, "transparency", 0.0, fade) \
-			.set_delay(wait) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	return total
+	if _pieces.is_empty():
+		return 0.0
+	_reveal_start = SimClock.now()
+	_reveal_fade = maxf(fade, 0.001)
+	_anim_reveal = true
+	return float(_piece_count - 1) * PIECE_STEP + fade
 
 
 ## Flies every scattered piece back to its authored pose while its glow drains
 ## away, so each piece settles on its original material colour.
 func assemble(duration: float = ASSEMBLE_TIME, start_delay: float = ASSEMBLE_START) -> void:
-	for entry in _pieces:
-		var mi := entry["node"] as MeshInstance3D
-		if mi == null or not is_instance_valid(mi):
-			continue
-		var wait := start_delay + float(entry["delay"])
-		var tween := create_tween().bind_node(mi)
-		tween.tween_property(mi, "transform", entry["target"], duration) \
-			.set_delay(wait) \
-			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		var mat := entry["material"] as StandardMaterial3D
-		if mat != null:
-			var cool := create_tween().bind_node(mi)
-			cool.tween_property(mat, "emission_energy_multiplier", 0.0, duration * 1.2) \
-				.set_delay(wait) \
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_pieces.clear()
+	if _pieces.is_empty():
+		return
+	_assemble_start = SimClock.now() + start_delay
+	_assemble_duration = maxf(duration, 0.001)
+	_anim_assemble = true
 
 
 ## How long the whole reveal-then-assemble sequence runs. The zone uses it to line
@@ -246,20 +257,11 @@ func set_idle_enabled(value: bool) -> void:
 ## offered. Called by the zone when the reward identity is known.
 func set_accent(accent: Color) -> void:
 	_accent = accent
-	if _shell == null:
-		return
-	for node in _shell.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		if mesh == null or mesh.material_override is not StandardMaterial3D:
-			continue
-		var mat := mesh.material_override as StandardMaterial3D
-		if mat.emission_enabled:
+	for mat in _shell_materials:
+		if mat != null and mat.emission_enabled:
 			mat.emission = accent
-	if _core == null:
-		return
-	for node in _core.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		if mesh == null or mesh.material_override is not StandardMaterial3D:
+	for mesh in _core_meshes:
+		if mesh == null or not is_instance_valid(mesh) or mesh.material_override is not StandardMaterial3D:
 			continue
 		var mat := mesh.material_override as StandardMaterial3D
 		if mat.emission_enabled and mat.emission.b > 0.5 and mat.emission.r < 0.6:
@@ -279,6 +281,9 @@ func set_energy(scale: float) -> void:
 func _process(_delta: float) -> void:
 	var t := SimClock.now()
 
+	if _anim_reveal or _anim_assemble:
+		_step_pieces(t)
+
 	if _bob_enabled:
 		# phase-locked so switching idle motion back on never snaps the height:
 		# at the moment it resumes, sin() evaluates to wherever the orb already is
@@ -288,6 +293,56 @@ func _process(_delta: float) -> void:
 	if _core != null:
 		_core.rotation.y = t * cube_spin
 		_core.rotation.x = sin(t * cube_spin * 0.7) * cube_tumble
+
+
+func _step_pieces(t: float) -> void:
+	var reveal_done := true
+	var assemble_done := not _anim_assemble
+	for entry in _pieces:
+		var mi := entry["node"] as MeshInstance3D
+		if mi == null or not is_instance_valid(mi):
+			continue
+		var slot: float = entry["slot"]
+		var assembling_this := false
+		if _anim_assemble:
+			var dt := t - (_assemble_start + slot)
+			if dt >= 0.0:
+				assembling_this = true
+				var v := clampf(dt / _assemble_duration, 0.0, 1.0)
+				var home_xf: Transform3D = entry["home"]
+				var target_xf: Transform3D = entry["target"]
+				if v >= 1.0:
+					mi.transform = target_xf
+				else:
+					var vm1 := v - 1.0
+					var w := 1.0 + 2.70158 * vm1 * vm1 * vm1 + 1.70158 * vm1 * vm1
+					var origin := home_xf.origin.lerp(target_xf.origin, w)
+					var rot := home_xf.basis.orthonormalized().get_rotation_quaternion().slerp(
+						target_xf.basis.orthonormalized().get_rotation_quaternion(), clampf(w, 0.0, 1.0))
+					var sc := home_xf.basis.get_scale().lerp(target_xf.basis.get_scale(), w)
+					mi.transform = Transform3D(Basis(rot).scaled_local(sc), origin)
+				var mat := entry["material"] as StandardMaterial3D
+				var vc := clampf(dt / (_assemble_duration * 1.2), 0.0, 1.0)
+				if mat != null:
+					mat.emission_energy_multiplier = lerpf(3.6, 0.0, 0.5 - 0.5 * cos(PI * vc))
+				if v < 1.0 or vc < 1.0:
+					assemble_done = false
+			else:
+				assemble_done = false
+		if _anim_reveal:
+			var u := clampf((t - (_reveal_start + slot)) / _reveal_fade, 0.0, 1.0)
+			mi.transparency = 1.0 - (0.5 - 0.5 * cos(PI * u))
+			if not assembling_this:
+				var far_xf: Transform3D = entry["far"]
+				var home_xf: Transform3D = entry["home"]
+				mi.transform = far_xf.interpolate_with(home_xf, sin(u * PI * 0.5))
+			if u < 1.0:
+				reveal_done = false
+	if reveal_done:
+		_anim_reveal = false
+	if _anim_assemble and assemble_done:
+		_anim_assemble = false
+		_pieces.clear()
 
 
 func _turn_toward_player() -> void:

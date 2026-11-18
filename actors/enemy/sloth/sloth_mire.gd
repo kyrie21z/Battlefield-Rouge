@@ -87,6 +87,7 @@ func _ready() -> void:
 	_charging.position = Vector3(0.4,1.45,-0.59)
 	_charging.hide()
 	add_child(_charging)
+	SlothResinPool.prepare_shader(self)
 	Events.enemy_registered.emit(self)
 
 func setup(value: CharacterBody3D, points: Array[CoverPoint], board: FiringPositionBoard = null) -> void:

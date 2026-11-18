@@ -30,9 +30,7 @@ func _ready() -> void:
 	health.before_damage.connect(_before_damage)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
-	_hitbox_rids.append(get_rid())
-	for box in find_children("*", "Hitbox", true, false):
-		_hitbox_rids.append((box as Hitbox).get_rid())
+	_cache_hitboxes()
 	Events.enemy_registered.emit(self)
 
 func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint], p_firing_board: FiringPositionBoard = null) -> void:
@@ -179,9 +177,8 @@ func _on_died(_source: Node) -> void:
 	_stop()
 	_leave_cover()
 	_release_firing_position()
-	collision_layer = 0
-	for box in find_children("*", "Hitbox", true, false):
-		(box as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	visual.die(global_position + Vector3.UP, locked_direction)
 	Events.enemy_killed.emit(self)
 

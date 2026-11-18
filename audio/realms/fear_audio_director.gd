@@ -5,6 +5,8 @@ var actor_voices: RealmActorAudioVoices
 var _blinks: Dictionary = {}
 
 func _ready() -> void:
+	for kind in FearSoundBank.KINDS:
+		FearSoundBank.get_sound(kind, kind in [&"fear_abyss", &"fear_lock"])
 	super._ready()
 	actor_voices = RealmActorAudioVoices.new()
 	add_child(actor_voices)

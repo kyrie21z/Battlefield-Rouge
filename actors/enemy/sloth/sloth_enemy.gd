@@ -33,6 +33,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	SlothAttack.prepare_audio()
 	Events.enemy_registered.emit(self)
 	visual = $Model as SlothVisual
 	visual.configure(kind)
@@ -42,9 +43,7 @@ func _ready() -> void:
 	eye_height = 1.65
 	min_engage_distance = 4.0
 	engage_range = [24.0, 18.0, 6.0][kind]
-	_hitbox_rids.append(get_rid())
-	for hitbox in find_children("*", "Hitbox", true, false):
-		_hitbox_rids.append((hitbox as Hitbox).get_rid())
+	_cache_hitboxes()
 	health.max_health = [90.0, 140.0, 180.0][kind]
 	health.health = health.max_health
 	if realm_encounter:
@@ -218,8 +217,7 @@ func _cancel_attack() -> void:
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
 	last_hit_point = global_position + Vector3.UP * (1.75 if _part == Hitbox.BodyPart.HEAD else 1.0)
 	last_hit_direction = (last_hit_point - source.global_position).normalized() if source is Node3D else Vector3.FORWARD
-	for node in find_children("*", "Hitbox", true, false):
-		var hitbox := node as Hitbox
+	for hitbox in _hitboxes:
 		if hitbox.resolving_surface_hit:
 			last_hit_point = hitbox.surface_point
 			last_hit_direction = hitbox.surface_direction
@@ -234,9 +232,8 @@ func _on_died(_source: Node) -> void:
 	_release_firing_position()
 	state = State.DEAD
 	velocity = Vector3.ZERO
-	collision_layer = 0
-	for hitbox in find_children("*", "Hitbox", true, false):
-		(hitbox as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	visual.die(last_hit_point, last_hit_direction)
 	Events.enemy_killed.emit(self)
 
@@ -251,8 +248,7 @@ func try_cloak_evade() -> bool:
 			or cloak_recover_left > 0.0 or $CoreHitbox.collision_layer != 0:
 		return false
 	var contact: Hitbox
-	for node in find_children("*", "Hitbox", true, false):
-		var hitbox := node as Hitbox
+	for hitbox in _hitboxes:
 		if hitbox.resolving_surface_hit and hitbox.surface_can_evade:
 			contact = hitbox
 			break

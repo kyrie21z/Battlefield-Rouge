@@ -49,9 +49,7 @@ func _ready() -> void:
 	eye_height = [2.1, 1.6, 0.75][variant]
 	$HeadHitbox.position.y = eye_height
 	$TorsoHitbox.position.y = [1.35, 0.94, 0.65][variant]
-	_hitbox_rids.append(get_rid())
-	for child in find_children("*", "Hitbox", true, false):
-		_hitbox_rids.append((child as Hitbox).get_rid())
+	_cache_hitboxes()
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
 	_line = MeshInstance3D.new()
@@ -244,8 +242,7 @@ func try_blink() -> bool:
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
 	_impact_point = global_position + Vector3.UP
 	_impact_direction = (global_position - source.global_position).normalized() if source is Node3D else Vector3.FORWARD
-	for child in find_children("*", "Hitbox", true, false):
-		var box := child as Hitbox
+	for box in _hitboxes:
 		if box.resolving_surface_hit:
 			_impact_point = box.surface_point
 			_impact_direction = box.surface_direction
@@ -260,9 +257,8 @@ func _on_died(_source: Node) -> void:
 	attack_elapsed = -1.0
 	_line.hide()
 	velocity = Vector3.ZERO
-	collision_layer = 0
-	for box in find_children("*", "Hitbox", true, false):
-		(box as Hitbox).collision_layer = 0
+	collision_layer = CollisionLayers.NONE
+	_set_hitboxes_layer(CollisionLayers.NONE)
 	visual.die(_impact_point, _impact_direction)
 	Events.enemy_killed.emit(self)
 

@@ -1,0 +1,27 @@
+﻿Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] sloth: the room installs a fall boundary
+[ok] sloth: an enemy falling into the void dies outright
+[ok] sloth: the player loses exactly 30 HP
+[ok] sloth: 30 damage does not kill a full-health player
+[ok] sloth: the player is returned to solid ground
+[ok] sloth: a second fall costs another 30 HP
+[ok] fear: the room installs a fall boundary
+[ok] fear: an enemy falling into the void dies outright
+[ok] fear: the player loses exactly 30 HP
+[ok] fear: 30 damage does not kill a full-health player
+[ok] fear: the player is returned to solid ground
+[ok] fear: a second fall costs another 30 HP
+[ok] wrath: the room installs a fall boundary
+[ok] wrath: an enemy falling into the void dies outright
+[ok] wrath: the player loses exactly 30 HP
+[ok] wrath: 30 damage does not kill a full-health player
+[ok] wrath: the player is returned to solid ground
+[ok] wrath: a second fall costs another 30 HP
+[ok] sorrow: the room installs a fall boundary
+[ok] sorrow: an enemy falling into the void dies outright
+[ok] sorrow: the player loses exactly 30 HP
+[ok] sorrow: 30 damage does not kill a full-health player
+[ok] sorrow: the player is returned to solid ground
+[ok] sorrow: a second fall costs another 30 HP
+REALM VOID: 24 checks, 0 failed

@@ -33,7 +33,7 @@
 
 普通项目入口先到 `ui/game_start.tscn`。`GameStart` 只加载 Pride 开场并监听单次完成信号，再读取 `RunState.zone_scene()` 进入原有战区；它不改种子、增益、战区序号或战斗规则。开场期间不实例化玩家、敌人、战区控制和战斗 HUD。fixture 与 `--skip-opening` 直接进战区；已有 `RunState` 延迟重定向与启动器均检查当前场景，先加载的一方完成交接，避免重复预热导航。死亡重开仍由原 `ZoneDirector` 直接载入战区，不返回开场。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
-一局 3 次选择：开局前 1 次 + 两个小关结束各 1 次；小关 2 和 Boss 进场不选；Boss 后不选。这对应 AC-04（D-002 于 2026-10-27 修订，原为每关先选、一局五次）。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通敲钟 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
+赐福每清完一个房间领一次（4 领域 × 3 房，最多 12 次），开局另有一次三选一；这对应 AC-04 的后续修订（D-002 于 2026-10-27 改为三次，现为每房一次）。发牌从全部 54 张里抽，不再按房间领域过滤；强化（特性）卡必须先拥有同系核心，双重卡要求两系核心同时在场；一轮最多给一张「会替换现有核心」的卡，其余名额留给特性，三张全是替换时可以直接放弃。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通敲钟 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
 由 `zone/zone_director.gd` 执行，场景里的节点顺序是：几何 → 掩体点 → 据点 → 玩家 → 敌人 → `ZoneDirector` → `HUD`。HUD 放在最后，保证它 `_ready` 时战区控制已经准备好。敌人排在 `ZoneDirector` 前面，所以战区控制 `_ready` 时敌人已经 ready。Boss 关的核心在 Boss 倒下前关闭，倒下后一刃击碎，见 [ADR 0004](docs/adr/0004-boss-wave-and-core.md) 文末修订。
 
@@ -41,6 +41,10 @@
 2. 确认 `enter` 卡后记录选择历史，发 `Events.buff_chosen`，立即应用新卡，再给敌人设置目标。小关进入 `CLEAR_GUARDS`。Boss 关（`is_boss_zone`）进入 `BOSS_STANDING`，核心保持关闭，目标是「打倒 Boss」。
 3. 小关守卫全灭开放据点，并开始从后方刷增援。增援不回退进度，也不把据点重新锁上。V 短刃命中仍按原节拍配置计进度（+10%，完美 ×2.0）。100% 插旗时冲击波让存活小怪停止攻击并逃向后方刷怪点，到达或超时后移除，不算击杀。旗旁出现增益台，走近按 F 才提供 `clear` 卡；选完暂停并载入下一关。下一关不再发 `enter` 卡，进场时自己解除暂停。Boss 不加这些。Boss 的 `enemy_killed` 才 `capture_point.open()`，目标改为「砸碎城市核心，按 V」；9只小怪不参与开关。这一刃用 `boss_capture_config.tres` 的 `progress_per_swing = 1`，完美与否都到 100%。插旗 1.4 秒后直接胜利，不再发牌。
 4. 死亡清空本局增益、选择历史与卡袋，显示阵亡界面。普通重开回第一关；fixture 模式仍回到同一 fixture 的关卡、预设卡和种子。选择提交、占点回调和场景推进均有防重保护。
+
+### 坠落边界
+
+四个领域共用 `environments/realm_void.gd`：低于地图原点 −12 米、或进入下方兜底体积即算坠落。玩家扣固定 **30 点真实生命**（绕过护盾、无敌与减伤），并送回上一次整块稳定地面，扣到 0 才死；其它角色走 `environmental_fatal` 直接死亡，不消耗护盾也不留残血。0.3 秒防连触发；落点必须脚下有支撑、法线朝上且胶囊不与世界或敌人重叠，否则退回出生点九宫格。`FearRealm` 原本自带一份等价实现，现已并入该组件，只把 `abyss` 体积转发给既有诊断与测试。
 
 新增战区：在 `tools/gen_zones.py` 里加一个布局，生成后把场景路径加到 `RunState.ZONE_SCENES`。
 
@@ -127,7 +131,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 正式进场及插旗后 F 交互使用 `ui/boon_picker/boon_picker.tscn`。初始给枪/刃/冲刺各一个核心候选，通关给与浮空心魔徽记一致的三张候选；替换需要确认。`BoonOffers` 使用 Zone 独立 RNG 和 `BoonManager.can_equip`，门扉可选到符合双系条件的双重卡。RunState 管理每局 2 次重抽与选卡历史；UI不直接扣费或推进关卡。暂停只冻结战斗，入场动画和确认交互继续；死亡界面接管暂停，空池仍可继续。
 
-`BoonIdentity` 是图标/主题数据，世界标识不依赖 UI Control。七种门扉标识均可配置，当前生产小关实际发放四系赐福；石榴/血量/商店图标为后续房间配置预留，未新增经济或房间流程。HUD显示当前赐福，历史 fixture Buff仍可恢复。当前保留每局三次选择，完整传奇成型需要后续增加房间循环；见 [ADR 0017](docs/adr/0017-boon-door-rewards.md)。
+`BoonIdentity` 是图标/主题数据，世界标识不依赖 UI Control。七种门扉标识均可配置，当前生产小关实际发放四系赐福；石榴/血量/商店图标为后续房间配置预留，未新增经济或房间流程。HUD显示当前赐福，历史 fixture Buff仍可恢复。领域机制说明挂在每张卡的悬浮栏上（`BoonPresentation.realm_help_inline`），不再有选卡前的一次性面板；当前每次清房一次选择，完整传奇成型需要后续增加房间循环；见 [ADR 0017](docs/adr/0017-boon-door-rewards.md)。
 
 ## Epic 3：领域约束接口（#138）
 

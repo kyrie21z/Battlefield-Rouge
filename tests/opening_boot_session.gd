@@ -62,10 +62,11 @@ func _run() -> void:
 		var stage_id := stage.get_instance_id()
 		check("exactly one actual realm is installed", stage == RunDirector.current_stage and get_tree().get_nodes_in_group("player").size() == 1)
 		check("opening preserves seed and initial shard/deprivation state", RunDirector.run_seed == seed_before and RunDirector.shards.is_empty() and RunDirector.deprivations.is_empty())
-		# a fresh run no longer opens with a three-card gift: the first card is
-		# claimed from the talent orb after the first room is cleared
-		check("a fresh run starts without an opening card offer", not is_instance_valid(stage.selection) and stage._reward_context == "")
-		await get_tree().process_frame
+		# 新一局进场会先给一次三选一：选掉它，战斗才会继续。
+		check("a fresh run opens one core choice", is_instance_valid(stage.selection) and stage._reward_context == "enter")
+		if is_instance_valid(stage.selection):
+			stage.selection._choose(stage.selection._offered[0])
+		for frame in 3: await get_tree().process_frame
 		var actor: Player = stage.player
 		var ammo := actor.weapon.ammo
 		check("real pistol fires after the scene handoff", actor.weapon.try_fire() and actor.weapon.ammo == ammo - 1)

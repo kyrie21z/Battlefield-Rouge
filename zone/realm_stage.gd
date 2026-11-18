@@ -102,6 +102,11 @@ func _ready() -> void:
 	add_child(hud)
 	get_tree().paused = false
 	_install_audio()
+	# Opening three-card choice. Deferred on purpose: the run controller restores
+	# the saved loadout right after add_child, and that restore replaces the whole
+	# card set. Choosing here would be erased by it.
+	if campaign and depth == 0 and room_index == 0:
+		offer_entry_reward.call_deferred()
 
 func _install_audio() -> void:
 	var path := "res://audio/realms/%s_audio_director.gd" % REALMS[realm]
@@ -388,44 +393,14 @@ func claim_talent() -> void:
 
 func _offer_reward(entry := false) -> void:
 	_reward_context = "enter" if entry else "clear"
-	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1 if entry else realm,[],entry)
-	if _should_introduce(entry):
-		_show_intro()
-	else:
-		_build_picker()
+	# Reward draws from the whole pool: the room no longer filters to its own sin.
+	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1,[],entry)
+	_build_picker()
 
 
-## The realm's shared mechanic is explained once, right before the first three
-## cards from that realm show up. Only fires when the offer actually contains a
-## card carrying this realm's sin, so a pure stat roll never triggers it.
-func _should_introduce(entry: bool) -> bool:
-	# The opening gift draws its three cards from a single realm, so it needs the
-	# same explanation the first door reward would. The realm comes from the offer
-	# itself because `realm` is still the level's own sin at that point.
-	var target := realm
-	if entry and not _reward_offer.is_empty():
-		target = _reward_offer[0].sin
-	if not MetaProgression.realm_needs_intro(target):
-		return false
-	for card: BoonData in _reward_offer:
-		if card.sin == target and card.rarity != BoonData.Rarity.DUAL:
-			return true
-	return false
-
-
-func _show_intro() -> void:
-	var panel := RealmIntro.new()
-	add_child(panel)
-	var target := realm
-	if _reward_context == "enter" and not _reward_offer.is_empty():
-		target = _reward_offer[0].sin
-	panel.setup(target)
-	panel.dismissed.connect(func() -> void:
-		MetaProgression.mark_realm_introduced(target)
-		_build_picker()
-	)
-
-
+## 领域机制说明从选卡前的一次性面板，改成了卡片自己的悬浮提示（见
+## BoonPresentation.realm_help_inline）。面板类仍保留给截图与独立诊断，但正式
+## 流程不再弹出，也就不再需要"这个领域已经介绍过"的存档状态。
 func _build_picker() -> void:
 	selection = PICKER.instantiate() as BoonPicker
 	add_child(selection)
@@ -440,7 +415,7 @@ func _reroll_reward() -> void:
 		return
 	rerolls_remaining -= 1
 	var entry := _reward_context == "enter"
-	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1 if entry else realm,_reward_offer,entry)
+	_reward_offer = BoonOffers.pick(player.boons,_offer_rng,3,-1,_reward_offer,entry)
 	selection.update_offer(_reward_offer,rerolls_remaining)
 	selection.show_reroll_cost()
 	reroll_spent.emit(self)

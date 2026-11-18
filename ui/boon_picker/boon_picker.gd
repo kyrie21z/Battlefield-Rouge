@@ -13,6 +13,7 @@ class SelectionAudio extends AudioStreamPlayer:
 
 const TEXT := Color("f2eee7")
 const MUTED := Color("a5a9b4")
+const IDLE_HINT := "以心魔的力量改变你的枪、刃与步伐   ·   悬停卡片查看该领域机制"
 var manager: BoonManager
 var _offered: Array[BoonData] = []
 var _selected := false
@@ -26,6 +27,7 @@ var _reroll: Button
 var _continue: Button
 var _notice: Label
 var _title: Label
+var _mechanic: Label
 var _owned: Label
 var _choices: HBoxContainer
 var _audio: AudioStreamPlayer
@@ -66,11 +68,19 @@ func update_offer(boons: Array[BoonData], charges: int) -> void:
 		var button := _make_card(_offered[i], i)
 		_choices.add_child(button)
 		_buttons.append(button)
+	var all_replace := _all_replacements()
 	_reroll.text = "重抽   /   剩余 %d 次" % _charges
 	_reroll.disabled = _charges <= 0 or _offered.is_empty()
-	_continue.visible = _offered.is_empty()
-	_notice.text = "按 1 / 2 / 3 选择   ·   R 重抽" if not _offered.is_empty() else "本系赐福已全部获得"
+	_continue.visible = _offered.is_empty() or all_replace
+	_continue.text = "继续前进" if _offered.is_empty() else "放弃这次馈赠"
+	if _offered.is_empty():
+		_notice.text = "当前没有可选赐福"
+	elif all_replace:
+		_notice.text = "三张都会替换现有赐福   ·   可以放弃   ·   R 重抽"
+	else:
+		_notice.text = "按 1 / 2 / 3 选择   ·   R 重抽"
 	_refresh_owned()
+	_reset_help()
 	_animate_cards.call_deferred()
 
 
@@ -93,9 +103,14 @@ func _build() -> void:
 	_title = BoonPresentation.label("选择心魔的馈赠", 36, TEXT)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_title)
-	var subtitle := BoonPresentation.label("以心魔的力量改变你的枪、刃与步伐", 19, MUTED)
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(subtitle)
+	# 机制说明栏：悬停哪张卡就显示哪个领域的机制。放在标题与卡片之间、参与布局，
+	# 这样它永远不会像系统 tooltip 那样盖住卡面上的技能描述。
+	_mechanic = BoonPresentation.label(IDLE_HINT, 17, MUTED)
+	_mechanic.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_mechanic.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_mechanic.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_mechanic.custom_minimum_size = Vector2(0, 50)
+	box.add_child(_mechanic)
 	_choices = HBoxContainer.new()
 	_choices.name = "Choices"
 	_choices.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -136,7 +151,7 @@ func _make_card(data: BoonData, index: int) -> Button:
 	var viewport := get_viewport().get_visible_rect().size
 	# Cards now carry up to five lines of description, so the height has to track
 	# the window instead of a fixed 500 or the accept row falls off the bottom.
-	var card_height := clampf(viewport.y - 390.0, 430.0, 560.0)
+	var card_height := clampf(viewport.y - 420.0, 408.0, 560.0)
 	button.custom_minimum_size = Vector2(clampf((viewport.x - 140.0) / 3.0, 280.0, 400.0), card_height)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var border_width := 1 + mini(int(data.rarity), 3)
@@ -148,6 +163,8 @@ func _make_card(data: BoonData, index: int) -> Button:
 	button.add_theme_stylebox_override("focus", BoonPresentation.panel(Color("20222e"), accent, border_width))
 	button.add_theme_stylebox_override("pressed", BoonPresentation.panel(Color("30303c"), accent.lightened(0.3), border_width))
 	button.pressed.connect(_choose.bind(data))
+	button.mouse_entered.connect(_hover_help.bind(data))
+	button.mouse_exited.connect(_reset_help)
 	button.button_down.connect(func(): button.scale = Vector2.ONE * 0.975)
 	button.button_up.connect(func(): button.scale = Vector2.ONE)
 	var content := VBoxContainer.new()
@@ -237,11 +254,46 @@ func _build_confirmation() -> void:
 		row.add_child(button)
 
 
+## 卡片悬浮说明：普通卡只讲自己那一系，双重卡把两系的机制都列出来。
+func _help_for(data: BoonData) -> String:
+	if data.rarity == BoonData.Rarity.DUAL and not data.required_sins.is_empty():
+		var parts: PackedStringArray = []
+		for sin in data.required_sins:
+			parts.append(BoonPresentation.realm_help_inline(sin, 2))
+		return "  ／  ".join(parts)
+	return BoonPresentation.realm_help_inline(data.sin)
+
+
+func _hover_help(data: BoonData) -> void:
+	if not is_instance_valid(_mechanic):
+		return
+	_mechanic.text = _help_for(data)
+	_mechanic.add_theme_color_override("font_color",
+		BoonPresentation.accent(data).lightened(0.35))
+
+
+func _reset_help() -> void:
+	if not is_instance_valid(_mechanic):
+		return
+	_mechanic.text = IDLE_HINT
+	_mechanic.add_theme_color_override("font_color", MUTED)
+
+
 func _replaced(data: BoonData) -> BoonData:
 	if manager == null or not data.core:
 		return null
 	var old: BoonData = manager.slots[data.slot].data
 	return old if old != null and old.id != data.id else null
+
+
+## 三张都会替换现有核心卡吗？是的话这一轮其实没有真正的选择。
+func _all_replacements() -> bool:
+	if _offered.is_empty() or manager == null:
+		return false
+	for card in _offered:
+		if _replaced(card) == null:
+			return false
+	return true
 
 
 func _choose(data: BoonData) -> void:
@@ -304,8 +356,9 @@ func show_reroll_cost() -> void:
 	_audio.play()
 
 
+## 空池、或整轮都会替换现有构筑时都能直接放弃。
 func _skip_empty() -> void:
-	if _selected or not _offered.is_empty():
+	if _selected or not (_offered.is_empty() or _all_replacements()):
 		return
 	_selected = true
 	_completed = true

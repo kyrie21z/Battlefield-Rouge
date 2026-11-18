@@ -39,7 +39,7 @@ func _ready() -> void:
 	stage.claim_talent()
 	await frames(2)
 	check("claiming the orb opens the real BoonPicker and pauses combat",is_instance_valid(stage.selection) and get_tree().paused)
-	check("reward draws three cards belonging to the realm",stage.selection._offered.size()==3 and stage.selection._offered.all(func(card):return card.sin==BoonData.Sin.SLOTH))
+	check("reward draws three legal cards from the whole pool",stage.selection._offered.size()==3 and stage.selection._offered.all(func(card):return stage.player.boons.can_equip(card)))
 	var opening: Array[BoonData] = stage.selection._offered.duplicate()
 	stage.selection._request_reroll()
 	check("real reroll spends one injected charge and refreshes choices",stage.rerolls_remaining==1 and rerolls[0]==1 and stage.selection._offered!=opening)

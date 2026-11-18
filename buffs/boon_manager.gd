@@ -72,8 +72,18 @@ func all_equipped() -> Array[BoonData]:
 	result.append_array(traits)
 	return result
 
+## 特性（强化）卡必须已经拥有同系核心卡：先选枪/刃/冲刺定下打法，再深挖该系。
+## 双重卡不走这条，它们由 required_sins 自己要求两系核心同时在场。
+func has_sin_core(sin: int) -> bool:
+	for slot in slots:
+		if slot.data != null and slot.data.core and slot.data.sin == sin:
+			return true
+	return false
+
 func can_equip(card: BoonData) -> bool:
 	if card == null or card.id.is_empty() or has(card.id):
+		return false
+	if not card.core and card.rarity != BoonData.Rarity.DUAL and not has_sin_core(card.sin):
 		return false
 	for id in card.prerequisites:
 		if not has(id):

@@ -46,9 +46,11 @@ func _ready() -> void:
 		body.pose_arms()
 		var grip := player.weapon.grip_transform()
 		var wrist := skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("RightHand")).origin)
-		var target := grip * Vector3(0.014, -0.018, 0.055)
+		var target := grip * ProtagonistBody.RIGHT_PISTOL_WRIST
 		_check("pitch %.0f right wrist reaches actual pistol (error %.3fm)" % [pitch, wrist.distance_to(target)], wrist.distance_to(target) < 0.065)
 		_check_left_pistol_grip(player, body, "hip pitch %.0f" % pitch)
+		if pitch == 0.0:
+			_check_hand_meshes_at_grip(player, body, "hip")
 		_check("pitch %.0f logical ray and rendered eye coincide" % pitch, player.eye_position().is_equal_approx(player.view_camera.global_position))
 		var eye := player.eye_position()
 		body._tree.advance(0.15)
@@ -61,6 +63,8 @@ func _ready() -> void:
 		player._apply_look()
 		body.pose_arms()
 		_check_left_pistol_grip(player, body, "ADS pitch %.0f" % pitch)
+		if pitch == 0.0:
+			_check_hand_meshes_at_grip(player, body, "ADS")
 	player._pitch = 0.0
 	player._apply_look()
 	player.weapon.aiming = false
@@ -118,6 +122,82 @@ func _check_left_pistol_grip(player: Player, body: ProtagonistBody, state: Strin
 	var target := player.weapon.grip_transform() * ProtagonistBody.LEFT_PISTOL_WRIST
 	var error := _left_wrist(body._skeleton).distance_to(target)
 	_check("%s left wrist reaches actual pistol (error %.3fm)" % [state, error], error < 0.02)
+
+func _check_hand_meshes_at_grip(player: Player, body: ProtagonistBody, state: String) -> void:
+	var pistol_from_world := player.weapon.grip_transform().affine_inverse()
+	var grip_mesh := player.weapon._view.find_child("grip_block", true, false) as MeshInstance3D
+	var planes := _grip_planes(grip_mesh, pistol_from_world * grip_mesh.global_transform)
+	_check("%s has supporting planes from the physical grip" % state, planes.size() >= 6)
+	var skeleton := body._skeleton
+	var pistol_from_skeleton := pistol_from_world * skeleton.global_transform
+	for side in ["Right", "Left"]:
+		var part := body.find_child("GEO_m_forearm_" + side.left(1), true, false) as MeshInstance3D
+		var hand := skeleton.find_bone(side + "Hand")
+		var samples := _skinned_hand_points(part, skeleton, hand, pistol_from_skeleton)
+		var nearest := INF
+		var deepest := 0.0
+		for point in samples:
+			var distance := -INF
+			for plane in planes:
+				distance = maxf(distance, plane.distance_to(point))
+			nearest = minf(nearest, absf(distance))
+			deepest = maxf(deepest, -distance)
+		_check("%s %s hand mesh meets the grip (gap %.1f mm, depth %.1f mm)" % [state, side, nearest * 1000, deepest * 1000],
+			nearest < 0.006 and deepest < 0.006)
+
+func _grip_planes(grip_mesh: MeshInstance3D, pistol_from_grip: Transform3D) -> Array[Plane]:
+	var points := grip_mesh.mesh.get_faces()
+	for i in points.size():
+		points[i] = pistol_from_grip * points[i]
+	var planes: Array[Plane] = []
+	for i in range(0, points.size(), 3):
+		var plane := Plane(points[i], points[i + 1], points[i + 2])
+		if plane.normal.is_zero_approx():
+			continue
+		if plane.distance_to(Vector3.ZERO) > 0.0:
+			plane = -plane
+		# Ignore the gold inlay and interior facets that do not bound the grip.
+		var bounds_grip := true
+		for point in points:
+			if plane.distance_to(point) > 0.001:
+				bounds_grip = false
+				break
+		if bounds_grip:
+			planes.append(plane)
+	return planes
+
+func _skinned_hand_points(part: MeshInstance3D, skeleton: Skeleton3D, hand: int, pistol_from_skeleton: Transform3D) -> PackedVector3Array:
+	var arrays := part.mesh.surface_get_arrays(0)
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var joints: PackedInt32Array = arrays[Mesh.ARRAY_BONES]
+	var weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var stride := int(float(joints.size()) / vertices.size())
+	var posed := PackedVector3Array()
+	var hand_weights := PackedFloat32Array()
+	for i in vertices.size():
+		var position := Vector3.ZERO
+		var hand_weight := 0.0
+		for j in stride:
+			var weight := weights[i * stride + j]
+			if weight <= 0.0:
+				continue
+			var bind := joints[i * stride + j]
+			var name := part.skin.get_bind_name(bind)
+			var bone := skeleton.find_bone(name) if not name.is_empty() else part.skin.get_bind_bone(bind)
+			position += weight * (skeleton.get_bone_global_pose(bone) * part.skin.get_bind_pose(bind) * vertices[i])
+			if bone == hand:
+				hand_weight += weight
+		posed.append(pistol_from_skeleton * position)
+		hand_weights.append(hand_weight)
+	var samples := PackedVector3Array()
+	for i in range(0, indices.size(), 3):
+		var a := indices[i]
+		var b := indices[i + 1]
+		var c := indices[i + 2]
+		if maxf(hand_weights[a], maxf(hand_weights[b], hand_weights[c])) > 0.5:
+			samples.append_array([posed[a], posed[b], posed[c], (posed[a] + posed[b] + posed[c]) / 3.0])
+	return samples
 
 func _check(label: String, ok: bool) -> void:
 	if not ok:

@@ -12,10 +12,12 @@ const SHOT_ANIM := "Shooting_1_1"
 const BLEND_TIME := 0.15
 const SHOT_FADE_IN := 0.04
 const SHOT_FADE_OUT := 0.12
-# With the original rigid fingers, this wrist pose cups the right fist and
-# keeps the fractured outside of the left hand facing the first-person view.
-const LEFT_PISTOL_WRIST := Vector3(-0.050, -0.015, 0.078)
-const LEFT_PISTOL_ROTATION := Basis(Vector3.UP, deg_to_rad(25.0))
+# Gun-local wrist poses fitted to the opening between the original palm and
+# fingers. The left hand supports the lower grip and exposes its cracked back.
+const RIGHT_PISTOL_WRIST := Vector3(0.025, -0.014, 0.080)
+const RIGHT_PISTOL_EULER := Vector3(9.0, -23.0, -31.0) * PI / 180.0
+const LEFT_PISTOL_WRIST := Vector3(-0.034, -0.030, 0.095)
+const LEFT_PISTOL_EULER := Vector3(-15.0, 20.0, -10.0) * PI / 180.0
 const LEFT_BLADE_WRIST := Vector3(0.0, -0.015, 0.045)
 const REGRIP_TIME := 0.14
 const MATERIAL := preload("res://assets/materials/protagonist_crystal_material.tres")
@@ -38,6 +40,8 @@ var _weapon: Weapon
 var _melee: MeleeWeapon
 var _head: Node3D
 var _hand_basis := {}
+var _right_pistol_basis := Basis.from_euler(RIGHT_PISTOL_EULER)
+var _left_pistol_basis := Basis.from_euler(LEFT_PISTOL_EULER)
 var _eye_reference := Vector3.ZERO
 var fracture: Node
 
@@ -186,13 +190,13 @@ func pose_arms() -> void:
 	var grip := _weapon.grip_transform()
 	var inverse := _skeleton.global_transform.affine_inverse()
 	var aim_basis := _skeleton.global_basis.orthonormalized().inverse() * grip.basis.orthonormalized()
-	_solve_arm("Right", inverse * (grip * Vector3(0.014, -0.018, 0.055)),
-		aim_basis * (_hand_basis["Right"] as Basis), Vector3(0.35, -0.6, 0.15))
+	_solve_arm("Right", inverse * (grip * RIGHT_PISTOL_WRIST),
+		aim_basis * _right_pistol_basis * (_hand_basis["Right"] as Basis), Vector3(0.35, -0.6, 0.15))
 	_pose_left_arm(grip, inverse)
 
 func _pose_left_arm(grip: Transform3D, skeleton_from_world: Transform3D) -> void:
 	var camera := _weapon.camera
-	var wrist := Transform3D(grip.basis.orthonormalized() * LEFT_PISTOL_ROTATION,
+	var wrist := Transform3D(grip.basis.orthonormalized() * _left_pistol_basis,
 		grip * LEFT_PISTOL_WRIST)
 	if _melee != null and _melee.is_swinging():
 		var blade_grip := _melee.grip_transform()

@@ -37,7 +37,11 @@ func _run() -> void:
 				fits = fits and root.get_visible_rect().grow(-8).has_point(projected)
 		check("complete simple crown fits camera at angle %d" % state, fits)
 	crown.set_worn(true)
-	check("worn crown retains the same simple silhouette",crown.worn and meshes.all(func(mesh):return mesh.visible))
+	check("worn crown retains the same silhouette in its shadow",crown.worn and meshes.all(func(mesh):
+		return mesh.visible and mesh.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY))
+	crown.set_worn(false)
+	check("the crown renders before it is worn",meshes.all(func(mesh):
+		return mesh.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON))
 	world.queue_free()
 	await process_frame
 	print("CROWN BOUNDS: %s (%d checks)" % ["ALL PASSED" if failures == 0 else "FAIL", checks])

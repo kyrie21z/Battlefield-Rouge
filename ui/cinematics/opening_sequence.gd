@@ -238,7 +238,7 @@ func advance(delta: float) -> void:
 	if get_tree().paused or phase in [Phase.TITLE, Phase.COMPLETE]:
 		return
 	if phase == Phase.PLAYABLE:
-		crown.global_transform = player._head.global_transform * Transform3D(Basis.IDENTITY,CrownModel.WEAR_OFFSET)
+		crown.global_transform = CrownModel.worn_transform(player._head)
 		if player.position.z < -13.0:
 			phase = Phase.COMPLETE
 			entry_count += 1
@@ -325,8 +325,9 @@ func _apply_frame() -> void:
 		Phase.CROWNING:
 			crown.show()
 			var p := smoothstep(0, 3.7, t)
-			crown.global_position = Vector3(0,1.75,1.35).lerp(player._head.global_transform * CrownModel.WEAR_OFFSET,p) + Vector3.UP * sin(p * PI) * 0.55
-			crown.set_worn(p > 0.92)
+			crown.global_position = Vector3(0,1.75,1.35).lerp(CrownModel.worn_transform(player._head).origin,p) + Vector3.UP * sin(p * PI) * 0.55
+			if p > 0.92 and not crown.worn:
+				crown.set_worn(true)
 			crown.scale = Vector3.ONE
 			camera.position.y = 0.0 if reduced_motion else -sin(clampf((t - 3.4) / 0.65, 0, 1) * PI) * 0.055
 			flash = sin(clampf((t - 3.5) / 0.8, 0, 1) * PI) * 0.35
@@ -360,7 +361,7 @@ func _release_control() -> void:
 	player.weapon._view.scale = Vector3.ONE
 	player.weapon._view.set_reassembly_progress(1.0)
 	crown.set_worn(true)
-	crown.global_transform = player._head.global_transform * Transform3D(Basis.IDENTITY,CrownModel.WEAR_OFFSET)
+	crown.global_transform = CrownModel.worn_transform(player._head)
 	crown.reparent(player, true)
 	_open_doors(1.0)
 	skip_button.hide()

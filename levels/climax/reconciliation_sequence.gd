@@ -143,8 +143,8 @@ func _process(delta:float)->void:
 		var progress:=smoothstep(0.0,3.6,elapsed)
 		# Keep the shared grip inside both authored arm chains' physical reach.
 		var held:=player.global_transform*Vector3(0,1.3,-0.30)
-		var worn:=player._head.global_transform*CrownModel.WEAR_OFFSET
-		fallen_crown.global_position=_pickup_origin.lerp(held,smoothstep(0.0,0.5,progress)).lerp(worn,smoothstep(0.5,1.0,progress))
+		var worn:=CrownModel.worn_transform(player._head)
+		fallen_crown.global_position=_pickup_origin.lerp(held,smoothstep(0.0,0.5,progress)).lerp(worn.origin,smoothstep(0.5,1.0,progress))
 		fallen_crown.rotation=fallen_crown.rotation.lerp(Vector3.ZERO,delta*4)
 		_pose_hands(fallen_crown.global_position)
 		var camera_transform:=_camera_start
@@ -154,7 +154,7 @@ func _process(delta:float)->void:
 		if elapsed>=3.6:
 			if crown.has_method("set_worn"):crown.set_worn(true)
 			crown.reparent(player,true)
-			crown.global_transform=player._head.global_transform*Transform3D(Basis.IDENTITY,CrownModel.WEAR_OFFSET)
+			crown.global_transform=worn
 			fallen_crown.queue_free()
 			phase=Phase.FADE
 			elapsed=0

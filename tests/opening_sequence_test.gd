@@ -44,7 +44,7 @@ func _ready() -> void:
 		sequence.advance(1.0 / 60)
 	Input.action_release("move_forward")
 	check("actual CharacterBody walks through the opened door and requests entry once", sequence.player.position.z < -13 and entries == 1)
-	var worn_position := sequence.player._head.global_transform * CrownModel.WEAR_OFFSET
+	var worn_position := CrownModel.worn_transform(sequence.player._head).origin
 	check("the crowned model follows the player's actual head anchor", sequence.crown.get_parent() == sequence.player and sequence.crown.global_position.distance_to(worn_position) < 0.01)
 	sequence.advance(99)
 	sequence.skip()

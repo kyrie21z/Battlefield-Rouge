@@ -1,0 +1,407 @@
+== realm_stage ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS generated map constructs geometry, player, HUD and the five-guardian opening encounter
+PASS baked WORLD geometry produces a navigation polygon
+PASS injected HP, depth and deprivations survive stage setup
+PASS inherited loss of Sloth extinguishes all Rest Zones
+PASS inherited loss of Fear removes enemy tells and damage arrows
+PASS injected difficulty changes both enemy HP and damage
+PASS locked exit refuses premature progress
+PASS a fresh run starts with no card offer
+PASS actual final Health death clears the room once
+PASS the talent orb waits in front of the gate
+PASS claiming the orb opens the real BoonPicker and pauses combat
+PASS reward draws three legal cards from the whole pool
+PASS real reroll spends one injected charge and refreshes choices
+PASS exit remains locked before reward choice
+PASS selecting the actual card equips it and unpauses
+PASS reward unlocks the gate without skipping to another room
+PASS distant gate cannot be activated
+PASS WORLD wall blocks the otherwise nearby exit
+PASS nearby unobstructed gate emits one campaign exit
+PASS held or repeated interaction cannot emit twice
+PASS reused pause menu opens and pauses the real room
+PASS pause closes without losing captured movement
+PASS real realm effect drives the monochrome screen shader
+PASS actual player death emits one failure and closes exit
+PASS second generated room has seven live actors
+PASS room handoff restores actual HP, boons and independent shard
+PASS restoring Slumber still preserves inherited dark Rest Zones
+REALM STAGE: 27 checks, 0 failed
+
+== campaign_realms ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first production room installs
+PASS room 0 has baked traversable geometry
+PASS room 0 applies current depth to real damage
+PASS room 0 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 0 unlocks only after completion
+PASS room 0 physical gate advances
+PASS room 0 loads next scene without duplicate exit
+PASS room 1 has baked traversable geometry
+PASS room 1 applies current depth to real damage
+PASS room 1 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 1 unlocks only after completion
+PASS room 1 physical gate advances
+PASS room 1 loads next scene without duplicate exit
+PASS room 2 has baked traversable geometry
+PASS room 2 applies current depth to real damage
+PASS room 2 inherits all previous losses
+PASS boss 2 records death before pickup
+PASS boss 2 drops actual shard
+PASS boss 2 pickup activates independent core
+PASS room 2 unlocks only after completion
+PASS room 2 physical gate advances
+PASS room 2 loads next scene without duplicate exit
+PASS room 3 has baked traversable geometry
+PASS room 3 applies current depth to real damage
+PASS room 3 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 3 unlocks only after completion
+PASS room 3 physical gate advances
+PASS room 3 loads next scene without duplicate exit
+PASS room 4 has baked traversable geometry
+PASS room 4 applies current depth to real damage
+PASS room 4 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 4 unlocks only after completion
+PASS room 4 physical gate advances
+PASS room 4 loads next scene without duplicate exit
+PASS room 5 has baked traversable geometry
+PASS room 5 applies current depth to real damage
+PASS room 5 inherits all previous losses
+PASS boss 3 records death before pickup
+PASS boss 3 drops actual shard
+PASS boss 3 pickup activates independent core
+PASS room 5 unlocks only after completion
+PASS room 5 physical gate advances
+PASS room 5 loads next scene without duplicate exit
+PASS room 6 has baked traversable geometry
+PASS room 6 applies current depth to real damage
+PASS room 6 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 6 unlocks only after completion
+PASS room 6 physical gate advances
+PASS room 6 loads next scene without duplicate exit
+PASS room 7 has baked traversable geometry
+PASS room 7 applies current depth to real damage
+PASS room 7 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 7 unlocks only after completion
+PASS room 7 physical gate advances
+PASS room 7 loads next scene without duplicate exit
+PASS room 8 has baked traversable geometry
+PASS room 8 applies current depth to real damage
+PASS room 8 inherits all previous losses
+PASS boss 1 records death before pickup
+PASS boss 1 drops actual shard
+PASS boss 1 pickup activates independent core
+PASS room 8 unlocks only after completion
+PASS room 8 physical gate advances
+PASS room 8 loads next scene without duplicate exit
+PASS room 9 has baked traversable geometry
+PASS room 9 applies current depth to real damage
+PASS room 9 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 9 unlocks only after completion
+PASS room 9 physical gate advances
+PASS room 9 loads next scene without duplicate exit
+PASS room 10 has baked traversable geometry
+PASS room 10 applies current depth to real damage
+PASS room 10 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 10 unlocks only after completion
+PASS room 10 physical gate advances
+PASS room 10 loads next scene without duplicate exit
+PASS room 11 has baked traversable geometry
+PASS room 11 applies current depth to real damage
+PASS room 11 inherits all previous losses
+PASS boss 0 records death before pickup
+PASS boss 0 drops actual shard
+PASS boss 0 pickup activates independent core
+PASS room 11 unlocks only after completion
+PASS room 11 physical gate advances
+PASS room 11 loads next scene without duplicate exit
+PASS all twelve actual rooms visited without repetition
+PASS final destination is the real return corridor
+PASS final player owns all four cores and losses
+PASS threshold keeps equipped combat boons
+PASS final body has actual fourth fracture level
+ALL PASSED (98 checks)
+
+== sloth_enemy ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+== delayed volley: warning, fixed aim and real hits
+  [ok] a lingerer can start one attack
+  [ok] an active cast cannot be duplicated
+  [ok] all four suspended tells sit ahead of the chest for readability
+  [ok] the warning phase cannot hurt the player
+  [ok] no projectiles are launched during the warning
+  [ok] the final warning locks aim after slow formation
+  [ok] the full two-second formation completes before any shot
+  [ok] only the first shot releases at the start of the burst
+  [ok] the second shot is staggered after the first
+  [ok] the third shot is staggered after the second
+  [ok] the caster stays in its attack until the fourth shot
+  [ok] four visible fast projectiles are released, each with nine damage
+  [ok] all four shots keep their locked direction after lateral movement
+  [ok] a completed burst opens a recovery window
+  [ok] the next cast cannot skip the recovery window
+  [ok] a lateral dodge avoids the locked four-shot volley
+  [ok] nearby WORLD cover keeps suspended tells from appearing beyond a thin wall
+  [ok] standing on the announced trajectory actually receives damage
+== four-shot burst pause and cancellation after release
+  [ok] two projectiles are emitted before the mid-burst pause
+  [ok] pausing freezes the remaining shot schedule
+  [ok] pausing also freezes already released projectiles
+  [ok] resuming releases exactly the two remaining shots
+  [ok] two shots precede death
+  [ok] death cancels the unreleased third and fourth shots
+  [ok] two shots precede retreat
+  [ok] retreat cancels the unreleased third and fourth shots
+== interrupted casts and retreat
+  [ok] killing the caster cancels an unreleased volley
+  [ok] retreat cancels pending attacks without releasing bullets
+  [ok] a melee shove interrupts a winding-up recluse
+  [ok] an interrupted wave causes no later damage
+== anchored field: telegraph, overlap, escape and death cleanup
+  [ok] a field does not slow during its warning
+  [ok] the field's announced position never follows the player
+  [ok] leaving the announced zone before activation avoids the slow
+  [ok] entering the active field applies a bounded 25 percent slow
+  [ok] overlapping fields do not stack the movement penalty
+  [ok] destroying one source preserves the remaining field
+  [ok] destroying the final anchor removes the slow immediately
+  [ok] a new field can apply after prior sources were destroyed
+  [ok] walking out clears the slow on the next physics update
+  [ok] a field expires rather than slowing indefinitely
+== the slowing field respects solid cover
+  [ok] a solid wall blocks the field between its center and the player
+== field tells follow a slope and remain on their storey
+  [ok] a slowing field outline follows the actual sloped WORLD surface
+  [ok] telegraph projection is sampled once instead of recasting every frame
+  [ok] an upper-level tell does not snap to another storey five metres below
+  [ok] a fixed upper-level field does not slow the player on the lower storey
+== slowing keeps the player's dash available and at full distance
+  [ok] the unmodified dash control starts normally
+  [ok] the unmodified dash control travels five meters (5.093)
+  [ok] the real player is slowed before the dash
+  [ok] a dash remains available inside the slowing field
+  [ok] the slowed dash matches its five-meter control (5.093 vs 5.093)
+  dash samples: steps=15, control dt=0.016667..0.016667, slowed dt=0.016667..0.016667
+== recluse wave: safe opening, one hit, cover and jump
+  [ok] remaining inside the announced open wedge is safe
+  [ok] a wave's warning deals no damage even outside its opening
+  [ok] crossing the wave receives exactly one 14-damage hit
+  [ok] solid cover blocks the wave's damage
+  [ok] ordinary SPACE input lifts the real player over the arriving wave (peak 0.681, crossing 0.576)
+  [ok] an ordinary jump avoids the incoming wave
+  jump samples: peak=0.681, wave crossing samples=6, crossing health=1000.0
+== a closed shell remains damageable; its opening rewards aimed fire
+  [ok] the closed shell exposes a normal body hitbox
+  [ok] the closed shell is damageable without a special weapon
+  [ok] opening the shell makes the chest core hittable
+  [ok] an aimed core hit rewards the player with double damage
+  [ok] the exposed core closes again after the recovery window
+== pause freezes attack phases
+  [ok] attack time remains frozen during a pause
+  [ok] a warning cannot turn into a slow while paused
+  [ok] resuming advances the same attack into its active field
+SLOTH ENEMIES: ALL PASSED (64 checks, 0 failed)
+
+== boon_damage_scaling ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sorrow_gun_needles
+PASS natural pistol consumes low-health 60 percent offense once
+PASS raw Sorrow erosion receives offense then one-layer vulnerability
+PASS equip cross-family dependency wrath_desperation
+PASS natural blade consumes low-health offense once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency wrath_gun_cannon
+PASS Wrath real crystal projectile preserves launch-time offense once
+PASS Wrath fixed wall slam receives the same full damage bonus
+PASS equip cross-family dependency wrath_desperation
+PASS player-owned raw projectile gets the shared hit pipeline
+PASS raw spawned projectile deals scaled real damage exactly once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sloth_gun_pulse
+PASS equip cross-family dependency sloth_inertia
+PASS Sloth pressure records actual scaled HP loss
+PASS Sloth burst scales base and shot only, retaining actual pressure
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sloth_gun_pulse
+PASS equip cross-family dependency sloth_resonance
+PASS Sloth rebound reuses scaled burst without a second offense multiplier
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency fear_flash_backstab
+PASS Fear detonation resets copied scaling and scales new base once
+PASS equip cross-family dependency wrath_desperation
+PASS equip cross-family dependency sorrow_gun_needles
+PASS equip cross-family dependency sorrow_blade_tide
+PASS equip cross-family dependency sorrow_buffer
+PASS equip cross-family dependency wrath_dash_ram
+PASS equip cross-family dependency dual_spiteful_deluge
+PASS Sorrow initially defers exactly half the incoming hit
+PASS settled Sorrow debt stays fixed despite changed player offense
+PASS two-hundred-percent debt retaliation does not reapply offense
+DAMAGE SCALING: 34 checks, 0 failed, completed=true
+
+== combat_bench ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] target rail actually moves
+[ok] pistol fires in the production player
+[ok] bench target receives 35 hitscan damage
+[ok] pistol consumes exactly one round
+[ok] player ADS converges to 58 degrees
+[ok] manual recharge starts on partial magazine
+[ok] reassembly refills the production magazine
+[ok] production blade can start while pistol held
+[ok] pistol remains visible through the slash
+[ok] production lunge travels exactly 0.45m without leftover slide
+[ok] bench dummy receives exactly 55 blade damage
+[ok] pistol recovers after quick slash
+[ok] bench clock detects real player in reach
+[ok] V reaches clock through blade signal
+[ok] captured clock releases its collider
+[ok] bench rebuilds a usable clock
+[ok] large core Area detects player beyond centre reach
+[ok] large core reachable face accepts blade
+[ok] back-facing blade cannot strike core
+[ok] solid wall blocks blade-to-clock contact
+[ok] beyond-reach surface is rejected inside an Area
+[ok] bench periodic emitter creates a slow round
+[ok] production blade reflects emitter round
+[ok] bench records parry and asks for 50ms hitstop
+[ok] returned round hits real bench emitter
+[ok] bench body follows level 0
+[ok] bench body follows level 1
+[ok] bench body follows level 2
+[ok] bench body follows level 3
+[ok] bench body follows level 4
+[ok] death cancels both weapons
+ALL PASSED (0 failed)
+
+== melee ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[ok] V starts the single blade
+[ok] one 0.45m lunge for a target at four metres
+[ok] wind-up cannot damage yet
+[ok] input cannot restart a committed swing
+[ok] wind-up ends at 80ms
+[ok] active slash lands exactly 55 damage
+[ok] slash supplies knockback and stagger
+[ok] end sample never double-damages
+[ok] one clock strike per slash
+[ok] recovery returns to idle
+[ok] outside the front cone cannot pull player
+[ok] outside arc is unharmed
+[ok] one slow frame preserves 350ms cycle
+[ok] actual blade triangles match Blender receipt (70)
+[ok] blade source records only flat triangles/quads
+[ok] blade receipt hash matches actual GLB
+[ok] blade is exactly 40mm wide and 15mm thick
+[ok] imported blade uses flat face normals
+[ok] blade overall length is 40cm
+[ok] swing tip matches imported blade geometry
+[ok] sweep catches bullet crossing whole parry sphere
+[ok] reflection changes ownership and clears enemy exclusions
+[ok] reflected bullet flies back faster
+[ok] returned projectile damages its original enemy
+[ok] idle blade does not parry
+[ok] idle bullet reaches the player
+[ok] active blade cannot parry behind player
+[ok] wall prevents magnet acquisition
+[ok] wall prevents parry through cover
+[ok] wall also blocks slash
+[ok] wall still stops the unreflected bullet
+[ok] paused blade rejects public swing
+[ok] pause freezes blade window and projectile
+[ok] death/cancel immediately removes parry window
+[ok] 75 FOV public grip follows rendered blade through all phases
+[ok] 75 FOV wrist path fits 44cm arm (0.415m)
+[ok] 75 FOV blade tip remains in front of near plane
+[ok] 58 FOV public grip follows rendered blade through all phases
+[ok] 58 FOV wrist path fits 44cm arm (0.409m)
+[ok] 58 FOV blade tip remains in front of near plane
+[ok] real Player equips only MindBlade with no switching API
+[ok] Q no longer switches the blade
+[ok] V and side mouse button both bind melee
+[ok] pistol stays visible during blade wind-up
+[ok] real Player lunge stops at exactly 0.45m
+[ok] player death cancels and disables the blade
+[ok] cancel returns idle and hides view
+[ok] deactivated blade rejects public swing
+ALL PASSED (0 failed)
+
+== weapons ==
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  [ok] single eight-round semi-auto pistol
+  [ok] no loadout switching API
+  [ok] unlimited crystal regeneration
+  [ok] view uses imported Blender model without CSG
+  [ok] Blender source count records flat triangle/quad polygons
+  [ok] model hash matches Blender export receipt
+  [ok] actual imported GLB triangle count matches Blender receipt (180)
+  [ok] pistol measures 220 x 135 x 32mm
+  [ok] 32mm slanted grip is centred on root origin
+  [ok] GLB preserves flat face normals
+  [ok] muzzle marker matches barrel opening
+  [ok] all four pieces pivot around their own geometry centres
+  [ok] gun stays right of centre in hip and ADS
+  [ok] hip field of view is 75 degrees
+  [ok] ADS uses 58 degrees and tightens spread
+  [ok] damage remains full through thirty metres
+  [ok] damage falls smoothly after thirty metres
+  [ok] R on full magazine is a no-op
+  [ok] pause rejects public fire/reload without spending ammo
+  [ok] click fires immediately
+  [ok] first click damages real Hitbox by 35
+  [ok] a pistol hit spawns solid polyhedral shards instead of flesh particles
+  [ok] pistol body hit has no red particle puff
+  [ok] crystal fragments travel and shrink in three dimensions
+  [ok] crystal impact queues cleanup at the .45 second lifetime
+  [ok] crystal presentation does not consume simulation randomness
+  [ok] recoil signal has 1.2 pitch and bounded random yaw
+  [ok] cannot fire twice inside 0.18 seconds
+  [ok] cooldown still holds at 0.179 seconds
+  [ok] next click at 0.18 seconds fires
+  [ok] round 3 fires
+  [ok] round 4 fires
+  [ok] round 5 fires
+  [ok] round 6 fires
+  [ok] round 7 fires
+  [ok] round 8 fires
+  [ok] eighth round immediately begins bloom
+  [ok] exact base reassembly duration is .85 seconds
+  [ok] reassembly blocks shots
+  [ok] pause freezes reassembly and refuses shots
+  [ok] bloom opens each block by 5 to 15 cm
+  [ok] R during bloom cannot restart it
+  [ok] floating stage leaves magazine empty
+  [ok] no early ammo before the snap
+  [ok] snap and ammo_refilled agree on the exact completion frame
+  [ok] all pieces return exactly to rest
+  [ok] reassembly snap lights the muzzle on the ammo_refilled frame
+  [ok] the snap flash ends without firing or spending a round
+  [ok] completion emits once
+  [ok] blade makes room without hiding pistol or cancelling recharge
+  [ok] manual recharge restores 8/8
+  [ok] death cancels recharge without granting ammo
+  [ok] dead weapon rejects firing and recharge
+  [ok] dead weapon cannot restart recharge
+[skip] fire press/hold/release requires native mouse capture; run this scene natively
+  [ok] reload-speed Stats scales the whole cycle to 0.425 seconds
+  [ok] speed-scaled bloom still opens all four blocks
+  [ok] speed-scaled suspension keeps the partial magazine
+  [ok] speed-scaled snap restores buffed 12-round capacity
+ALL PASSED (0 failed)

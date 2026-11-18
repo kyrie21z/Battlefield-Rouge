@@ -113,10 +113,9 @@ func _build() -> void:
 	set_shell_open(_opening)
 
 func _apply_gold_palette() -> void:
-	_cloth.set_shader_parameter("cloth_color", Color("946322"))
-	_lining.set_shader_parameter("cloth_color", Color("c88e38"))
-	_cloth.set_shader_parameter("cast_glow", Vector3(0.55, 0.26, 0.045))
-	_lining.set_shader_parameter("cast_glow", Vector3(0.55, 0.26, 0.045))
+	_cloth.set_shader_parameter("cloth_color", Color("181715"))
+	_lining.set_shader_parameter("cloth_color", Color("23201d"))
+	_cloth.set_shader_parameter("cast_glow", Vector3(0.055, 0.030, 0.010))
 	_metal.albedo_color = Color("906a32")
 	_edge.albedo_color = Color("dfb25e")
 	_dark.albedo_color = Color("432a16")
@@ -317,7 +316,7 @@ func _build_lingerer() -> void:
 
 	_polyline(mantle, PackedVector3Array([Vector3(-0.075,1.39,-0.25),Vector3(0.075,1.39,-0.25),
 		Vector3(-0.075,1.27,-0.26),Vector3(0.075,1.27,-0.26),Vector3(-0.075,1.39,-0.25)]), 0.006, _light)
-	# Split collar, double clasps and the hanging time seals leave the chest red.
+	# Split collar, double clasps and the hanging time seals leave the crystal chest visible.
 	for side in [-1.0, 1.0]:
 		var collar := _box(mantle, Vector3(side * 0.19, 1.49, -0.14), Vector3(0.20, 0.065, 0.07), _dark)
 		collar.rotation.z = side * 0.16

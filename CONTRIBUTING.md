@@ -89,15 +89,15 @@ git merge main        # 把别人已合并的改动并进来，有冲突在这�
 
 #### PR 审查者
 
-- **HydrogenJr** 是本仓库的常驻 PR 审查 Agent（替代原 Cursor Cloud Agent 上的 kk）。**Kyrie（`kyrie21z`）本人提交的非草稿 PR 免审并由后台守护进程直接合并**；其他人打开或更新非草稿 PR 时，后台守护进程自动在隔离沙箱中拉起 HydrogenJr 运行 `tools/review/run_checks.sh` 并按 [`docs/REVIEW.md`](docs/REVIEW.md) 审 diff（同时 CI `.github/workflows/pr-checks.yml` 亦会运行检查）。能不能合并以该文件为准。
-- 审查通过（`Approve` 且不涉及 [`docs/REVIEW.md`](docs/REVIEW.md) 第四节受保护项）时，HydrogenJr 直接批准并 **Squash and merge**；否则发布审查评论，不合并。HydrogenJr 不向 PR 分支推提交、不关闭 PR。
+- **HydrogenJr** 是本仓库的常驻 PR 审查 Agent（替代原 Cursor Cloud Agent 上的 kk）。**Kyrie（`kyrie21z`）本人提交的非草稿 PR 通常由守护进程直接合并**。其他人的非草稿 PR 由守护进程在隔离沙箱中调用 HydrogenJr，自动检查由 CI 或 `tools/review/run_checks.sh` 执行。按 [`docs/REVIEW.md`](docs/REVIEW.md) 核对实现是否符合作者写明的预期行为、技术约束及回归要求。
+- 审查通过时 HydrogenJr 给出 `Approve`，守护进程核对合并条件后 **Squash and merge**。阻断项和缺失的技术证据由作者处理。HydrogenJr 不向 PR 分支推提交、不关闭 PR。
 - 组员之间觉得有用时，仍然互相审查。
 - 原则上每个外部/组员 PR 都由 HydrogenJr 审完处理。HydrogenJr 暂时无法审查时，仍要满足下面的合并规则，由 Kyrie 决定是否先合。
-- **Kyrie**（仓库管理员，GitHub `kyrie21z`）本人提交的 PR 直接合并；涉及第四节受保护项的他人 PR 须由 Kyrie 本人批准合并。其他人不把 PR 合并进 `main`。
+- 第四节指定的仓库规则、审查机制和许可事项由 **Kyrie**（仓库管理员，GitHub `kyrie21z`）审批合并。其他成员由守护进程合并通过审查的 PR。
 
 #### 合并规则
 
-- 至少 **1 个 Approve**（HydrogenJr 的 Approve 或组员的 Approve 均算）。`docs/REVIEW.md` 第四节列出的情况（架构文档、`autoload/`、`project.godot`、删除文件、fixture 哈希变化等）仍须由 Kyrie 本人批准。
+- 组员提交的 PR 需要至少 **1 个 Approve**（HydrogenJr 或组员均可），且没有待解决的 `Request changes`。第四节的维护者审批要求同时适用。
 - 使用 **Squash and merge** 合并，合并后删除远端分支。
 - 不要对 `main` force-push（禁止 `git push --force` 到 `main`）。
 - 合并后所有人 `git pull` 更新本地 `main`。

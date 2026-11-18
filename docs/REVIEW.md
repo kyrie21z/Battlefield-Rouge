@@ -1,6 +1,10 @@
 # PR 审查标准
 
+<!-- hydrogenjr: technical-review-v1 -->
+
 本文件规定 PR 什么情况能合并、什么情况不能，以及常驻审查者 HydrogenJr（替代原 Cursor Cloud Agent 上的 kk）怎么审。人审查也用同一套标准。改本文件走 PR，并且需要 Kyrie 本人批准。
+
+以作者在 PR 或关联 Issue 里写明的预期行为为验收依据。检查实现、兼容性和回归。预期行为缺失或描述相互冲突时，请作者补充具体条件。
 
 ## 一、三种结论
 
@@ -8,9 +12,9 @@
 
 | 结论 | 含义 | 之后 |
 | --- | --- | --- |
-| ✅ **Approve** | 没有阻断项，所属级别的检查全部通过，且不涉及第四节受保护项 | HydrogenJr 直接 Approve 并 Squash and merge |
-| ❌ **Request changes** | 至少一条阻断项（第二节），或者检查脚本有 `FAIL` | 作者修改后重新审 |
-| ⚠️ **需要 Kyrie** | 没发现错误，但属于第四节那几类 | HydrogenJr 写审查意见，不点 Approve，由 Kyrie 决定 |
+| ✅ **Approve** | 所需检查通过，证据能支持实现符合预期，且无阻断项 | HydrogenJr 批准，守护进程核对合并条件 |
+| ❌ **Request changes** | 确认有阻断项（第二节），或检查报告了可归因于改动的失败 | 指出位置、预期和实际行为，作者修改后重审 |
+| 🟡 **待核验** | 必要的预期描述、检查结果或复现证据仍有缺口 | 先自行查验能取得的证据，再向作者说明具体需要补什么 |
 
 ## 二、阻断项（任何一条都不能合并）
 
@@ -47,7 +51,7 @@
 
 **运行**
 
-- B20. 检查脚本的 R2 到 R5 出现 `FAIL`：导入报错、测试失败、地图和脚本不一致。
+- B20. 改动导致 R2 到 R5 出现 `FAIL`，例如导入报错、测试失败或地图和脚本不一致。检查失败时暂停批准。若失败来自环境或检查未能完成，先重试或说明还需什么证据。
 
 下面三条不算硬阻断，但要作者回应：新逻辑没有新测试，也没说明为什么不加；代码风格和周围不一致（Tab 缩进、`snake_case`、类型标注）；新概念没写进 `GLOSSARY.md`，重要取舍没写 `docs/adr/`。作者给出合理解释，就可以 Approve。
 
@@ -75,17 +79,16 @@
 
 **截图**：无显卡环境上，`*_proof.tscn` 截图还没在自动化审查环境中验证过。有画面变化的 PR 仍然要作者自己附截图。
 
-## 四、HydrogenJr 不能单独放行，必须由 Kyrie 批准
+## 四、定向检查与维护者审批
 
-检查脚本遇到下面几种情况会打出 `WARN needs Kyrie`：
+检查脚本遇到下面几种改动会提示定向检查。审查意见写明相关证据：
 
-- 改了 `ARCHITECTURE.md`、`CONTRIBUTING.md`、`AGENTS.md`、本文件、`docs/adr/`；
-- 改了 `autoload/`（`Events` 信号、`RunState`）、`project.godot`、`components/collision_layers.gd`；
-- 改了 `.github/`、`.cursor/`、`tools/review/`（审查流程本身）；
-- 删除了文件；
-- fixture 哈希变了（R4）。
+- `autoload/`、`project.godot`、`components/collision_layers.gd`。查调用方及场景资源，按实际影响核对信号、初始化顺序、存档兼容、输入或碰撞层。
+- `ARCHITECTURE.md`、`docs/adr/`。核对改动后的契约、依赖方向及调用方与实现是否一致。
+- 删除或移动文件。查资源路径、场景引用、注册表和测试，确认旧引用已更新或仍有兼容入口。
+- fixture 哈希变化（R4）。指出预期变化的行为，核对差异和相关断言，并在同环境同种子复跑验证可复现性。意外变化按回归处理，证据不足时请作者补充。
 
-另外两种情况脚本识别不了，HydrogenJr 要自己判断：引入新的第三方代码或新的许可类型；B19 所说的删除别人负责的代码。
+`CONTRIBUTING.md`、`AGENTS.md`、本文件、`.github/`、`.cursor/` 或 `tools/review/` 的改动涉及仓库规则和审查机制，由 Kyrie 审批合并。HydrogenJr 仍给出技术结论。引入新的第三方代码或新的许可类型仍须按仓库规则获得 Kyrie 确认。
 
 ## 五、HydrogenJr 的工作方式
 
@@ -96,27 +99,27 @@
 1. 先读 PR 描述，检查 B1。
 2. 运行 `bash tools/review/run_checks.sh origin/main`（`origin/main` 要先 fetch 到最新）。
 3. **只读脚本输出的摘要。** 完整日志在对应审查日志目录，只有某一项 `FAIL` 或 `WARN` 时才看，而且只看对应日志的相关部分（`grep`、`tail -n 50`），不要整份读进来。
-4. 读 diff，按第二节审。重新审同一个 PR 时，只读上次审查之后新增的提交；检查脚本仍然整体重跑，它不占多少模型用量。
+4. 从目标分支读取本标准及架构约束，对照 PR 或关联 Issue 的预期读 diff。沿调用方和资源引用核对影响，按第二、四节做定向检查。重审时重点读本轮改动及受影响的调用方，确认先前阻断项已解决，检查脚本整体重跑。
 5. 二进制文件（`.glb`、`.blend`、图片、音频）只看文件名、大小和 `ASSETS.md` 登记，不读内容。
 6. 按下面的格式发布审查结论并执行对应动作：
-   - **Approve**（且未触及第四节受保护项）：发表 Approve 评论并直接 Squash and merge（`--delete-branch`）。
+   - **Approve**：批准已审查的提交。守护进程在所需检查通过、当前 head 与审查一致、最新目标分支已核验，且满足仓库合并规则时执行 Squash and merge。
    - **Request changes**：发表审查评论指出阻断项，不合并。
-   - **需要 Kyrie**：发表评论列出第四节受保护项，不批准、不合并，交由 Kyrie 决定。
+   - **待核验**：发表评论说明未核验的行为和需要补充的证据，由 PR 作者回应。
 
 **权限**
 
 - 不往 PR 分支推提交，不关闭 PR，不改 Issue。需要修改的地方写成建议，由作者自己改。
-- 仅在结论为 **Approve** 且不触及第四节保护项时，执行 Squash and merge。
+- 自动合并由守护进程执行。第四节列出的仓库规则和审查机制变更走维护者审批。
 - 不配置也不读取任何密钥。
 - 不能确定的地方写“不确定”，不要猜。
 
 **审查评论格式**
 
 ```
-结论：Approve / Request changes / 需要 Kyrie
+结论：Approve / Request changes / 待核验
 级别：docs / assets / map / code
 
-检查结果：（贴脚本摘要里的 FAIL、WARN 和 summary 行，不贴完整日志）
+检查结果：（说明已核对的预期、定向检查证据，以及脚本摘要里的 FAIL、WARN 和 summary 行）
 
 阻断项：
 - B? 文件:行 —— 问题，以及要怎么改
@@ -132,4 +135,4 @@
 - 按 `.github/pull_request_template.md` 填写。机器能跑的测试由 CI / HydrogenJr 自己跑，“怎么测”里只写**手动玩过的流程**和看到的结果。
 - 有画面变化附截图。
 - 开 PR 前可以自己先跑一遍检查：`GODOT=你的 godot 路径 bash tools/review/run_checks.sh`。
-- 对 HydrogenJr 的意见有不同看法，在评论里回复理由；争议由 Kyrie 决定。
+- 对 HydrogenJr 的意见有不同看法，在评论里回复理由。把影响验收的新预期或证据补进 PR 描述，便于重新审查。

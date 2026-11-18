@@ -12,28 +12,28 @@
   "files": [
     {
       "path": "GLOSSARY.md",
-      "bytes": 36636,
-      "sha256": "922b2694ee161495137e80a29da5d00cef1b56511dd34b1246d4e3960038bbce"
+      "bytes": 36657,
+      "sha256": "7a41208f50797943de11257568b4feb134cc90ce2ed76097266b3bc89a446878"
     },
     {
       "path": "README.md",
-      "bytes": 14872,
-      "sha256": "26a983944d3c1b941e8a7d510c3a3fa8bf75bf141e7820d74584b63bb717b7aa"
+      "bytes": 14902,
+      "sha256": "53adfd0f3c389af8030a1f9197f07747492338b3d092b5ed2b17a9eb91e251e4"
     },
     {
       "path": "actors/enemy/sloth/sloth_attack.gd",
-      "bytes": 13896,
-      "sha256": "f5f566f3fd9fb331b761dc23408b8b05607d53892ff9cf6e73c09b72d39d9814"
+      "bytes": 14546,
+      "sha256": "43a3ac2a0c48cc262be7b136b7ebb26091f69bcf0c6d7c5eb5ffc172fc214419"
     },
     {
       "path": "actors/enemy/sloth/sloth_enemy.gd",
-      "bytes": 9433,
-      "sha256": "1ad912be656c6bff51c68e8164229a6ad58217011f88611f52ee34c29477ebcb"
+      "bytes": 9471,
+      "sha256": "ff2f5918c6eeeee42a72f9710bc9b8349222e5a9ed5af9322865469fa0814cf7"
     },
     {
       "path": "actors/enemy/sloth/sloth_mire.gd",
-      "bytes": 7584,
-      "sha256": "64a5eac1779d091bf4f720800cc406342a2545135a558bddb436dcc522873a21"
+      "bytes": 7578,
+      "sha256": "fea3f2c4b52ec7f8b92a60cdcaae3dcde71b343e097517b47d3ed46b10fb06b9"
     },
     {
       "path": "actors/enemy/sloth/sloth_mire.gd.uid",
@@ -47,8 +47,8 @@
     },
     {
       "path": "actors/enemy/sloth/sloth_mire_visual.gd",
-      "bytes": 2069,
-      "sha256": "a6d437d5f69355f7afc4171d3b1bd2e39ba816d630e4b717929d1d7334e42678"
+      "bytes": 2130,
+      "sha256": "b4b21fa101fe6611394596e03c01bb2e8487107650223b5fd38384579ae4a4b1"
     },
     {
       "path": "actors/enemy/sloth/sloth_mire_visual.gd.uid",
@@ -57,23 +57,28 @@
     },
     {
       "path": "actors/enemy/sloth/sloth_visual.gd",
-      "bytes": 25943,
-      "sha256": "b515cadc434837bf4366c388c3532477f86b24b746776b4ece4a3394f941baae"
+      "bytes": 26789,
+      "sha256": "2cda59e69fe4109eeb204136fd04a33c94daa335c6aeea237196eb2272b31db5"
+    },
+    {
+      "path": "assets/materials/sloth_cloth.gdshader",
+      "bytes": 1045,
+      "sha256": "c4116aa3b31ab572a92c81a0b4d2acacb15269534547f461d7470aa1eafdd962"
     },
     {
       "path": "docs/ASSETS.md",
-      "bytes": 55360,
-      "sha256": "cd73dd51d80f759d948d5bbee5f45d2b72fd8a3cf2464b303faf9bcff290bb25"
+      "bytes": 55533,
+      "sha256": "c3c92e77da8851c79d6881905065917032c1eb692eb10365937c60e4f095c154"
     },
     {
       "path": "docs/levels/SLOTH_LEVEL_DESIGN.md",
-      "bytes": 28367,
-      "sha256": "83c74e3bd40d89931e08b55ae4fa027f95cf5f1b2eeed5acd6ede3823a439733"
+      "bytes": 28626,
+      "sha256": "e713a244e0fab02a7ed1c6ecf06690d73a6fcfeee8cbf7ed60ed633ecd9bbe59"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/README.md",
-      "bytes": 3846,
-      "sha256": "58125fd903ea787dc3e9260c801639d11b13bc126a73d25cc10e40ff90e802a0"
+      "bytes": 4443,
+      "sha256": "6096b2009b1e66112654cb501d08c979bdea2d2d0fe4777b1d170f3ec50472b5"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/fixture-branch.log",
@@ -89,6 +94,16 @@
       "path": "docs/proof/sloth-sanctum-combat/generate.log",
       "bytes": 485,
       "sha256": "8a0c67d6a74c7b37bdb8524e370fe59a96575c203d1d2dc61b8468af2f5a0400"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/gold-native.log",
+      "bytes": 2023,
+      "sha256": "6d9ffceadf5dfa148db035efaf7608c3f28eab085a276756ceb257cc987ff1e3"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/gold-regression.log",
+      "bytes": 218,
+      "sha256": "7f5f1652386b978632bbed10e68c282dff96421d46f6b305a710325b9ab7c79f"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/headless.log",
@@ -112,23 +127,23 @@
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-clockwork.jpg",
-      "bytes": 124344,
-      "sha256": "17d3a110c0a0680f6737ded63d624c6169c9fac084c1ab27756462f7d64083be"
+      "bytes": 124399,
+      "sha256": "930171f9815f9a4245f9026e98519b2f62bb2e2a81aa930587d171edbec96ad0"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-colossus-clock.jpg",
-      "bytes": 120260,
-      "sha256": "0d798ad6d495b50c4a32e36feb2e12445e0de2640aa48f4d0c2586786ba0410f"
+      "bytes": 120272,
+      "sha256": "6132d04209ee4f1bfbad7a87bd91192067f113ac048d526ab1075077c1a2209c"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-resin-windup.jpg",
-      "bytes": 135432,
-      "sha256": "cdc56c98fd90b91e0f3cba0f1d66b3ed47e18bf5496d729c9c516dbbcb186876"
+      "bytes": 135726,
+      "sha256": "d1c4a5e4532ec9ce4004a984181e54cd6a6a214087dac615d6569df1cbd2bec5"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-staff-volley.jpg",
-      "bytes": 138221,
-      "sha256": "ec8fd378a0a8f91dc86c2ec983065b2805d8dc37ef2d4692705225c8d2cebd1f"
+      "bytes": 138517,
+      "sha256": "8db6b7cd20796fba8ba5052fef1f88d549d6ceceef2f6d22c2b82eda7928a447"
     },
     {
       "path": "environments/sloth/realm.gd",
@@ -182,8 +197,13 @@
     },
     {
       "path": "zone/realm_stage.gd",
-      "bytes": 23963,
-      "sha256": "51e84f2bb7e1beb168cc3a27108ef8c2e8ff48ce4b2e7a3a01ccacdb46f302da"
+      "bytes": 24079,
+      "sha256": "7c0e9bc5904af32e9fd7536e368dea510d80320abd61ec2ec353560787da246d"
     }
-  ]
+  ],
+  "gold_palette_verification": {
+    "native_checks": 33,
+    "headless_suites": 4,
+    "screenshots_recaptured": 4
+  }
 }

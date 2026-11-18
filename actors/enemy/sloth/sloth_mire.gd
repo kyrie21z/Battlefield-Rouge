@@ -5,7 +5,7 @@ extends Enemy
 const WINDUP := 1.15
 const LOCK_TIME := 0.35
 const COOLDOWN := 4.5
-const RESIN := Color(0.67,0.76,0.26)
+const RESIN := Color("f6ae3f")
 const COATING_NAME := "SlothResinCoating"
 
 class Coating extends Node:
@@ -213,7 +213,7 @@ static func make_glob() -> Node3D:
 	skin.emission = RESIN
 	skin.emission_energy_multiplier = 0.75
 	var core := StandardMaterial3D.new()
-	core.albedo_color = Color("283427")
+	core.albedo_color = Color("6d401a")
 	for i in 5:
 		var piece := MeshInstance3D.new()
 		var mesh := SphereMesh.new()

@@ -604,7 +604,7 @@ func _build_gate() -> void:
 	gate.position = geometry.call("exit_position") if geometry.has_method("exit_position") else Vector3(0,0,-20)
 	add_child(gate)
 	_gate_material = StandardMaterial3D.new()
-	_gate_material.albedo_color = Color("8568a8")
+	_gate_material.albedo_color = Color("b1843c") if realm == 0 else Color("8568a8")
 	_gate_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_gate_material.emission_enabled = true
 	_gate_material.emission = Color("58432c")
@@ -628,9 +628,9 @@ func _build_gate() -> void:
 	_portal_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_portal_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_portal_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_portal_material.albedo_color = Color(0.55,0.35,0.8,0.13)
+	_portal_material.albedo_color = Color(0.83,0.60,0.25,0.13) if realm == 0 else Color(0.55,0.35,0.8,0.13)
 	_portal_material.emission_enabled = true
-	_portal_material.emission = Color(0.4,0.2,0.7)
+	_portal_material.emission = Color("a37131") if realm == 0 else Color(0.4,0.2,0.7)
 	var portal := MeshInstance3D.new()
 	var surface := QuadMesh.new()
 	surface.size = Vector2(2.8,3.6)

@@ -12,12 +12,13 @@ func _build() -> void:
 	if is_instance_valid(pulse):
 		pulse.free()
 		pulse = null
-	_crystal.set_shader_parameter("base_color",Color("25312c"))
-	_crystal.set_shader_parameter("rim_color",Color("bdd066"))
-	_crystal.set_shader_parameter("emission_color",Color("7c9f28"))
-	var resin := _material(Color("8d9b3a"),0.30,0.32)
+	_crystal.set_shader_parameter("base_color",Color("5e3a1d"))
+	_crystal.set_shader_parameter("rim_color",Color("eab154"))
+	_crystal.set_shader_parameter("emission_color",Color("a3561b"))
+	_crystal.set_shader_parameter("spec_color",Color("ffd289"))
+	var resin := _material(Color("d48b29"),0.30,0.32)
 	resin.emission_enabled = true
-	resin.emission = Color("94a62c")
+	resin.emission = Color("eba335")
 	resin.emission_energy_multiplier = 0.7
 	var right := _follow("RightForeArm","ResinClaws")
 	var left := _follow("LeftShoulder","CrookedShoulder")

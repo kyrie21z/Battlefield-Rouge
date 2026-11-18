@@ -27,6 +27,7 @@ var evade_count := 0
 func _enter_tree() -> void:
 	# Child _ready runs first; choose its outfit before it builds any meshes.
 	var model := $Model as SlothVisual
+	model.gold_palette = realm_encounter
 	model.staff_enabled = realm_encounter and kind == Kind.LINGERER
 	model.configure(kind)
 

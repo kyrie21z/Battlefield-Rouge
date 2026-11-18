@@ -14,6 +14,10 @@ const LINGER_FORMATION_FORWARD := 0.45
 const FIELD_RADIUS := 3.2
 const WAVE_RADIUS := 7.0
 const GAP_HALF_ANGLE := deg_to_rad(22.0)
+const GOLD_CHARGE := Color(1.0, 0.63, 0.19, 0.72)
+const GOLD_LOCK := Color(1.0, 0.89, 0.57, 0.95)
+const GOLD_RELEASE := Color(1.0, 0.69, 0.24, 0.8)
+const GOLD_PROJECTILE := Color("ffbc4f")
 var kind := 0
 var caster: SlothEnemy
 var target: CharacterBody3D
@@ -59,8 +63,8 @@ func _ready() -> void:
 	_graphics = Node3D.new()
 	add_child(_graphics)
 	_graphics.visible = caster.warnings_enabled
-	_mat = _material(Color(0.18, 0.40, 0.62, 0.72))
-	_detail_mat = _material(Color(0.65, 0.79, 0.88, 0.6))
+	_mat = _material(GOLD_CHARGE if caster.realm_encounter else Color(0.18, 0.40, 0.62, 0.72))
+	_detail_mat = _material(Color(1.0, 0.84, 0.52, 0.6) if caster.realm_encounter else Color(0.65, 0.79, 0.88, 0.6))
 	if kind == 0:
 		_build_volley()
 	else:
@@ -99,7 +103,10 @@ func _physics_process(delta: float) -> void:
 					_audio.pitch_scale = 1.4
 					if caster.warnings_enabled:
 						_audio.play()
-			_mat.albedo_color = Color(0.75,0.9,1.0,0.95) if aim_locked else Color(0.18,0.40,0.62,0.65)
+			if caster.realm_encounter:
+				_set_gold_color(GOLD_LOCK if aim_locked else GOLD_CHARGE)
+			else:
+				_mat.albedo_color = Color(0.75,0.9,1.0,0.95) if aim_locked else Color(0.18,0.40,0.62,0.65)
 			caster.visual.set_mantle_open(smoothstep(0.45, 0.9, progress))
 			caster.set_core_exposed(progress > 0.65)
 			for orb in _orbs:
@@ -114,7 +121,10 @@ func _physics_process(delta: float) -> void:
 		return
 	if phase == 0:
 		phase = 1
-		_mat.albedo_color = Color(0.32, 0.62, 0.82, 0.8)
+		if caster.realm_encounter:
+			_set_gold_color(GOLD_RELEASE)
+		else:
+			_mat.albedo_color = Color(0.32, 0.62, 0.82, 0.8)
 		_audio.pitch_scale = 1.0
 		_audio.stream = _tone(true)
 		_audio.play()
@@ -123,10 +133,11 @@ func _physics_process(delta: float) -> void:
 	var active_time := elapsed - warning_time()
 	match kind:
 		0:
+			var projectile_color := GOLD_PROJECTILE if caster.realm_encounter else Color(0.40, 0.70, 0.90)
 			while _released < LINGER_VOLLEY_COUNT and active_time >= float(_released) * LINGER_SHOT_INTERVAL:
 				var from := _volley[_released]
 				Projectile.spawn(caster.get_parent(), from, _volley_directions[_released], caster,
-					LINGER_SHOT_DAMAGE * caster.realm_damage_scale, LINGER_SHOT_SPEED, caster._hitbox_rids, Color(0.40, 0.70, 0.90))
+					LINGER_SHOT_DAMAGE * caster.realm_damage_scale, LINGER_SHOT_SPEED, caster._hitbox_rids, projectile_color)
 				_orbs[_released].hide()
 				_released += 1
 			if active_time >= float(LINGER_VOLLEY_COUNT - 1) * LINGER_SHOT_INTERVAL + LINGER_RELEASE_TAIL:
@@ -145,6 +156,10 @@ func _physics_process(delta: float) -> void:
 			if active_time >= 0.95:
 				_finish()
 
+
+func _set_gold_color(color: Color) -> void:
+	_mat.albedo_color = color
+	_mat.emission = color
 
 func _update_stasis() -> void:
 	if not target is Player:

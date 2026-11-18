@@ -7,6 +7,7 @@ const SHARDS := preload("res://assets/models/characters/red_crystal_enemy_shards
 const CRYSTAL := preload("res://assets/materials/protagonist_crystal_material.tres")
 const FRACTURE_SHADER := preload("res://actors/player/body_fracture.gdshader")
 const SEAMS := preload("res://actors/player/crystal_seams.gd")
+const GRIP_MESHES := preload("res://actors/player/protagonist_grip_meshes.gd")
 const PART_BONE := {"head": "Head", "torso": "Spine", "hips": "Hips",
 	"upper_arm_L": "LeftArm", "upper_arm_R": "RightArm", "forearm_L": "LeftForeArm",
 	"forearm_R": "RightForeArm", "thigh_L": "LeftUpLeg", "thigh_R": "RightUpLeg",
@@ -24,6 +25,8 @@ var _model: Node3D
 var _skeleton: Skeleton3D
 var _age := 0.0
 var _wrist_rest := Vector3.ZERO
+var _left_hand_shard: MeshInstance3D
+var _blade_weight := 0.0
 
 
 func _ready() -> void:
@@ -70,7 +73,18 @@ func set_fracture_level(level: int) -> void:
 		mesh.mesh = entry.original_mesh if fracture_level == 0 else entry.seam_mesh
 		mesh.material_override = entry.original_material if fracture_level == 0 else entry.material
 		mesh.material_overlay = entry.original_overlay if fracture_level == 0 else null
+		if part == "forearm_L":
+			GRIP_MESHES.set_blade_weight(mesh, _blade_weight)
 	_update_pose()
+
+
+func set_blade_grip(weight: float) -> void:
+	if is_equal_approx(_blade_weight, weight):
+		return
+	_blade_weight = weight
+	GRIP_MESHES.set_blade_weight(source_meshes.forearm_L.node, weight)
+	if is_instance_valid(_left_hand_shard):
+		GRIP_MESHES.set_blade_weight(_left_hand_shard, weight)
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -128,7 +142,7 @@ func _update_pose() -> void:
 		var posed := _skeleton.global_transform * delta * rest
 		var index: int = fragment.index
 		var loose := index % 3 == 1 if fracture_level == 3 else index % 2 == 0
-		if loose:
+		if loose and not fragment.is_hand:
 			var separation := 0.0025 if fracture_level == 3 else 0.0045
 			var direction := Vector3(signf(rest.origin.x) * 0.65, 0.18, -0.74).normalized()
 			posed.origin += (_skeleton.global_basis * delta.basis * direction).normalized() * separation * (1.0 + 0.10 * sin(_age * 1.7 + index))
@@ -159,22 +173,30 @@ func _build_fragments() -> void:
 			continue
 		var piece := MeshInstance3D.new()
 		piece.name = source.name
-		piece.mesh = SEAMS.with_seam_attributes(source.mesh)
 		piece.material_override = _make_material(part)
 		piece.cast_shadow = (source_meshes[part].node as MeshInstance3D).cast_shadow
 		piece.visible = false
 		_model.add_child(piece)
 		var bone: int = source_meshes[part].bone
+		var rest := source.transform
+		var mesh := source.mesh as ArrayMesh
+		var is_hand := false
 		if part == "forearm_L" or part == "forearm_R":
-			var hand := _skeleton.find_bone("LeftHand" if part == "forearm_L" else "RightHand")
+			var side := "Left" if part == "forearm_L" else "Right"
+			var hand := _skeleton.find_bone(side + "Hand")
 			var wrist := _skeleton.get_bone_global_rest(hand).origin
-			# The original distal palm shard follows Hand, whose orientation is
-			# independently solved around the pistol grip. Forearm-only attachment
-			# would leave the hand pointing past the grip at late fracture levels.
+			# The distal palm shard uses the same Blender hand as the intact rig.
+			# Its mesh is authored in hand-bone space so it stays on the grip.
 			if absf(source.position.x) > absf(wrist.x):
 				bone = hand
-		fragments.append({"node": piece, "part": part, "rest": source.transform,
-			"original_mesh": source.mesh,
+				rest = _skeleton.get_bone_global_rest(hand)
+				mesh = GRIP_MESHES.hand_mesh(side)
+				is_hand = true
+				if side == "Left":
+					_left_hand_shard = piece
+		piece.mesh = SEAMS.with_seam_attributes(mesh)
+		fragments.append({"node": piece, "part": part, "rest": rest,
+			"original_mesh": mesh, "is_hand": is_hand,
 			"bone": bone,
 			"index": int(key.get_slice("_", key.get_slice_count("_") - 1))})
 	library.free()

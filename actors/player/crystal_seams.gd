@@ -11,6 +11,9 @@ static func with_seam_attributes(source: ArrayMesh) -> ArrayMesh:
 		return _cache[key]
 	var derived := ArrayMesh.new()
 	derived.resource_name = source.resource_name + "_FacetSeams"
+	derived.blend_shape_mode = source.blend_shape_mode
+	for shape in source.get_blend_shape_count():
+		derived.add_blend_shape(source.get_blend_shape_name(shape))
 	for surface in source.get_surface_count():
 		var arrays := source.surface_get_arrays(surface)
 		var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
@@ -64,31 +67,37 @@ static func with_seam_attributes(source: ArrayMesh) -> ArrayMesh:
 		var eight_weights := (source.surface_get_format(surface) & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS) != 0
 		for attribute in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT,
 				Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
-			if arrays[attribute] == null:
-				continue
-			var original = arrays[attribute]
-			if original.is_empty():
-				continue
-			var expanded = original.duplicate()
-			expanded.clear()
 			var stride := 4 if attribute == Mesh.ARRAY_TANGENT else 1
 			if attribute == Mesh.ARRAY_BONES or attribute == Mesh.ARRAY_WEIGHTS:
 				stride = 8 if eight_weights else 4
-			for index in indices:
-				for component in stride:
-					expanded.append(original[index * stride + component])
-			result[attribute] = expanded
+			result[attribute] = _expand_attribute(arrays[attribute], indices, stride)
 		result[Mesh.ARRAY_INDEX] = null
 		result[Mesh.ARRAY_CUSTOM0] = custom
 		var flags := Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
 		if eight_weights:
 			flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
-		derived.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, result, [], {}, flags)
+		var shapes: Array[Array] = []
+		for shape in source.surface_get_blend_shape_arrays(surface):
+			for attribute in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT]:
+				shape[attribute] = _expand_attribute(shape[attribute], indices, 4 if attribute == Mesh.ARRAY_TANGENT else 1)
+			shapes.append(shape)
+		derived.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, result, shapes, {}, flags)
 		derived.surface_set_material(surface, source.surface_get_material(surface))
 		derived.set_meta("surface_%d_visible_edges" % surface, active_edges)
 		derived.set_meta("surface_%d_hidden_diagonals" % surface, hidden_edges)
 	_cache[key] = derived
 	return derived
+
+
+static func _expand_attribute(original: Variant, indices: PackedInt32Array, stride: int) -> Variant:
+	if original == null or original.is_empty():
+		return original
+	var expanded = original.duplicate()
+	expanded.clear()
+	for index in indices:
+		for component in stride:
+			expanded.append(original[index * stride + component])
+	return expanded
 
 
 static func _edge_key(a: Vector3, b: Vector3) -> String:

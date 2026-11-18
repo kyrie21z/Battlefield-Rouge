@@ -100,6 +100,17 @@ func _ready() -> void:
 	camera.look_at_from_position(pistol * Vector3(-0.37, 0.11, -0.16), grip_center)
 	await _frames(5)
 	await _shot("body_grip_detail.png")
+	camera.look_at_from_position(pistol * Vector3(0.34, 0.10, -0.22), grip_center)
+	await _frames(5)
+	await _shot("body_right_grip_detail.png")
+	_player.melee.swing_now()
+	_advance_combat(0.14)
+	var blade := _player.melee.grip_transform()
+	camera.look_at_from_position(blade * Vector3(0.32, 0.15, -0.08), blade.origin)
+	await _frames(5)
+	await _shot("body_blade_grip_detail.png")
+	_advance_combat(0.50)
+	await _frames(10)
 	camera.look_at_from_position(Vector3(-2.5, 1.5, -2.6), Vector3(0.0, 0.85, 0.0))
 	# The head remains shadows-only in every first-person frame. This external
 	# audit restores it only to show that the original full body is retained.

@@ -81,6 +81,8 @@ func begin()->bool:
 		rigid.angular_damp=1.2
 		var mesh:=MeshInstance3D.new()
 		mesh.mesh=fragment.node.mesh
+		for shape in mesh.get_blend_shape_count():
+			mesh.set_blend_shape_value(shape,fragment.node.get_blend_shape_value(shape))
 		var material:=ShaderMaterial.new()
 		material.shader=KINTSUGI
 		material.set_shader_parameter("restored",0.0)

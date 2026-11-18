@@ -12,8 +12,7 @@ const SHOT_ANIM := "Shooting_1_1"
 const BLEND_TIME := 0.15
 const SHOT_FADE_IN := 0.04
 const SHOT_FADE_OUT := 0.12
-# Gun-local wrist poses fitted to the opening between the original palm and
-# fingers. The left hand supports the lower grip and exposes its cracked back.
+# Gun-local wrist frames used to author both hand meshes in Blender.
 const RIGHT_PISTOL_WRIST := Vector3(0.025, -0.014, 0.080)
 const RIGHT_PISTOL_EULER := Vector3(9.0, -23.0, -31.0) * PI / 180.0
 const LEFT_PISTOL_WRIST := Vector3(-0.034, -0.030, 0.095)
@@ -22,6 +21,7 @@ const LEFT_BLADE_WRIST := Vector3(0.0, -0.015, 0.045)
 const REGRIP_TIME := 0.14
 const MATERIAL := preload("res://assets/materials/protagonist_crystal_material.tres")
 const POSE_MODIFIER := preload("res://actors/player/body_pose_modifier.gd")
+const GRIP_MESHES := preload("res://actors/player/protagonist_grip_meshes.gd")
 const UPPER_BONES: Array[StringName] = [
 	&"Spine", &"Chest", &"Neck", &"Head",
 	&"RightShoulder", &"RightArm", &"RightForeArm", &"RightHand",
@@ -48,6 +48,7 @@ var fracture: Node
 func _ready() -> void:
 	_anim = find_child("AnimationPlayer", true, false) as AnimationPlayer
 	_skeleton = find_child("Skeleton3D", true, false) as Skeleton3D
+	GRIP_MESHES.install_forearms(self)
 	_dress_meshes()
 	var clips := _anim.get_animation_library("").duplicate(true) as AnimationLibrary
 	_anim.remove_animation_library("")
@@ -210,6 +211,7 @@ func _pose_left_arm(grip: Transform3D, skeleton_from_world: Transform3D) -> void
 	wrist = (skeleton_from_world * wrist).orthonormalized()
 	_solve_arm("Left", wrist.origin, wrist.basis * (_hand_basis["Left"] as Basis),
 		Vector3(-0.45, -0.5, 0.05))
+	fracture.set_blade_grip(smoothstep(0.0, 1.0, _blade_grip_weight))
 
 func _solve_arm(side: String, target: Vector3, hand_basis: Basis, pole: Vector3) -> void:
 	var upper := _skeleton.find_bone(side + "Arm")

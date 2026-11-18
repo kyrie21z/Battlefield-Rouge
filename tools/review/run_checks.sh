@@ -59,11 +59,13 @@ case "${REVIEW_TIER:-}" in docs) TIER=0;; assets) TIER=1;; map) TIER=2;; code) T
 TIER_NAME=(docs assets map code)
 echo "== tier: ${TIER_NAME[$TIER]}"
 
-# Paths that need Kyrie's own approval (docs/REVIEW.md section 4).
-HUMAN="$(echo "$CHANGED" | grep -E '^(ARCHITECTURE\.md|CONTRIBUTING\.md|AGENTS\.md|docs/REVIEW\.md|docs/adr/|autoload/|project\.godot$|components/collision_layers\.gd|\.github/|\.cursor/|tools/review/)' )"
-DELETED="$(awk -F'\t' '$1=="D"{print $2}' "$LOG/changed.txt")"
-[ -n "$HUMAN" ] && warn "needs Kyrie (protected paths): $(echo $HUMAN | tr ' ' ',')"
-[ -n "$DELETED" ] && warn "needs Kyrie (deleted files): $(echo $DELETED | tr ' ' ',')"
+# Prompts for targeted checks and separate maintainer approval (docs/REVIEW.md section 4).
+SHARED="$(grep -E '^(ARCHITECTURE\.md$|docs/adr/|autoload/|project\.godot$|components/collision_layers\.gd$)' <<< "$CHANGED")"
+POLICY="$(grep -E '^(CONTRIBUTING\.md$|AGENTS\.md$|docs/REVIEW\.md$|\.github/|\.cursor/|tools/review/)' <<< "$CHANGED")"
+REMOVED="$(awk -F'\t' '$1 == "D" || $1 ~ /^R/ {print $2}' "$LOG/changed.txt")"
+[ -n "$SHARED" ] && warn "targeted review (shared contracts): $(paste -sd ',' <<< "$SHARED")"
+[ -n "$REMOVED" ] && warn "targeted review (removed paths): $(paste -sd ',' <<< "$REMOVED")"
+[ -n "$POLICY" ] && warn "maintainer approval (review rules or tooling): $(paste -sd ',' <<< "$POLICY")"
 
 # ---------------------------------------------------------------- R1 merge
 echo "== R1 merge with $BASE"
@@ -202,7 +204,7 @@ if [ "$TIER" -ge 3 ]; then
 			elif diff -q "$LOG/hashes_base.txt" "$LOG/hashes_head.txt" > /dev/null; then
 				ok "hashes unchanged from $BASE"
 			else
-				warn "needs Kyrie (fixture hashes changed; the PR must explain why):"
+				warn "targeted review (fixture hashes changed; verify expected behavior and repeatability):"
 				diff "$LOG/hashes_base.txt" "$LOG/hashes_head.txt" | grep -E '^[<>]' | sed 's/^/      /'
 			fi
 		else

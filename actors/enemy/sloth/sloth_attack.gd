@@ -12,7 +12,10 @@ const LINGER_SHOT_DAMAGE := 9.0
 const LINGER_RELEASE_TAIL := 0.10
 const LINGER_FORMATION_FORWARD := 0.45
 const FIELD_RADIUS := 3.2
+const FIELD_DURATION := 2.6
 const WAVE_RADIUS := 7.0
+const WAVE_SPEED := 9.0
+const WAVE_DURATION := 0.95
 const GAP_HALF_ANGLE := deg_to_rad(22.0)
 const GOLD_CHARGE := Color(1.0, 0.63, 0.19, 0.72)
 const GOLD_LOCK := Color(1.0, 0.89, 0.57, 0.95)
@@ -35,6 +38,7 @@ var _hit := false
 var _cancelled := false
 var _graphics: Node3D
 var _ring: MeshInstance3D
+var _time_field: SlothTimeField
 var _orbs: Array[MeshInstance3D] = []
 var _audio: AudioStreamPlayer3D
 var _mat: StandardMaterial3D
@@ -58,6 +62,8 @@ func _ready() -> void:
 		if _clear_path(_origin,tip):
 			_origin = tip
 	field_center = target.global_position if kind == 1 else caster.global_position
+	if caster.realm_encounter and kind != 0:
+		field_center = SlothTimeField.floor_below(get_world_3d().direct_space_state, field_center)
 	field_center.y += 0.065
 	locked_direction = (target.global_position + Vector3.UP * Enemy.AIM_HEIGHT - _origin).normalized()
 	_graphics = Node3D.new()
@@ -67,6 +73,14 @@ func _ready() -> void:
 	_detail_mat = _material(Color(1.0, 0.84, 0.52, 0.6) if caster.realm_encounter else Color(0.65, 0.79, 0.88, 0.6))
 	if kind == 0:
 		_build_volley()
+	elif caster.realm_encounter:
+		_time_field = SlothTimeField.new()
+		_time_field.position = field_center
+		_time_field.rotation.y = atan2(locked_direction.x, locked_direction.z)
+		_time_field.recluse_wave = kind == 2
+		_time_field.reach = WAVE_RADIUS if kind == 2 else FIELD_RADIUS
+		_time_field.safe_half_angle = GAP_HALF_ANGLE
+		_graphics.add_child(_time_field)
 	else:
 		_build_field()
 	_audio = AudioStreamPlayer3D.new()
@@ -91,7 +105,7 @@ func _physics_process(delta: float) -> void:
 		return
 	delta *= caster.boon_time_scale * caster.boon_attack_scale
 	elapsed += delta
-	_graphics.visible = caster.warnings_enabled
+	_graphics.visible = caster.warnings_enabled or (_time_field != null and elapsed >= warning_time())
 	if elapsed < warning_time():
 		var progress := elapsed / warning_time()
 		_mat.emission_energy_multiplier = 0.35 + progress * 0.5
@@ -113,8 +127,11 @@ func _physics_process(delta: float) -> void:
 				orb.rotation += Vector3(0.0, 0.6, 0.0) * delta
 				orb.scale = Vector3.ONE * (0.15 + progress * 1.25)
 		else:
-			_ring.scale = Vector3.ONE
-			_mat.albedo_color.a = 0.22 + progress * 0.45
+			if _time_field != null:
+				_time_field.show_charge(progress)
+			else:
+				_ring.scale = Vector3.ONE
+				_mat.albedo_color.a = 0.22 + progress * 0.45
 			caster.visual.set_shell_open(progress if kind == 2 else 0.0)
 			if kind == 2:
 				caster.set_core_exposed(progress > 0.65)
@@ -143,17 +160,23 @@ func _physics_process(delta: float) -> void:
 			if active_time >= float(LINGER_VOLLEY_COUNT - 1) * LINGER_SHOT_INTERVAL + LINGER_RELEASE_TAIL:
 				_finish()
 		1:
-			_ring.scale = Vector3.ONE
+			if _time_field != null:
+				_time_field.show_active(active_time, FIELD_RADIUS, FIELD_DURATION)
+			else:
+				_ring.scale = Vector3.ONE
 			_update_stasis()
-			if active_time >= 2.6:
+			if active_time >= FIELD_DURATION:
 				_finish()
 		2:
 			caster.visual.set_shell_open(1.0)
-			var radius := minf(WAVE_RADIUS, active_time * 9.0)
-			_ring.scale = Vector3.ONE * maxf(0.02, radius / WAVE_RADIUS)
+			var radius := minf(WAVE_RADIUS, active_time * WAVE_SPEED)
+			if _time_field != null:
+				_time_field.show_active(active_time, radius, WAVE_DURATION)
+			else:
+				_ring.scale = Vector3.ONE * maxf(0.02, radius / WAVE_RADIUS)
 			_test_wave(radius)
 			_last_radius = radius
-			if active_time >= 0.95:
+			if active_time >= WAVE_DURATION:
 				_finish()
 
 
@@ -207,6 +230,8 @@ func cancel() -> void:
 	if _cancelled:
 		return
 	_cancelled = true
+	if is_instance_valid(caster) and caster.active_attack == self:
+		caster.active_attack = null
 	if is_instance_valid(_audio):
 		_audio.stop()
 		_audio.stream = null

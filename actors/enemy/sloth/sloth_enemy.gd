@@ -142,9 +142,12 @@ func _physics_process(delta: float) -> void:
 			cast_attack()
 	elif state == State.SEEK and kind == Kind.LINGERER:
 		_process_seek(delta)
-	elif realm_encounter and kind == Kind.ANCHOR:
-		# The anchor's fixed body gives the player a stable target to prioritize.
-		pass
+	elif realm_encounter and kind != Kind.LINGERER:
+		# Move into casting range or around cover before trying to hold ground.
+		# Last sighted positions can be on the near side of a terrace or wall.
+		state = State.CHASE
+		_move_to(target.global_position, run_speed)
+		_face(velocity, delta)
 	else:
 		# A deterministic path toward the last observed position also brings a
 		# cloaked reinforcement around cover instead of shooting through it.
@@ -175,7 +178,7 @@ func cast_attack() -> bool:
 	# Owned by the caster, while the telegraph uses locked world coordinates.
 	add_child(active_attack)
 	cooldown_left = [3.6, 4.4, 3.6][kind]
-	visual.play_motion("cast" if kind == Kind.LINGERER else "EnterCower")
+	visual.play_motion("cast" if kind == Kind.LINGERER or (realm_encounter and kind == Kind.ANCHOR) else "EnterCower")
 	return true
 
 

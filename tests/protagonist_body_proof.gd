@@ -67,14 +67,30 @@ func _ready() -> void:
 	_body.set_fracture_level(4)
 	_player.weapon.aiming = true
 	_advance_combat(1.0)
+	await _frames(5)
+	await _shot("body_ads_4.png")
 	_player.melee.swing_now()
 	_advance_combat(0.14)
 	await _frames(5)
 	await _shot("body_ads_melee_4.png")
 	_advance_combat(0.35)
 	_player.weapon.aiming = false
-	_body.set_fracture_level(0)
 	_advance_combat(1.0)
+	await _frames(10)
+	await _shot("body_regripped_4.png")
+	if not _player.weapon.try_fire():
+		push_error("Could not fire the pistol for the recoil and reload proof")
+		get_tree().quit(1)
+		return
+	_advance_combat(0.025)
+	await _frames(1)
+	await _shot("body_recoil_4.png")
+	_player.weapon.try_reload()
+	_advance_combat(0.43)
+	await _frames(2)
+	await _shot("body_reload_4.png")
+	_advance_combat(0.5)
+	_body.set_fracture_level(0)
 	var camera := Camera3D.new()
 	add_child(camera)
 	camera.fov = 48.0

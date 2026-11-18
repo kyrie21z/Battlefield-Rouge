@@ -12,6 +12,12 @@ const SHOT_ANIM := "Shooting_1_1"
 const BLEND_TIME := 0.15
 const SHOT_FADE_IN := 0.04
 const SHOT_FADE_OUT := 0.12
+# With the original rigid fingers, this wrist pose cups the right fist and
+# keeps the fractured outside of the left hand facing the first-person view.
+const LEFT_PISTOL_WRIST := Vector3(-0.050, -0.015, 0.078)
+const LEFT_PISTOL_ROTATION := Basis(Vector3.UP, deg_to_rad(25.0))
+const LEFT_BLADE_WRIST := Vector3(0.0, -0.015, 0.045)
+const REGRIP_TIME := 0.14
 const MATERIAL := preload("res://assets/materials/protagonist_crystal_material.tres")
 const POSE_MODIFIER := preload("res://actors/player/body_pose_modifier.gd")
 const UPPER_BONES: Array[StringName] = [
@@ -26,7 +32,8 @@ var _anim: AnimationPlayer
 var _skeleton: Skeleton3D
 var _tree: AnimationTree
 var _run_blend := 0.0
-var _breath_time := 0.0
+var _blade_wrist_in_camera := Transform3D.IDENTITY
+var _blade_grip_weight := 0.0
 var _weapon: Weapon
 var _melee: MeleeWeapon
 var _head: Node3D
@@ -69,7 +76,7 @@ func _ready() -> void:
 	set_fracture_level(fracture_level)
 
 func _process(delta: float) -> void:
-	_breath_time += delta
+	_blade_grip_weight = move_toward(_blade_grip_weight, 0.0, delta / REGRIP_TIME)
 	var player := get_parent() as CharacterBody3D
 	var speed := Vector2(player.velocity.x, player.velocity.z).length() if player != null else 0.0
 	_run_blend = move_toward(_run_blend, 1.0 if speed > RUN_SPEED else 0.0, delta / BLEND_TIME)
@@ -179,18 +186,26 @@ func pose_arms() -> void:
 	var grip := _weapon.grip_transform()
 	var inverse := _skeleton.global_transform.affine_inverse()
 	var aim_basis := _skeleton.global_basis.orthonormalized().inverse() * grip.basis.orthonormalized()
-	# The right fist wraps the actual grip. The left stays free for body awareness.
 	_solve_arm("Right", inverse * (grip * Vector3(0.014, -0.018, 0.055)),
 		aim_basis * (_hand_basis["Right"] as Basis), Vector3(0.35, -0.6, 0.15))
+	_pose_left_arm(grip, inverse)
+
+func _pose_left_arm(grip: Transform3D, skeleton_from_world: Transform3D) -> void:
 	var camera := _weapon.camera
-	var free_hand := camera.global_transform * Vector3(-0.24, -0.18 + sin(_breath_time * 1.6) * 0.002, -0.30 + upward * 0.08)
-	var left_basis := _skeleton.global_basis.orthonormalized().inverse() * camera.global_basis
+	var wrist := Transform3D(grip.basis.orthonormalized() * LEFT_PISTOL_ROTATION,
+		grip * LEFT_PISTOL_WRIST)
 	if _melee != null and _melee.is_swinging():
 		var blade_grip := _melee.grip_transform()
-		free_hand = blade_grip * Vector3(0.0, -0.015, 0.045)
-		left_basis = _skeleton.global_basis.orthonormalized().inverse() * blade_grip.basis.orthonormalized()
-	_solve_arm("Left", inverse * free_hand,
-		left_basis * (_hand_basis["Left"] as Basis), Vector3(-0.45, -0.5, 0.05))
+		wrist = Transform3D(blade_grip.basis.orthonormalized(), blade_grip * LEFT_BLADE_WRIST)
+		# The blade resets to its hidden rest pose when recovery ends.
+		_blade_wrist_in_camera = camera.global_transform.affine_inverse() * wrist
+		_blade_grip_weight = 1.0
+	elif _blade_grip_weight > 0.0:
+		var last_blade_wrist := camera.global_transform * _blade_wrist_in_camera
+		wrist = wrist.interpolate_with(last_blade_wrist, smoothstep(0.0, 1.0, _blade_grip_weight))
+	wrist = (skeleton_from_world * wrist).orthonormalized()
+	_solve_arm("Left", wrist.origin, wrist.basis * (_hand_basis["Left"] as Basis),
+		Vector3(-0.45, -0.5, 0.05))
 
 func _solve_arm(side: String, target: Vector3, hand_basis: Basis, pole: Vector3) -> void:
 	var upper := _skeleton.find_bone(side + "Arm")

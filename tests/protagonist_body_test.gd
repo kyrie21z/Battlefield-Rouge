@@ -1,5 +1,5 @@
 extends Node
-## Production body/eye/gait/one-handed grip contract. Visual occlusion is also
+## Production body, eye, gait and two-handed grip contract. Visual occlusion is also
 ## checked by protagonist_body_proof through the actual rendering camera.
 const PLAYER := preload("res://actors/player/player.tscn")
 const ORIGINAL := preload("res://assets/models/characters/red_crystal_enemy_animated.glb")
@@ -48,29 +48,76 @@ func _ready() -> void:
 		var wrist := skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("RightHand")).origin)
 		var target := grip * Vector3(0.014, -0.018, 0.055)
 		_check("pitch %.0f right wrist reaches actual pistol (error %.3fm)" % [pitch, wrist.distance_to(target)], wrist.distance_to(target) < 0.065)
-		var left := skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("LeftHand")).origin)
-		_check("pitch %.0f left hand stays free of pistol" % pitch, left.distance_to(grip.origin) > 0.18)
+		_check_left_pistol_grip(player, body, "hip pitch %.0f" % pitch)
 		_check("pitch %.0f logical ray and rendered eye coincide" % pitch, player.eye_position().is_equal_approx(player.view_camera.global_position))
 		var eye := player.eye_position()
 		body._tree.advance(0.15)
 		body.pose_arms()
 		_check("pitch %.0f animation cannot move logical eye" % pitch, eye.distance_to(player.eye_position()) < 0.0001)
+	player.weapon.aiming = true
+	player.weapon._process(1.0)
+	for pitch in [0.0, -82.0, 85.0]:
+		player._pitch = deg_to_rad(pitch)
+		player._apply_look()
+		body.pose_arms()
+		_check_left_pistol_grip(player, body, "ADS pitch %.0f" % pitch)
 	player._pitch = 0.0
 	player._apply_look()
+	player.weapon.aiming = false
+	player.weapon._process(1.0)
+	var before_shot := player.weapon.grip_transform()
+	_check("the actual pistol fires", player.weapon.try_fire())
+	player.weapon._process(1.0 / 60.0)
+	body.pose_arms()
+	_check("recoil moves the pistol grip", not before_shot.is_equal_approx(player.weapon.grip_transform()))
+	_check_left_pistol_grip(player, body, "recoil")
+	player.weapon.try_reload()
+	for i in 26:
+		player.weapon._process(1.0 / 60.0)
+	body.pose_arms()
+	_check("the pistol is reassembling", player.weapon.is_reloading())
+	_check_left_pistol_grip(player, body, "reassembly")
+	player.weapon.complete_reload()
 	player.melee.swing_now()
 	for delta in [0.03, 0.05, 0.06, 0.06]:
 		player.melee._process(delta)
 		body.pose_arms()
 		var grip := player.melee.grip_transform()
-		var wrist := skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("LeftHand")).origin)
-		_check("swinging left hand follows actual blade grip", wrist.distance_to(grip * Vector3(0.0, -0.015, 0.045)) < 0.065)
-	player.melee.cancel()
+		_check("swinging left hand follows actual blade grip", _left_wrist(skeleton).distance_to(grip * ProtagonistBody.LEFT_BLADE_WRIST) < 0.065)
+	var release_wrist := _left_wrist(skeleton)
+	for i in 30:
+		player.melee._process(1.0 / 60.0)
+		if not player.melee.is_swinging():
+			break
+		body.pose_arms()
+		release_wrist = _left_wrist(skeleton)
+	_check("the real blade recovery completes", not player.melee.is_swinging())
+	body.pose_arms()
+	_check("the blade hand starts its return from its last visible pose", _left_wrist(skeleton).distance_to(release_wrist) < 0.001)
+	body._process(ProtagonistBody.REGRIP_TIME * 0.5)
+	body.pose_arms()
+	var pistol_target := player.weapon.grip_transform() * ProtagonistBody.LEFT_PISTOL_WRIST
+	var mid_return := _left_wrist(skeleton)
+	_check("the left hand moves partway back to the pistol", mid_return.distance_to(release_wrist) > 0.03
+		and mid_return.distance_to(pistol_target) > 0.03
+		and mid_return.distance_to(pistol_target) < release_wrist.distance_to(pistol_target))
+	body._process(ProtagonistBody.REGRIP_TIME * 0.5)
+	body.pose_arms()
+	_check_left_pistol_grip(player, body, "after the blade recovery")
 	player.queue_free()
 	await get_tree().process_frame
 	# The audio thread drains its stopped swing playback before engine exit.
 	await get_tree().create_timer(0.1, true, false, true).timeout
 	print("PROTAGONIST BODY: %s (%d failed)" % ["ALL PASSED" if _failures == 0 else "FAIL", _failures])
 	get_tree().quit(0 if _failures == 0 else 1)
+
+func _left_wrist(skeleton: Skeleton3D) -> Vector3:
+	return skeleton.to_global(skeleton.get_bone_global_pose(skeleton.find_bone("LeftHand")).origin)
+
+func _check_left_pistol_grip(player: Player, body: ProtagonistBody, state: String) -> void:
+	var target := player.weapon.grip_transform() * ProtagonistBody.LEFT_PISTOL_WRIST
+	var error := _left_wrist(body._skeleton).distance_to(target)
+	_check("%s left wrist reaches actual pistol (error %.3fm)" % [state, error], error < 0.02)
 
 func _check(label: String, ok: bool) -> void:
 	if not ok:

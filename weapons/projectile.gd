@@ -100,8 +100,8 @@ func _physics_process(delta: float) -> void:
 	if delta <= 0.0:
 		return
 	var from := global_position
-	var to := from - global_basis.z * speed * delta
-	var query := PhysicsRayQueryParameters3D.create(from, to, MASK, exclude)
+	var to := _next_position(delta)
+	var query := PhysicsRayQueryParameters3D.create(from, to, _collision_mask(), exclude)
 	query.collide_with_areas = true
 	query.hit_from_inside = true
 	var space := get_world_3d().direct_space_state
@@ -120,7 +120,7 @@ func _physics_process(delta: float) -> void:
 		# Sparks on walls only: a puff on the player's own hitbox would sit
 		# right in front of the camera. The HUD damage flash covers that case.
 		if not hit.collider is Hitbox:
-			Impact.spawn(get_parent(), hit.position, hit.normal, false)
+			_hit_world(hit.position, hit.normal)
 		else:
 			var ctx := boon_context.duplicate()
 			var box := hit.collider as Hitbox
@@ -145,6 +145,18 @@ func _physics_process(delta: float) -> void:
 	_travelled += speed * delta
 	if _travelled >= max_distance:
 		queue_free()
+
+
+func _next_position(delta: float) -> Vector3:
+	return global_position - global_basis.z * speed * delta
+
+
+func _collision_mask() -> int:
+	return MASK
+
+
+func _hit_world(point: Vector3, normal: Vector3) -> void:
+	Impact.spawn(get_parent(), point, normal, false)
 
 
 ## Transfer ownership atomically: the old shooter's exclusions must disappear,

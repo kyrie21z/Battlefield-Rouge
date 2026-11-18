@@ -1,73 +1,65 @@
 class_name SlothMire
 extends Enemy
-## The Resin Husk throws one committed projectile. A new coat refreshes the
-## same status instead of multiplying either slowdown or damage ticks.
+## The Resin Husk locks a spot under the player and lobs a pool of resin onto it.
 const WINDUP := 1.15
 const LOCK_TIME := 0.35
 const COOLDOWN := 4.5
 const RESIN := Color("f6ae3f")
-const COATING_NAME := "SlothResinCoating"
-
-class Coating extends Node:
-	const EFFECT := &"sloth_resin"
-	const STEP := 0.25
-	var victim: Player
-	var attacker: Enemy
-	var tick_damage := 2.5
-	var remaining := 4
-	var clock := STEP
-
-	func refresh(new_attacker: Enemy, scale_value: float) -> void:
-		attacker = new_attacker
-		tick_damage = 2.5 * scale_value
-		remaining = 4
-		clock = STEP
-		victim.set_realm_effect(EFFECT, {"move_multiplier":0.65, "owner":self})
-
-	func _physics_process(delta: float) -> void:
-		if not is_instance_valid(victim) or victim.health.is_dead() or not is_instance_valid(attacker) or attacker.health.is_dead():
-			queue_free()
-			return
-		clock -= delta
-		while remaining > 0 and clock <= 0.00001:
-			clock += STEP
-			remaining -= 1
-			victim.health.apply_damage(tick_damage, Hitbox.BodyPart.BODY, attacker, {"tag":&"sloth_resin", "kind":&"proc", "proc_depth":1})
-			if victim.health.is_dead():
-				break
-		if remaining == 0 or victim.health.is_dead():
-			queue_free()
-
-	func _exit_tree() -> void:
-		if is_instance_valid(victim):
-			victim.clear_realm_effect(EFFECT)
 
 class ResinBall extends Projectile:
-	var victim: Player
-	var attacker: Enemy
-	var curse_scale := 1.0
+	var pool: SlothResinPool
+	var origin := Vector3.ZERO
+	var landing_point := Vector3.ZERO
+	var flight_time := 0.0
+	var elapsed := 0.0
+	var arc_height := 0.0
 
 	func _ready() -> void:
 		var glob := SlothMire.make_glob()
 		glob.scale = Vector3(1,1,1.25)
 		add_child(glob)
-		impacted.connect(_coat)
 
-	func _coat(collider: Node, _point: Vector3) -> void:
-		var box := collider as Hitbox
-		if reflected or box == null or not is_instance_valid(victim) or box.health != victim.health:
-			return
-		if not is_instance_valid(attacker) or attacker.health.is_dead() or victim.health.is_dead():
-			return
-		if (victim.health.invulnerable and not victim.health.unbuffered) or victim.health.dash_invulnerable or victim.health.parrying:
-			return
-		var coating := victim.get_node_or_null(SlothMire.COATING_NAME) as Coating
-		if coating == null:
-			coating = Coating.new()
-			coating.name = SlothMire.COATING_NAME
-			coating.victim = victim
-			victim.add_child(coating)
-		coating.refresh(attacker, curse_scale)
+	func _physics_process(delta: float) -> void:
+		super._physics_process(delta)
+		if not reflected and elapsed >= flight_time:
+			queue_free()
+
+	func _next_position(delta: float) -> Vector3:
+		if reflected:
+			return super._next_position(delta)
+		elapsed = minf(elapsed + delta, flight_time)
+		var t := elapsed / flight_time
+		var next := origin.lerp(landing_point, t) + Vector3.UP * (4.0 * arc_height * t * (1.0 - t))
+		var step := next - global_position
+		if not step.is_zero_approx():
+			face_step(step)
+		return next
+
+	func face_step(step: Vector3) -> void:
+		look_at(global_position + step, Vector3.UP if absf(step.normalized().y) < 0.99 else Vector3.RIGHT)
+
+	func _collision_mask() -> int:
+		return super._collision_mask() if reflected else CollisionLayers.WORLD | CollisionLayers.PARRY
+
+	func _hit_world(point: Vector3, normal: Vector3) -> void:
+		if reflected:
+			super._hit_world(point, normal)
+		elif is_instance_valid(pool) and normal.y >= SlothResinPool.MIN_FLOOR_NORMAL \
+				and pool.global_position.distance_squared_to(point) < 0.16:
+			pool.land()
+			pool = null
+
+	func reflect(new_source: CollisionObject3D, point: Vector3) -> void:
+		super.reflect(new_source, point)
+		_clear_warning()
+
+	func _clear_warning() -> void:
+		if is_instance_valid(pool) and not pool.is_queued_for_deletion():
+			pool.queue_free()
+		pool = null
+
+	func _exit_tree() -> void:
+		_clear_warning()
 
 var realm_damage_scale := 1.0
 var warnings_enabled := true
@@ -76,6 +68,7 @@ var cast_left := 0.0
 var shots_fired := 0
 var _locked_point := Vector3.ZERO
 var _charging: Node3D
+var _pool: SlothResinPool
 @onready var visual := $Model as SlothMireVisual
 
 func _ready() -> void:
@@ -133,15 +126,18 @@ func _physics_process(delta: float) -> void:
 	_boon_move_and_slide()
 
 func start_cast() -> bool:
-	if state in [State.DEAD, State.FLEE] or cast_left > 0.0 or not target is Player:
+	if state in [State.DEAD, State.FLEE] or cast_left > 0.0 or not is_instance_valid(target) or not target is Player:
 		return false
 	cast_left = WINDUP * boon_windup_scale
-	_locked_point = _target_point()
+	_locked_point = target.global_position
 	return true
 
 func _update_cast(delta: float) -> void:
-	if cast_left > LOCK_TIME:
-		_locked_point = _target_point()
+	var lock_at := minf(LOCK_TIME, WINDUP * boon_windup_scale * 0.5)
+	if cast_left > lock_at:
+		_locked_point = target.global_position
+		if cast_left - delta <= lock_at:
+			_lock_landing()
 	cast_left = maxf(0.0,cast_left - delta)
 	var progress := 1.0 - cast_left / maxf(0.01,WINDUP * boon_windup_scale)
 	_charging.visible = warnings_enabled
@@ -151,30 +147,50 @@ func _update_cast(delta: float) -> void:
 	if cast_left <= 0.0:
 		_release_ball()
 
+func _lock_landing() -> void:
+	var query := PhysicsRayQueryParameters3D.create(_locked_point + Vector3.UP * 0.20,
+		_locked_point - Vector3.UP * 3.5, CollisionLayers.WORLD)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or hit.normal.y < SlothResinPool.MIN_FLOOR_NORMAL:
+		return
+	_locked_point = hit.position
+	_pool = SlothResinPool.new()
+	_pool.name = "SlothResinPool"
+	_pool.position = get_parent_node_3d().to_local(_locked_point)
+	_pool.victim = target as Player
+	_pool.attacker = self
+	_pool.damage_scale = realm_damage_scale
+	_pool.visible = warnings_enabled
+	get_parent().add_child(_pool)
+
 func _release_ball() -> void:
+	cooldown_left = COOLDOWN
+	if not is_instance_valid(_pool):
+		_cancel_cast()
+		return
 	var start := _charging.global_position
 	var eye := _eye()
 	var query := PhysicsRayQueryParameters3D.create(eye,start,CollisionLayers.WORLD)
 	if not get_world_3d().direct_space_state.intersect_ray(query).is_empty():
 		start = eye
-	var direction := (_locked_point - start).normalized()
-	if direction.is_zero_approx():
-		direction = -global_basis.z
 	var ball := ResinBall.new()
-	ball.victim = target as Player
-	ball.attacker = self
+	ball.pool = _pool
+	_pool = null
+	ball.origin = start
+	ball.landing_point = _locked_point - Vector3.UP * 0.12
+	var distance := Vector2(start.x - _locked_point.x, start.z - _locked_point.z).length()
+	ball.flight_time = clampf(distance / 12.0, 0.4, 1.6)
+	ball.arc_height = clampf(0.62 + distance * 0.075, 0.65, 1.75)
 	ball.source = self
 	ball.exclude = _hitbox_rids.duplicate()
 	ball.damage = 0.0
 	ball.speed = 12.0
 	ball.max_distance = 30.0
-	ball.curse_scale = realm_damage_scale
 	get_parent().add_child(ball)
 	ball.global_position = start
-	ball.look_at(start + direction,Vector3.UP if absf(direction.y)<0.99 else Vector3.RIGHT)
+	ball.face_step(ball.landing_point - start + Vector3.UP * 4.0 * ball.arc_height)
 	Events.projectile_registered.emit(ball)
 	shots_fired += 1
-	cooldown_left = COOLDOWN
 	_cancel_cast()
 
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
@@ -193,6 +209,15 @@ func _cancel_cast() -> void:
 	cast_left = 0.0
 	_charging.hide()
 	visual.set_windup(0.0)
+	_clear_landing()
+
+func _clear_landing() -> void:
+	if is_instance_valid(_pool) and not _pool.is_queued_for_deletion():
+		_pool.queue_free()
+	_pool = null
+
+func _exit_tree() -> void:
+	_clear_landing()
 
 func _on_died(source: Node) -> void:
 	state = State.DEAD

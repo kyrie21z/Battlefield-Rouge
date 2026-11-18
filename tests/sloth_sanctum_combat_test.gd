@@ -178,28 +178,106 @@ func verify_resin(mire: SlothMire) -> void:
 	await frames(47)
 	check("resin glob grows visibly during windup without inflicting damage",mire.shots_fired == 0 and mire._charging.visible)
 	await capture("sloth-resin-windup")
+	var pool := mire._pool
+	var original_spot := Vector3(0,0,5)
+	check("late windup shows a harmless warning on the player's ground",
+		is_instance_valid(pool) and not pool.landed and pool.global_position.distance_to(original_spot) < 0.15)
 	var hp := player.health.health
-	for index in 67:
-		await frames(1)
-		if player.realm_effects.move_multiplier < 1.0:
-			break
-	check("a swept resin hit slows walking by 35% before the first tick",is_equal_approx(player.realm_effects.move_multiplier,0.65) and player.health.health == hp)
-	var coating := player.get_node_or_null(SlothMire.COATING_NAME)
-	var clock: float = coating.clock if coating != null else -1.0
+	player.position = Vector3(0,0.08,9.7)
+	await frames(62)
+	mire.set_physics_process(false)
+	check("sidestepping avoids the attack and the glue lands on the original spot",
+		is_instance_valid(pool) and pool.landed and pool.global_position.distance_to(original_spot) < 0.15 and player.health.health == hp)
+	if not is_instance_valid(pool) or not pool.landed:
+		return
+	player.aim_at(Vector3(0,0.2,4.2))
+	await capture("sloth-resin-pool")
+	player.position = Vector3(2.45,0.08,5)
+	await frames(3)
+	check("stepping in well away from the centre immediately slows walking by 35%",
+		is_equal_approx(player.realm_effects.move_multiplier,0.65) and player.health.health == hp)
+	var age := pool.age
 	get_tree().paused = true
 	await frames(8)
-	check("pausing freezes the coating",is_instance_valid(coating) and is_equal_approx(coating.clock,clock) and player.health.health == hp)
+	check("pause freezes the pool and its damage",is_equal_approx(pool.age,age) and player.health.health == hp)
 	get_tree().paused = false
-	await frames(64)
-	check("four timed hits total 10 HP and remove the coating",is_equal_approx(player.health.health,hp-10.0) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
-	mire.set_physics_process(false)
-	var wall := SlothRealm.box(room,Vector3(0,1.2,2.65),Vector3(3.5,2.4,0.45),SlothRealm.material(Color.WHITE,0,1),true)
+	await frames(60)
+	check("one full second in the glue deals 10 HP and the slow persists",
+		is_equal_approx(player.health.health,hp - 10.0) and is_equal_approx(player.realm_effects.move_multiplier,0.65))
+	player.position.x = 3.65
+	await frames(20)
+	check("leaving the pool clears the slow and stops damage",
+		is_equal_approx(player.health.health,hp - 10.0) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
+	player.position = Vector3(0,0.9,5)
+	await frames(20)
+	check("jumping above the pool avoids damage and slow",
+		is_equal_approx(player.health.health,hp - 10.0) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
+	player.position.y = 0.08
+	await frames(18)
+	check("stepping back in reapplies the slow and starts a new damage tick",
+		is_equal_approx(player.health.health,hp - 12.5) and is_equal_approx(player.realm_effects.move_multiplier,0.65))
+	await frames(130)
+	check("expiry clears the pool and its slow while the player is still inside",
+		not is_instance_valid(pool) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
+
+	hp = player.health.health
+	var wall := SlothRealm.box(room,Vector3(0,1.7,2.65),Vector3(3.5,3.4,0.45),SlothRealm.material(Color.WHITE,0,1),true)
 	await frames(2)
 	mire.start_cast()
+	mire._update_cast(0.85)
+	var blocked := mire._pool
 	mire._update_cast(1.3)
-	await frames(52)
-	check("solid cover stops the glob and prevents slow and damage",is_equal_approx(player.health.health,hp-10.0) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
+	await frames(50)
+	check("solid cover stops the lob before the marked pool activates",
+		not is_instance_valid(blocked) and is_equal_approx(player.health.health,hp) and is_equal_approx(player.realm_effects.move_multiplier,1.0))
 	wall.queue_free()
+
 	mire.start_cast()
+	mire._update_cast(0.85)
+	var interrupted := mire._pool
 	mire.apply_impact(Vector3.RIGHT,3.0,0.3)
-	check("a shove interrupts the windup without releasing an extra projectile",mire.cast_left == 0.0 and mire.shots_fired == 2)
+	await frames(2)
+	check("a shove clears the warned footprint without releasing an extra projectile",
+		not is_instance_valid(interrupted) and mire.cast_left == 0.0 and mire.shots_fired == 2)
+
+	var shots: Array[Projectile] = []
+	var record_shot := func(shot: Projectile) -> void:
+		if shot.source == mire:
+			shots.append(shot)
+	Events.projectile_registered.connect(record_shot)
+	mire.start_cast()
+	mire._update_cast(0.85)
+	var reflected_pool := mire._pool
+	mire._update_cast(1.3)
+	Events.projectile_registered.disconnect(record_shot)
+	check("the throw registers one parryable projectile", shots.size() == 1)
+	if shots.size() == 1:
+		var shot := shots[0]
+		var launch_y := shot.global_position.y
+		await frames(6)
+		check("the projectile rises along a lob before descending", shot.global_position.y > launch_y)
+		shot.reflect(player, shot.global_position)
+		await frames(2)
+		check("reflecting the glob transfers ownership and removes the marked pool",
+			shot.reflected and shot.source == player and not is_instance_valid(reflected_pool))
+		shot.queue_free()
+
+	# On the real east ramp, the wet surface follows the rising ground and
+	# remains out of reach of feet on the floor level underneath.
+	var slope_feet := ground_below(Vector3(12.4,2.0,6.0))
+	var raised_feet := ground_below(Vector3(12.4,2.0,4.8))
+	player.position = slope_feet
+	mire.start_cast()
+	mire._update_cast(0.85)
+	var ramp_pool := mire._pool
+	check("the footprint conforms to the ramp and does not affect the floor below",
+		is_instance_valid(ramp_pool) and raised_feet.y - slope_feet.y > 0.25
+			and ramp_pool._touches(raised_feet, 1.0)
+			and not ramp_pool._touches(Vector3(raised_feet.x, 0.0, raised_feet.z), 1.0))
+	mire.begin_retreat(Vector3.ZERO, 1.0)
+
+
+func ground_below(point: Vector3) -> Vector3:
+	var query := PhysicsRayQueryParameters3D.create(point, point - Vector3.UP * 3.0, CollisionLayers.WORLD)
+	var hit := room.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.position if not hit.is_empty() else point

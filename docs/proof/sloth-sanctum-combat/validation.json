@@ -12,13 +12,13 @@
   "files": [
     {
       "path": "GLOSSARY.md",
-      "bytes": 36657,
-      "sha256": "7a41208f50797943de11257568b4feb134cc90ce2ed76097266b3bc89a446878"
+      "bytes": 36801,
+      "sha256": "252532a7ea22f0a36fcf7bde8ba3e1f5daa4339ed1c48dc40c297dd1b5af4573"
     },
     {
       "path": "README.md",
-      "bytes": 14902,
-      "sha256": "53adfd0f3c389af8030a1f9197f07747492338b3d092b5ed2b17a9eb91e251e4"
+      "bytes": 14962,
+      "sha256": "e0a8d5fecc0ac029a24d664bd4f9e90617b1451d017f6d8cd1210f0b3050e123"
     },
     {
       "path": "actors/enemy/sloth/sloth_attack.gd",
@@ -32,8 +32,8 @@
     },
     {
       "path": "actors/enemy/sloth/sloth_mire.gd",
-      "bytes": 7578,
-      "sha256": "fea3f2c4b52ec7f8b92a60cdcaae3dcde71b343e097517b47d3ed46b10fb06b9"
+      "bytes": 8364,
+      "sha256": "2b85efcf8f6b0cf77167d216efecdcf6ea78c404abd688da3b3981ad8a9a3181"
     },
     {
       "path": "actors/enemy/sloth/sloth_mire.gd.uid",
@@ -56,9 +56,19 @@
       "sha256": "ee4f8b25c6fb6b8af27bb7ae1b3f60e17050fa74bbfc622f8dff936b493e0f48"
     },
     {
+      "path": "actors/enemy/sloth/sloth_resin_pool.gd",
+      "bytes": 5704,
+      "sha256": "fe2e26f83c34779f9c02a5c710c15eb467a388b158b6f1d700fb9ce7c545ac49"
+    },
+    {
+      "path": "actors/enemy/sloth/sloth_resin_pool.gd.uid",
+      "bytes": 20,
+      "sha256": "da153b5a79d561818f70c9704f0542fa52927229b0c0595a0f1ca38ee817a8d8"
+    },
+    {
       "path": "actors/enemy/sloth/sloth_visual.gd",
-      "bytes": 26789,
-      "sha256": "2cda59e69fe4109eeb204136fd04a33c94daa335c6aeea237196eb2272b31db5"
+      "bytes": 26732,
+      "sha256": "a75c82b33688d4ac1ec563f74d0444117e3efe204757a9d3cc54f5caa3265592"
     },
     {
       "path": "assets/materials/sloth_cloth.gdshader",
@@ -66,19 +76,44 @@
       "sha256": "c4116aa3b31ab572a92c81a0b4d2acacb15269534547f461d7470aa1eafdd962"
     },
     {
+      "path": "assets/materials/sloth_resin_pool.gdshader",
+      "bytes": 1247,
+      "sha256": "9b6566bb591d18fcb9c8aaec61b09a7276d2aa741a6507289d19218ddb7b13e3"
+    },
+    {
+      "path": "assets/materials/sloth_resin_pool.gdshader.uid",
+      "bytes": 20,
+      "sha256": "d9fad81e399f7a28a26192c3f6cc4efb9bd3829b0dd5f4174f12dfc8f633366f"
+    },
+    {
       "path": "docs/ASSETS.md",
-      "bytes": 55533,
-      "sha256": "c3c92e77da8851c79d6881905065917032c1eb692eb10365937c60e4f095c154"
+      "bytes": 55664,
+      "sha256": "be7d66dfbb9ad6c1cb89a1df89f709b3664d5e7ce9a7ffbebe9fd5e76999bef1"
     },
     {
       "path": "docs/levels/SLOTH_LEVEL_DESIGN.md",
-      "bytes": 28626,
-      "sha256": "e713a244e0fab02a7ed1c6ecf06690d73a6fcfeee8cbf7ed60ed633ecd9bbe59"
+      "bytes": 29023,
+      "sha256": "23a99d87759e3be36947367aae4808d80f1db65e56878885a6f7c5c3c22613b8"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/README.md",
-      "bytes": 4443,
-      "sha256": "6096b2009b1e66112654cb501d08c979bdea2d2d0fe4777b1d170f3ec50472b5"
+      "bytes": 5439,
+      "sha256": "013da8e7e037cdf808a308e60cc3fe172047a1259594b1a5d5580eaa43e3cf5e"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/black-gold-resin-fixture.log",
+      "bytes": 2206,
+      "sha256": "46d6a652161c90e19f6660a4cf40586bfa77e5103747e8b28ecacedb4ff96b59"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/black-gold-resin-native.log",
+      "bytes": 2746,
+      "sha256": "7498f01e60ec0b32f6fa03d6826c7bdb397a0ec991585a0ca8c64ccea9331e78"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/black-gold-resin-regression.log",
+      "bytes": 19396,
+      "sha256": "60b591c66b37e23049c48523bc86c9492e5a9e8b50c0daf5e2957a0fdc7c9682"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/fixture-branch.log",
@@ -127,23 +162,28 @@
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-clockwork.jpg",
-      "bytes": 124399,
-      "sha256": "930171f9815f9a4245f9026e98519b2f62bb2e2a81aa930587d171edbec96ad0"
+      "bytes": 124487,
+      "sha256": "1901a19f2b4f32d2e336f953d03979b02e8bebe524ed99f293aa2aa7ed395d8b"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-colossus-clock.jpg",
-      "bytes": 120272,
-      "sha256": "6132d04209ee4f1bfbad7a87bd91192067f113ac048d526ab1075077c1a2209c"
+      "bytes": 120273,
+      "sha256": "a7fabeb89e452b0e6ce07bad57708f98ef0f943b2d0c17725a8cf6961f8d90dd"
+    },
+    {
+      "path": "docs/proof/sloth-sanctum-combat/sloth-resin-pool.jpg",
+      "bytes": 132591,
+      "sha256": "6fdf4e94aaec4e377b28437cd88c9289f12adb178a9dc69fb7a5312d66547071"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-resin-windup.jpg",
-      "bytes": 135726,
-      "sha256": "d1c4a5e4532ec9ce4004a984181e54cd6a6a214087dac615d6569df1cbd2bec5"
+      "bytes": 136532,
+      "sha256": "a3c43f4016d32f3d71e14062e0d10782db1703d71009afde7a840df368ce02cc"
     },
     {
       "path": "docs/proof/sloth-sanctum-combat/sloth-staff-volley.jpg",
-      "bytes": 138517,
-      "sha256": "8db6b7cd20796fba8ba5052fef1f88d549d6ceceef2f6d22c2b82eda7928a447"
+      "bytes": 139256,
+      "sha256": "709e9348824b63cfa7e7ab6d5db4001192341c6ecea8d26ea6884f58aac8d1e6"
     },
     {
       "path": "environments/sloth/realm.gd",
@@ -177,8 +217,8 @@
     },
     {
       "path": "tests/sloth_sanctum_combat_test.gd",
-      "bytes": 9352,
-      "sha256": "52a99ebac92a96ae53863736c8df016722a6ceb9982297c258866b6ca5f466e4"
+      "bytes": 12764,
+      "sha256": "c116a9ed99add18a7d1af6e377a3a9b1edeb5e483b96d663985ef30770667504"
     },
     {
       "path": "tests/sloth_sanctum_combat_test.gd.uid",
@@ -196,6 +236,11 @@
       "sha256": "a78751ec25fdd814e34142167914105ace1cea872be3ff6b4e7afd951a51f264"
     },
     {
+      "path": "weapons/projectile.gd",
+      "bytes": 6438,
+      "sha256": "0bf1d12745c4210a6ad2955e46195fdd268e55c0a5e015e33f9921f48bbe4321"
+    },
+    {
       "path": "zone/realm_stage.gd",
       "bytes": 24079,
       "sha256": "7c0e9bc5904af32e9fd7536e368dea510d80320abd61ec2ec353560787da246d"
@@ -205,5 +250,15 @@
     "native_checks": 33,
     "headless_suites": 4,
     "screenshots_recaptured": 4
+  },
+  "black_gold_resin_verification": {
+    "native_checks": 44,
+    "headless_suites": 7,
+    "headless_checks": 360,
+    "fixture_hashes": {
+      "FX-001": "edc3fc82c34f1bc0",
+      "FX-002": "ad3703cd93d3073e"
+    },
+    "screenshots_recaptured": 5
   }
 }

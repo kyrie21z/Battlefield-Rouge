@@ -10,6 +10,8 @@ var walls: Array[StaticBody3D] = []
 var ambience: AudioStreamPlayer3D
 var _white: StandardMaterial3D
 var _hot: StandardMaterial3D
+var player: Player
+var void_fall: RealmVoid
 
 func _ready() -> void:
 	_white = _mat(Color(0.83, 0.80, 0.77), 0.7)
@@ -62,6 +64,31 @@ func _ready() -> void:
 	add_child(ambience)
 	if not audio_managed and not deprived:
 		ambience.play()
+	_install_void()
+
+## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
+func set_player(value: Player) -> void:
+	player = value
+	if is_instance_valid(void_fall):
+		void_fall.setup(value)
+
+
+func player_spawn() -> Vector3:
+	return Vector3(0, 0, 16)
+
+
+func exit_position() -> Vector3:
+	return Vector3(0, 0, -20)
+
+
+func _install_void() -> void:
+	void_fall = RealmVoid.new()
+	void_fall.name = "VoidFall"
+	void_fall.spawn_fallback = player_spawn()
+	add_child(void_fall)
+	if is_instance_valid(player):
+		void_fall.setup(player)
+
 
 func set_audio_managed(active: bool) -> void:
 	audio_managed = active

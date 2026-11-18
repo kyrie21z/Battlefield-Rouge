@@ -26,6 +26,7 @@ var shot_ripple_count := 0
 var tear_ripple_count := 0
 var _white: StandardMaterial3D
 var mirror_environment: Environment
+var void_fall: RealmVoid
 
 func _ready() -> void:
 	_white = StandardMaterial3D.new()
@@ -87,6 +88,24 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	# A realm can be inserted after actors (standalone benches / restored rooms).
 	_scan_existing(get_parent())
+	_install_void()
+
+## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
+func player_spawn() -> Vector3:
+	return Vector3(0, 0, 16)
+
+
+func exit_position() -> Vector3:
+	return Vector3(0, 0, -20)
+
+
+func _install_void() -> void:
+	void_fall = RealmVoid.new()
+	void_fall.name = "VoidFall"
+	void_fall.spawn_fallback = player_spawn()
+	add_child(void_fall)
+	if is_instance_valid(player):
+		void_fall.setup(player)
 
 ## Room audio owns splashes in production; standalone geometry keeps fallback.
 func set_audio_managed(active: bool) -> void:
@@ -99,6 +118,8 @@ func set_player(value: Player) -> void:
 	# RealmStage also owns a generic WorldEnvironment; use an explicit camera
 	# override so sorrow SSR cannot depend on world-environment ready order.
 	player.view_camera.environment = mirror_environment
+	if is_instance_valid(void_fall):
+		void_fall.setup(value)
 
 func set_water_level(value: float) -> void:
 	water_level = clampf(value,0.0,1.7)

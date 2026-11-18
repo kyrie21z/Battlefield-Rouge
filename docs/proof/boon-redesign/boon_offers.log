@@ -1,0 +1,95 @@
+﻿Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS Epic 2 catalog has 48 family cards and 6 duals
+PASS unique authored card sloth_gun_pulse
+PASS unique authored card sloth_blade_cleave
+PASS unique authored card sloth_dash_ripple
+PASS unique authored card sloth_descent
+PASS unique authored card sloth_drowsy
+PASS unique authored card sloth_eternal
+PASS unique authored card sloth_heavy_beat
+PASS unique authored card sloth_inertia
+PASS unique authored card sloth_reload
+PASS unique authored card sloth_resonance
+PASS unique authored card sloth_stillness
+PASS unique authored card sloth_time_field
+PASS unique authored card fear_gaze_pierce
+PASS unique authored card fear_flash_backstab
+PASS unique authored card fear_tremor_decoy
+PASS unique authored card fear_distant_terror
+PASS unique authored card fear_paranoia
+PASS unique authored card fear_sixth_sense
+PASS unique authored card fear_fracture_spread
+PASS unique authored card fear_every_shadow
+PASS unique authored card fear_exposed_terror
+PASS unique authored card fear_final_execution
+PASS unique authored card fear_abyssal_blindness
+PASS unique authored card fear_panoptic_dread
+PASS unique authored card wrath_gun_cannon
+PASS unique authored card wrath_blade_sweep
+PASS unique authored card wrath_dash_ram
+PASS unique authored card wrath_shrapnel
+PASS unique authored card wrath_retaliation
+PASS unique authored card wrath_desperation
+PASS unique authored card wrath_reload
+PASS unique authored card wrath_crusher
+PASS unique authored card wrath_chain
+PASS unique authored card wrath_breaker
+PASS unique authored card wrath_frenzy
+PASS unique authored card wrath_cataclysm
+PASS unique authored card sorrow_gun_needles
+PASS unique authored card sorrow_blade_tide
+PASS unique authored card sorrow_dash_ribbon
+PASS unique authored card sorrow_abyss
+PASS unique authored card sorrow_buffer
+PASS unique authored card sorrow_echo
+PASS unique authored card sorrow_flood
+PASS unique authored card sorrow_gravity
+PASS unique authored card sorrow_mercy
+PASS unique authored card sorrow_pressure
+PASS unique authored card sorrow_shards
+PASS unique authored card sorrow_suffocation
+PASS unique authored card dual_slumber_magma
+PASS unique authored card dual_tearful_panic
+PASS unique authored card dual_spiteful_deluge
+PASS unique authored card dual_frozen_paranoia
+PASS unique authored card dual_suffocating_mire
+PASS unique authored card dual_hysterical_rampage
+PASS each family has twelve cards
+PASS entry offers gun blade and dash cores
+PASS entry reroll produces alternatives
+PASS same seed reproduces authored choices
+PASS offer inspection preserves combat RNG
+PASS no draw for zero count
+PASS door 0 gives matching, eligible and unique cards
+PASS door 1 gives matching, eligible and unique cards
+PASS door 2 gives matching, eligible and unique cards
+PASS door 3 gives matching, eligible and unique cards
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS owned cards and missing prerequisites excluded
+PASS production entry uses new paused picker
+PASS zone spends exactly one reroll and refreshes cards
+PASS zone allowance cannot underflow
+PASS acceptance persists immediately and starts combat
+PASS production reward creates matching portal and sigil
+PASS scene exit preserves current loadout
+PASS new run restores reroll allowance and clears loadout
+BOON OFFERS: ALL PASSED (0 failed)

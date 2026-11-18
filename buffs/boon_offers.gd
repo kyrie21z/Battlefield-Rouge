@@ -45,19 +45,67 @@ static func pick(manager: BoonManager, rng: RandomNumberGenerator, count: int = 
 	# Avoid an identical re-offer when the eligible pool has enough alternatives.
 	if fresh.size() >= count:
 		candidates = fresh
-	while result.size() < count and not candidates.is_empty():
-		var total := 0
-		for card in candidates:
-			total += _weight(card)
-		var roll := rng.randi_range(1, total)
-		for i in candidates.size():
-			roll -= _weight(candidates[i])
-			if roll <= 0:
-				result.append(candidates[i])
-				candidates.remove_at(i)
-				break
+	# 分层：一轮最多给一张"会替换现有构筑"的核心卡，其余名额留给特性。
+	# 这样既不会三张全替换，又保证玩家每轮都能看到一次换系的机会。
+	var swaps: Array[BoonData] = []
+	var frees: Array[BoonData] = []
+	for card in candidates:
+		if _would_replace(card, manager):
+			swaps.append(card)
+		else:
+			frees.append(card)
+	if not swaps.is_empty() and not frees.is_empty():
+		var first := _draw(swaps, rng, 1, manager)
+		result.append_array(first)
+		# 已经给出过的替换卡要从池里拿掉，否则特性不够时补位会把它再抽一次。
+		for card in first:
+			swaps.erase(card)
+		if result.size() < count:
+			result.append_array(_draw(frees, rng, count - result.size(), manager))
+		if result.size() < count:
+			result.append_array(_draw(swaps, rng, count - result.size(), manager))
+	else:
+		result.append_array(_draw(candidates, rng, count, manager))
 	return result
 
 
-static func _weight(card: BoonData) -> int:
-	return [6, 4, 2, 1, 1][card.rarity]
+## 加权不放回抽样。每张卡的权重由 _weight 决定，绝不给零权重卡机会。
+static func _draw(pool: Array[BoonData], rng: RandomNumberGenerator, count: int,
+		manager: BoonManager) -> Array[BoonData]:
+	var picked: Array[BoonData] = []
+	if count <= 0:
+		return picked
+	var remaining := pool.duplicate()
+	while picked.size() < count and not remaining.is_empty():
+		var total := 0
+		for card in remaining:
+			total += _weight(card, manager)
+		if total <= 0:
+			break
+		var roll := rng.randi_range(1, total)
+		var chosen := 0
+		for i in remaining.size():
+			roll -= _weight(remaining[i], manager)
+			if roll <= 0:
+				chosen = i
+				break
+		picked.append(remaining[chosen])
+		remaining.remove_at(chosen)
+	return picked
+
+
+## 这张卡装上会顶掉现有核心吗？是的话它属于"替换卡"那一档。
+static func _would_replace(card: BoonData, manager: BoonManager) -> bool:
+	return manager != null and card.core and card.rarity != BoonData.Rarity.DUAL \
+		and manager.slots[card.slot].data != null
+
+
+## 替换卡内部再分轻重：没投资过的领域优先出现，玩家才看得到转系入口；
+## 已经投资过的系只是补位，避免每轮都劝人拆掉自己刚建的构筑。
+static func _weight(card: BoonData, manager: BoonManager = null) -> int:
+	var base: int = [6, 4, 2, 1, 1][card.rarity]
+	if manager == null or not card.core or card.rarity == BoonData.Rarity.DUAL:
+		return base
+	if manager.slots[card.slot].data != null:
+		return base * 2 if not manager.has_sin_core(card.sin) else base
+	return base

@@ -16,6 +16,8 @@ var _industrial_audio: AudioStreamPlayer3D
 var _stone: StandardMaterial3D
 var _amber: StandardMaterial3D
 var _rest_materials: Array[StandardMaterial3D] = []
+var player: Player
+var void_fall: RealmVoid
 
 func _ready() -> void:
 	_stone = material(Color(0.88,0.88,0.85),0.05,0.72)
@@ -92,6 +94,7 @@ func _ready() -> void:
 	_industrial_audio.volume_db = -15
 	add_child(_industrial_audio)
 	set_deprivation(deprived)
+	_install_void()
 
 func _build_rest(pos: Vector3,dark: Material) -> void:
 	var area := Node3D.new()
@@ -144,6 +147,30 @@ func _physics_process(delta: float) -> void:
 		if not audio_managed: _clock_audio.play()
 	for i in rings.size():
 		rings[i].rotation.z += delta*(1.4 if i==0 else -1.9)
+
+## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
+func set_player(value: Player) -> void:
+	player = value
+	if is_instance_valid(void_fall):
+		void_fall.setup(value)
+
+
+func player_spawn() -> Vector3:
+	return Vector3(0, 0, 16)
+
+
+func exit_position() -> Vector3:
+	return Vector3(0, 0, -20)
+
+
+func _install_void() -> void:
+	void_fall = RealmVoid.new()
+	void_fall.name = "VoidFall"
+	void_fall.spawn_fallback = player_spawn()
+	add_child(void_fall)
+	if is_instance_valid(player):
+		void_fall.setup(player)
+
 
 func _exit_tree() -> void:
 	for audio in [_clock_audio,_industrial_audio]:

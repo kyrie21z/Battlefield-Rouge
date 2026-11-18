@@ -19,3 +19,14 @@ static func panel(background: Color, border: Color, width: int = 1) -> StyleBoxF
 	style.set_corner_radius_all(3)
 	style.set_content_margin_all(20)
 	return style
+
+
+## 单行版机制说明，给选卡界面底部那一栏用。
+## max_lines 控制列几条要点：普通卡三条，双重卡要放两系，所以各取两条以免撑破底栏。
+static func realm_help_inline(sin: int, max_lines: int = 3) -> String:
+	var data: Dictionary = RealmIntro.INTRO[clampi(sin, 0, RealmIntro.INTRO.size() - 1)]
+	var source: Array = data["lines"]
+	var parts: PackedStringArray = []
+	for i in mini(max_lines, source.size()):
+		parts.append(String(source[i]))
+	return String(data["title"]) + "   " + " · ".join(parts)

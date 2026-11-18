@@ -7,21 +7,14 @@ extends Node3D
 var sanctum: FearSanctum
 var tiles: Array[FearFlipTile] = []
 var abyss: Area3D
+var void_fall: RealmVoid
 var scan_lights: Array[Node3D] = []
 var scan_time := 0.0
 var deprivation := false
-var _falling: Array[WeakRef] = []
-const FALL_HEIGHT := -12.0
-var _player: WeakRef
-const FALL_DAMAGE := 30.0
-var _safe_position := Vector3.INF
-var _safe_check_left := 0.0
-var _recover_pending := false
-var _recover_cooldown := 0.0
 
 func set_player(value: Player) -> void:
-	_player = weakref(value)
-	_safe_position = global_position + player_spawn() + Vector3.UP*0.12
+	if is_instance_valid(void_fall):
+		void_fall.setup(value)
 	if is_instance_valid(sanctum):
 		value.view_camera.environment = sanctum.environment
 
@@ -47,7 +40,7 @@ func _ready() -> void:
 		_floor("SideBridge", Vector3(side * 7, -0.25, 0), Vector3(2.7, 0.5, 16), stone)
 	if boss_arena:
 		_floor("OculusDais", Vector3(0, -0.45, -8), Vector3(18, 0.9, 11), stone)
-	_build_void()
+	_install_void()
 	sanctum = FearSanctum.new()
 	sanctum.name = "WhiteSanctum"
 	sanctum.chamber = chamber_style
@@ -105,103 +98,21 @@ func _floor(label: String, pos: Vector3, size: Vector3, mat: Material) -> Static
 	add_child(body)
 	return body
 
-func _build_void() -> void:
-	abyss = Area3D.new()
-	abyss.name = "FatalAbyss"
-	abyss.collision_layer = 0
-	abyss.collision_mask = CollisionLayers.ACTORS | CollisionLayers.ENEMIES
-	abyss.position = Vector3(0, -15, 0)
-	var collision := CollisionShape3D.new()
-	var volume := BoxShape3D.new()
-	volume.size = Vector3(180, 6, 180)
-	collision.shape = volume
-	abyss.add_child(collision)
-	add_child(abyss)
-	abyss.body_entered.connect(_on_abyss_entered)
-
-func _on_abyss_entered(body: Node3D) -> void:
-	if body is Player:
-		_queue_recovery(body as Player)
-		return
-	_falling.append(weakref(body))
-	_fatal_fall(body)
-
-func _queue_recovery(player: Player) -> void:
-	if _recover_pending or _recover_cooldown > 0.0 or player.health.is_dead():
-		return
-	_recover_pending = true
-	_recover_cooldown = 0.3
-	player.cancel_forced_movement()
-	_recover_player.call_deferred(weakref(player))
-
-func _recover_player(reference: WeakRef) -> void:
-	var player := reference.get_ref() as Player
-	if is_instance_valid(player) and not player.health.is_dead():
-		var landing := _safe_position
-		if landing == Vector3.INF or not _landing_clear(landing):
-			landing = global_position + player_spawn() + Vector3.UP*0.12
-			for offset in [Vector3.ZERO,Vector3(-2,0,0),Vector3(2,0,0),Vector3(0,0,-2),Vector3(0,0,2),Vector3(-2,0,-2),Vector3(2,0,-2),Vector3(-2,0,2),Vector3(2,0,2)]:
-				var candidate: Vector3 = global_position+player_spawn()+offset+Vector3.UP*0.12
-				if _landing_clear(candidate):
-					landing = candidate
-					break
-		player.recover_from_fall(landing)
-		player.health.apply_damage(FALL_DAMAGE,Hitbox.BodyPart.BODY,null,
-			{"environmental_penalty":true,"true_damage":true,"tag":&"abyss"})
-	_recover_pending = false
-
-func _landing_clear(point: Vector3) -> bool:
-	var support := PhysicsRayQueryParameters3D.create(point+Vector3.UP*0.2,point-Vector3.UP*0.5,CollisionLayers.WORLD)
-	var ground := get_world_3d().direct_space_state.intersect_ray(support)
-	if ground.is_empty() or not ground.collider is StaticBody3D or ground.normal.y < 0.8:
-		return false
-	var shape := CapsuleShape3D.new()
-	shape.radius = 0.35
-	shape.height = 1.8
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = shape
-	query.transform.origin = point + Vector3.UP*0.9
-	query.collision_mask = CollisionLayers.WORLD | CollisionLayers.ENEMIES
-	return get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
-
-func _remember_safe_floor(player: Player) -> void:
-	if not player.is_on_floor():
-		return
-	# Stable floors only, with support around the whole capsule rather than an edge.
-	for offset in [Vector3.ZERO,Vector3(0.6,0,0),Vector3(-0.6,0,0),Vector3(0,0,0.6),Vector3(0,0,-0.6)]:
-		var point: Vector3 = player.global_position + offset
-		var ray := PhysicsRayQueryParameters3D.create(point+Vector3.UP*0.3,point-Vector3.UP*0.5,CollisionLayers.WORLD)
-		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
-		if hit.is_empty() or not hit.collider is StaticBody3D or hit.normal.y < 0.8:
-			return
-	_safe_position = player.global_position + Vector3.UP*0.12
-
-func _fatal_fall(body: Node3D) -> void:
-	var hp := body.get_node_or_null("Health") as Health
-	if hp != null and not hp.is_dead():
-		hp.apply_damage(hp.max_health + hp.health + hp.shield_points + 1000.0, Hitbox.BodyPart.BODY, null,
-			{"environmental_fatal": true, "true_damage": true, "tag": &"abyss"})
+## 坠落边界统一交给 RealmVoid。这里的 `abyss` 只是把组件的体积转发出去，
+## 供既有诊断与测试读取；行为与其余三关完全一致（玩家 -30 血、敌人致死）。
+func _install_void() -> void:
+	void_fall = RealmVoid.new()
+	void_fall.name = "VoidFall"
+	void_fall.fall_height = -12.0
+	void_fall.spawn_fallback = player_spawn()
+	add_child(void_fall)
+	abyss = void_fall.abyss
 
 func _physics_process(delta: float) -> void:
-	_recover_cooldown = maxf(0.0,_recover_cooldown-delta)
-	_safe_check_left -= delta
-	# A height boundary also catches fast dashes and falls beyond the Area's box.
-	var player := _player.get_ref() as Player if _player != null else null
-	if is_instance_valid(player) and player.global_position.y <= global_position.y + FALL_HEIGHT:
-		_queue_recovery(player)
-	elif is_instance_valid(player) and _safe_check_left <= 0.0:
-		_safe_check_left = 0.15
-		_remember_safe_floor(player)
 	scan_time += delta
 	for i in scan_lights.size():
 		var pivot := scan_lights[i]
 		pivot.look_at(global_position + Vector3(sin(scan_time * 0.15 + i * PI) * 9, 0, cos(scan_time * 0.19) * 14))
-	for index in range(_falling.size() - 1, -1, -1):
-		var body := _falling[index].get_ref() as Node3D
-		if not is_instance_valid(body) or body.global_position.y > -12:
-			_falling.remove_at(index)
-		else:
-			_fatal_fall(body)
 
 func flip_tile_near(point: Vector3) -> bool:
 	var selected: FearFlipTile

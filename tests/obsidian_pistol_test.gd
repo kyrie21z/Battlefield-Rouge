@@ -73,7 +73,7 @@ func _run() -> void:
 	_check("muzzle marker matches barrel opening", muzzle.position.is_equal_approx(Vector3(model.muzzle_game[0], model.muzzle_game[1], model.muzzle_game[2])) and is_equal_approx(model.muzzle_recess_depth_m, .01))
 	_check("all four pieces pivot around their own geometry centres", view._pieces.all(
 		func(part: Node3D) -> bool: return (part as MeshInstance3D).mesh.get_aabb().get_center().length() < 0.001))
-	_check("gun stays right of centre in hip and ADS", weapon.data.hip_position.x >= 0.2 and weapon.data.ads_position.x > 0.04)
+	_check("gun stays right of centre and moves inward for ADS", weapon.data.hip_position.x > weapon.data.ads_position.x and weapon.data.ads_position.x > 0.04)
 	_check("hip field of view is 75 degrees", is_equal_approx(weapon.fov_for(75), 75))
 	var hip_spread := weapon.spread_degrees()
 	weapon.aiming = true

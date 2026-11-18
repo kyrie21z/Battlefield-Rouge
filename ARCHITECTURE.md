@@ -8,7 +8,7 @@
 | --- | --- |
 | `autoload/` | 全局单例：`Events`（信号总线）、`RunState`（本局状态）、`InputMapSetup`（按键） |
 | `components/` | 可复用的小部件：生命值、受击判定、数值（Stats） |
-| `weapons/` | 单手黑晶手枪的数据与 `Weapon`，以及 `weapons/mind_blade/` 的意志短刃；`weapons/melee/` 保留短刃数据类型与 `MeleeWeapon` 实现 |
+| `weapons/` | 黑晶手枪的数据与 `Weapon`，以及 `weapons/mind_blade/` 的意志短刃；`weapons/melee/` 保留短刃数据类型与 `MeleeWeapon` 实现 |
 | `actors/` | 玩家、敌人 |
 | `zone/` | 战区控制（zone director）、据点、占点配置（`capture_config.tres`） |
 | `fixtures/` | 可复现的起点（`RunFixture` 资源，一个 id 一个 `.tres`），AC-07 |
@@ -62,7 +62,7 @@
 
 ## Epic 1：一枪一刃与第一人称身躯
 
-当前武器系统以 `docs/NARRATIVE_FOUNDATION.md` 第 8 节及 issues #101–#106 为范围，已替换早期三枪三刀一锤原型。叙事文档残留的卡宾枪段落不覆盖这六个 issue 明确指定的单手黑晶手枪。
+当前武器系统以 `docs/NARRATIVE_FOUNDATION.md` 第 8 节及 issues #101–#106 为范围，以黑晶手枪和意志短刃替换了早期三枪三刀一锤原型。
 
 - `Weapon` 仅持有一份 `WeaponData`，默认 `weapons/obsidian_pistol/obsidian_pistol.tres`：8 发、35 伤、半自动 0.18 秒、30 米后衰减。无槽位、切枪或狙击倍率状态；右键从 75° 平滑聚焦至 58°，灵敏度按实际 FOV 比例缩放，HUD 显示菱形准星。
 - 手枪由 Blender 制作的四个独立 Mesh 对象构成，GLB 保留各部件中心枢轴与握把根原点；手枪尺寸为 220×135×32mm，短刃全长 400mm、刃宽 40mm、厚 15mm。面数按质感需要配置，源多边形与导出三角形分别记录于 `tools/epic1_models/manifest.json`。二者采用参考 SUPERHOT 的不规则矿物切面与 Shade Flat，Godot 只加载模型、赋材质和驱动动画。空匣自动或 R 主动重组，满匣无效；基础 0.85 秒（0.35 绽放、0.30 悬浮、0.20 合拢）。既有 `Stats.RELOAD_SPEED` 仍作用于整体时间，动画从同一进度驱动；冲刺平滑继续重组。合拢帧先归位，再补弹并发 `ammo_refilled`，无限能量重组，HUD 显示当前/容量。
@@ -109,7 +109,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## 第一人称完整身躯（#105）
 
-`Player/ShadowBody` 现在是唯一的 `ProtagonistBody`，复用原 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见；原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂：右手跟随 `Weapon.grip_transform()`，左手平时独立抬起、挥刃时跟随 `MeleeWeapon.grip_transform()`。没有额外假手或枪影副本。
+`Player/ShadowBody` 现在是唯一的 `ProtagonistBody`，复用原 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见；原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。挥刃期间左手跟随 `MeleeWeapon.grip_transform()`，收刀后用 0.14 秒回握。没有额外假手或枪影副本。
 
 眼位来自头骨位置与固定眼睛偏移；低头时采用确定性的上身前倾，跑步动画不驱动逻辑眼位。实际 `Head` 同时带动瞄准相机和渲染子相机，既有受击/开火震动仍仅作用于渲染相机。两相机 near=0.025，保留近处手臂和胸部。
 

@@ -1,8 +1,13 @@
 class_name WrathRealmEnemy
 extends Enemy
-enum Variant { PIERCER, ACCUMULATOR, AGGRESSOR }
+enum Variant { PIERCER, ACCUMULATOR, AGGRESSOR, READER }
 enum Attack { APPROACH, WINDUP, RUSH, RELEASE, RECOVER }
-@export_enum("Piercer", "Accumulator", "Aggressor") var variant := 0
+const READER_WALK_SPEED := 3.0
+const READER_CHASE_SPEED := 9.2
+const READER_LUNGE_SPEED := 20.0
+const READER_LUNGE_DURATION := 0.17
+const READER_RECOVERY := 0.90
+@export_enum("Piercer", "Accumulator", "Aggressor", "Reader") var variant := 0
 @export var warnings_enabled := true
 @export var realm_damage_scale := 1.0
 var visual: WrathVisual
@@ -15,6 +20,7 @@ var wall_detonations := 0
 var wave_releases := 0
 var locked_direction := Vector3.FORWARD
 var _contact_hit := false
+var paper_torn := false
 
 func _enter_tree() -> void:
 	($Model as WrathVisual).kind = variant
@@ -24,9 +30,9 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	enable_crystal_feedback(2)
 	visual = $Model as WrathVisual
-	health.max_health = [110.0, 220.0, 160.0][variant]
+	health.max_health = [110.0, 220.0, 160.0, 90.0][variant]
 	health.health = health.max_health
-	run_speed = [3.6, 1.6, 5.0][variant]
+	run_speed = [3.6, 1.6, 5.0, READER_WALK_SPEED][variant]
 	health.before_damage.connect(_before_damage)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -65,18 +71,17 @@ func _physics_process(delta: float) -> void:
 	var offset := target.global_position - global_position
 	var flat := Vector3(offset.x, 0, offset.z)
 	var distance := flat.length()
+	if variant == Variant.READER:
+		_process_reader(delta, flat, offset.y)
+		_boon_move_and_slide()
+		return
 	if attack_phase != Attack.RUSH:
 		_face(flat, delta)
 	visual.pressure = pressure / 100.0
 	visual.set_cast(1.0 if warnings_enabled and attack_phase == Attack.WINDUP else 0.0)
 	attack_left -= delta * boon_attack_scale
 	if attack_phase == Attack.APPROACH:
-		velocity.x = flat.normalized().x * run_speed
-		velocity.z = flat.normalized().z * run_speed
-		var nav := _agent.get_navigation_map()
-		if nav.is_valid() and NavigationServer3D.map_get_iteration_id(nav) > 0:
-			_move_to(target.global_position, run_speed)
-		visual.play_motion("walk")
+		_pursue(flat)
 		if variant == Variant.ACCUMULATOR:
 			if distance < 8.0:
 				_stop()
@@ -119,11 +124,62 @@ func _physics_process(delta: float) -> void:
 				detonate_at_wall(collision.get_position(), collision.get_normal())
 				break
 
+func _pursue(flat: Vector3) -> void:
+	var direction := flat.normalized()
+	velocity.x = direction.x * run_speed
+	velocity.z = direction.z * run_speed
+	var nav := _agent.get_navigation_map()
+	if nav.is_valid() and NavigationServer3D.map_get_iteration_id(nav) > 0:
+		_move_to(target.global_position, run_speed)
+	visual.play_motion("walk")
+
+func _process_reader(delta: float, flat: Vector3, height_delta: float) -> void:
+	attack_left -= delta * boon_attack_scale
+	var distance := flat.length()
+	if attack_phase == Attack.RECOVER:
+		_stop()
+		visual.play_motion("idle")
+		if attack_left <= 0.0:
+			attack_phase = Attack.APPROACH
+		return
+	if attack_phase == Attack.APPROACH:
+		_face(flat, delta)
+		if paper_torn and distance <= 4.0 and absf(height_delta) < 1.25 and _line_clear(target.global_position + Vector3.UP):
+			start_attack()
+		elif not paper_torn and distance < 3.8:
+			_stop()
+			visual.play_motion("idle")
+			return
+		else:
+			_pursue(flat)
+			return
+	velocity.x = locked_direction.x * READER_LUNGE_SPEED
+	velocity.z = locked_direction.z * READER_LUNGE_SPEED
+	var contact := distance <= 1.10 and absf(height_delta) < 1.25 and flat.dot(locked_direction) >= -0.02
+	if contact and _line_clear(target.global_position + Vector3.UP):
+		var hp := target.get_node_or_null("Health") as Health
+		if hp != null:
+			hp.apply_damage(10.0 * realm_damage_scale, Hitbox.BodyPart.BODY, self, {"tag": &"wrath_contact"})
+		attack_left = 0.0
+	if attack_left <= 0.0:
+		_stop()
+		attack_phase = Attack.RECOVER
+		attack_left = READER_RECOVERY
+
 func start_attack() -> void:
 	if not is_instance_valid(target) or state == State.DEAD:
 		return
+	if variant == Variant.READER and (not paper_torn or attack_phase != Attack.APPROACH):
+		return
 	locked_direction = (target.global_position - global_position) * Vector3(1, 0, 1)
 	locked_direction = locked_direction.normalized()
+	if variant == Variant.READER:
+		if locked_direction.is_zero_approx():
+			locked_direction = -global_basis.z
+		attack_phase = Attack.RUSH
+		attack_left = READER_LUNGE_DURATION
+		visual.play_motion("run")
+		return
 	attack_phase = Attack.WINDUP
 	attack_left = (0.75 if variant != Variant.AGGRESSOR else 0.4) * boon_windup_scale
 	_contact_hit = false
@@ -152,6 +208,12 @@ func detonate_at_wall(point: Vector3, normal: Vector3) -> void:
 	health.apply_damage(health.health + 1.0, Hitbox.BodyPart.BODY, null, {"true_damage": true})
 
 func _before_damage(ctx: Dictionary) -> void:
+	if variant == Variant.READER and not paper_torn and not ctx.cancelled and float(ctx.damage) > 0.0 and ctx.source is Player:
+		paper_torn = true
+		ctx.cancelled = not ctx.get("true_damage", false)
+		run_speed = READER_CHASE_SPEED
+		visual.tear_paper()
+		return
 	if variant != Variant.ACCUMULATOR or attack_phase in [Attack.RELEASE, Attack.RECOVER]:
 		return
 	if ctx.get("kind", &"") != &"gun" and ctx.get("tag", &"") not in [&"projectile", &"wrath_projectile"]:

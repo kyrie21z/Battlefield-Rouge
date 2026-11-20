@@ -1,0 +1,50 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS production room has its Accumulator
+PASS captured entrance
+PASS captured side-route
+PASS captured furnace
+PASS captured spillway
+PASS captured spillway-profile
+PASS captured west-tower
+PASS captured east-tower
+PASS captured piercer
+PASS captured aggressor
+PASS captured reader-calm
+PASS captured reader-tear
+PASS captured reader-enraged
+PASS the production reader loses the newspaper to the first player shot
+PASS the room reader reaches its live lunge
+PASS captured reader-rush
+PASS captured accumulator-front
+PASS captured accumulator-side
+PASS real front shots fill pressure without reducing HP
+PASS two pressure tiers glow while the last seam stays cool
+PASS a real flank shot hits the exposed torso
+PASS the front guard cone also protects the visible head
+PASS an exposed side headshot reaches the head hitbox
+PASS the kiln supplies the only world environment and directional light
+PASS every molten body has a closed mesh including its banks, underside and ends
+PASS paired towers are upright on both banks and share their stone and pelt geometry
+PASS deprivation cools both cascades, stops the flow and extinguishes their local light
+PASS restoring wrath restarts the molten flow and its furnace lighting
+PASS suspended and distant scenery is free of collision bodies
+PASS the combat slab is still 40 by 48 metres and the gate is 36 metres from spawn
+PASS guard spawn is attached to walkable ground: 0
+PASS guard spawn is attached to walkable ground: 1
+PASS guard spawn is attached to walkable ground: 2
+PASS guard spawn is attached to walkable ground: 3
+PASS guard spawn is attached to walkable ground: 1
+PASS central fire lane sees the exit
+PASS near side cover denies sight and the outer flank opens it
+PASS the Player walks the direct central route
+PASS the real dash clears the outer lane along the first cover
+PASS the Player walks the full flanking route and rejoins at the gate
+PASS production AI follows a detour around the side cover
+PASS clear opens the room's real talent orb
+PASS F at the orb opens the real reward picker
+PASS after a card choice F opens the exit once
+PASS wrath_1 loads its original scene style and roster
+PASS wrath_boss loads its original scene style and roster
+WRATH KILN: 46 checks, 0 failed

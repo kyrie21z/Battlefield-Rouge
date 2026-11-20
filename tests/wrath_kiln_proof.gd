@@ -2,6 +2,8 @@ extends Node
 ## Matched first-person views of the shipped room and variant.
 
 const ROOM := preload("res://maps/realms/wrath_2.tscn")
+const FIRST_ROOM := preload("res://maps/realms/wrath_1.tscn")
+const BOSS_ROOM := preload("res://maps/realms/wrath_boss.tscn")
 const SPILLWAY := preload("res://environments/wrath/kiln_spillway.gd")
 const DISPLAY_ACTOR := Vector3(-1.8, 0.06, -2.0)
 var room: RealmStage
@@ -160,12 +162,14 @@ func verify_routes() -> void:
 		and west.global_position.x < -19.0 and east.global_position.x > 19.0)
 	room.geometry.set_deprivation(true)
 	var frozen := spillway._flow_time
-	await frames(4)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	check("deprivation cools both cascades, stops the flow and extinguishes their local light",
 		lights.size() == 2 and lights.all(func(light: Node3D) -> bool: return not light.visible)
 		and is_zero_approx(spillway._melt.get_shader_parameter("heat")) and frozen == spillway._flow_time)
 	room.geometry.set_deprivation(false)
-	await frames(4)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	check("restoring wrath restarts the molten flow and its furnace lighting",
 		lights.all(func(light: Node3D) -> bool: return light.visible)
 		and is_equal_approx(spillway._melt.get_shader_parameter("heat"), 1.0) and spillway._flow_time > frozen)
@@ -279,14 +283,32 @@ func verify_escape() -> void:
 
 
 func verify_other_rooms() -> void:
-	for suffix in ["1", "boss"]:
-		var stage := (load("res://maps/realms/wrath_%s.tscn" % suffix) as PackedScene).instantiate() as RealmStage
-		add_child(stage)
-		check("wrath_%s loads its original scene style and roster" % suffix,
-			stage.geometry.chamber_style == 0 and not stage.geometry.has_node("CrackedKilnScenery")
-			and stage.living_enemies() == (1 if suffix == "boss" else 3))
-		stage.queue_free()
-		await frames(4)
+	room = FIRST_ROOM.instantiate() as RealmStage
+	room.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(room)
+	player = room.player
+	player.set_physics_process(false)
+	player.set_process_unhandled_input(false)
+	for actor in room.enemies:
+		actor.set_physics_process(false)
+	await frames(12)
+	var has_kiln: bool = room.geometry.chamber_style == 1 and room.geometry.has_node("CrackedKilnScenery")
+	check("wrath_1 has the formal kiln and its three opening guards", has_kiln and room.living_enemies() == 3)
+	if has_kiln and room.living_enemies() == 3:
+		player.aim_at(Vector3(0.0, 2.0, -20.0))
+		await capture("first-room-entrance")
+		await verify_routes()
+		await verify_escape()
+	room.queue_free()
+	await frames(4)
+
+	var boss := BOSS_ROOM.instantiate() as RealmStage
+	add_child(boss)
+	check("wrath_boss loads its arena and boss roster",
+		boss.geometry.chamber_style == 0 and not boss.geometry.has_node("CrackedKilnScenery")
+		and boss.living_enemies() == 1)
+	boss.queue_free()
+	await frames(4)
 
 
 func pose_camera(feet: Vector3, focus: Vector3) -> void:

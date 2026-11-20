@@ -45,6 +45,26 @@ PASS production AI follows a detour around the side cover
 PASS clear opens the room's real talent orb
 PASS F at the orb opens the real reward picker
 PASS after a card choice F opens the exit once
-PASS wrath_1 loads its original scene style and roster
-PASS wrath_boss loads its original scene style and roster
-WRATH KILN: 46 checks, 0 failed
+PASS wrath_1 has the formal kiln and its three opening guards
+PASS captured first-room-entrance
+PASS the kiln supplies the only world environment and directional light
+PASS every molten body has a closed mesh including its banks, underside and ends
+PASS paired towers are upright on both banks and share their stone and pelt geometry
+PASS deprivation cools both cascades, stops the flow and extinguishes their local light
+PASS restoring wrath restarts the molten flow and its furnace lighting
+PASS suspended and distant scenery is free of collision bodies
+PASS the combat slab is still 40 by 48 metres and the gate is 36 metres from spawn
+PASS guard spawn is attached to walkable ground: 0
+PASS guard spawn is attached to walkable ground: 1
+PASS guard spawn is attached to walkable ground: 2
+PASS central fire lane sees the exit
+PASS near side cover denies sight and the outer flank opens it
+PASS the Player walks the direct central route
+PASS the real dash clears the outer lane along the first cover
+PASS the Player walks the full flanking route and rejoins at the gate
+PASS production AI follows a detour around the side cover
+PASS clear opens the room's real talent orb
+PASS F at the orb opens the real reward picker
+PASS after a card choice F opens the exit once
+PASS wrath_boss loads its arena and boss roster
+WRATH KILN: 66 checks, 0 failed

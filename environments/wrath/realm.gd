@@ -1,7 +1,12 @@
 class_name WrathRealm
 extends Node3D
 ## White porcelain plates split around hot fissures; all walking geometry is explicit.
+const KILN_SHELL := preload("res://environments/wrath/cracked_kiln.gd")
+const KILN_FLOOR := preload("res://assets/materials/wrath_kiln_floor.gdshader")
+const KILN_SKY := preload("res://assets/materials/wrath_kiln_sky.gdshader")
+
 @export var boss_arena := false
+@export_range(0, 1) var chamber_style := 0
 var deprived := false
 var audio_managed := false
 var lava: Array[MeshInstance3D] = []
@@ -10,6 +15,7 @@ var walls: Array[StaticBody3D] = []
 var ambience: AudioStreamPlayer3D
 var _white: StandardMaterial3D
 var _hot: StandardMaterial3D
+var _kiln_shell: KILN_SHELL
 var player: Player
 var void_fall: RealmVoid
 
@@ -19,27 +25,48 @@ func _ready() -> void:
 	_hot.emission_enabled = true
 	_hot.emission = Color(1.0, 0.17, 0.025)
 	_hot.emission_energy_multiplier = 3.0
-	_block("WalkableKiln", Vector3(0, -0.6, 0), Vector3(40, 1.2, 48), true)
+	var cracked_kiln := provides_stage_lighting()
+	var floor := _block("WalkableKiln", Vector3(0, -0.6, 0), Vector3(40, 1.2, 48), true)
+	if cracked_kiln:
+		var porcelain := ShaderMaterial.new()
+		porcelain.shader = KILN_FLOOR
+		(floor.get_child(1) as MeshInstance3D).material_override = porcelain
 	for side in [-1.0, 1.0]:
 		for i in 5:
 			var z := -20.0 + i * 9.0
 			var wall := _block("TiltedFracture", Vector3(side * 19.3, 2.4, z), Vector3(1.6, 5.5, 7.4), true)
 			wall.rotation.z = side * 0.14
 			walls.append(wall)
-			_spike(Vector3(side * 16.8, 0, z), Vector3(0.8, 3.5 + i % 2, 1.4), side * 0.25)
+			if not cracked_kiln:
+				_spike(Vector3(side * 16.8, 0, z), Vector3(0.8, 3.5 + i % 2, 1.4), side * 0.25)
 	for z in [-23.8, 23.8]:
 		walls.append(_block("EndWall", Vector3(0, 1.4, z), Vector3(40, 3, 0.5), true))
 	for side in [-1.0, 1.0]:
 		for i in 4:
 			var pos := Vector3(side * (5.0 + i * 2.4), 0.025, -16.0 + i * 9.0)
-			var crack := _mesh(pos, Vector3(0.20, 0.025, 8.0), _hot)
-			crack.rotation.y = side * (0.4 + i * 0.11)
-			lava.append(crack)
+			if not cracked_kiln:
+				var crack := _mesh(pos, Vector3(0.20, 0.025, 8.0), _hot)
+				crack.rotation.y = side * (0.4 + i * 0.11)
+				lava.append(crack)
 			_vent(pos)
 	if not boss_arena:
-		for pos in [Vector3(-8, 0.7, 1), Vector3(8, 0.7, -10)]:
-			var cover := _block("BrokenCover", pos, Vector3(3, 1.4, 3), true)
-			cover.rotation.z = 0.12
+		if cracked_kiln:
+			var entry_cover := _block("KilnEntryCover", Vector3(8, 1.05, 7.1), Vector3(5.1, 2.1, 2.9), true)
+			entry_cover.rotation.y = -0.12
+			var exit_cover := _block("KilnExitCover", Vector3(10.8, 1.15, -7.8), Vector3(4.7, 2.3, 2.8), true)
+			exit_cover.rotation.y = 0.23
+			_kiln_shell = KILN_SHELL.new()
+			_kiln_shell.name = "CrackedKilnScenery"
+			add_child(_kiln_shell)
+			_kiln_shell.dress_banks(walls.slice(0, -2))
+			_kiln_shell.dress_cover(entry_cover)
+			_kiln_shell.dress_cover(exit_cover)
+			_kiln_shell.dress_end_wall(walls[-2])
+			_kiln_shell.spillway.set_deprivation(deprived)
+		else:
+			for pos in [Vector3(-8, 0.7, 1), Vector3(8, 0.7, -10)]:
+				var cover := _block("BrokenCover", pos, Vector3(3, 1.4, 3), true)
+				cover.rotation.z = 0.12
 	var world := WorldEnvironment.new()
 	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	world.environment.background_mode = Environment.BG_COLOR
@@ -49,12 +76,26 @@ func _ready() -> void:
 	world.environment.ambient_light_energy = 0.65
 	world.environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment.glow_enabled = true
+	if cracked_kiln:
+		var kiln_air := ShaderMaterial.new()
+		kiln_air.shader = KILN_SKY
+		var sky := Sky.new()
+		sky.sky_material = kiln_air
+		sky.radiance_size = Sky.RADIANCE_SIZE_64
+		world.environment.sky = sky
+		world.environment.background_mode = Environment.BG_SKY
+		world.environment.ambient_light_color = Color("d5c3c8")
+		world.environment.ambient_light_energy = 0.39
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-58, -28, 0)
 	sun.light_color = Color(1.0, 0.87, 0.76)
 	sun.light_energy = 1.6
 	sun.shadow_enabled = true
+	if cracked_kiln:
+		sun.rotation_degrees = Vector3(-51, -26, 0)
+		sun.light_color = Color("fff0de")
+		sun.light_energy = 1.4
 	add_child(sun)
 	ambience = AudioStreamPlayer3D.new()
 	ambience.stream = _kiln_sound()
@@ -65,6 +106,9 @@ func _ready() -> void:
 	if not audio_managed and not deprived:
 		ambience.play()
 	_install_void()
+
+func provides_stage_lighting() -> bool:
+	return chamber_style == 1 and not boss_arena
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func set_player(value: Player) -> void:
@@ -105,6 +149,8 @@ func set_deprivation(active: bool) -> void:
 		return
 	_hot.emission_energy_multiplier = 0.15 if active else 3.0
 	_hot.albedo_color = Color(0.10, 0.085, 0.08) if active else Color(1.0, 0.10, 0.015)
+	if is_instance_valid(_kiln_shell):
+		_kiln_shell.spillway.set_deprivation(active)
 	for particles in steam:
 		particles.emitting = not active
 	if is_instance_valid(ambience):

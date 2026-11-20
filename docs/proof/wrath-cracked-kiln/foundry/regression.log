@@ -1,0 +1,259 @@
+wrath_realm
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS actual shared crystalline body has 24 bones
+PASS real frontal gun ray is blocked
+PASS blocked gun pressure is actual requested damage
+PASS real side gun ray penetrates shield
+PASS real rear gun ray penetrates shield
+PASS front melee bypasses bullet-only barrier
+PASS pressure caps at 100
+PASS full pressure starts and releases actual wave
+PASS released wave exists and advances
+PASS caster death/removal clears pending wave
+PASS aggressor rejects ordinary knockback and stagger
+PASS armor does not make aggressor immune to HP damage
+PASS local Sloth freeze stops Wrath actor movement
+PASS an undisturbed reader keeps the paper and does not attack a nearby player
+PASS a zero-damage hit cannot tear the paper
+PASS the first real bullet tears the paper exactly once and doubles enraged chase speed
+PASS even during the tear animation the next melee hit damages the reader
+PASS local time stop prevents the enraged reader from starting a lunge
+PASS a visible nearby target triggers a 20 m/s lunge immediately without windup
+PASS sidestepping the locked rush avoids damage and opens recovery
+PASS the reader cannot start a lunge through WORLD cover
+PASS an already committed punch cannot deal contact damage through a thin wall
+PASS one lunge deals ten base melee damage with the room difficulty multiplier
+PASS the reader cannot hit twice or repeat during its punish window
+PASS a first melee hit can also break an intact paper
+PASS true damage tears the paper and retains its existing defense bypass
+PASS piercer commits to visible target with windup
+PASS real WORLD wall contact detonates once
+PASS wall detonation launches eight actual ricochets
+PASS swept piercer body never crosses wall
+PASS death emits all 56 original rigid crystal fragments
+PASS fragments retain crimson instance material
+PASS all rigid fragments are reclaimed
+PASS crystal projectile actually reflects from WORLD
+PASS nearer player hitbox wins over wall in same high-speed sweep
+PASS expanding wave damages actual player HP
+PASS wave pushes the real CharacterBody through shared impulse
+PASS one ring cannot damage twice
+PASS white kiln creates ten tilted WORLD walls and eight fissures
+PASS eight steam vents and synthesized industrial ambience are active
+PASS local loss extinguishes furnace and steam
+WRATH REALM: 41 checks, 0 failed
+
+realm_stage
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS generated map constructs geometry, player, HUD and the five-guardian opening encounter
+PASS baked WORLD geometry produces a navigation polygon
+PASS injected HP, depth and deprivations survive stage setup
+PASS inherited loss of Sloth extinguishes all Rest Zones
+PASS inherited loss of Fear removes enemy tells and damage arrows
+PASS injected difficulty changes both enemy HP and damage
+PASS locked exit refuses premature progress
+PASS a fresh run starts with no card offer
+PASS actual final Health death clears the room once
+PASS the talent orb waits in front of the gate
+PASS claiming the orb opens the real BoonPicker and pauses combat
+PASS reward draws three legal cards from the whole pool
+PASS real reroll spends one injected charge and refreshes choices
+PASS exit remains locked before reward choice
+PASS selecting the actual card equips it and unpauses
+PASS reward unlocks the gate without skipping to another room
+PASS distant gate cannot be activated
+PASS WORLD wall blocks the otherwise nearby exit
+PASS nearby unobstructed gate emits one campaign exit
+PASS held or repeated interaction cannot emit twice
+PASS reused pause menu opens and pauses the real room
+PASS pause closes without losing captured movement
+PASS real realm effect drives the monochrome screen shader
+PASS actual player death emits one failure and closes exit
+PASS second generated room has seven live actors
+PASS room handoff restores actual HP, boons and independent shard
+PASS restoring Slumber still preserves inherited dark Rest Zones
+REALM STAGE: 27 checks, 0 failed
+
+wrath_spire
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS boss exposes production Enemy and Health contract
+PASS storm has three rotating layers of original humanoid parts
+PASS crystal limbs actually rotate
+PASS fissure stays in telegraph before release
+PASS pause preserves attack deadline
+PASS fissure releases three actual directed wave fans
+PASS locked ground fan damages a grounded player
+PASS two shrapnel bursts launch 24 real projectiles
+PASS launched ricochets remain actual moving objects
+PASS vortex uses committed direction, not last-frame tracking
+PASS vortex physically translates the large body
+PASS local time stop freezes boss attacks and physics
+PASS real gun ray damages boss in punish window
+PASS actual boss death emits one Wrath clear event
+PASS boss death extinguishes local furnace and ambience
+PASS boss death scatters original 56 rigid crystal parts
+PASS boss death cancels all still-flying owned projectiles
+PASS dead boss never starts later attacks
+PASS boss rigid fragments clean up after two seconds
+PASS duplicate damage cannot duplicate clear event
+PASS post-boss ordinary force remains disabled
+PASS physical Spite pickup activates independent shard
+PASS Spite can move armored Wrath actor independently
+WRATH SPIRE: 23 checks, 0 failed
+
+campaign_realms
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first production room installs
+PASS room 0 has baked traversable geometry
+PASS room 0 applies current depth to real damage
+PASS room 0 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 0 unlocks only after completion
+PASS room 0 physical gate advances
+PASS room 0 loads next scene without duplicate exit
+PASS room 1 has baked traversable geometry
+PASS room 1 applies current depth to real damage
+PASS room 1 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 1 unlocks only after completion
+PASS room 1 physical gate advances
+PASS room 1 loads next scene without duplicate exit
+PASS room 2 has baked traversable geometry
+PASS room 2 applies current depth to real damage
+PASS room 2 inherits all previous losses
+PASS boss 2 records death before pickup
+PASS boss 2 drops actual shard
+PASS boss 2 pickup activates independent core
+PASS room 2 unlocks only after completion
+PASS room 2 physical gate advances
+PASS room 2 loads next scene without duplicate exit
+PASS room 3 has baked traversable geometry
+PASS room 3 applies current depth to real damage
+PASS room 3 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 3 unlocks only after completion
+PASS room 3 physical gate advances
+PASS room 3 loads next scene without duplicate exit
+PASS room 4 has baked traversable geometry
+PASS room 4 applies current depth to real damage
+PASS room 4 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 4 unlocks only after completion
+PASS room 4 physical gate advances
+PASS room 4 loads next scene without duplicate exit
+PASS room 5 has baked traversable geometry
+PASS room 5 applies current depth to real damage
+PASS room 5 inherits all previous losses
+PASS boss 3 records death before pickup
+PASS boss 3 drops actual shard
+PASS boss 3 pickup activates independent core
+PASS room 5 unlocks only after completion
+PASS room 5 physical gate advances
+PASS room 5 loads next scene without duplicate exit
+PASS room 6 has baked traversable geometry
+PASS room 6 applies current depth to real damage
+PASS room 6 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 6 unlocks only after completion
+PASS room 6 physical gate advances
+PASS room 6 loads next scene without duplicate exit
+PASS room 7 has baked traversable geometry
+PASS room 7 applies current depth to real damage
+PASS room 7 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 7 unlocks only after completion
+PASS room 7 physical gate advances
+PASS room 7 loads next scene without duplicate exit
+PASS room 8 has baked traversable geometry
+PASS room 8 applies current depth to real damage
+PASS room 8 inherits all previous losses
+PASS boss 1 records death before pickup
+PASS boss 1 drops actual shard
+PASS boss 1 pickup activates independent core
+PASS room 8 unlocks only after completion
+PASS room 8 physical gate advances
+PASS room 8 loads next scene without duplicate exit
+PASS room 9 has baked traversable geometry
+PASS room 9 applies current depth to real damage
+PASS room 9 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 9 unlocks only after completion
+PASS room 9 physical gate advances
+PASS room 9 loads next scene without duplicate exit
+PASS room 10 has baked traversable geometry
+PASS room 10 applies current depth to real damage
+PASS room 10 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 10 unlocks only after completion
+PASS room 10 physical gate advances
+PASS room 10 loads next scene without duplicate exit
+PASS room 11 has baked traversable geometry
+PASS room 11 applies current depth to real damage
+PASS room 11 inherits all previous losses
+PASS boss 0 records death before pickup
+PASS boss 0 drops actual shard
+PASS boss 0 pickup activates independent core
+PASS room 11 unlocks only after completion
+PASS room 11 physical gate advances
+PASS room 11 loads next scene without duplicate exit
+PASS all twelve actual rooms visited without repetition
+PASS final destination is the real return corridor
+PASS final player owns all four cores and losses
+PASS threshold keeps equipped combat boons
+PASS final body has actual fourth fracture level
+ALL PASSED (98 checks)
+
+wrath_audio
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS production room takes explicit ownership of kiln ambience
+PASS legacy environment cannot restart managed ambience
+PASS real piercer windup starts positional pressure sound
+PASS charge pitch increases with real remaining windup
+PASS deprived warning hides pressure cue without altering windup
+PASS actual 23 m/s rush replaces warning with physical air sound
+PASS real aggressor rush drives saw rotation sound
+PASS stunned powered blade has no residual saw sound
+PASS retreat removes attack sound sources
+PASS real high-speed WORLD contact emits exactly one heavy slam
+PASS actual five emitted lava spikes each have a bounded whoosh
+PASS managed slam is acknowledged and never starts legacy fallback
+PASS floor-only travel produces no additional slam
+PASS piercer real wall self-detonation adds exactly one impact
+PASS distant thermal metal has deterministic simulation-time cadence
+PASS pause freezes metal cadence and rejects new transients
+PASS impact storms cannot allocate unbounded players
+PASS sound synthesis leaves gameplay RNG untouched
+PASS impact loop is cached bounded PCM with zero seam
+PASS real death stops every managed sound
+PASS real boss defeat silences managed kiln without legacy restart
+PASS legacy normal uses actual WORLD contact without an audio director
+PASS unmanaged legacy slam retains exactly one original clock-break voice
+PASS removing the legacy effect stops and frees its fallback voice
+PASS legacy normal never schedules a late replay
+PASS legacy paused uses actual WORLD contact without an audio director
+PASS legacy paused cannot start a deferred sound
+PASS legacy paused never schedules a late replay
+PASS legacy dead uses actual WORLD contact without an audio director
+PASS legacy dead cannot start a deferred sound
+PASS legacy dead never schedules a late replay
+PASS legacy removed uses actual WORLD contact without an audio director
+PASS legacy removed cannot start a deferred sound
+PASS legacy removed never schedules a late replay
+PASS last-piercer fixture has one live actor and no synthetic wall count
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_enemy_defeated","living_enemies":0,"paused":false,"physics_frame":192,"picker_exists":false,"process_frame":349,"stage_cleared":false,"ticks_ms":7248,"wall_detonations":1}
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_stage_cleared","living_enemies":0,"paused":false,"physics_frame":192,"picker_exists":false,"process_frame":349,"stage_cleared":true,"ticks_ms":7253,"wall_detonations":1}
+PASS last piercer really self-detonates and opens the paused reward picker
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"picker_paused","living_enemies":0,"paused":true,"physics_frame":200,"picker_exists":true,"process_frame":350,"stage_cleared":true,"ticks_ms":7389,"wall_detonations":1}
+PASS one heavy impact is dispatched synchronously at real death before reward pause
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"picker_pause_held","living_enemies":0,"paused":true,"physics_frame":202,"picker_exists":true,"process_frame":352,"stage_cleared":true,"ticks_ms":7406,"wall_detonations":1}
+PASS reward pause retains the consumed impact without another voice
+PASS real reward exposes a selectable card
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"real_card_button_closed_picker","living_enemies":0,"paused":false,"physics_frame":202,"picker_exists":false,"process_frame":352,"stage_cleared":true,"ticks_ms":7419,"wall_detonations":1}
+LAST PIERCER TIMING {"cue_count":1,"enemy_dead":true,"event":"four_process_frames_after_choice","living_enemies":0,"paused":false,"physics_frame":205,"picker_exists":false,"process_frame":356,"stage_cleared":true,"ticks_ms":7459,"wall_detonations":1}
+PASS real card choice resumes gameplay without replaying the collision
+WRATH AUDIO: 40 checks, 0 failures

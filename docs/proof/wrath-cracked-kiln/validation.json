@@ -1,0 +1,159 @@
+{
+  "remote_runtime_base": "8528ac1658a68d28ca026a4832f31eda60ab5312",
+  "engine": "Godot 4.7.2 Forward+ Vulkan",
+  "matched_pairs": 4,
+  "final_native_checks": 28,
+  "earlier_art_regression": {
+    "wrath_realm": 28,
+    "realm_stage": 27,
+    "wrath_spire": 23,
+    "campaign_realms": 98
+  },
+  "files": [
+    {
+      "path": "actors/enemy/wrath/wrath_visual.gd",
+      "bytes": 6727,
+      "sha256": "76ac492d8e1ca14324a5ba024367a48d9aa1d97af66c3cf92af0aace5db87d07"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_floor.gdshader",
+      "bytes": 1568,
+      "sha256": "2bd6d988732f8d89d98b1bf275161844fbcddd21aa84999d396f43fc493672bf"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_floor.gdshader.uid",
+      "bytes": 20,
+      "sha256": "dd39c14ae1ec3b2d1a7818c03fd07ec77204f71ff7d441b114c10b30a4163780"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_glaze.gdshader",
+      "bytes": 1533,
+      "sha256": "fef2ada62bd18a17ad3519b807ce1b4fc3bc77e8ad1ae51bce492b2aa5f8963d"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_glaze.gdshader.uid",
+      "bytes": 20,
+      "sha256": "378a2486caaeadf9523f882a209b1bacd72c9229d75eaf9d20fa486188c23632"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_sky.gdshader",
+      "bytes": 674,
+      "sha256": "4f02005e535b6aebe1a1a63b6fd3946362fedd5a5f5c429868d486b8d758941b"
+    },
+    {
+      "path": "assets/materials/wrath_kiln_sky.gdshader.uid",
+      "bytes": 20,
+      "sha256": "cfa1923cf5101a9bd1866440b4316ae71afa1ae83562d7a7795797de6c53f40b"
+    },
+    {
+      "path": "docs/ASSETS.md",
+      "bytes": 56272,
+      "sha256": "dd5235500d17eb4000473c97e4d502425184b547420ff7b3265ed42f787ac3ed"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/README.md",
+      "bytes": 4167,
+      "sha256": "bbf2f427f64dccb9b9a86ae99de0d122fe0d666d3872d950c3957599d8f6ca94"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/after/accumulator-front.jpg",
+      "bytes": 102277,
+      "sha256": "e07b05fb971f0bb08d6652f10da8bc576a9ff53a112565fac55307f55cac9444"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/after/accumulator-side.jpg",
+      "bytes": 103717,
+      "sha256": "6174e7b1d342395277ee0731999db106ec68f43a0228bfef5b26260d2385da08"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/after/entrance.jpg",
+      "bytes": 122791,
+      "sha256": "202c357c8b8f558d94c7948fcc93c1484719286b4a3915757189b5d35207c382"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/after/side-route.jpg",
+      "bytes": 118938,
+      "sha256": "f8019d6d1541f9653ba310158dc5cf1e85f02bd43880072932d142f046fd9a34"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/baseline.log",
+      "bytes": 345,
+      "sha256": "1a3f85568860abd71ef94391710e3ac4bcb53ce8d51672c961b5d6e1fb4feb7b"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/before/accumulator-front.jpg",
+      "bytes": 62418,
+      "sha256": "91d1d47caa7edc572db854becb9fc71f1a2e0b543782b76539d8bd8ca3037ba1"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/before/accumulator-side.jpg",
+      "bytes": 64061,
+      "sha256": "ad522c1c331e95b5be243782df0d5fe33ea5719929ddf02f545569aee673d617"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/before/entrance.jpg",
+      "bytes": 52260,
+      "sha256": "85d0b094db4aa9229c039e5a182b80c4183ccd381bd59d69b3adcda16d3c5d4e"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/before/side-route.jpg",
+      "bytes": 53968,
+      "sha256": "9b3186eb21f58f573f850b19eaa45fdcb979a7229d35ade81d927042223e20df"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/generate.log",
+      "bytes": 485,
+      "sha256": "8a0c67d6a74c7b37bdb8524e370fe59a96575c203d1d2dc61b8468af2f5a0400"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/native.log",
+      "bytes": 1609,
+      "sha256": "ddb43973d76f3748be7825801db832170cf0da4b1d783ae903530fad0609c8ec"
+    },
+    {
+      "path": "docs/proof/wrath-cracked-kiln/regression.log",
+      "bytes": 8875,
+      "sha256": "c8a5d97f82a8a71a9237ea6745d4fc0df7b40c707cbd3dd6b8b46da3f0646643"
+    },
+    {
+      "path": "environments/wrath/cracked_kiln.gd",
+      "bytes": 8258,
+      "sha256": "0faa7fadcaf6ba90d82c74bb30a0af5c3f6eb478885f1619fd47b95c129dae42"
+    },
+    {
+      "path": "environments/wrath/cracked_kiln.gd.uid",
+      "bytes": 20,
+      "sha256": "d75efb62936f0d2ce7dd829f0d53d750da24c76687922ccd10990b8ec0268dad"
+    },
+    {
+      "path": "environments/wrath/realm.gd",
+      "bytes": 8113,
+      "sha256": "c97e53b745c83149574676f7f3776d658172951e7c5d5611352d15de621785a0"
+    },
+    {
+      "path": "maps/realms/wrath_2.tscn",
+      "bytes": 572,
+      "sha256": "3d325a783840d94abb4af120e9dbdc8061e00e0883630322d79160c8a6f4f1b7"
+    },
+    {
+      "path": "tests/wrath_kiln_proof.gd",
+      "bytes": 9740,
+      "sha256": "1f3625d3f909a1fa257b13077d606b08f7a551e492b13f9eb55cdc514185b5c8"
+    },
+    {
+      "path": "tests/wrath_kiln_proof.gd.uid",
+      "bytes": 19,
+      "sha256": "3b13e38613c75a5467a9d84aa3bdbfcb69e736fb417667312ae95f3acdc3b248"
+    },
+    {
+      "path": "tests/wrath_kiln_proof.tscn",
+      "bytes": 177,
+      "sha256": "c497e546008827d82d52b0886c7e240684d6328a59e5ee1d518d2f8f52877567"
+    },
+    {
+      "path": "tools/gen_realms.py",
+      "bytes": 1858,
+      "sha256": "a2e90294546cf7f8cb868e669051c0d7c451cc31299e062c53639075bc4a1bf3"
+    }
+  ]
+}

@@ -84,8 +84,9 @@ func _ready() -> void:
 	SimClock.restart()
 	seed(run_seed + realm*100 + room_index + depth*1000)
 	_offer_rng.seed = run_seed + 16338 + realm*100 + room_index + depth*1000
-	_build_world()
 	geometry = get_node_or_null("Geometry") as Node3D
+	if not (geometry and geometry.has_method("provides_stage_lighting") and geometry.call("provides_stage_lighting")):
+		_build_world()
 	if geometry == null:
 		var provider := "res://environments/%s/realm.gd" % REALMS[realm]
 		if not ResourceLoader.exists(provider):
@@ -171,7 +172,10 @@ func _spawn_encounter() -> void:
 	var count := mini(points.size(),3 if room_index == 0 else 5)
 	for i in count:
 		var actor := (load(path) as PackedScene).instantiate() as Enemy
-		actor.set("variant",i%3)
+		if actor is WrathRealmEnemy and room_index == 1 and i == 3:
+			actor.variant = WrathRealmEnemy.Variant.READER
+		else:
+			actor.set("variant",i%3)
 		actor.position = points[i]
 		if "opening_delay" in actor:
 			actor.set("opening_delay",1.0 + i*0.2)

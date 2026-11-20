@@ -69,6 +69,7 @@ func _run() -> void:
 	aggressor.boon_time_scale = 1.0
 	aggressor.queue_free()
 	await _frames(2)
+	await _test_reader()
 
 	var wall := _wall(Vector3(0, 2, -5), Vector3(12, 4, 0.4))
 	player.position = Vector3(0, 0, -3)
@@ -126,6 +127,81 @@ func _run() -> void:
 	realm.set_deprivation(true)
 	_check("local loss extinguishes furnace and steam", realm.deprived and realm.steam.all(func(p: CPUParticles3D): return not p.emitting) and not realm.ambience.playing)
 	ground.queue_free()
+
+func _test_reader() -> void:
+	var reader := _enemy(WrathRealmEnemy.Variant.READER, Vector3.ZERO)
+	player.position = Vector3(0, 0.04, -2.9)
+	player.velocity = Vector3.ZERO
+	reader.setup(player, [])
+	await _frames(56)
+	_check("an undisturbed reader keeps the paper and does not attack a nearby player",
+		not reader.paper_torn and reader.attack_phase == WrathRealmEnemy.Attack.APPROACH
+		and reader.position.z > -0.2 and is_equal_approx(reader.run_speed, 3.0))
+	reader.health.apply_damage(0, Hitbox.BodyPart.BODY, player)
+	_check("a zero-damage hit cannot tear the paper", not reader.paper_torn)
+	var old_hp := reader.health.health
+	player.weapon._shoot_ray(Vector3(0, 1.1, -2.7), Vector3.BACK)
+	_check("the first real bullet tears the paper exactly once and doubles enraged chase speed",
+		reader.paper_torn and reader.attack_phase == WrathRealmEnemy.Attack.APPROACH
+		and reader.health.health == old_hp and is_equal_approx(reader.run_speed, 9.2))
+	reader.health.apply_damage(5, Hitbox.BodyPart.BODY, player, {"kind": &"blade"})
+	_check("even during the tear animation the next melee hit damages the reader", reader.health.health == old_hp - 5)
+	var health_before := player.health.health
+	reader.boon_time_scale = 0.0
+	await _frames(8)
+	_check("local time stop prevents the enraged reader from starting a lunge",
+		reader.attack_phase == WrathRealmEnemy.Attack.APPROACH and player.health.health == health_before)
+	reader.boon_time_scale = 1.0
+	await _frames(2)
+	_check("a visible nearby target triggers a 20 m/s lunge immediately without windup",
+		reader.attack_phase == WrathRealmEnemy.Attack.RUSH
+		and is_equal_approx(Vector2(reader.velocity.x, reader.velocity.z).length(), 20.0))
+	var locked_aim := reader.locked_direction
+	player.position.x += 2.6
+	await _frames(16)
+	_check("sidestepping the locked rush avoids damage and opens recovery",
+		reader.locked_direction.is_equal_approx(locked_aim) and reader.attack_phase == WrathRealmEnemy.Attack.RECOVER
+		and player.health.health == health_before)
+	player.position = reader.position + Vector3.BACK * 2.2
+	var wall := _wall(reader.position + Vector3(0, 1.0, 1.15), Vector3(4, 2.2, 0.28))
+	await _frames(5)
+	reader.attack_phase = WrathRealmEnemy.Attack.APPROACH
+	await _frames(15)
+	_check("the reader cannot start a lunge through WORLD cover", reader.attack_phase == WrathRealmEnemy.Attack.APPROACH)
+	var barrier_center := wall.position
+	reader.position = Vector3(barrier_center.x, 0.04, barrier_center.z - 0.49)
+	player.position = Vector3(barrier_center.x, 0.04, barrier_center.z + 0.48)
+	reader.attack_phase = WrathRealmEnemy.Attack.RUSH
+	reader.locked_direction = Vector3.BACK
+	reader.attack_left = 0.25
+	await _frames(18)
+	_check("an already committed punch cannot deal contact damage through a thin wall",
+		reader.attack_phase == WrathRealmEnemy.Attack.RECOVER and player.health.health == health_before)
+	wall.queue_free()
+	await _frames(4)
+	player.position = reader.position + Vector3.BACK * 2.2
+	reader.realm_damage_scale = 1.5
+	for i in 160:
+		if player.health.health < health_before:
+			break
+		await _frames(1)
+	_check("one lunge deals ten base melee damage with the room difficulty multiplier",
+		is_equal_approx(health_before - player.health.health, 15.0))
+	var hit_hp := player.health.health
+	await _frames(45)
+	_check("the reader cannot hit twice or repeat during its punish window",
+		reader.attack_phase == WrathRealmEnemy.Attack.RECOVER and player.health.health == hit_hp)
+	reader.queue_free()
+	var other := _enemy(WrathRealmEnemy.Variant.READER, Vector3(8, 0, 0))
+	other.health.apply_damage(22, Hitbox.BodyPart.HEAD, player, {"kind": &"blade"})
+	_check("a first melee hit can also break an intact paper", other.paper_torn and other.health.health == other.health.max_health)
+	other.queue_free()
+	var exposed := _enemy(WrathRealmEnemy.Variant.READER, Vector3(-8, 0, 0))
+	exposed.health.apply_damage(12, Hitbox.BodyPart.BODY, player, {"true_damage": true})
+	_check("true damage tears the paper and retains its existing defense bypass",
+		exposed.paper_torn and is_equal_approx(exposed.health.health, exposed.health.max_health - 12.0))
+	exposed.queue_free()
+	await _frames(3)
 
 func _enemy(kind: int, pos: Vector3) -> WrathRealmEnemy:
 	var actor := ENEMY.instantiate() as WrathRealmEnemy

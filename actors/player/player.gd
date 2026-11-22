@@ -105,6 +105,7 @@ func _ready() -> void:
 	weapon.recoil.connect(_on_weapon_recoil)
 	weapon.shake.connect(_on_weapon_shake)
 	melee.recoil.connect(_on_weapon_recoil)
+	melee.shake.connect(_on_weapon_shake)
 	melee.lunge.connect(_on_melee_lunge)
 	melee.swing_started.connect(_on_melee_swing_started)
 	melee.swing_finished.connect(_on_melee_swing_finished)

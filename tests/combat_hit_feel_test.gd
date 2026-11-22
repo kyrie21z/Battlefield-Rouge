@@ -55,8 +55,12 @@ func _climax() -> void:
 	var player := PLAYER.instantiate() as Player
 	add_child(player)
 	_hold_player(player)
-	player.weapon.add_user_signal("hit_blocked", [{"name": "position", "type": TYPE_VECTOR3}])
-	player.melee.add_user_signal("hit_blocked")
+	if not player.weapon.has_signal("hit_blocked"):
+		player.weapon.add_user_signal("hit_blocked", [
+			{"name": "position", "type": TYPE_VECTOR3},
+			{"name": "normal", "type": TYPE_VECTOR3}])
+	if not player.melee.has_signal("hit_blocked"):
+		player.melee.add_user_signal("hit_blocked")
 	var hud := ClimaxCombatHUD.new()
 	hud.setup(player)
 	seed(243)
@@ -70,7 +74,7 @@ func _climax() -> void:
 		and not layer.hit_audio.playing and not layer.kill_audio.playing)
 	hud.set_combat_visible(true)
 	await _outgoing_hits("climax", player, layer)
-	player.weapon.emit_signal(&"hit_blocked", Vector3.ZERO)
+	player.weapon.emit_signal(&"hit_blocked", Vector3.ZERO, Vector3.FORWARD)
 	_check("climax connects the optional weapon block signal", layer.blocked_audio.playing)
 	layer.blocked_audio.stop()
 	player.melee.emit_signal(&"hit_blocked")

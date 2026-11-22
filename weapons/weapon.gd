@@ -10,6 +10,9 @@ signal reload_finished
 ## Emitted exactly once, on the frame the crystal closes and ammo becomes full.
 signal ammo_refilled
 signal hit_landed(headshot: bool, killed: bool)
+## A shield or barrier cancelled the hit. The HUD answers with its own block cue
+## and the world gets deflect sparks, never the ordinary crystal impact.
+signal hit_blocked(point: Vector3, normal: Vector3)
 ## Degrees of camera kick for this shot. `manual` is the fraction that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
 ## Camera shake for this shot, already scaled for aiming: peak degrees,
@@ -328,11 +331,24 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 			"damage_scaled": true}
 		_boon(&"hit_before", ctx)
 		var hp_before := hitbox.health.health
+		var context_before: Dictionary = hitbox.health.last_damage_context
 		var dealt := 0.0 if ctx.cancelled else hitbox.apply_hit_at(maxf(ctx.damage, 0.0), shooter, hit.position, direction, true, ctx)
+		var resolved: Dictionary = hitbox.health.last_damage_context
+		# A barrier cancels inside Health.before_damage, so the mark comes back on
+		# the resolved context: Hitbox and Health both duplicate the dictionary.
+		# Only a context written by *this* hit counts, or a stale block would
+		# swallow the next real hit. is_same() compares the instance, not the
+		# values, so an unchanged context fails the check.
+		var blocked := dealt <= 0.0 and not is_same(resolved, context_before) \
+				and bool(resolved.get("blocked_by_shield", false))
 		ctx.dealt = minf(dealt, hp_before)
 		ctx.killed = hitbox.health.is_dead()
 		_boon(&"hit_after", ctx)
-		if not hitbox.surface_evaded:
+		if blocked:
+			# Deflect off the barrier: sparks only, no shards and no hitmarker.
+			Impact.spawn(effects_parent, hit.position, hit.normal, false, false)
+			hit_blocked.emit(hit.position, hit.normal)
+		elif not hitbox.surface_evaded:
 			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal,
 				hitbox.body_part == Hitbox.BodyPart.HEAD)
 		if dealt > 0.0:

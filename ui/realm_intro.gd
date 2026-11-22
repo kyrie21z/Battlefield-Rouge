@@ -1,15 +1,11 @@
 class_name RealmIntro
 extends Control
-## One-time explanation of a realm's shared mechanic, shown the first time the
-## player is about to pick a card from that realm. Every card in a realm leans on
-## the same noun (the clock, the flaw, the wall, the wet), so explaining it once
-## between picking up the orb and opening the three-card offer keeps the cards
-## themselves short.
+## One-time explanation of a realm's shared mechanic (Scheme B: Architectural Editorial).
 
 signal dismissed
 
 const PANEL_SIZE := Vector2(760, 460)
-const BACKDROP := Color(0.02, 0.025, 0.04, 0.82)
+const BACKDROP := Color(0.055, 0.062, 0.082, 0.80)
 
 ## Realm index matches BoonData.Sin, so the caller just passes stage.realm.
 const INTRO := [
@@ -55,14 +51,14 @@ var _previous_mouse := Input.MOUSE_MODE_VISIBLE
 var _title: Label
 var _body: VBoxContainer
 var _note: Label
+var _top_bar: ColorRect
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	# The game runs with the cursor captured, so the panel has to hand it back or
-	# the player cannot click "知道了".
+	EditorialStyle.apply_theme(self)
 	_previous_mouse = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_build()
@@ -71,18 +67,17 @@ func _ready() -> void:
 
 func setup(realm_id: int) -> void:
 	var data: Dictionary = INTRO[clampi(realm_id, 0, INTRO.size() - 1)]
+	var accent := _accent(realm_id)
+	_top_bar.color = accent
 	_title.text = data["title"]
-	_title.add_theme_color_override("font_color", _accent(realm_id))
+	_title.add_theme_color_override("font_color", EditorialStyle.INK)
 	for line: String in data["lines"]:
-		var row := Label.new()
-		row.text = line
-		row.add_theme_font_size_override("font_size", 26)
-		row.add_theme_color_override("font_color", Color(0.92, 0.94, 0.98))
+		var row := EditorialStyle.make_label("▪   " + line, 24, Color("242830"), 600)
 		row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		row.custom_minimum_size = Vector2(PANEL_SIZE.x - 120, 0)
+		row.custom_minimum_size = Vector2(PANEL_SIZE.x - 110, 0)
 		_body.add_child(row)
 	_note.text = data["note"]
-	_note.add_theme_color_override("font_color", Color(0.72, 0.78, 0.86))
+	_note.add_theme_color_override("font_color", accent)
 
 
 func _build() -> void:
@@ -94,8 +89,6 @@ func _build() -> void:
 
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = PANEL_SIZE
-	# anchor to the middle of the screen and let the offsets carry the size, so the
-	# panel stays centred no matter what resolution the game runs at
 	panel.anchor_left = 0.5
 	panel.anchor_top = 0.5
 	panel.anchor_right = 0.5
@@ -104,45 +97,55 @@ func _build() -> void:
 	panel.offset_top = -PANEL_SIZE.y * 0.5
 	panel.offset_right = PANEL_SIZE.x * 0.5
 	panel.offset_bottom = PANEL_SIZE.y * 0.5
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.045, 0.05, 0.07, 0.97)
-	style.border_color = Color(0.35, 0.42, 0.55, 0.7)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(10)
-	style.set_content_margin_all(28)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel",
+		EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(8, 8), Color(EditorialStyle.INK, 0.90), 0, 0))
 	add_child(panel)
 
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 18)
-	panel.add_child(column)
+	var shell := VBoxContainer.new()
+	shell.add_theme_constant_override("separation", 0)
+	panel.add_child(shell)
 
-	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 46)
+	_top_bar = ColorRect.new()
+	_top_bar.color = EditorialStyle.GOLD
+	_top_bar.custom_minimum_size.y = 7
+	_top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shell.add_child(_top_bar)
+
+	var margin := MarginContainer.new()
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 36)
+	for side in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 28)
+	shell.add_child(margin)
+
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 16)
+	margin.add_child(column)
+
+	column.add_child(EditorialStyle.make_label("REALM MECHANIC   //   领域机制", 12, EditorialStyle.SLATE, 700, true, 2))
+
+	_title = EditorialStyle.make_label("", 40, EditorialStyle.INK, 800, false, 2)
 	column.add_child(_title)
 
-	var rule := ColorRect.new()
-	rule.custom_minimum_size = Vector2(0, 2)
-	rule.color = Color(0.35, 0.42, 0.55, 0.45)
-	column.add_child(rule)
+	column.add_child(EditorialStyle.make_rule(EditorialStyle.INK, 2))
 
 	_body = VBoxContainer.new()
-	_body.add_theme_constant_override("separation", 10)
+	_body.add_theme_constant_override("separation", 12)
 	column.add_child(_body)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
 
-	_note = Label.new()
-	_note.add_theme_font_size_override("font_size", 22)
+	_note = EditorialStyle.make_label("", 20, EditorialStyle.GOLD, 700)
 	column.add_child(_note)
 
 	var button := Button.new()
-	button.text = "知道了"
-	button.custom_minimum_size = Vector2(200, 52)
+	button.text = "知道了  →"
+	button.custom_minimum_size = Vector2(210, 52)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_END
-	button.add_theme_font_size_override("font_size", 24)
+	EditorialStyle.style_button(button, true, true, 21)
 	button.pressed.connect(_dismiss)
 	column.add_child(button)
 	button.grab_focus()
@@ -161,6 +164,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		_dismiss()
 
 
-## Realm colours come from BoonPalette so the panel matches the card accents.
 func _accent(realm_id: int) -> Color:
-	return BoonPalette.COLORS[clampi(realm_id, 0, BoonPalette.COLORS.size() - 1)].lightened(0.15)
+	return EditorialStyle.realm_accent(realm_id)

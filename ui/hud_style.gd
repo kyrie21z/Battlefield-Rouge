@@ -1,14 +1,14 @@
 class_name HudStyle
-## Shared look for the graphical HUD: translucent dark panels, clipped corners
-## and the cyan-white / warning palette. Drawing only; no state lives here.
+## Shared architectural HUD drawing helpers and palette (Scheme B: Architectural Editorial).
+## Preserves legacy constant names for backward compatibility with older HUD components & tests.
 
-const ACCENT := Color("73f1ff")
-const WARNING := Color("ff4d4d")
-const TEXT := Color("e8fbff")
-const MUTED := Color(0.62, 0.78, 0.82, 0.9)
-const PANEL_FILL := Color(0.015, 0.045, 0.06, 0.74)
-const PANEL_LINE := Color(0.45, 0.95, 1.0, 0.5)
-const DARK := Color(0.01, 0.03, 0.04, 0.92)
+const ACCENT := Color("d49b35")
+const WARNING := Color("d94141")
+const TEXT := Color("f6f4ee")
+const MUTED := Color("9ea3ad")
+const PANEL_FILL := Color("111317f0")
+const PANEL_LINE := Color("111317")
+const DARK := Color("111317")
 
 
 static func bevel_points(rect: Rect2, cut: float) -> PackedVector2Array:
@@ -24,20 +24,16 @@ static func bevel_points(rect: Rect2, cut: float) -> PackedVector2Array:
 	])
 
 
-static func draw_panel(ci: CanvasItem, rect: Rect2, border: Color, cut := 12.0,
+static func draw_panel(ci: CanvasItem, rect: Rect2, border: Color, _cut := 0.0,
 		fill := PANEL_FILL) -> void:
-	var points := bevel_points(rect, cut)
-	ci.draw_colored_polygon(points, fill)
-	var closed := points.duplicate()
-	closed.append(points[0])
-	ci.draw_polyline(closed, border, 2.0, true)
+	# Hard offset architectural shadow + sharp solid plaque
+	ci.draw_rect(Rect2(rect.position + Vector2(4.0, 4.0), rect.size), Color(EditorialStyle.INK, 0.82))
+	ci.draw_rect(rect, fill)
+	ci.draw_rect(rect, border, false, 2.0)
 
 
-static func draw_glow(ci: CanvasItem, rect: Rect2, color: Color, cut := 12.0) -> void:
-	var points := bevel_points(rect, cut)
-	var closed := points.duplicate()
-	closed.append(points[0])
-	ci.draw_polyline(closed, Color(color, 0.22), 7.0, true)
+static func draw_glow(ci: CanvasItem, rect: Rect2, color: Color, _cut := 0.0) -> void:
+	ci.draw_rect(rect.grow(1.5), Color(color, 0.45), false, 2.0)
 
 
 ## Largest rect with `texture`'s aspect ratio that fits inside `rect`.

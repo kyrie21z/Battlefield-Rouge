@@ -315,7 +315,8 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		ctx.killed = hitbox.health.is_dead()
 		_boon(&"hit_after", ctx)
 		if not hitbox.surface_evaded:
-			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal)
+			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal,
+				hitbox.body_part == Hitbox.BodyPart.HEAD)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
 	else:

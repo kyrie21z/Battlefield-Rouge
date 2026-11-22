@@ -138,6 +138,8 @@ signal departed
 const IMPACT_DECAY := 22.0
 ## Enemy fire uses the softened player rifle sound, quieter than the player's own.
 const ENEMY_GUNSHOT_DB := -5.0
+## Bosses share the hit feedback at a composed third of the regular flinch.
+const BOSS_FLINCH_SCALE := 0.30
 
 @onready var health: Health = $Health
 @onready var _agent: NavigationAgent3D = $Agent
@@ -150,6 +152,27 @@ var boon_time_scale := 1.0
 var boon_stunned := false
 var boon_windup_scale := 1.0
 var boon_attack_scale := 1.0
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_READY:
+		ensure_hit_reaction()
+
+
+## Every actor that has not authored its own HitReaction gets the shared one, so
+## the four realms and their bosses react to hits without editing each scene.
+## Death is left out: realm actors keep their authored crystal shatter instead
+## of the legacy chunk burst. Idempotent, so the registration path may call it too.
+func ensure_hit_reaction() -> HitReaction:
+	var existing := get_node_or_null("HitReaction") as HitReaction
+	if existing != null:
+		return existing
+	var reaction := HitReaction.new()
+	reaction.name = "HitReaction"
+	reaction.death_effects_enabled = false
+	if is_boss:
+		reaction.flinch_scale = BOSS_FLINCH_SCALE
+	add_child(reaction)
+	return reaction
 
 func _ready() -> void:
 	Events.enemy_registered.emit(self)

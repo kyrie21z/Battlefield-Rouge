@@ -104,6 +104,10 @@ func _ready() -> void:
 		settings.load_from(GameSettings.settings_path)
 	settings.changed.connect(_apply_settings)
 	_apply_settings()
+	var enemy_bars := EnemyHealthBars.new()
+	add_child(enemy_bars)
+	move_child(enemy_bars, _crosshair.get_index())
+	enemy_bars.setup(_player, get_parent())
 	combat_feedback = CombatFeedbackLayer.new()
 	combat_feedback.name = "CombatFeedbackLayer"
 	add_child(combat_feedback)

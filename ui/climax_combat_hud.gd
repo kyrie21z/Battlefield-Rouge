@@ -32,6 +32,9 @@ func _ready() -> void:
 	combat_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	combat_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(combat_root)
+	var enemy_bars := EnemyHealthBars.new()
+	combat_root.add_child(enemy_bars)
+	enemy_bars.setup(player, player.get_parent())
 	crosshair = Crosshair.new()
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE

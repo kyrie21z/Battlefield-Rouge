@@ -88,6 +88,9 @@ func _ready() -> void:
 	_resonance.offset_top = -62
 	_resonance.offset_bottom = -28
 	_resonance.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var enemy_bars := EnemyHealthBars.new()
+	_root.add_child(enemy_bars)
+	enemy_bars.setup(stage.player, stage, stage.enemies, BoonIdentity.COLORS[stage.realm])
 	crosshair = Crosshair.new()
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

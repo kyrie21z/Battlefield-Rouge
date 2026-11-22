@@ -11,7 +11,7 @@ var pause_menu: PauseMenu
 var _objective: Label
 var _ammo: Label
 var _boons: Label
-var _boss_bar: ProgressBar
+var _boss_bar: RealmBossBar
 var _boss_name: Label
 var _monochrome: ColorRect
 var _stasis: ColorRect
@@ -25,6 +25,7 @@ var _death_reason: Label
 var _fall_notice: Label
 var _fall_notice_left := 0.0
 var hurt_feedback: RealmHurtFeedback
+var combat_feedback: CombatFeedbackLayer
 
 func _ready() -> void:
 	layer = 10
@@ -96,28 +97,30 @@ func _ready() -> void:
 	damage_indicator.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.add_child(damage_indicator)
 	damage_indicator.setup(stage.player)
+	combat_feedback = CombatFeedbackLayer.new()
+	combat_feedback.name = "CombatFeedbackLayer"
+	_root.add_child(combat_feedback)
+	combat_feedback.setup(stage.player)
 	stage.player.health.damaged.connect(_damaged)
 	BoonHitstop.attach(self, stage.player)
-	_boss_name = _label("",19)
+	_boss_name = _label(["沉眠巨像","审判之瞳","狂暴尖塔","哀泣巨碑"][stage.realm],19)
 	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_name.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_boss_name.offset_left = -250
 	_boss_name.offset_right = 250
 	_boss_name.offset_top = 25
-	_boss_bar = ProgressBar.new()
-	_boss_bar.show_percentage = false
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = BoonIdentity.COLORS[stage.realm]
-	_boss_bar.add_theme_stylebox_override("fill",fill)
-	var background := StyleBoxFlat.new()
-	background.bg_color = Color(0.06,0.06,0.07,0.85)
-	_boss_bar.add_theme_stylebox_override("background",background)
+	_boss_bar = RealmBossBar.new()
+	_boss_bar.name = "BossBar"
+	_root.add_child(_boss_bar)
 	_boss_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_boss_bar.offset_left = -240
 	_boss_bar.offset_right = 240
 	_boss_bar.offset_top = 55
 	_boss_bar.offset_bottom = 67
-	_root.add_child(_boss_bar)
+	_boss_bar.setup(stage.boss.health if is_instance_valid(stage.boss) else null,
+		BoonIdentity.COLORS[stage.realm])
+	_boss_name.visible = _boss_bar.visible
+	_boss_bar.visibility_changed.connect(func() -> void: _boss_name.visible = _boss_bar.visible)
 	settings = GameSettings.new()
 	if DisplayServer.get_name() != "headless":
 		settings.load_from(GameSettings.settings_path)
@@ -260,13 +263,6 @@ func _process(_delta: float) -> void:
 		_stasis_strength = move_toward(_stasis_strength, strength, _delta * 7.0)
 		_stasis.visible = _stasis_strength > 0.0
 		(_stasis.material as ShaderMaterial).set_shader_parameter("amount", _stasis_strength)
-	var boss_live := is_instance_valid(stage.boss) and not stage.boss.health.is_dead()
-	_boss_bar.visible = boss_live
-	_boss_name.visible = boss_live
-	if boss_live:
-		_boss_name.text = ["沉眠巨像","审判之瞳","狂暴尖塔","哀泣巨碑"][stage.realm]
-		_boss_bar.max_value = stage.boss.health.max_health
-		_boss_bar.value = stage.boss.health.health
 	if "unbuffered" in player.health and player.health.get("unbuffered"):
 		vitals.delayed_health = player.health.health
 		vitals._trail.reset(player.health.health)

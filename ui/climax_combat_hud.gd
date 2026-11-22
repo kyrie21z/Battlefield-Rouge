@@ -14,6 +14,7 @@ var crosshair: Crosshair
 var vitals: Vitals
 var ammo: Label
 var combat_root: Control
+var combat_feedback: CombatFeedbackLayer
 var pause_layer: CanvasLayer
 var inspector: BuildInspector
 var pause_menu: PauseMenu
@@ -59,6 +60,10 @@ func _ready() -> void:
 	ammo.add_theme_constant_override("shadow_offset_y",2)
 	ammo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	combat_root.add_child(ammo)
+	combat_feedback = CombatFeedbackLayer.new()
+	combat_feedback.name = "CombatFeedbackLayer"
+	combat_root.add_child(combat_feedback)
+	combat_feedback.setup(player)
 	settings = GameSettings.new()
 	if DisplayServer.get_name() != "headless":
 		settings.load_from(GameSettings.settings_path)
@@ -81,6 +86,7 @@ func _ready() -> void:
 func set_combat_visible(value: bool) -> void:
 	combat_visible = value and not _finished
 	combat_root.visible = combat_visible and not player.health.is_dead()
+	combat_feedback.set_enabled(combat_root.visible)
 
 func _process(_delta: float) -> void:
 	if _finished or not is_instance_valid(player):
@@ -112,8 +118,7 @@ func finish() -> void:
 		inspector.close(true)
 		inspector.queue_free()
 	_finished = true
-	combat_visible = false
-	combat_root.hide()
+	set_combat_visible(false)
 	vitals.set_process(false)
 	if is_instance_valid(pause_menu):
 		pause_menu.close()

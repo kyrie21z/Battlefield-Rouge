@@ -504,7 +504,7 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 	ctx.killed = health.is_dead()
 	_boon(&"hit_after", ctx)
 	if dealt <= 0.0:
-		if hitbox.surface_blocked:
+		if not ctx.cancelled and hitbox.surface_blocked:
 			var deflect_normal := -forward.normalized() if forward.length_squared() > 0.0001 else Vector3.UP
 			var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
 			CrystalImpact.spawn_deflect(parent, hitbox.global_position, deflect_normal)

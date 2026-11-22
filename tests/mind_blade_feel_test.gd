@@ -232,6 +232,19 @@ func _test_shield_block() -> void:
 	_check("blocked blade strike deals zero damage and fires native hit_blocked",
 		not dealt_blocked and melee_blocked[0] == 1 and CrystalImpact.deflect_alive == deflects_mid + 1)
 	_check("blocked blade strike draws nothing from global RNG", randi() == melee_rng)
+	player.melee.boon_hook = func(event: StringName, ctx: Dictionary) -> void:
+		if event == &"hit_before":
+			ctx.cancelled = true
+	player.melee._struck.clear()
+	player.melee._strike_one(player.melee.current(), melee_box, Vector3.ZERO, Vector3.FORWARD)
+	_check("hit_before cancellation ignores stale surface_blocked on melee", melee_blocked[0] == 1)
+	player.melee.boon_hook = Callable()
+	player.weapon.boon_hook = func(event: StringName, ctx: Dictionary) -> void:
+		if event == &"hit_before":
+			ctx.cancelled = true
+	player.weapon._shoot_ray(Vector3(0, 1.1, -6), Vector3.BACK)
+	_check("hit_before cancellation ignores stale surface_blocked on gun", points.size() == 1)
+	player.weapon.boon_hook = Callable()
 	melee_target.queue_free()
 
 	# Real Enemy knockback distance at 60 Hz falls inside spec 0.40-0.55 m.

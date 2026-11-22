@@ -211,6 +211,8 @@ func deactivate() -> void:
 	_spring.reset()
 	if _flash != null:
 		_flash.hide()
+	for voice in _shot_voices:
+		voice.stop()
 	if _low_ammo_voice != null:
 		_low_ammo_voice.stop()
 	if _handling_voice != null:
@@ -341,14 +343,15 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		ctx.dealt = minf(dealt, hp_before)
 		ctx.killed = hitbox.health.is_dead()
 		_boon(&"hit_after", ctx)
-		if hitbox.surface_blocked:
-			CRYSTAL_IMPACT.spawn_deflect(effects_parent, hit.position, hit.normal)
-			hit_blocked.emit(hit.position, hit.normal)
-		elif hitbox.surface_evaded:
-			hit_evaded.emit(hit.position)
-		else:
-			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal,
-				hitbox.body_part == Hitbox.BodyPart.HEAD)
+		if not ctx.cancelled:
+			if hitbox.surface_blocked:
+				CRYSTAL_IMPACT.spawn_deflect(effects_parent, hit.position, hit.normal)
+				hit_blocked.emit(hit.position, hit.normal)
+			elif hitbox.surface_evaded:
+				hit_evaded.emit(hit.position)
+			else:
+				CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal,
+					hitbox.body_part == Hitbox.BodyPart.HEAD)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
 	else:

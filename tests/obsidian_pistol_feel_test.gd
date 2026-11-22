@@ -161,7 +161,8 @@ func _test_low_ammo() -> void:
 	(weapon._view as ObsidianPistolView)._process(0.05)
 	_check("final round muzzle light decays out cleanly", not last_light.visible)
 	weapon.deactivate()
-	_check("deactivation silences low-ammo voice immediately", not low.playing)
+	_check("deactivation silences low-ammo and shot voices immediately",
+		not low.playing and _playing_shot_voices(weapon) == 0)
 	weapon.queue_free()
 	await get_tree().process_frame
 

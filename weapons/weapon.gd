@@ -10,6 +10,11 @@ signal reload_finished
 ## Emitted exactly once, on the frame the crystal closes and ammo becomes full.
 signal ammo_refilled
 signal hit_landed(headshot: bool, killed: bool)
+## A shield or barrier cancelled the hit; listeners answer with a block cue and
+## the world gets deflect sparks instead of ordinary crystal shards.
+signal hit_blocked(point: Vector3, normal: Vector3)
+## A target evaded the shot before damage applied.
+signal hit_evaded(point: Vector3)
 ## Degrees of camera kick for this shot. `manual` is the fraction that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
 ## Camera shake for this shot, already scaled for aiming: peak degrees,
@@ -62,6 +67,9 @@ var _shot_voices: Array[AudioStreamPlayer] = []
 var _next_voice := 0
 ## Reload and dry-fire clicks. Never shares a voice with a gunshot.
 var _handling_voice: AudioStreamPlayer
+## Low-ammo crystal tick. Its own voice, so it layers over a gunshot tail.
+var _low_ammo_sound: AudioStreamWAV
+var _low_ammo_voice: AudioStreamPlayer
 var _spring := ViewSpring.new()
 var _view_base := Vector3.ZERO
 ## Impacts of the current shot that still get the full debris / droplet effect,
@@ -79,6 +87,10 @@ func _ready() -> void:
 	_feel_rng.seed = FEEL_SEED
 	_handling_voice = AudioStreamPlayer.new()
 	add_child(_handling_voice)
+	_low_ammo_sound = ProceduralAudio.generate("pistol_low_ammo")
+	_low_ammo_voice = AudioStreamPlayer.new()
+	_low_ammo_voice.stream = _low_ammo_sound
+	add_child(_low_ammo_voice)
 	for voice in SHOT_VOICES:
 		var player := AudioStreamPlayer.new()
 		add_child(player)
@@ -108,6 +120,9 @@ func _exit_tree() -> void:
 	if _handling_voice != null:
 		_handling_voice.stop()
 		_handling_voice.stream = null
+	if _low_ammo_voice != null:
+		_low_ammo_voice.stop()
+		_low_ammo_voice.stream = null
 
 
 ## World-space grip frame for the owning player's hand rig. The imported
@@ -191,9 +206,17 @@ func deactivate() -> void:
 	_reload_left = 0.0
 	_melee_active = false
 	_update_reassembly(1.0)
+	if _view.has_method("reset_fire_feedback"):
+		_view.reset_fire_feedback()
 	_spring.reset()
 	if _flash != null:
 		_flash.hide()
+	for voice in _shot_voices:
+		voice.stop()
+	if _low_ammo_voice != null:
+		_low_ammo_voice.stop()
+	if _handling_voice != null:
+		_handling_voice.stop()
 	set_process(false)
 
 
@@ -235,22 +258,26 @@ func try_fire() -> bool:
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
 
 	_play_shot(_gunshot)
+	if ammo <= 2:
+		_low_ammo_voice.play()
 	if _flash != null:
 		_flash.rotation.z = _feel_rng.randf() * TAU
 		_flash.visible = true
 		_flash_left = 0.04
 	_kick_view()
+	if _view.has_method("kick_fire"):
+		_view.kick_fire()
 	recoil.emit(data.camera_kick, _feel_rng.randf_range(-data.camera_yaw, data.camera_yaw), data.recoil_manual)
 	fired.emit()
 	_boon(&"shoot_fired", _shot_context)
 	Events.gunshot.emit(global_position)
 	ammo_changed.emit(ammo, reserve)
 	if ammo == 0 and reserve != 0:
-		try_reload()
+		try_reload(true)
 	return true
 
 
-func try_reload() -> void:
+func try_reload(keep_muzzle_light := false) -> void:
 	if get_tree().paused or data == null or not trigger_enabled or is_reloading() or reserve == 0 or ammo >= magazine_capacity():
 		return
 	_reload_empty = ammo == 0
@@ -258,6 +285,8 @@ func try_reload() -> void:
 	_reload_total = _reload_duration(_reload_empty)
 	_reload_left = _reload_total
 	_update_reassembly(0.0)
+	if _view.has_method("reset_fire_feedback"):
+		_view.reset_fire_feedback(keep_muzzle_light)
 	reload_started.emit(_reload_left)
 	_boon(&"reload_started", {"source": shooter, "weapon": self, "empty": _reload_empty, "ammo": ammo})
 
@@ -314,8 +343,15 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 		ctx.dealt = minf(dealt, hp_before)
 		ctx.killed = hitbox.health.is_dead()
 		_boon(&"hit_after", ctx)
-		if not hitbox.surface_evaded:
-			CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal)
+		if not ctx.cancelled:
+			if hitbox.surface_blocked:
+				CRYSTAL_IMPACT.spawn_deflect(effects_parent, hit.position, hit.normal)
+				hit_blocked.emit(hit.position, hit.normal)
+			elif hitbox.surface_evaded:
+				hit_evaded.emit(hit.position)
+			else:
+				CRYSTAL_IMPACT.spawn(effects_parent, hit.position, hit.normal,
+					hitbox.body_part == Hitbox.BodyPart.HEAD)
 		if dealt > 0.0:
 			hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, hitbox.health.is_dead())
 	else:

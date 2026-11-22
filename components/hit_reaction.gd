@@ -1,7 +1,10 @@
 class_name HitReaction
 extends Node
 ## What a body looks like when it is shot: flash, flinch, headshot sparks and,
-## on death, a held lean plus a chunk burst. Visual only.
+## where `death_effects_enabled` allows it, a held lean plus a chunk burst.
+## Realm actors and bosses are given this automatically by `Enemy` with death
+## effects off, so their authored crystal shatter stays the only death show.
+## Visual only:
 ##  - It moves the *mesh nodes* about the body's feet, never the skeleton, the
 ##    hitboxes or the CharacterBody, so where the next bullet lands is untouched.
 ##  - It never reads or writes the owner's AI state, velocity, navigation,
@@ -10,7 +13,9 @@ extends Node
 
 const FLASH_TIME := 0.08
 const FLINCH_TIME := 0.14
-const FLASH_ALPHA := 0.7
+const FLASH_ALPHA := 0.82
+## A headshot leans and shoves the meshes harder than a body hit.
+const HEADSHOT_FLINCH := 1.4
 ## Death lean: held through the Death animation, so a kill reads as a hit.
 const DEATH_LEAN_DEGREES := 23.0
 const DEATH_LEAN_TIME := 0.16
@@ -27,12 +32,15 @@ const DEATH_LIGHT_COLOR := Color(1.0, 0.86, 0.62)
 
 ## Degrees of lean and metres of shove at full strength. A bigger body can ask
 ## for less with `flinch_scale`.
-@export var flinch_degrees := 6.0
-@export var flinch_shove := 0.06
+@export var flinch_degrees := 7.5
+@export var flinch_shove := 0.08
 @export var flinch_scale := 1.0
 @export var flinch_enabled := true
 ## Multiplies the death burst and its light; the boss sets 2.5.
 @export var death_scale := 1.0
+## Auto-installed reactions leave death to the realm's authored shatter; only
+## scenes that deliberately want the legacy chunk burst keep this on.
+@export var death_effects_enabled := true
 
 var _health: Health
 var _body: Node3D
@@ -100,7 +108,7 @@ func play(from: Node3D, heavy := false) -> void:
 	if flinch_enabled and not _health.is_dead() and away != Vector3.ZERO:
 		_flinch_axis = Vector3.UP.cross(away).normalized()
 		_flinch_push = away
-		_flinch_strength = flinch_scale * (1.4 if heavy else 1.0)
+		_flinch_strength = flinch_scale * (HEADSHOT_FLINCH if heavy else 1.0)
 		_flinch_left = FLINCH_TIME
 	if heavy and not _health.is_dead():
 		DebrisBurst.spawn_sparks(_body.get_parent(), _part_point(Hitbox.BodyPart.HEAD),
@@ -112,6 +120,11 @@ func play(from: Node3D, heavy := false) -> void:
 ## chunks. The CharacterBody and the collision shapes are not touched.
 func _on_died(source: Node) -> void:
 	if _dead:
+		return
+	if not death_effects_enabled:
+		# The realm's own shatter/dissolve owns death; only clear our live-only
+		# flash and lean so they cannot fight with it.
+		_finish()
 		return
 	if not _acquire_model():
 		return
@@ -165,6 +178,10 @@ func _pose_meshes(envelope: float, degrees: float, shove: float) -> void:
 			continue
 		var parent := mesh.get_parent_node_3d()
 		var parent_global := parent.global_transform
+		# Procedural visuals hide parts by zeroing a pivot scale; a singular
+		# parent has no inverse, so leave those meshes exactly as authored.
+		if absf(parent_global.basis.determinant()) < 0.000001:
+			continue
 		mesh.transform = parent_global.affine_inverse() * delta_world * parent_global * _rest[i]
 
 
@@ -235,6 +252,8 @@ func _finish() -> void:
 
 ## Finds the body's current Model (the boss swaps it in `_ready`) and remembers
 ## where each mesh sits at rest. Returns false when there is nothing to show it on.
+## The mesh list is recollected on every play while empty, so procedurally built
+## visuals that appear after the first hit are picked up instead of staying dry.
 func _acquire_model() -> bool:
 	var model := _body.get_node_or_null("Model") as Node3D if _body != null else null
 	if model == null:
@@ -244,7 +263,8 @@ func _acquire_model() -> bool:
 		_model = model
 		_meshes.clear()
 		_rest.clear()
+	if _meshes.is_empty():
 		for node in model.find_children("*", "MeshInstance3D", true, false):
 			_meshes.append(node as MeshInstance3D)
 			_rest.append((node as MeshInstance3D).transform)
-	return true
+	return not _meshes.is_empty()

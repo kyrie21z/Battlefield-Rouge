@@ -16,8 +16,13 @@ signal strike_finished
 ## A swing connected. Same contract as Weapon.hit_landed, so the HUD hitmarker
 ## works for melee too.
 signal hit_landed(headshot: bool, killed: bool)
+## A shield or barrier cancelled the cut; listeners play a block cue instead of a hit.
+signal hit_blocked(point: Vector3, normal: Vector3)
 ## Degrees of camera kick when a swing connects. `manual` is the share that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
+## Camera shake when a cut connects: peak degrees, FOV punch as a fraction of the
+## current FOV, and its length in seconds. Same contract as Weapon.shake.
+signal shake(degrees: float, fov_punch: float, duration: float)
 ## The swing carries the player forward. `speed` is m/s for `duration` seconds.
 signal lunge(direction: Vector3, speed: float, duration: float)
 ## One physical clock strike per swing, at the first damage sample.
@@ -84,6 +89,7 @@ var _swing_forward := Vector3.FORWARD
 ## even when the aim was a little off.
 var _magnet: Hitbox = null
 var _view: Node3D
+var _trail: BladeSlashTrail
 var _parry_area: Area3D
 var _magnet_forward := Vector3.FORWARD
 var _pivot: Node3D
@@ -110,6 +116,9 @@ func _ready() -> void:
 	_audio = AudioStreamPlayer.new()
 	_audio.max_polyphony = 3
 	add_child(_audio)
+	_trail = BladeSlashTrail.new()
+	_trail.name = "BladeSlashTrail"
+	add_child(_trail)
 	_hit_sound = ProceduralAudio.generate("melee_hit")
 	_rest = Pose.new(blade_data.rest_hand, blade_data.rest_aim, blade_data.rest_roll)
 	_pivot.transform = _pose_of(_rest)
@@ -123,6 +132,8 @@ func _exit_tree() -> void:
 	if is_instance_valid(_audio):
 		_audio.stop()
 		_audio.stream = null
+	if is_instance_valid(_trail):
+		_trail.clear()
 
 
 func current() -> MeleeData:
@@ -166,6 +177,7 @@ func swing_now() -> bool:
 	_phase = Phase.WINDUP
 	_phase_left = _scaled(data.windup)
 	_show_view()
+	_trail.begin()
 	_make_swing_noise(data)
 	_setup_pose(data, _phase_left, _scaled(data.active), _scaled(data.recovery))
 	swing_started.emit(0, _swing_count)
@@ -214,12 +226,16 @@ func cancel() -> void:
 	_phase_left = 0.0
 	_magnet = null
 	_hide_views()
+	if _trail != null:
+		_trail.clear()
 
 
 ## Permanent for this player instance; a respawn constructs a fresh blade.
 func deactivate() -> void:
 	_active_enabled = false
 	cancel()
+	if is_instance_valid(_audio):
+		_audio.stop()
 	set_process(false)
 
 
@@ -292,6 +308,8 @@ func _process(delta: float) -> void:
 				and _phase_left <= _active_len * (1.0 - STRIKE_AT):
 			_strike()
 		_update_pose()
+		if _phase == Phase.ACTIVE:
+			_sample_trail()
 		if _phase_left <= 0.000001:
 			_advance_phase()
 	if Input.is_action_just_pressed("melee"):
@@ -322,6 +340,10 @@ func _advance_phase() -> void:
 				if to_body.length_squared() > 0.0001:
 					_magnet_forward = to_body.normalized()
 			_swing_forward = _swing_forward.slerp(_magnet_forward, 0.75)
+			# The cut starts with the blade loaded on its first pose: seed the
+			# ribbon there so the arc is full even on a single-frame window.
+			_trail.begin()
+			_sample_trail()
 			if _phase_left <= 0.0:
 				_advance_phase()
 		Phase.ACTIVE:
@@ -334,6 +356,7 @@ func _advance_phase() -> void:
 			# (proof shots, tests) read the blade's position on the signal, and a
 			# frame of drift here would read as the trail being short.
 			_pivot.transform = _pose_of(_to)
+			_trail.end()
 			strike_finished.emit()
 			if _phase_left <= 0.0:
 				_advance_phase()
@@ -481,6 +504,11 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 	ctx.killed = health.is_dead()
 	_boon(&"hit_after", ctx)
 	if dealt <= 0.0:
+		if not ctx.cancelled and hitbox.surface_blocked:
+			var deflect_normal := -forward.normalized() if forward.length_squared() > 0.0001 else Vector3.UP
+			var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+			CrystalImpact.spawn_deflect(parent, hitbox.global_position, deflect_normal)
+			hit_blocked.emit(hitbox.global_position, deflect_normal)
 		return false
 
 	var push := hitbox.global_position - origin
@@ -495,7 +523,8 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 
 	hit_landed.emit(hitbox.body_part == Hitbox.BodyPart.HEAD, health.is_dead())
 	recoil.emit(data.camera_kick, data.camera_kick_yaw * (1.0 if _swing_count % 2 == 0 else -1.0), 0.35)
-	_play(_hit_sound, -2.0, 1.02)
+	shake.emit(0.65, 0.018, 0.14)
+	_play(_hit_sound, 0.0, 1.02)
 	_spawn_impact(hitbox.global_position, push)
 	return true
 
@@ -505,9 +534,18 @@ func _line_of_sight(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3
 	return space.intersect_ray(query).is_empty()
 
 
+## Crystal cleave where the edge lands: faceted shards, never the old fleshy
+## puff. The burst carries its own private random stream (ADR 0005).
 func _spawn_impact(point: Vector3, normal: Vector3) -> void:
 	var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
-	Impact.spawn(parent, point, normal, true)
+	CrystalImpact.spawn(parent, point, normal, true)
+
+
+func _sample_trail() -> void:
+	if _trail == null or _pivot == null:
+		return
+	var blade := _pivot.global_transform
+	_trail.sample(blade.origin, blade * Vector3(0.0, 0.0, -blade_length()))
 
 
 ## The node that owns `health` and can be shoved. Enemies implement
@@ -606,11 +644,11 @@ func _update_pose() -> void:
 			# for the rest of the committed wind-up, which is what sells weight.
 			_pivot.transform = _pose_of(_rest.blend(_from, _ease_out_sine(1.0 - _phase_left / _windup_len)))
 		Phase.ACTIVE:
-			# Even travel through the cut: the blade leaves the wind-up, crosses
-			# the frame and arrives without the whip that made the middle of the
-			# swing unreadable. The impact lands at STRIKE_AT, by which point the
-			# tip is most of the way to its end.
-			_pivot.transform = _pose_of(_from.blend(_to, _ease_mid(1.0 - _phase_left / _active_len)))
+			# A burst, not an even sweep: the blade is slow to leave the
+			# wind-up, snaps across the middle of the cut and settles on the end
+			# pose without overshooting. The impact lands at STRIKE_AT, so the
+			# fastest part of the travel is already behind it.
+			_pivot.transform = _pose_of(_from.blend(_to, _ease_burst(1.0 - _phase_left / _active_len)))
 		Phase.RECOVERY:
 			_pivot.transform = _pose_of(_to.blend(_rest, _ease_in_quad(1.0 - _phase_left / _recovery_len)))
 
@@ -735,6 +773,10 @@ static func _ease_out_sine(t: float) -> float:
 static func _ease_mid(t: float) -> float:
 	var x := clampf(t, 0.0, 1.0)
 	return x * x * (3.0 - 2.0 * x)
+
+
+static func _ease_burst(t: float) -> float:
+	return _ease_mid(pow(clampf(t, 0.0, 1.0), 1.7))
 
 
 static func _ease_in_quad(t: float) -> float:

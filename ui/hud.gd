@@ -5,23 +5,6 @@ extends CanvasLayer
 ## The crosshair line length at size 1.0; the settings menu scales it.
 const CROSSHAIR_LINE_LENGTH := 5.0
 
-const HIT_BODY := preload("res://assets/audio/hit_body.ogg")
-const HIT_HEAD := preload("res://assets/audio/hit_head.ogg")
-
-## A kill freezes the game for this many real seconds (see HitStop). A headshot
-## kill holds a little longer, which is most of what makes it feel heavier.
-const KILL_HITSTOP := 0.05
-const KILL_HITSTOP_HEAD := 0.075
-
-## Kill confirm text under the crosshair. Consecutive kills inside the window
-## turn into 双杀 / 三杀 / 连杀 ×N.
-const KILL_TEXT_TIME := 0.6
-const KILL_TEXT_POP_TIME := 0.1
-const KILL_TEXT_SCALE := 1.45
-const KILL_TEXT_FADE_TIME := 0.22
-const KILL_COMBO_WINDOW := 2.5
-const KILL_TEXT_GOLD := Color(1.0, 0.82, 0.25)
-
 ## Clock-strike feedback: a kick per strike (bigger for perfect), per quarter break
 ## and at capture, plus the floating progress text above the crosshair.
 const STRIKE_SHAKE := 0.45
@@ -49,23 +32,7 @@ const HURT_FLASH_BASE := 0.30
 const HURT_FLASH_PER_HP := 2.0
 const HURT_FLASH_MAX := 0.90
 const HURT_FLASH_DECAY := 0.55
-## Hits arriving this close together are one impact (shotgun pellets).
-const HURT_MERGE_TIME := 0.06
-## A hit this big, or any headshot, uses the heavy hurt sound.
-const HURT_HEAVY_FRACTION := 0.20
-const HURT_VOLUME_MIN_DB := -5.0
-const HURT_VOLUME_MAX_DB := 0.0
-
-## Low health: a pulsing edge that beats faster as HP falls. It stays on until
-## health climbs back past the exit share, so the border cannot flicker.
-const LOW_HP_ENTER := 0.30
-const LOW_HP_EXIT := 0.35
-const LOW_HP_BASE := 0.35
-const LOW_HP_PULSE := 0.20
-const LOW_HP_RATE_SLOW := 1.0
-const LOW_HP_RATE_FAST := 1.6
-const HEARTBEAT_DB := -7.0
-
+const HURT_MERGE_TIME := CombatFeedbackLayer.HURT_MERGE_TIME
 var inspector: BuildInspector
 var _player: Player
 var _director: ZoneDirector
@@ -74,32 +41,31 @@ var settings: GameSettings
 ## Background music; null under fixtures and headless runs.
 var music: MusicDirector
 var _base_sensitivity := 0.0
-var _hit_tween: Tween
-## Kill thud and headshot tink play beside the ogg hit sound on their own
-## players, so layering them never cuts the ogg.
-var _kill_audio: AudioStreamPlayer
-var _kill_head_audio: AudioStreamPlayer
-var _tink_audio: AudioStreamPlayer
-## Hurt voices and the low-health heartbeat. Kept apart so a new hit never
-## cuts the heartbeat and vice versa.
-var _hurt_audio: AudioStreamPlayer
-var _hurt_heavy_audio: AudioStreamPlayer
-var _heartbeat: AudioStreamPlayer
-## Hurt feedback state. The first hit of an impact shows at once; hits within
-## HURT_MERGE_TIME after it only deepen the vignette, without another sound.
+var combat_feedback: CombatFeedbackLayer
 var _hurt_pending := 0.0
 var _hurt_merge_left := 0.0
 var _hurt_flash := 0.0
-var _low_pulse := 0.0
-var _heartbeat_left := 0.0
-## For tests and proofs.
-var hurt_sound_plays := 0
-var low_hp := false
-## Kill confirm state. The combo timer and the text animation are driven by
-## `_process(delta)`, never by a clock.
-var _kill_text_left := 0.0
-var _kill_combo := 0
-var _kill_combo_left := 0.0
+
+var _kill_audio: AudioStreamPlayer:
+	get: return combat_feedback.kill_audio
+var _tink_audio: AudioStreamPlayer:
+	get: return combat_feedback.tink_audio
+var _heartbeat: AudioStreamPlayer:
+	get: return combat_feedback.heartbeat
+var hurt_sound_plays: int:
+	get: return combat_feedback.hurt_sound_plays
+var low_hp: bool:
+	get: return combat_feedback.low_hp
+var _kill_combo: int:
+	get: return combat_feedback.kill_combo
+	set(value): combat_feedback.kill_combo = value
+var _kill_combo_left: float:
+	get: return combat_feedback.kill_combo_left
+	set(value): combat_feedback.kill_combo_left = value
+var _kill_text_left: float:
+	get: return combat_feedback.kill_text_left
+	set(value): combat_feedback.kill_text_left = value
+
 ## Clock strike text and its rise. For tests.
 var _strike_text_left := 0.0
 var last_strike_shake := 0.0
@@ -138,34 +104,21 @@ func _ready() -> void:
 		settings.load_from(GameSettings.settings_path)
 	settings.changed.connect(_apply_settings)
 	_apply_settings()
-	_kill_audio = AudioStreamPlayer.new()
-	_kill_audio.stream = ProceduralAudio.generate("hit_kill")
-	_kill_audio.volume_db = -2.0
-	add_child(_kill_audio)
-	_kill_head_audio = AudioStreamPlayer.new()
-	_kill_head_audio.stream = ProceduralAudio.generate("hit_kill_head")
-	_kill_head_audio.volume_db = -2.0
-	add_child(_kill_head_audio)
-	_tink_audio = AudioStreamPlayer.new()
-	_tink_audio.stream = ProceduralAudio.generate("hit_tink")
-	_tink_audio.volume_db = -7.0
-	add_child(_tink_audio)
-	_hurt_audio = AudioStreamPlayer.new()
-	_hurt_audio.stream = ProceduralAudio.generate("player_hurt")
-	add_child(_hurt_audio)
-	_hurt_heavy_audio = AudioStreamPlayer.new()
-	_hurt_heavy_audio.stream = ProceduralAudio.generate("player_hurt_heavy")
-	add_child(_hurt_heavy_audio)
-	_heartbeat = AudioStreamPlayer.new()
-	_heartbeat.stream = ProceduralAudio.generate("heartbeat")
-	_heartbeat.volume_db = HEARTBEAT_DB
-	add_child(_heartbeat)
+	var enemy_bars := EnemyHealthBars.new()
+	add_child(enemy_bars)
+	move_child(enemy_bars, _crosshair.get_index())
+	enemy_bars.setup(_player, get_parent())
+	combat_feedback = CombatFeedbackLayer.new()
+	combat_feedback.name = "CombatFeedbackLayer"
+	add_child(combat_feedback)
+	combat_feedback.setup(_player, {
+		"hitmarker": _hitmarker, "kill_text": _kill_text, "hit_audio": _audio,
+		"immediate_hurt": true,
+	})
 	_damage_indicator.setup(_player)
 	BoonHitstop.attach(self, _player)
-	_player.weapon.hit_landed.connect(_on_hit_landed)
-	Events.blade_parried.connect(_on_blade_parried)
-	_player.melee.hit_landed.connect(_on_hit_landed)
 	_player.health.damaged.connect(_on_player_damaged)
+	_player.health.died.connect(_on_player_died)
 	_vitals.setup(_player)
 	_weapon_panel.setup(_player.weapon)
 	_shield_slot.setup(_player)
@@ -222,7 +175,6 @@ func _process(delta: float) -> void:
 	_place_buffs()
 	_refresh_combat_feedback()
 	_update_hurt(delta)
-	_update_kill_text(delta)
 	_update_strike_text(delta)
 	# Project the spread angle onto the screen so the gap matches where bullets can land.
 	var camera := get_viewport().get_camera_3d()
@@ -263,72 +215,8 @@ func _apply_settings() -> void:
 		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(settings.music_volume, 0.001)))
 
 
-func _on_blade_parried(_position: Vector3) -> void:
-	if RunState.fixture == null:
-		HitStop.request(get_tree(), 0.05)
-
-
 func _on_hit_landed(headshot: bool, killed: bool) -> void:
-	_hitmarker.modulate = Color(1, 0.2, 0.15) if killed else (Color(1, 0.85, 0.3) if headshot else Color.WHITE)
-	# Pop big, then settle: a kill ends bigger and holds longer than a plain hit.
-	var pop := 2.3 if killed else (1.7 if headshot else 1.45)
-	var rest := 1.5 if killed else 1.0
-	_hitmarker.scale = Vector2.ONE * pop
-	if _hit_tween != null and _hit_tween.is_valid():
-		_hit_tween.kill()
-	_hit_tween = create_tween()
-	_hit_tween.tween_property(_hitmarker, "scale", Vector2.ONE * rest, 0.09) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_hit_tween.parallel().tween_property(_hitmarker, "modulate:a", 0.0, 0.5 if killed else 0.25) \
-		.from(1.0).set_delay(0.08 if killed else 0.0)
-	_audio.stream = HIT_HEAD if headshot else HIT_BODY
-	_audio.play()
-	if headshot:
-		_tink_audio.play()
-	if killed:
-		if headshot:
-			_kill_head_audio.play()
-		else:
-			_kill_audio.play()
-		_show_kill_text(headshot)
-		# A fixture has to replay identically, so it never takes a hitstop.
-		if RunState.fixture == null and not get_tree().paused:
-			HitStop.request(get_tree(), KILL_HITSTOP_HEAD if headshot else KILL_HITSTOP)
-
-
-## Pops the kill confirm under the crosshair and counts the combo. White for a
-## body kill, gold for a headshot; the combo resets after KILL_COMBO_WINDOW.
-func _show_kill_text(headshot: bool) -> void:
-	_kill_combo = _kill_combo + 1 if _kill_combo_left > 0.0 else 1
-	_kill_combo_left = KILL_COMBO_WINDOW
-	_kill_text_left = KILL_TEXT_TIME
-	var label := "击杀"
-	if _kill_combo >= 4:
-		label = "连杀 ×%d" % _kill_combo
-	elif _kill_combo == 3:
-		label = "三杀"
-	elif _kill_combo == 2:
-		label = "双杀"
-	elif headshot:
-		label = "爆头击杀"
-	_kill_text.text = label
-	_kill_text.add_theme_color_override("font_color", KILL_TEXT_GOLD if headshot else Color.WHITE)
-	_kill_text.modulate.a = 1.0
-	_kill_text.scale = Vector2.ONE * KILL_TEXT_SCALE
-
-
-## Combo window and text pop/fade, all on frame delta.
-func _update_kill_text(delta: float) -> void:
-	if _kill_combo_left > 0.0:
-		_kill_combo_left = maxf(_kill_combo_left - delta, 0.0)
-		if _kill_combo_left <= 0.0:
-			_kill_combo = 0
-	if _kill_text_left <= 0.0:
-		return
-	_kill_text_left = maxf(_kill_text_left - delta, 0.0)
-	var pop := clampf((KILL_TEXT_TIME - _kill_text_left) / KILL_TEXT_POP_TIME, 0.0, 1.0)
-	_kill_text.scale = Vector2.ONE * lerpf(KILL_TEXT_SCALE, 1.0, pop)
-	_kill_text.modulate.a = clampf(_kill_text_left / KILL_TEXT_FADE_TIME, 0.0, 1.0)
+	combat_feedback.on_hit_landed(headshot, killed)
 
 
 ## One blade strike landed: kick the view and float the progress it was worth.
@@ -411,28 +299,23 @@ func _update_strike_text(delta: float) -> void:
 	_strike_text.offset_bottom = STRIKE_TEXT_BOTTOM - rise
 
 
-func _on_player_damaged(amount: float, part: Hitbox.BodyPart, source: Node) -> void:
-	if amount <= 0.0:
+func _on_player_damaged(amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
+	if amount <= 0.0 or get_tree().paused or _player.health.is_dead():
 		return
-	var first := _hurt_merge_left <= 0.0
-	if first:
+	if _hurt_merge_left <= 0.0:
 		_hurt_pending = 0.0
 		_hurt_merge_left = HURT_MERGE_TIME
 	_hurt_pending += amount
 	_raise_hurt_flash()
-	if first:
-		_play_hurt_sound(amount, part == Hitbox.BodyPart.HEAD)
 	# The source may die before the arc fades; the indicator keeps the position.
 	if source is Node3D:
 		_damage_indicator.add_hit(source as Node3D, amount)
 
 
-## Counts down the merge window, fades the hit vignette and drives the
-## low-health pulse. Everything here is driven by frame delta, never a clock.
 func _update_hurt(delta: float) -> void:
 	_hurt_merge_left = maxf(_hurt_merge_left - delta, 0.0)
 	_hurt_flash = maxf(_hurt_flash - delta / HURT_FLASH_DECAY, 0.0)
-	_damage_flash.color.a = maxf(_hurt_flash, _update_low_health(delta))
+	_damage_flash.color.a = maxf(_hurt_flash, combat_feedback.low_health_alpha)
 
 
 ## The vignette follows the damage of the whole impact so far, never shrinking.
@@ -443,46 +326,11 @@ func _raise_hurt_flash() -> void:
 	_damage_flash.color.a = maxf(_damage_flash.color.a, _hurt_flash)
 
 
-## One hurt sound per impact, chosen and scaled by its first hit.
-func _play_hurt_sound(amount: float, headshot: bool) -> void:
-	var max_health := maxf(_player.health.max_health, 1.0)
-	var heavy := headshot or amount >= HURT_HEAVY_FRACTION * max_health
-	var voice := _hurt_heavy_audio if heavy else _hurt_audio
-	var weight := clampf(amount / (HURT_HEAVY_FRACTION * max_health), 0.0, 1.0)
-	voice.volume_db = lerpf(HURT_VOLUME_MIN_DB, HURT_VOLUME_MAX_DB, weight)
-	voice.play()
-	hurt_sound_plays += 1
-
-
-## Returns the low-health edge alpha for this frame (0 when healthy).
-func _update_low_health(delta: float) -> float:
-	var health := _player.health
-	var max_health := maxf(health.max_health, 1.0)
-	var fraction := health.health / max_health
-	var was_low := low_hp
-	if health.is_dead():
-		low_hp = false
-	elif was_low:
-		low_hp = fraction <= LOW_HP_EXIT
-	else:
-		low_hp = fraction < LOW_HP_ENTER
-	if not low_hp:
-		if was_low:
-			_heartbeat.stop()
-		_low_pulse = 0.0
-		_heartbeat_left = 0.0
-		return 0.0
-	if not was_low:
-		_low_pulse = 0.0
-		_heartbeat_left = 0.0
-	var rate := lerpf(LOW_HP_RATE_SLOW, LOW_HP_RATE_FAST,
-		clampf((LOW_HP_ENTER - fraction) / LOW_HP_ENTER, 0.0, 1.0))
-	_low_pulse += TAU * rate * delta
-	_heartbeat_left = maxf(_heartbeat_left - delta, 0.0)
-	if _heartbeat_left <= 0.0:
-		_heartbeat.play()
-		_heartbeat_left = 1.0 / rate
-	return LOW_HP_BASE + LOW_HP_PULSE * (0.5 + 0.5 * sin(_low_pulse))
+func _on_player_died(_source: Node) -> void:
+	_hurt_pending = 0.0
+	_hurt_merge_left = 0.0
+	_hurt_flash = 0.0
+	_damage_flash.color.a = 0.0
 
 
 func low_hp_active() -> bool:

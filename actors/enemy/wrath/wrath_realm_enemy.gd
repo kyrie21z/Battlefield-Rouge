@@ -224,6 +224,7 @@ func _before_damage(ctx: Dictionary) -> void:
 	if (-incoming.normalized()).dot(-global_basis.z) < 0.5:
 		return
 	ctx.cancelled = true
+	ctx["blocked_by_shield"] = true
 	pressure = minf(100.0, pressure + float(ctx.damage))
 	blocked_shots += 1
 	visual.pressure = pressure / 100.0

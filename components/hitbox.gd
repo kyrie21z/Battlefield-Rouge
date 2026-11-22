@@ -18,6 +18,7 @@ var surface_point := Vector3.ZERO
 var surface_direction := Vector3.ZERO
 var surface_can_evade := false
 var surface_evaded := false
+var surface_blocked := false
 
 
 func _ready() -> void:
@@ -36,12 +37,16 @@ func apply_hit_at(amount: float, source: Node, point: Vector3, direction: Vector
 	resolving_surface_hit = true
 	surface_can_evade = can_evade
 	surface_evaded = false
+	surface_blocked = false
 	surface_point = point
 	surface_direction = direction
+	var context_before: Dictionary = health.last_damage_context if health != null else {}
 	var contact := context.duplicate()
 	contact["position"] = point
 	contact["direction"] = direction
 	var dealt := apply_hit(amount, source, contact)
+	if dealt <= 0.0 and health != null and not is_same(health.last_damage_context, context_before):
+		surface_blocked = bool(health.last_damage_context.get("blocked_by_shield", false))
 	resolving_surface_hit = false
 	return dealt
 

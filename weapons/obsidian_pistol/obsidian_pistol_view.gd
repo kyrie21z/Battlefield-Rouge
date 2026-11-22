@@ -92,14 +92,16 @@ func kick_fire() -> void:
 	_apply_muzzle_light()
 
 
-## Parks every firing effect now; reload start and deactivation call this.
-func reset_fire_feedback() -> void:
+## Parks slide and core firing offsets; optional `keep_muzzle_light` lets the
+## final round's brief muzzle flash finish while empty auto-reload begins.
+func reset_fire_feedback(keep_muzzle_light := false) -> void:
 	_fire_kick_left = 0.0
 	_core_pulse_left = 0.0
-	_muzzle_light_left = 0.0
 	_apply_slide_kick()
 	_apply_core_pulse()
-	_apply_muzzle_light()
+	if not keep_muzzle_light:
+		_muzzle_light_left = 0.0
+		_apply_muzzle_light()
 
 
 func _apply_slide_kick() -> void:

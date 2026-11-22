@@ -193,6 +193,10 @@ func _test_crystal_impact() -> void:
 	var glints := _glints(effects)
 	_check("the hit point lights a brief unshadowed glint (%d)" % glints.size(),
 		not glints.is_empty() and glints.all(func(light: OmniLight3D) -> bool: return not light.shadow_enabled))
+	get_tree().paused = true
+	await get_tree().create_timer(CrystalImpact.GLINT_TIME + 0.08, true).timeout
+	_check("pause freezes the impact glint without freeing it early", not _glints(effects).is_empty())
+	get_tree().paused = false
 	var head := CrystalImpact.spawn(effects, Vector3.ZERO, Vector3.UP, true) as CrystalImpact
 	_check("a headshot spray is larger and faster", head != null and first != null and head.scale_used > first.scale_used)
 	if first != null:

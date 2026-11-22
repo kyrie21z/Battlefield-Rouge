@@ -28,6 +28,7 @@ var kill_audio: AudioStreamPlayer
 var kill_head_audio: AudioStreamPlayer
 var tink_audio: AudioStreamPlayer
 var blocked_audio: AudioStreamPlayer
+var evaded_audio: AudioStreamPlayer
 var hurt_audio: AudioStreamPlayer
 var hurt_heavy_audio: AudioStreamPlayer
 var heartbeat: AudioStreamPlayer
@@ -73,6 +74,8 @@ func setup(player: Player, options := {}) -> void:
 	kill_head_audio = _voice("KillHeadAudio", ProceduralAudio.generate("hit_kill_head"), -2.0)
 	tink_audio = _voice("TinkAudio", ProceduralAudio.generate("hit_tink"), -7.0)
 	blocked_audio = _voice("BlockedAudio", ProceduralAudio.generate("hit_block"), -6.0)
+	evaded_audio = _voice("EvadedAudio", ProceduralAudio.generate("melee_swing"), -9.0)
+	evaded_audio.pitch_scale = 1.65
 	hurt_audio = _voice("HurtAudio", ProceduralAudio.generate("player_hurt"))
 	hurt_heavy_audio = _voice("HurtHeavyAudio", ProceduralAudio.generate("player_hurt_heavy"))
 	heartbeat = _voice("Heartbeat", ProceduralAudio.generate("heartbeat"), -7.0)
@@ -84,7 +87,10 @@ func setup(player: Player, options := {}) -> void:
 				var argument_count: int = signal_info.args.size()
 				var callback := on_hit_blocked.unbind(argument_count) if argument_count > 0 else on_hit_blocked
 				emitter.connect(&"hit_blocked", callback)
-				break
+			elif signal_info.name == &"hit_evaded":
+				var evaded_args: int = signal_info.args.size()
+				var evaded_cb := on_hit_evaded.unbind(evaded_args) if evaded_args > 0 else on_hit_evaded
+				emitter.connect(&"hit_evaded", evaded_cb)
 	Events.blade_parried.connect(_on_blade_parried)
 	player.health.damaged.connect(_on_player_damaged)
 	player.health.died.connect(_on_player_died)
@@ -159,6 +165,12 @@ func on_hit_blocked() -> void:
 		return
 	_pop_marker(Color(0.57, 0.60, 0.64), 1.25, 1.0, 0.18)
 	blocked_audio.play()
+
+
+func on_hit_evaded() -> void:
+	if not _can_react():
+		return
+	evaded_audio.play()
 
 
 func _pop_marker(color: Color, pop: float, rest: float, fade: float, hold := 0.0) -> void:
@@ -269,7 +281,7 @@ func _on_player_died(_source: Node) -> void:
 func _clear_feedback() -> void:
 	_clear_heartbeat()
 	for voice: AudioStreamPlayer in [hit_audio, kill_audio, kill_head_audio, tink_audio,
-			blocked_audio, hurt_audio, hurt_heavy_audio]:
+			blocked_audio, evaded_audio, hurt_audio, hurt_heavy_audio]:
 		voice.stop()
 	if _marker_tween != null:
 		_marker_tween.kill()

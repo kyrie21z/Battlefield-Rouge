@@ -16,6 +16,8 @@ signal strike_finished
 ## A swing connected. Same contract as Weapon.hit_landed, so the HUD hitmarker
 ## works for melee too.
 signal hit_landed(headshot: bool, killed: bool)
+## A shield or barrier cancelled the cut; listeners play a block cue instead of a hit.
+signal hit_blocked(point: Vector3, normal: Vector3)
 ## Degrees of camera kick when a swing connects. `manual` is the share that stays.
 signal recoil(pitch: float, yaw: float, manual: float)
 ## Camera shake when a cut connects: peak degrees, FOV punch as a fraction of the
@@ -232,6 +234,8 @@ func cancel() -> void:
 func deactivate() -> void:
 	_active_enabled = false
 	cancel()
+	if is_instance_valid(_audio):
+		_audio.stop()
 	set_process(false)
 
 
@@ -500,6 +504,11 @@ func _strike_one(data: MeleeData, hitbox: Hitbox, origin: Vector3, forward: Vect
 	ctx.killed = health.is_dead()
 	_boon(&"hit_after", ctx)
 	if dealt <= 0.0:
+		if hitbox.surface_blocked:
+			var deflect_normal := -forward.normalized() if forward.length_squared() > 0.0001 else Vector3.UP
+			var parent := get_tree().current_scene if get_tree().current_scene != null else get_tree().root
+			CrystalImpact.spawn_deflect(parent, hitbox.global_position, deflect_normal)
+			hit_blocked.emit(hitbox.global_position, deflect_normal)
 		return false
 
 	var push := hitbox.global_position - origin
@@ -532,7 +541,6 @@ func _spawn_impact(point: Vector3, normal: Vector3) -> void:
 	CrystalImpact.spawn(parent, point, normal, true)
 
 
-## One frame of the cut, taken from the pivot the view is drawn with.
 func _sample_trail() -> void:
 	if _trail == null or _pivot == null:
 		return
@@ -767,10 +775,6 @@ static func _ease_mid(t: float) -> float:
 	return x * x * (3.0 - 2.0 * x)
 
 
-## The cut: warping smoothstep's input makes the blade hang in the wind-up,
-## snap through the middle and settle cleanly on the end pose. Both ends stay
-## fixed and the curve never runs backwards, so the tip still lands exactly on
-## `cut_to_aim` when the window closes.
 static func _ease_burst(t: float) -> float:
 	return _ease_mid(pow(clampf(t, 0.0, 1.0), 1.7))
 

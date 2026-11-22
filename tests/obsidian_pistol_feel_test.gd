@@ -152,9 +152,16 @@ func _test_low_ammo() -> void:
 	_check("the shot that leaves one round lands", weapon.try_fire())
 	_check("one round left still ticks", low.playing)
 	weapon._cooldown = 0.0
+	var last_light := weapon._view.get_node_or_null("Muzzle/MuzzleLight") as OmniLight3D
 	_check("the last round fires and starts the reload",
 		weapon.try_fire() and weapon.ammo == 0 and weapon.is_reloading())
 	_check("even the last round ticks before the reload", low.playing)
+	_check("final round keeps its brief muzzle light alive during auto-reload",
+		last_light != null and last_light.visible and last_light.light_energy > 0.0)
+	(weapon._view as ObsidianPistolView)._process(0.05)
+	_check("final round muzzle light decays out cleanly", not last_light.visible)
+	weapon.deactivate()
+	_check("deactivation silences low-ammo voice immediately", not low.playing)
 	weapon.queue_free()
 	await get_tree().process_frame
 

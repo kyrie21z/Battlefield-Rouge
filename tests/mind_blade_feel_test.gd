@@ -57,8 +57,8 @@ func _ready() -> void:
 ## fast through the middle, and parked exactly on the end pose.
 func _test_burst_curve() -> void:
 	var data := _blade.current()
-	_check("mind blade shoves with 6.2", is_equal_approx(data.impact_force, 6.2))
-	_check("mind blade staggers for 0.22s", is_equal_approx(data.impact_stagger, 0.22))
+	_check("mind blade shoves with 4.6", is_equal_approx(data.impact_force, 4.6))
+	_check("mind blade staggers for 0.20s", is_equal_approx(data.impact_stagger, 0.20))
 	var monotonic := true
 	var previous := 0.0
 	for i in 101:
@@ -121,7 +121,7 @@ func _test_hit_weight() -> void:
 	_blade._process(0.09)
 	_check("hit lands", _health(target).health < 100.0)
 	_check("hit pushes with the tuned force and stagger",
-		is_equal_approx(target.last_force, 6.2) and is_equal_approx(target.last_stagger, 0.22))
+		is_equal_approx(target.last_force, 4.6) and is_equal_approx(target.last_stagger, 0.20))
 	_check("hit emits the melee camera shake", _shakes.size() == 1
 		and _shakes[0].is_equal_approx(Vector3(0.65, 0.018, 0.14)))
 	_check("hit plays the upgraded melee cue at full level",
@@ -197,7 +197,12 @@ func _test_shield_block() -> void:
 	player.weapon.hit_landed.connect(func(_headshot: bool, _killed: bool) -> void:
 		landed[0] += 1)
 	var shards_before := CrystalImpact.alive
+	var deflects_before := CrystalImpact.deflect_alive
+	seed(24701)
+	var rng_want := randi()
+	seed(24701)
 	player.weapon._shoot_ray(Vector3(0, 1.1, -6), Vector3.BACK)
+	_check("shield block draws nothing from global RNG", randi() == rng_want)
 	_check("accumulator eats the frontal shot", is_equal_approx(shield.health.health, health_before)
 		and shield.blocked_shots == 1)
 	_check("block is marked on the resolved damage context",
@@ -206,7 +211,51 @@ func _test_shield_block() -> void:
 	_check("block suppresses the ordinary hitmarker", landed[0] == 0)
 	_check("deflect sparks face the shooter",
 		normals.size() == 1 and normals[0].z < -0.5 and not points[0].is_equal_approx(Vector3.ZERO))
-	_check("block prints no crystal shards", CrystalImpact.alive == shards_before)
+	_check("block prints deflect sparks, not crystal shards",
+		CrystalImpact.alive == shards_before and CrystalImpact.deflect_alive == deflects_before + 1)
+
+	# Real melee hit_blocked propagation when a barrier cancels a blade strike.
+	var melee_blocked := [0]
+	player.melee.hit_blocked.connect(func(_p: Vector3, _n: Vector3) -> void:
+		melee_blocked[0] += 1)
+	var melee_target := _dummy(Vector3(0, 0, -3), 1)
+	var melee_hp := _health(melee_target)
+	melee_hp.before_damage.connect(func(ctx: Dictionary) -> void:
+		ctx.cancelled = true
+		ctx["blocked_by_shield"] = true)
+	var melee_box := melee_target.find_children("*", "Hitbox", true, false)[0] as Hitbox
+	var deflects_mid := CrystalImpact.deflect_alive
+	seed(24702)
+	var melee_rng := randi()
+	seed(24702)
+	var dealt_blocked := player.melee._strike_one(player.melee.current(), melee_box, Vector3.ZERO, Vector3.FORWARD)
+	_check("blocked blade strike deals zero damage and fires native hit_blocked",
+		not dealt_blocked and melee_blocked[0] == 1 and CrystalImpact.deflect_alive == deflects_mid + 1)
+	_check("blocked blade strike draws nothing from global RNG", randi() == melee_rng)
+	melee_target.queue_free()
+
+	# Real Enemy knockback distance at 60 Hz falls inside spec 0.40-0.55 m.
+	var piercer := WRATH.instantiate() as WrathRealmEnemy
+	piercer.variant = WrathRealmEnemy.Variant.PIERCER
+	piercer.position = Vector3(5, 0, 0)
+	add_child(piercer)
+	piercer.set_physics_process(false)
+	piercer.setup(player, [])
+	await _settle()
+	var start_pos := piercer.global_position
+	piercer.apply_impact(Vector3.BACK, player.melee.current().impact_force, player.melee.current().impact_stagger)
+	for i in 20:
+		piercer._physics_process(1.0 / 60.0)
+	var pushed := piercer.global_position.distance_to(start_pos)
+	_check("tuned blade knockback lands inside 0.40-0.55 m (%.3f m)" % pushed,
+		pushed >= 0.40 and pushed <= 0.55)
+	piercer.queue_free()
+
+	# Deactivating melee on death stops active swing/hit audio immediately.
+	player.melee._play(player.melee._hit_sound, 0.0, 1.0)
+	player.melee.deactivate()
+	_check("melee deactivate stops active audio", not player.melee._audio.playing)
+
 	shield.queue_free()
 	player.queue_free()
 	ground.queue_free()
@@ -220,8 +269,8 @@ func _tip() -> Vector3:
 func _dummy(at: Vector3, team: int) -> Dummy:
 	var body := Dummy.new()
 	body.team = team
-	body.collision_layer = 0
-	body.collision_mask = 0
+	body.collision_layer = CollisionLayers.NONE
+	body.collision_mask = CollisionLayers.NONE
 	body.position = at
 	var health := Health.new()
 	health.name = "Health"
@@ -245,7 +294,7 @@ func _health(body: Dummy) -> Health:
 func _wall(at: Vector3, size: Vector3) -> StaticBody3D:
 	var body := StaticBody3D.new()
 	body.collision_layer = CollisionLayers.WORLD
-	body.collision_mask = 0
+	body.collision_mask = CollisionLayers.NONE
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
 	box.size = size

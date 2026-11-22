@@ -14,13 +14,41 @@ const GLINT_TIME := 0.06
 const GLINT_ENERGY := 3.5
 const GLINT_RANGE := 1.8
 const GLINT_COLOR := Color(0.72, 0.90, 1.0)
+const DEFLECT_COLOR := Color(1.0, 0.86, 0.56)
 static var alive := 0
-## Private sequence, so consecutive hits get their own shard pattern without
-## touching the simulation's global random stream (ADR 0005).
+static var deflect_alive := 0
 static var _spawn_seq := 0
 static var _mesh: PrismMesh
 static var _dark: StandardMaterial3D
 static var _glint: StandardMaterial3D
+static var _spark_mesh: BoxMesh
+static var _spark_material: StandardMaterial3D
+
+
+class GlintLight extends OmniLight3D:
+	var _left := GLINT_TIME
+	var _total := GLINT_TIME
+	var _peak := GLINT_ENERGY
+
+	func _init(color: Color, energy: float, range_m: float, duration: float) -> void:
+		process_mode = Node.PROCESS_MODE_PAUSABLE
+		light_color = color
+		light_energy = energy
+		omni_range = range_m
+		shadow_enabled = false
+		_left = duration
+		_total = maxf(duration, 0.001)
+		_peak = energy
+
+	func _process(delta: float) -> void:
+		if get_tree().paused:
+			return
+		_left = maxf(_left - delta, 0.0)
+		if _left <= 0.0:
+			queue_free()
+			return
+		light_energy = _peak * (_left / _total)
+
 
 var _age := 0.0
 var _pieces: Array[MeshInstance3D] = []
@@ -29,6 +57,8 @@ var _spin: Array[Vector3] = []
 ## For tests: the private seed this burst used and the size multiplier it got.
 var seed_used := 0
 var scale_used := 1.0
+var is_deflect := false
+var _lifetime := LIFETIME
 
 
 static func spawn(parent: Node, point: Vector3, normal: Vector3, headshot := false) -> Node3D:
@@ -40,7 +70,21 @@ static func spawn(parent: Node, point: Vector3, normal: Vector3, headshot := fal
 	burst.scale_used = HEADSHOT_SCALE if headshot else 1.0
 	alive += 1
 	burst._build(normal)
-	_spawn_glint(parent, point)
+	_spawn_glint(parent, point, GLINT_COLOR, GLINT_ENERGY)
+	return burst
+
+
+static func spawn_deflect(parent: Node, point: Vector3, normal: Vector3) -> Node3D:
+	if parent == null or deflect_alive >= MAX_ALIVE:
+		return null
+	var burst := load("res://weapons/effects/crystal_impact.gd").new() as CrystalImpact
+	parent.add_child(burst)
+	burst.global_position = point + normal * 0.02
+	burst.is_deflect = true
+	burst._lifetime = 0.24
+	deflect_alive += 1
+	burst._build_deflect(normal)
+	_spawn_glint(parent, point, DEFLECT_COLOR, 2.8)
 	return burst
 
 
@@ -82,32 +126,52 @@ func _build(normal: Vector3) -> void:
 		_spin.append(Vector3(rng.randf_range(-9, 9), rng.randf_range(-9, 9), rng.randf_range(-9, 9)))
 
 
-## The light lives beside the burst instead of inside it, and frees itself, so
-## the shard node stays exactly the authored polyhedra.
-static func _spawn_glint(parent: Node, point: Vector3) -> void:
+func _build_deflect(normal: Vector3) -> void:
+	if _spark_mesh == null:
+		_spark_mesh = BoxMesh.new()
+		_spark_mesh.size = Vector3(0.018, 0.018, 0.11)
+		_spark_material = StandardMaterial3D.new()
+		_spark_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_spark_material.albedo_color = DEFLECT_COLOR
+		_spark_material.emission_enabled = true
+		_spark_material.emission = DEFLECT_COLOR
+		_spark_material.emission_energy_multiplier = 2.4
+	var rng := RandomNumberGenerator.new()
+	_spawn_seq += 1
+	seed_used = SEED + _spawn_seq
+	rng.seed = seed_used
+	var outward := normal.normalized() if normal.length_squared() > 0.001 else Vector3.UP
+	for i in 10:
+		var piece := MeshInstance3D.new()
+		piece.mesh = _spark_mesh
+		piece.material_override = _spark_material
+		piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var scatter := Vector3(rng.randf_range(-1, 1), rng.randf_range(-0.4, 1.0), rng.randf_range(-1, 1))
+		var direction := (outward * 1.8 + scatter).normalized()
+		var up := Vector3.UP if absf(direction.dot(Vector3.UP)) < 0.99 else Vector3.RIGHT
+		piece.basis = Basis.looking_at(direction, up)
+		add_child(piece)
+		_pieces.append(piece)
+		_velocities.append(direction * rng.randf_range(3.2, 6.8))
+		_spin.append(Vector3.ZERO)
+
+
+static func _spawn_glint(parent: Node, point: Vector3, color: Color, energy: float) -> void:
 	if not parent.is_inside_tree():
 		return
-	var light := OmniLight3D.new()
-	light.light_color = GLINT_COLOR
-	light.light_energy = GLINT_ENERGY
-	light.omni_range = GLINT_RANGE
-	light.shadow_enabled = false
+	var light := GlintLight.new(color, energy, GLINT_RANGE, GLINT_TIME)
 	parent.add_child(light)
 	light.global_position = point
-	var weak: WeakRef = weakref(light)
-	parent.get_tree().create_timer(GLINT_TIME).timeout.connect(
-		func() -> void:
-			var node: Object = weak.get_ref()
-			if node != null:
-				node.queue_free())
 
 
 func _process(delta: float) -> void:
+	if get_tree().paused:
+		return
 	_age += delta
-	if _age >= LIFETIME:
+	if _age >= _lifetime:
 		queue_free()
 		return
-	var shrink := (1.0 - pow(_age / LIFETIME, 2.0)) * scale_used
+	var shrink := (1.0 - pow(_age / _lifetime, 2.0)) * scale_used
 	for i in _pieces.size():
 		_velocities[i].y -= 6.0 * delta
 		_pieces[i].position += _velocities[i] * delta
@@ -116,4 +180,7 @@ func _process(delta: float) -> void:
 
 
 func _exit_tree() -> void:
-	alive = maxi(alive - 1, 0)
+	if is_deflect:
+		deflect_alive = maxi(deflect_alive - 1, 0)
+	else:
+		alive = maxi(alive - 1, 0)

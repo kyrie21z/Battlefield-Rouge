@@ -108,7 +108,7 @@ func _build() -> void:
 	add_child(_margin)
 
 	var shell := VBoxContainer.new()
-	shell.add_theme_constant_override("separation", 14)
+	shell.add_theme_constant_override("separation", 18)
 	_margin.add_child(shell)
 
 	shell.add_child(EditorialStyle.make_label("PSYCHE ARCHIVES   //   心象档案", 13, MUTED, 700, true, 2))
@@ -176,7 +176,7 @@ func _build() -> void:
 	_reader.add_child(_paper)
 
 	_copy = VBoxContainer.new()
-	_copy.add_theme_constant_override("separation", 20)
+	_copy.add_theme_constant_override("separation", 22)
 	_paper.add_child(_copy)
 
 	_footer = EditorialStyle.make_label("↑ ↓ 选择篇目   ·   Enter / A 打开   ·   → 阅读   ·   滚轮 / 方向键 滚动   ·   ← 返回目录", 14, MUTED, 600, true)
@@ -241,13 +241,13 @@ func _resize() -> void:
 	if not _built:
 		return
 	_compact = size.x < 1500 or size.y < 850
-	var gutter := 16 if _compact else 28
+	var gutter := 28 if _compact else 48
 	for side in ["left", "right", "top", "bottom"]:
 		_margin.add_theme_constant_override("margin_" + side, gutter)
-		_paper.add_theme_constant_override("margin_" + side, 24 if _compact else 40)
-	_nav.custom_minimum_size.x = 270 if _compact else 330
-	_heading.add_theme_font_size_override("font_size", 28 if _compact else 34)
-	_layout.add_theme_constant_override("separation", 20 if _compact else 32)
+		_paper.add_theme_constant_override("margin_" + side, 26 if _compact else 44)
+	_nav.custom_minimum_size.x = 280 if _compact else 340
+	_heading.add_theme_font_size_override("font_size", 30 if _compact else 38)
+	_layout.add_theme_constant_override("separation", 24 if _compact else 40)
 	if not _pages.is_empty():
 		_show_page()
 
@@ -279,7 +279,7 @@ func _scroll_input(event: InputEvent) -> void:
 
 
 func _body(text: String) -> Label:
-	var lbl := _label(text, 18 if _compact else 21, Color("24272f"))
+	var lbl := _label(text, 19 if _compact else 22, Color("24272f"))
 	lbl.add_theme_font_override("font", EditorialStyle.font_serif(400))
 	lbl.add_theme_constant_override("line_spacing", 10 if _compact else 14)
 	return lbl

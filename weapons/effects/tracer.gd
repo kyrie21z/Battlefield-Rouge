@@ -4,9 +4,9 @@ extends MeshInstance3D
 ## frees itself. One thin stretched box with an unshaded additive material; no
 ## physics, no particles, no random numbers.
 
-const SPEED := 320.0
+const SPEED := 190.0
 const LENGTH := 5.0
-const THICKNESS := 0.014
+const THICKNESS := 0.020
 ## Longest path drawn, so a shot into the sky does not chase the horizon.
 const MAX_PATH := 120.0
 

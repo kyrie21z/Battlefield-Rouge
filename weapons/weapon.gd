@@ -62,6 +62,9 @@ var _shot_voices: Array[AudioStreamPlayer] = []
 var _next_voice := 0
 ## Reload and dry-fire clicks. Never shares a voice with a gunshot.
 var _handling_voice: AudioStreamPlayer
+## Low-ammo crystal tick. Its own voice, so it layers over a gunshot tail.
+var _low_ammo_sound: AudioStreamWAV
+var _low_ammo_voice: AudioStreamPlayer
 var _spring := ViewSpring.new()
 var _view_base := Vector3.ZERO
 ## Impacts of the current shot that still get the full debris / droplet effect,
@@ -79,6 +82,10 @@ func _ready() -> void:
 	_feel_rng.seed = FEEL_SEED
 	_handling_voice = AudioStreamPlayer.new()
 	add_child(_handling_voice)
+	_low_ammo_sound = ProceduralAudio.generate("pistol_low_ammo")
+	_low_ammo_voice = AudioStreamPlayer.new()
+	_low_ammo_voice.stream = _low_ammo_sound
+	add_child(_low_ammo_voice)
 	for voice in SHOT_VOICES:
 		var player := AudioStreamPlayer.new()
 		add_child(player)
@@ -108,6 +115,9 @@ func _exit_tree() -> void:
 	if _handling_voice != null:
 		_handling_voice.stop()
 		_handling_voice.stream = null
+	if _low_ammo_voice != null:
+		_low_ammo_voice.stop()
+		_low_ammo_voice.stream = null
 
 
 ## World-space grip frame for the owning player's hand rig. The imported
@@ -191,6 +201,8 @@ func deactivate() -> void:
 	_reload_left = 0.0
 	_melee_active = false
 	_update_reassembly(1.0)
+	if _view.has_method("reset_fire_feedback"):
+		_view.reset_fire_feedback()
 	_spring.reset()
 	if _flash != null:
 		_flash.hide()
@@ -235,11 +247,15 @@ func try_fire() -> bool:
 	_spread = minf(_spread + data.spread_per_shot, data.max_spread)
 
 	_play_shot(_gunshot)
+	if ammo <= 2:
+		_low_ammo_voice.play()
 	if _flash != null:
 		_flash.rotation.z = _feel_rng.randf() * TAU
 		_flash.visible = true
 		_flash_left = 0.04
 	_kick_view()
+	if _view.has_method("kick_fire"):
+		_view.kick_fire()
 	recoil.emit(data.camera_kick, _feel_rng.randf_range(-data.camera_yaw, data.camera_yaw), data.recoil_manual)
 	fired.emit()
 	_boon(&"shoot_fired", _shot_context)
@@ -258,6 +274,8 @@ func try_reload() -> void:
 	_reload_total = _reload_duration(_reload_empty)
 	_reload_left = _reload_total
 	_update_reassembly(0.0)
+	if _view.has_method("reset_fire_feedback"):
+		_view.reset_fire_feedback()
 	reload_started.emit(_reload_left)
 	_boon(&"reload_started", {"source": shooter, "weapon": self, "empty": _reload_empty, "ammo": ammo})
 

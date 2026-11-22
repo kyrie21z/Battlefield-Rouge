@@ -10,12 +10,26 @@ const BLOOM_END := 0.35 / 0.85
 const FLOAT_END := 0.65 / 0.85
 const OFFSETS := [Vector3(0, 0.07, -0.08), Vector3(0.08, 0.04, 0.02),
 	Vector3(0.025, -0.09, 0.025), Vector3(-0.055, 0.035, 0)]
+## Firing presentation only: none of it feeds the reload clock or gameplay.
+const SLIDE_INDEX := 1
+const FIRE_KICK_BACK := 0.032
+const FIRE_KICK_TIME := 0.09
+const CORE_BASE_ENERGY := 1.5
+const CORE_PULSE_ENERGY := 5.5
+const CORE_PULSE_TIME := 0.10
+const MUZZLE_LIGHT_ENERGY := 2.6
+const MUZZLE_LIGHT_TIME := 0.045
+const MUZZLE_LIGHT_COLOR := Color(0.45, 0.72, 1.0)
 
 var _pieces: Array[Node3D] = []
 var _rest: Array[Transform3D] = []
 var _core_material: StandardMaterial3D
 var _dust: Array[MeshInstance3D] = []
+var _muzzle_light: OmniLight3D
 var reassembly_progress := 1.0
+var _fire_kick_left := 0.0
+var _core_pulse_left := 0.0
+var _muzzle_light_left := 0.0
 
 
 func _ready() -> void:
@@ -27,6 +41,18 @@ func _ready() -> void:
 	var core := $Model.find_child("core_crystal", true, false) as MeshInstance3D
 	_core_material = core.get_active_material(0).duplicate() as StandardMaterial3D
 	core.material_override = _core_material
+	_core_material.emission_energy_multiplier = CORE_BASE_ENERGY
+	var muzzle := get_node_or_null("Muzzle") as Node3D
+	if muzzle != null:
+		_muzzle_light = OmniLight3D.new()
+		_muzzle_light.name = "MuzzleLight"
+		_muzzle_light.light_color = MUZZLE_LIGHT_COLOR
+		_muzzle_light.light_energy = 0.0
+		_muzzle_light.omni_range = 1.8
+		_muzzle_light.omni_attenuation = 1.4
+		_muzzle_light.shadow_enabled = false
+		_muzzle_light.visible = false
+		muzzle.add_child(_muzzle_light)
 	var dust_material := StandardMaterial3D.new()
 	dust_material.albedo_color = Color(0.015, 0.02, 0.025)
 	var shard := PrismMesh.new()
@@ -39,6 +65,64 @@ func _ready() -> void:
 		bit.visible = false
 		add_child(bit)
 		_dust.append(bit)
+
+
+func _process(delta: float) -> void:
+	if get_tree().paused:
+		return
+	if _fire_kick_left > 0.0:
+		_fire_kick_left = maxf(_fire_kick_left - delta, 0.0)
+		_apply_slide_kick()
+	if _core_pulse_left > 0.0:
+		_core_pulse_left = maxf(_core_pulse_left - delta, 0.0)
+		_apply_core_pulse()
+	if _muzzle_light_left > 0.0:
+		_muzzle_light_left = maxf(_muzzle_light_left - delta, 0.0)
+		_apply_muzzle_light()
+
+
+## One shot's mechanical answer: the slide snaps back, the core flares, and the
+## muzzle light flashes. Kept apart from the 0.85 s reassembly clock.
+func kick_fire() -> void:
+	_fire_kick_left = FIRE_KICK_TIME
+	_core_pulse_left = CORE_PULSE_TIME
+	_muzzle_light_left = MUZZLE_LIGHT_TIME
+	_apply_slide_kick()
+	_apply_core_pulse()
+	_apply_muzzle_light()
+
+
+## Parks every firing effect now; reload start and deactivation call this.
+func reset_fire_feedback() -> void:
+	_fire_kick_left = 0.0
+	_core_pulse_left = 0.0
+	_muzzle_light_left = 0.0
+	_apply_slide_kick()
+	_apply_core_pulse()
+	_apply_muzzle_light()
+
+
+func _apply_slide_kick() -> void:
+	if _pieces.size() <= SLIDE_INDEX:
+		return
+	var t := _fire_kick_left / FIRE_KICK_TIME
+	var pose := _rest[SLIDE_INDEX]
+	pose.origin += Vector3(0.0, 0.0, FIRE_KICK_BACK * t * t)
+	_pieces[SLIDE_INDEX].transform = pose
+
+
+func _apply_core_pulse() -> void:
+	if _core_material == null:
+		return
+	var t := _core_pulse_left / CORE_PULSE_TIME
+	_core_material.emission_energy_multiplier = lerpf(CORE_BASE_ENERGY, CORE_PULSE_ENERGY, t)
+
+
+func _apply_muzzle_light() -> void:
+	if _muzzle_light == null:
+		return
+	_muzzle_light.light_energy = MUZZLE_LIGHT_ENERGY * _muzzle_light_left / MUZZLE_LIGHT_TIME
+	_muzzle_light.visible = _muzzle_light_left > 0.0
 
 
 func set_reassembly_progress(progress: float) -> void:

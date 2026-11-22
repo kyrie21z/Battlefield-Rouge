@@ -62,9 +62,6 @@ func _ready() -> void:
 	voice.unit_size = 12
 	voice.max_distance = 45
 	add_child(voice)
-	voice_dsp = CrownVoiceDSP.new()
-	voice_dsp.setup(voice,float(crown.get("emission_strength")))
-	add_child(voice_dsp)
 	var combat_audio := RealmAudioDirector.new()
 	combat_audio.name = "CombatAudio"
 	combat_audio.setup_combat(player)
@@ -165,7 +162,8 @@ func _physics_process(delta: float) -> void:
 	phase_elapsed += delta
 	if is_instance_valid(crown):
 		voice.global_position = crown.global_position
-		voice_dsp.set_radiance(0,float(crown.get("emission_strength")))
+		if is_instance_valid(voice_dsp):
+			voice_dsp.set_radiance(0,float(crown.get("emission_strength")))
 	if phase == Phase.DROP:
 		label.text = ""
 		if carrier.get_contact_count()>0:
@@ -284,7 +282,8 @@ func _unlock_player() -> void:
 func _on_player_died(_source: Node) -> void:
 	_audio_stopped = true
 	voice.stop()
-	voice_dsp.flush_tail()
+	if is_instance_valid(voice_dsp):
+		voice_dsp.flush_tail()
 
 func _exit_tree() -> void:
 	_unlock_player()

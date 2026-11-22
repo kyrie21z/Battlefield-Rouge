@@ -17,22 +17,29 @@ func _ready() -> void:
 	var player: Player = corridor.player
 	player.set_physics_process(false)
 	var crown := player.get_node("CrownVoiceSystem") as CrownVoiceSystem
-	var dsp := crown.voice_dsp
+	check("real worn Crown plays dry on Master bus without radio DSP", crown.voice_dsp == null and crown.audio.bus == &"Master")
+	var opening_voice := AudioStreamPlayer.new()
+	add_child(opening_voice)
+	var dsp := CrownVoiceDSP.new()
+	dsp.setup(opening_voice, 0.5)
+	add_child(dsp)
 	var index := AudioServer.get_bus_index(dsp.bus_name)
-	check("real worn Crown routes through 300–3500 Hz chain", crown.audio.bus == dsp.bus_name and AudioServer.get_bus_effect(index,0).cutoff_hz == 300 and AudioServer.get_bus_effect(index,1).cutoff_hz == 3500)
+	check("opening CrownVoiceDSP routes through 300–3500 Hz chain", opening_voice.bus == dsp.bus_name and AudioServer.get_bus_effect(index,0).cutoff_hz == 300 and AudioServer.get_bus_effect(index,1).cutoff_hz == 3500)
 	var wet := dsp.plate.wet
 	var drive := dsp.harmonics.drive
-	crown.set_fracture_level(4)
-	check("actual radiance signal brightens plate and harmonics", dsp.plate.wet > wet and dsp.harmonics.drive > drive and dsp.presence.gain > 1)
+	dsp.set_radiance(4, 16.5888)
+	check("CrownVoiceDSP radiance brightens plate and harmonics", dsp.plate.wet > wet and dsp.harmonics.drive > drive and dsp.presence.gain > 1)
 	var copy_voice := AudioStreamPlayer3D.new()
 	add_child(copy_voice)
 	var copy_dsp := CrownVoiceDSP.new()
 	copy_dsp.setup(copy_voice, 0.5)
 	add_child(copy_dsp)
-	check("3D Crown voice has an isolated low-radiance effect instance", copy_voice.bus != crown.audio.bus and copy_dsp.plate.wet < dsp.plate.wet)
+	check("isolated CrownVoiceDSP instance keeps its own low-radiance bus", copy_voice.bus != opening_voice.bus and copy_dsp.plate.wet < dsp.plate.wet)
 	copy_dsp.free()
 	check("3D source returns to original bus on component removal", copy_voice.bus == &"Master")
 	copy_voice.free()
+	dsp.free()
+	opening_voice.free()
 	var sequence: BodyReassembly = corridor.reassembly
 	var sound: ClimaxAudio = sequence.soundscape
 	AudioServer.set_bus_mute(0, false)

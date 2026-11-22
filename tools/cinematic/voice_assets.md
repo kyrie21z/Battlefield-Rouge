@@ -1,9 +1,8 @@
 # Offline Mandarin voice assets
 
-The 23 WAV files are synthesized from this project's original dialogue with the
-unmodified official `hexgrad/Kokoro-82M-v1.1-zh` model. Crown dialogue uses
-`zf_001`; the interview and the player's inner voice use `zm_010`. These are
-standard model presets, not a clone of a named person.
+The 23 WAV files are synthesized offline from this project's original dialogue:
+- **17 Crown (Pride) clips** (`opening/{wake,care,obstacle,better,invitation}`, `dynamic/*`, `climax/crown_breakdown`): synthesized with unmodified `openbmb/VoxCPM2` (Apache-2.0) using an original Voice Design anchor (`quiet_01`, seed `107`, not a clone of any named person) and stage-specific style instructions, resampled to 24 kHz mono PCM16 WAV (peak `0.92`, `120/180 ms` clean ends), and human-auditioned line by line.
+- **6 non-Crown clips** (`opening/interview` and the 5 player inner-voice climax lines): retained from the unmodified official `hexgrad/Kokoro-82M-v1.1-zh` model (`zm_010`, Apache-2.0).
 
 ## Sources and rights
 

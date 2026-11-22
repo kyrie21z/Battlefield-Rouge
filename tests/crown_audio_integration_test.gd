@@ -49,11 +49,10 @@ func _ready() -> void:
 	add_child(encounter)
 	encounter.set_physics_process(false)
 	encounter.boss.set_physics_process(false)
-	check("production final encounter routes original 3D Crown clip",encounter.voice.bus == encounter.voice_dsp.bus_name and encounter.voice.stream.resource_path.ends_with("crown_breakdown.wav"))
-	var quiet := encounter.voice_dsp.plate.wet
+	check("production final encounter routes dry 3D Crown clip",encounter.voice_dsp == null and encounter.voice.bus == &"Master" and encounter.voice.stream.resource_path.ends_with("crown_breakdown.wav"))
 	encounter.crown.call("set_emission_strength",16.5888)
 	encounter._physics_process(0.0)
-	check("cinematic radio follows actual Crown emission",encounter.voice_dsp.plate.wet > quiet and is_equal_approx(encounter.voice_dsp.plate.wet,0.43) and is_equal_approx((encounter.crown as CrownModel).gold.emission_energy_multiplier,16.5888))
+	check("final encounter updates actual Crown emission while keeping dry voice",encounter.voice_dsp == null and is_equal_approx((encounter.crown as CrownModel).gold.emission_energy_multiplier,16.5888))
 	var audio := encounter.get_node("CombatAudio") as RealmAudioDirector
 	check("final boss owns player-only combat audio with no realm ambience",audio.player == player and audio.stage == null and not audio.ambient.playing and audio.get_node_or_null("SorrowBoonAudio") != null)
 	encounter.boss.set_combat_active(true)
@@ -88,11 +87,10 @@ func _ready() -> void:
 	await frames(12)
 	encounter._physics_process(0.0)
 	check("real floor contact after death cannot restart Crown rant",encounter.phase == DoppelgangerSpawn.Phase.RANT and not encounter.voice.playing)
-	var boss_bus := encounter.voice_dsp.bus_name
 	encounter.queue_free()
 	player.queue_free()
 	await frames()
 	await get_tree().create_timer(0.15).timeout
-	check("final encounter releases scene-owned buses",AudioServer.get_bus_index(boss_bus)==-1 and AudioServer.bus_count==initial_buses)
+	check("final encounter leaves audio bus count unchanged",AudioServer.bus_count==initial_buses)
 	print("CROWN AUDIO INTEGRATION: %d checks, %d failures" % [checks,failures])
 	get_tree().quit(1 if failures else 0)

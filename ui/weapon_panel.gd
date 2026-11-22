@@ -1,11 +1,11 @@
 class_name WeaponPanel
 extends Control
-## One pistol: current/capacity, name and crystal reassembly progress.
+## One pistol: current/capacity, name and crystal reassembly progress (Scheme B).
 
 const AMMO_POS := Vector2(18.0, 44.0)
 const AMMO_FONT := 36
 const AMMO_WIDTH := 178.0
-const RELOAD_BAR := Rect2(18.0, 80.0, 178.0, 8.0)
+const RELOAD_BAR := Rect2(18.0, 80.0, 178.0, 6.0)
 const LOW_AMMO_SHARE := 0.25
 
 var weapon: Weapon
@@ -21,14 +21,11 @@ var _name_label: Label
 
 func _ready() -> void:
 	_name_label = Label.new()
-	_name_label.position = Vector2(18.0, 50.0)
+	_name_label.position = Vector2(18.0, 52.0)
 	_name_label.size = Vector2(AMMO_WIDTH, 24.0)
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_name_label.clip_text = true
-	_name_label.add_theme_font_size_override("font_size", 16)
-	_name_label.add_theme_color_override("font_color", HudStyle.MUTED)
-	_name_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	_name_label.add_theme_constant_override("outline_size", 4)
+	EditorialStyle.style_label(_name_label, 14, EditorialStyle.ASH, 600)
 	add_child(_name_label)
 
 
@@ -60,13 +57,15 @@ func _sync() -> void:
 
 
 func _draw() -> void:
-	HudStyle.draw_panel(self, Rect2(Vector2.ZERO, size), HudStyle.PANEL_LINE)
-	var font := ThemeDB.fallback_font
+	var rect := Rect2(Vector2.ZERO, size)
+	draw_rect(Rect2(Vector2(-4.0, 4.0), size), Color(EditorialStyle.PAPER, 0.85))
+	draw_rect(rect, EditorialStyle.INK)
+	draw_rect(rect, EditorialStyle.INK, false, 2.0)
+	var font := EditorialStyle.font_mono(800)
 	draw_string(font, AMMO_POS, ammo_text, HORIZONTAL_ALIGNMENT_LEFT, -1, AMMO_FONT, ammo_color)
 
 	if reload_visible:
-		draw_rect(RELOAD_BAR, Color(0.0, 0.0, 0.0, 0.6))
+		draw_rect(RELOAD_BAR, EditorialStyle.INK_TRACK)
 		draw_rect(Rect2(RELOAD_BAR.position,
 			Vector2(RELOAD_BAR.size.x * clampf(reload_fraction, 0.0, 1.0), RELOAD_BAR.size.y)),
-			HudStyle.ACCENT)
-		draw_rect(RELOAD_BAR, Color(HudStyle.ACCENT, 0.45), false, 1.0)
+			EditorialStyle.GOLD_BRIGHT)

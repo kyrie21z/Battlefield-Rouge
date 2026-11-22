@@ -1,17 +1,18 @@
 class_name Vitals
 extends Control
-## Bottom-left health panel: segmented bar, the white chip-damage trail, the
-## shield duration/capacity strip, two dash-charge pips and the low-health warning
-## border. Reads the player only.
+## Bottom-left architectural vitals plaque (Scheme B):
+## Carbon-ink numeric block + ivory-paper ruler card with crisp black health bar,
+## crimson chip-damage trail, shield hairline and dual horizontal SHIFT dash bars.
 
 const SEGMENTS := 12
 const LOW_FRACTION := 0.3
-const BAR_RECT := Rect2(92.0, 26.0, 232.0, 44.0)
-## Two dash pips in the free space left of the health number. They end well
-## before BAR_RECT.x, so the shield strip above the bar never crosses them.
-const DASH_CELL := Vector2(24.0, 7.0)
-const DASH_GAP := 6.0
-const DASH_ORIGIN := Vector2(18.0, 9.0)
+const INK_BLOCK_WIDTH := 96.0
+## Health bar rect on the ivory paper half. Shield sits at y - 16 above it.
+const BAR_RECT := Rect2(114.0, 26.0, 214.0, 18.0)
+## Horizontal dash bars below the health bar; completely clear of the shield strip.
+const DASH_CELL := Vector2(68.0, 6.0)
+const DASH_GAP := 8.0
+const DASH_ORIGIN := Vector2(114.0, 60.0)
 
 var player: Player
 var displayed_health := 0.0
@@ -78,61 +79,92 @@ func advance(delta: float) -> void:
 
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
-	var border := HudStyle.PANEL_LINE
+	var ink_w := minf(INK_BLOCK_WIDTH, size.x * 0.30)
+	var shadow_col := Color(EditorialStyle.WARNING, 0.85) if warning else Color(EditorialStyle.INK, 0.82)
+
+	# Hard architectural offset shadow
+	draw_rect(Rect2(Vector2(5.0, 5.0), size), shadow_col)
+	# Ivory paper card body
+	draw_rect(rect, EditorialStyle.PAPER)
+	# Left carbon-ink numeric block (pulses crimson on low health)
+	var left_bg := EditorialStyle.INK
 	if warning:
-		var blink := 0.55 + 0.45 * sin(_pulse * 11.0)
-		border = Color(HudStyle.WARNING, blink)
-	HudStyle.draw_panel(self, rect, border)
+		var blink := 0.5 + 0.5 * sin(_pulse * 10.0)
+		left_bg = EditorialStyle.INK.lerp(EditorialStyle.WARNING, 0.32 + 0.38 * blink)
+	draw_rect(Rect2(Vector2.ZERO, Vector2(ink_w, size.y)), left_bg)
 
-	var font := ThemeDB.fallback_font
-	var number_color := HudStyle.WARNING if warning else HudStyle.TEXT
-	draw_string(font, Vector2(16.0, BAR_RECT.position.y + BAR_RECT.size.y * 0.5 + 11.0),
-		str(health_number), HORIZONTAL_ALIGNMENT_LEFT, -1, 32, number_color)
+	# Crisp numeric readout inside carbon block
+	var mono_heavy := EditorialStyle.font_mono(800)
+	var mono_sub := EditorialStyle.font_mono(600, 1)
+	var num_str := str(health_number)
+	var num_col := EditorialStyle.PAPER
+	draw_string(mono_heavy, Vector2(14.0, size.y * 0.56), num_str,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 34, num_col)
+	draw_string(mono_sub, Vector2(15.0, size.y - 14.0),
+		"HP / %d" % int(roundf(max_health)),
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 11, EditorialStyle.ASH)
 
+	# Dynamic bar layout scaled cleanly to control width
+	var right_x := ink_w + 18.0
+	var right_w := maxf(size.x - right_x - 16.0, 40.0)
+	var bar := Rect2(right_x, 26.0, right_w, 16.0)
+
+	# Shield strip above health bar
 	if shield_visible:
-		var strip := Rect2(BAR_RECT.position.x, BAR_RECT.position.y - 16.0, BAR_RECT.size.x, 6.0)
-		var shield_color := PlayerShield.ACCENT if shield_counter_mode else HudStyle.ACCENT
-		draw_rect(strip, Color(0.0, 0.0, 0.0, 0.55))
-		draw_rect(Rect2(strip.position, Vector2(strip.size.x * shield_fraction, strip.size.y)),
+		var strip := Rect2(bar.position.x, bar.position.y - 11.0, bar.size.x, 5.0)
+		var shield_color := PlayerShield.ACCENT if shield_counter_mode else EditorialStyle.SHIELD
+		draw_rect(strip, EditorialStyle.PAPER_TRACK)
+		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(shield_fraction, 0.0, 1.0), strip.size.y)),
 			shield_color)
-		draw_line(strip.position, Vector2(strip.end.x, strip.position.y),
-			Color(shield_color, 0.45), 2.0, true)
 
-	_draw_dash_pips()
-	draw_rect(BAR_RECT, Color(0.0, 0.0, 0.0, 0.55))
-	var gap := 3.0
-	var segment_width := (BAR_RECT.size.x - gap * float(SEGMENTS - 1)) / float(SEGMENTS)
-	var health_x := BAR_RECT.position.x + BAR_RECT.size.x * clampf(displayed_health / max_health, 0.0, 1.0)
-	var delayed_x := BAR_RECT.position.x + BAR_RECT.size.x * clampf(delayed_health / max_health, 0.0, 1.0)
-	var fill_color := HudStyle.WARNING if warning else HudStyle.ACCENT
-	for i in SEGMENTS:
-		var cell := Rect2(BAR_RECT.position.x + float(i) * (segment_width + gap),
-			BAR_RECT.position.y, segment_width, BAR_RECT.size.y)
-		draw_rect(cell, Color(0.04, 0.10, 0.12, 0.9))
-		var filled_end := clampf(health_x, cell.position.x, cell.end.x)
-		if filled_end > cell.position.x:
-			draw_rect(Rect2(cell.position, Vector2(filled_end - cell.position.x, cell.size.y)),
-				fill_color)
-		var trail_start := maxf(cell.position.x, health_x)
-		var trail_end := clampf(delayed_x, cell.position.x, cell.end.x)
-		if trail_end > trail_start:
-			draw_rect(Rect2(Vector2(trail_start, cell.position.y),
-				Vector2(trail_end - trail_start, cell.size.y)), Color(0.95, 0.98, 1.0, 0.9))
+	# Main health ruler: light stone track + sharp ink fill + crisp crimson damage cut
+	draw_rect(bar, EditorialStyle.PAPER_TRACK)
+	var health_w := bar.size.x * clampf(displayed_health / max_health, 0.0, 1.0)
+	var delayed_w := bar.size.x * clampf(delayed_health / max_health, 0.0, 1.0)
+	var fill_color := EditorialStyle.WARNING if warning else EditorialStyle.INK
+	if health_w > 0.0:
+		draw_rect(Rect2(bar.position, Vector2(health_w, bar.size.y)), fill_color)
+	if delayed_w > health_w:
+		draw_rect(Rect2(Vector2(bar.position.x + health_w, bar.position.y),
+			Vector2(delayed_w - health_w, bar.size.y)), EditorialStyle.WARNING)
+
+	# Subtle quarter ticks on the ruler for precision editorial feel
+	for q in range(1, 4):
+		var tx := bar.position.x + bar.size.x * (float(q) * 0.25)
+		draw_line(Vector2(tx, bar.position.y), Vector2(tx, bar.position.y + 4.0),
+			Color(EditorialStyle.PAPER, 0.45), 1.0)
+
+	# Horizontal dash charge bars + SHIFT tag
+	_draw_dash_pips(right_x, right_w)
+
+	# Outer sharp architectural ink border (turns crimson on warning)
+	var border_col := EditorialStyle.WARNING if warning else EditorialStyle.INK
+	draw_rect(rect, border_col, false, 2.0)
 
 
-## Filled pips are ready dashes. The first empty pip is the one refilling, drawn
-## as a partial fill so a charge in progress is visible at a glance.
-func _draw_dash_pips() -> void:
-	for i in dash_max_charges:
-		var cell := Rect2(DASH_ORIGIN + Vector2(float(i) * (DASH_CELL.x + DASH_GAP), 0.0),
-			DASH_CELL)
-		draw_rect(cell, Color(0.04, 0.10, 0.12, 0.9))
+func _draw_dash_pips(right_x: float, right_w: float) -> void:
+	var count := maxi(dash_max_charges, 0)
+	if count <= 0:
+		return
+	var shift_label_w := 56.0
+	var avail_w := maxf(right_w - shift_label_w, 40.0)
+	var gap := 7.0
+	var cell_w := (avail_w - gap * float(count - 1)) / float(count)
+	var y := size.y - 24.0
+	var h := 6.0
+	for i in count:
+		var cell := Rect2(right_x + float(i) * (cell_w + gap), y, cell_w, h)
+		draw_rect(cell, EditorialStyle.PAPER_TRACK)
 		var fill := 0.0
 		if i < dash_charges:
 			fill = 1.0
 		elif i == dash_charges:
-			fill = dash_recharge_fraction
+			fill = clampf(dash_recharge_fraction, 0.0, 1.0)
 		if fill > 0.0:
-			var color := HudStyle.ACCENT if fill >= 1.0 else Color(HudStyle.ACCENT, 0.6)
-			draw_rect(Rect2(cell.position, Vector2(cell.size.x * fill, cell.size.y)), color)
-		draw_rect(cell, Color(HudStyle.ACCENT, 0.5), false, 1.0)
+			var col := EditorialStyle.INK if fill >= 1.0 else EditorialStyle.GOLD
+			draw_rect(Rect2(cell.position, Vector2(cell.size.x * fill, cell.size.y)), col)
+	var tag_font := EditorialStyle.font_mono(700, 1)
+	var tag := (KeyHint.of("dash") if InputMap.has_action("dash") else "SHIFT").to_upper()
+	var tag_w := tag_font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	draw_string(tag_font, Vector2(right_x + right_w - tag_w, y + h + 1.0),
+		tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, EditorialStyle.SLATE)

@@ -1,9 +1,11 @@
 class_name RealmBossBar
 extends Control
+## Architectural ruler boss health bar (Scheme B):
+## Ivory paper track framed in sharp carbon ink, realm accent fill, and dark cut trail.
 
 const SHAKE_TIME := 0.12
 const SHAKE_PIXELS := 4.0
-const TRACK_COLOR := Color(0.06, 0.06, 0.07, 0.85)
+const TRACK_COLOR := Color("f6f4eef2")
 
 var trail := HealthTrail.new()
 var shake_offset := 0.0
@@ -61,11 +63,28 @@ func _advance(delta: float) -> void:
 func _draw() -> void:
 	if not is_instance_valid(_health):
 		return
-	var origin := Vector2(shake_offset, 0)
+	var origin := Vector2(shake_offset, 0.0)
 	var max_health := maxf(max_value, 1.0)
-	var current_width := size.x * clampf(trail.current / max_health, 0.0, 1.0)
-	var delayed_width := size.x * clampf(trail.delayed / max_health, 0.0, 1.0)
+	var inner_origin := origin + Vector2(2.0, 2.0)
+	var inner_size := Vector2(maxf(size.x - 4.0, 1.0), maxf(size.y - 4.0, 1.0))
+	var current_width := inner_size.x * clampf(trail.current / max_health, 0.0, 1.0)
+	var delayed_width := inner_size.x * clampf(trail.delayed / max_health, 0.0, 1.0)
+
+	# Hard offset shadow + ivory ruler track
+	draw_rect(Rect2(origin + Vector2(3.0, 3.0), size), Color(EditorialStyle.INK, 0.72))
 	draw_rect(Rect2(origin, size), TRACK_COLOR)
-	draw_rect(Rect2(origin, Vector2(current_width, size.y)), _fill_color)
+	# Realm accent fill
+	if current_width > 0.0:
+		draw_rect(Rect2(inner_origin, Vector2(current_width, inner_size.y)), _fill_color)
+	# Delayed damage cut in translucent carbon ink for high contrast on paper
 	if delayed_width > current_width:
-		draw_rect(Rect2(origin + Vector2(current_width, 0), Vector2(delayed_width - current_width, size.y)), Color.WHITE)
+		draw_rect(Rect2(inner_origin + Vector2(current_width, 0.0),
+			Vector2(delayed_width - current_width, inner_size.y)),
+			Color(EditorialStyle.INK, 0.35))
+	# Crisp quarter divisions
+	for q in range(1, 4):
+		var tx := inner_origin.x + inner_size.x * (float(q) * 0.25)
+		draw_line(Vector2(tx, inner_origin.y), Vector2(tx, inner_origin.y + inner_size.y),
+			Color(EditorialStyle.INK, 0.22), 1.0)
+	# Sharp outer ink border
+	draw_rect(Rect2(origin, size), EditorialStyle.INK, false, 2.0)

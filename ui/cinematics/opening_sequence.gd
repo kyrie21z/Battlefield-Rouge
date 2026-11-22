@@ -155,50 +155,96 @@ func _make_ui() -> void:
 	mask.shader = BLINK_SHADER
 	overlay.material = mask
 	layer.add_child(overlay)
-	subtitle = Label.new()
+
+	subtitle = EditorialStyle.make_label("", 26, EditorialStyle.PAPER, 600, false, 1)
 	subtitle.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	subtitle.offset_top = -140
-	subtitle.offset_bottom = -50
-	subtitle.offset_left = 120
-	subtitle.offset_right = -120
+	subtitle.offset_bottom = -52
+	subtitle.offset_left = 140
+	subtitle.offset_right = -140
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.add_theme_font_size_override("font_size", 29)
-	subtitle.add_theme_color_override("font_color", Color.WHITE)
-	subtitle.add_theme_color_override("font_shadow_color", Color(0.02, 0.02, 0.02))
+	subtitle.add_theme_color_override("font_shadow_color", Color(0.04, 0.05, 0.07, 0.92))
 	subtitle.add_theme_constant_override("shadow_offset_x", 2)
 	subtitle.add_theme_constant_override("shadow_offset_y", 2)
 	layer.add_child(subtitle)
+
 	skip_button = Button.new()
-	skip_button.text = "跳过演出"
-	skip_button.add_theme_font_size_override("font_size", 24)
+	skip_button.text = "跳过演出  ·  SKIP"
+	skip_button.custom_minimum_size = Vector2(200, 44)
 	skip_button.position = Vector2(28, 28)
+	EditorialStyle.style_button(skip_button, false, false, 16)
 	skip_button.pressed.connect(skip)
 	layer.add_child(skip_button)
+
 	motion_button = CheckButton.new()
 	motion_button.text = "减少镜头移动 / 无模糊"
-	motion_button.add_theme_font_size_override("font_size", 22)
-	motion_button.position = Vector2(28, 80)
+	motion_button.position = Vector2(28, 82)
+	motion_button.add_theme_font_override("font", EditorialStyle.font_sans(600))
+	motion_button.add_theme_font_size_override("font_size", 16)
+	motion_button.add_theme_color_override("font_color", EditorialStyle.INK)
+	motion_button.add_theme_color_override("font_hover_color", EditorialStyle.INK)
+	motion_button.add_theme_color_override("font_pressed_color", EditorialStyle.INK)
+	motion_button.add_theme_stylebox_override("normal",
+		EditorialStyle.plaque(Color(EditorialStyle.PAPER, 0.92), EditorialStyle.INK, 2, Vector2(3, 3), Color(EditorialStyle.INK, 0.4), 12, 6))
+	motion_button.add_theme_stylebox_override("hover",
+		EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(3, 3), Color(EditorialStyle.GOLD, 0.7), 12, 6))
+	motion_button.add_theme_stylebox_override("pressed",
+		EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(3, 3), Color(EditorialStyle.INK, 0.4), 12, 6))
 	motion_button.toggled.connect(func(value: bool): reduced_motion = value)
 	layer.add_child(motion_button)
+
 	title_panel = PanelContainer.new()
 	title_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	title_panel.offset_left = -270
-	title_panel.offset_top = -120
-	title_panel.offset_right = 270
-	title_panel.offset_bottom = 120
+	title_panel.offset_left = -310
+	title_panel.offset_top = -156
+	title_panel.offset_right = 310
+	title_panel.offset_bottom = 156
+	var title_style := EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(8, 8), Color(EditorialStyle.GOLD, 0.85), 0, 0)
+	title_panel.add_theme_stylebox_override("panel", title_style)
+
+	var title_shell := VBoxContainer.new()
+	title_shell.add_theme_constant_override("separation", 0)
+	title_panel.add_child(title_shell)
+
+	var crown_bar := ColorRect.new()
+	crown_bar.color = EditorialStyle.GOLD
+	crown_bar.custom_minimum_size.y = 7
+	crown_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_shell.add_child(crown_bar)
+
+	var title_pad := MarginContainer.new()
+	title_pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	for side in ["left", "right"]:
+		title_pad.add_theme_constant_override("margin_" + side, 42)
+	for side in ["top", "bottom"]:
+		title_pad.add_theme_constant_override("margin_" + side, 30)
+	title_shell.add_child(title_pad)
+
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 24)
-	title_panel.add_child(column)
-	var title := Label.new()
-	title.text = "M I N D  F R E A K\n在停摆的那一刻，醒来。"
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_theme_constant_override("separation", 18)
+	title_pad.add_child(column)
+
+	var eye_wrap := CenterContainer.new()
+	eye_wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(eye_wrap)
+	eye_wrap.add_child(EditorialStyle.make_eyebrow("THRESHOLD  //  心智之门", 13))
+
+	var title := EditorialStyle.make_label("MIND FREAK", 40, EditorialStyle.INK, 800, true, 6)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
 	column.add_child(title)
+
+	var tagline := EditorialStyle.make_label("在停摆的那一刻，醒来。", 20, EditorialStyle.SLATE, 600, false, 2)
+	tagline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(tagline)
+
 	var begin := Button.new()
-	begin.text = "开始游戏"
-	begin.add_theme_font_size_override("font_size", 28)
+	begin.text = "开始挑战  →"
+	begin.custom_minimum_size = Vector2(280, 56)
+	begin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	EditorialStyle.style_button(begin, true, true, 22)
 	begin.pressed.connect(start)
 	column.add_child(begin)
 	layer.add_child(title_panel)

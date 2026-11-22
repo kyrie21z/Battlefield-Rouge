@@ -1,24 +1,20 @@
 class_name BoonPresentation
 extends BoonIdentity
-## Shared authored identity for cards and their corresponding world reward.
+## Shared authored identity for cards and their corresponding world reward (Scheme B).
 
-static func label(text: String, size: int, color: Color) -> Label:
-	var result := Label.new()
-	result.text = text
-	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	result.add_theme_font_size_override("font_size", size)
-	result.add_theme_color_override("font_color", color)
-	return result
+static func label(text: String, size: int, color: Color, weight := 500, mono := false, spacing := 0) -> Label:
+	return EditorialStyle.make_label(text, size, color, weight, mono, spacing)
 
 
-static func panel(background: Color, border: Color, width: int = 1) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = border
-	style.set_border_width_all(width)
-	style.set_corner_radius_all(3)
-	style.set_content_margin_all(20)
-	return style
+static func panel(background: Color, border: Color, width: int = 2) -> StyleBoxFlat:
+	return EditorialStyle.plaque(background, border, width, Vector2.ZERO, Color.TRANSPARENT, 20, 18)
+
+
+## High-contrast accent tailored for ivory paper cards.
+static func paper_accent(data: BoonData) -> Color:
+	if data.rarity == BoonData.Rarity.DUAL:
+		return Color("b07a18")
+	return EditorialStyle.realm_accent(data.sin)
 
 
 ## 单行版机制说明，给选卡界面底部那一栏用。

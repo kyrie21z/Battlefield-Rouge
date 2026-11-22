@@ -1,10 +1,7 @@
 class_name PauseMenu
 extends Control
-## Esc menu with the look, crosshair and key-binding settings on two tabs. It
-## pauses the tree, releases the mouse and saves on close. It refuses while
-## another screen owns the pause (run-end), under a fixture and headless (tests
-## opt in with `allow_headless`); it may open over the buff-select screen, and
-## closing there keeps the pause so the choice stays in control.
+## Esc menu with the look, crosshair and key-binding settings on two tabs.
+## Styled in Scheme B (Architectural Editorial ivory settings plaque).
 
 static var allow_headless := false
 
@@ -37,6 +34,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	EditorialStyle.apply_theme(self)
 	visible = false
 	_build()
 
@@ -75,7 +73,6 @@ func close() -> void:
 	if _settings != null and (DisplayServer.get_name() != "headless" or allow_headless):
 		_settings.save_to(GameSettings.settings_path)
 	if _was_paused:
-		# Opened over the buff screen: it stays paused with the mouse visible.
 		return
 	get_tree().paused = false
 	capture_requests += 1
@@ -83,7 +80,6 @@ func close() -> void:
 
 
 func _can_open() -> bool:
-	# Paused outside a buff selection means the run-end screen owns the pause.
 	if get_tree().paused and (_director == null or _director.phase != ZoneDirector.Phase.BUFF_SELECT):
 		return false
 	if RunState.fixture != null:
@@ -103,8 +99,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			close()
 			get_viewport().set_input_as_handled()
 		elif (event is InputEventKey or event is InputEventMouseButton) and event.is_pressed():
-			# Keys or clicks that fell through the panel must not reach the
-			# buff screen's 1/2/3 or anything else behind the menu.
 			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pause") and try_open():
 		get_viewport().set_input_as_handled()
@@ -119,8 +113,6 @@ func _input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.is_pressed():
 			var clicked := _bind_button_at((event as InputEventMouseButton).position)
 			if not clicked.is_empty() and clicked != _awaiting_action:
-				# A click on another binding row switches the capture target
-				# instead of binding the mouse button that clicked it.
 				_end_capture()
 				_on_bind_pressed(clicked)
 				get_viewport().set_input_as_handled()
@@ -129,13 +121,10 @@ func _input(event: InputEvent) -> void:
 			_capture_binding(event)
 			get_viewport().set_input_as_handled()
 		return
-	# While the menu is open, keys never get past it (mouse buttons are stopped
-	# by the panel and the dim layer); Esc passes on to close the menu.
 	if event is InputEventKey and event.is_pressed() and not event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
 
 
-## The binding row under a viewport position, or "" when none is hit.
 func _bind_button_at(pos: Vector2) -> String:
 	for action: String in _bind_buttons:
 		var button := _bind_buttons[action] as Button
@@ -146,39 +135,57 @@ func _bind_button_at(pos: Vector2) -> String:
 
 func _build() -> void:
 	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.62)
+	dim.color = Color(0.055, 0.062, 0.082, 0.76)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
+
 	var panel := PanelContainer.new()
 	panel.anchor_left = 0.5
 	panel.anchor_top = 0.5
 	panel.anchor_right = 0.5
 	panel.anchor_bottom = 0.5
-	panel.offset_left = -450.0
-	panel.offset_top = -470.0
-	panel.offset_right = 450.0
-	panel.offset_bottom = 470.0
-	var style := StyleBoxFlat.new()
-	# Nearly opaque: the buff cards must not show through the menu.
-	style.bg_color = Color(HudStyle.DARK, 0.98)
-	style.border_color = HudStyle.PANEL_LINE
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(14)
+	panel.offset_left = -460.0
+	panel.offset_top = -465.0
+	panel.offset_right = 460.0
+	panel.offset_bottom = 465.0
+	var style := EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(8, 8), Color(EditorialStyle.INK, 0.92), 0, 0)
 	panel.add_theme_stylebox_override("panel", style)
 	add_child(panel)
+
+	var shell := VBoxContainer.new()
+	shell.add_theme_constant_override("separation", 0)
+	panel.add_child(shell)
+
+	# Architectural carbon header bar
+	var header_bar := PanelContainer.new()
+	header_bar.add_theme_stylebox_override("panel",
+		EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.INK, 0, Vector2.ZERO, Color.TRANSPARENT, 28, 16))
+	shell.add_child(header_bar)
+
+	var head_row := HBoxContainer.new()
+	header_bar.add_child(head_row)
+	var title_lbl := EditorialStyle.make_label("暂停  //  SYSTEM", 26, EditorialStyle.PAPER, 800, false, 2)
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head_row.add_child(title_lbl)
+	var esc_lbl := EditorialStyle.make_label("ESC 继续游戏", 14, EditorialStyle.GOLD_BRIGHT, 700, true, 1)
+	esc_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	head_row.add_child(esc_lbl)
+
 	var margin := MarginContainer.new()
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for side in ["left", "right"]:
 		margin.add_theme_constant_override("margin_" + side, 28)
 	for side in ["top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 20)
-	panel.add_child(margin)
+		margin.add_theme_constant_override("margin_" + side, 18)
+	shell.add_child(margin)
+
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
+	box.add_theme_constant_override("separation", 12)
 	margin.add_child(box)
 
-	box.add_child(_text("暂停", 40, HudStyle.TEXT))
-	box.add_child(_text("Esc 继续游戏 · 设置改动立即生效，关闭时保存", 20, HudStyle.MUTED))
+	var subtitle := _text("设置改动立即生效，关闭时保存", 16, EditorialStyle.SLATE)
+	box.add_child(subtitle)
 
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 10)
@@ -189,8 +196,7 @@ func _build() -> void:
 		tab.toggle_mode = true
 		tab.button_group = group
 		tab.custom_minimum_size = Vector2(180.0, 42.0)
-		tab.add_theme_font_size_override("font_size", 22)
-		tab.add_theme_color_override("font_pressed_color", HudStyle.ACCENT)
+		EditorialStyle.style_tab(tab, true, 19)
 		var is_bindings: bool = row[1]
 		tab.button_pressed = not is_bindings
 		tab.toggled.connect(_on_tab.bind(is_bindings))
@@ -200,6 +206,7 @@ func _build() -> void:
 		else:
 			_tab_settings = tab
 	box.add_child(tabs)
+	box.add_child(EditorialStyle.make_rule(EditorialStyle.PAPER_DIM, 2))
 
 	_settings_box = VBoxContainer.new()
 	_settings_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -214,19 +221,20 @@ func _build() -> void:
 	box.add_child(_bindings_box)
 	_build_bindings(_bindings_box)
 
+	box.add_child(EditorialStyle.make_rule(EditorialStyle.PAPER_DIM, 1))
+
 	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 12)
-	var reset := _button("恢复默认", 180.0)
+	buttons.alignment = BoxContainer.ALIGNMENT_END
+	buttons.add_theme_constant_override("separation", 14)
+	var reset := _button("恢复默认", 180.0, false)
 	reset.pressed.connect(_on_reset)
 	buttons.add_child(reset)
-	var resume := _button("继续", 180.0)
+	var resume := _button("继续游戏", 180.0, true)
 	resume.pressed.connect(close)
 	buttons.add_child(resume)
 	box.add_child(buttons)
 
 
-## The look-and-crosshair tab, the settings the menu had before the tabs.
 func _build_settings(parent: VBoxContainer) -> void:
 	var rows := [
 		["mouse", "鼠标灵敏度", GameSettings.SENS_MIN, GameSettings.SENS_MAX, 0.05, "mouse_sensitivity"],
@@ -240,7 +248,7 @@ func _build_settings(parent: VBoxContainer) -> void:
 
 	var style_row := HBoxContainer.new()
 	style_row.add_theme_constant_override("separation", 12)
-	var style_label := _text("准星样式", 22, HudStyle.TEXT)
+	var style_label := _text("准星样式", 19, EditorialStyle.INK)
 	style_label.custom_minimum_size.x = 170.0
 	_style = OptionButton.new()
 	_style.custom_minimum_size = Vector2(260.0, 40.0)
@@ -256,12 +264,12 @@ func _build_settings(parent: VBoxContainer) -> void:
 
 	var color_row := HBoxContainer.new()
 	color_row.add_theme_constant_override("separation", 10)
-	var color_label := _text("准星颜色", 22, HudStyle.TEXT)
+	var color_label := _text("准星颜色", 19, EditorialStyle.INK)
 	color_label.custom_minimum_size.x = 170.0
 	color_row.add_child(color_label)
 	for i in GameSettings.COLOR_PRESETS.size():
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(42.0, 36.0)
+		button.custom_minimum_size = Vector2(42.0, 34.0)
 		button.tooltip_text = GameSettings.COLOR_NAMES[i]
 		button.pressed.connect(_on_color.bind(i))
 		color_row.add_child(button)
@@ -270,7 +278,8 @@ func _build_settings(parent: VBoxContainer) -> void:
 
 	_dynamic = CheckButton.new()
 	_dynamic.text = "动态准星（随扩散张开）"
-	_dynamic.add_theme_color_override("font_color", HudStyle.TEXT)
+	_dynamic.add_theme_font_size_override("font_size", 18)
+	_dynamic.add_theme_color_override("font_color", EditorialStyle.INK)
 	_dynamic.toggled.connect(func(on: bool) -> void:
 		if not _updating:
 			_settings.dynamic_gap = on
@@ -279,24 +288,30 @@ func _build_settings(parent: VBoxContainer) -> void:
 
 	var preview_row := HBoxContainer.new()
 	preview_row.add_theme_constant_override("separation", 16)
-	preview_row.add_child(_text("准星预览", 22, HudStyle.MUTED))
+	var preview_lbl := _text("准星预览", 19, EditorialStyle.SLATE)
+	preview_lbl.custom_minimum_size.x = 170.0
+	preview_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	preview_row.add_child(preview_lbl)
+
+	var preview_box := PanelContainer.new()
+	preview_box.add_theme_stylebox_override("panel",
+		EditorialStyle.plaque(Color("242830"), EditorialStyle.INK, 2, Vector2(3, 3), Color(EditorialStyle.INK, 0.25), 0, 0))
 	var holder := Control.new()
-	holder.custom_minimum_size = Vector2(160.0, 150.0)
+	holder.custom_minimum_size = Vector2(180.0, 136.0)
 	_preview = Crosshair.new()
 	_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.add_child(_preview)
-	preview_row.add_child(holder)
+	preview_box.add_child(holder)
+	preview_row.add_child(preview_box)
 	parent.add_child(preview_row)
 
 
-## The key-binding tab: two columns of label + button rows, every action on
-## screen at once (no scrolling).
 func _build_bindings(parent: VBoxContainer) -> void:
-	var hint := _text("点击后按下新按键或鼠标键 · Esc 取消 · 与其它动作冲突时自动互换", 20, HudStyle.MUTED)
+	var hint := _text("点击后按下新按键或鼠标键 · Esc 取消 · 与其它动作冲突时自动互换", 16, EditorialStyle.SLATE)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(hint)
-	_status = _text("", 20, HudStyle.ACCENT)
+	_status = _text("", 17, EditorialStyle.GOLD)
 	parent.add_child(_status)
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 24)
@@ -311,11 +326,11 @@ func _build_bindings(parent: VBoxContainer) -> void:
 		var row: Array = KeyBindings.REBINDABLE[i]
 		var line := HBoxContainer.new()
 		line.add_theme_constant_override("separation", 12)
-		var label := _text(row[1], 22, HudStyle.TEXT)
+		var label := _text(row[1], 19, EditorialStyle.INK)
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(170.0, 38.0)
-		button.add_theme_font_size_override("font_size", 20)
+		EditorialStyle.style_button(button, false, true, 17)
 		var action: String = row[0]
 		button.pressed.connect(_on_bind_pressed.bind(action))
 		line.add_child(label)
@@ -332,17 +347,14 @@ func _on_tab(on: bool, bindings: bool) -> void:
 
 
 func _text(text: String, font_size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	return label
+	return EditorialStyle.make_label(text, font_size, color, 600)
 
 
-func _button(text: String, width: float) -> Button:
+func _button(text: String, width: float, primary := false) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(width, 48.0)
+	button.custom_minimum_size = Vector2(width, 46.0)
+	EditorialStyle.style_button(button, primary, true, 18)
 	return button
 
 
@@ -350,7 +362,7 @@ func _slider(parent: VBoxContainer, key: String, text: String, min_value: float,
 		max_value: float, step: float, field: String) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	var label := _text(text, 22, HudStyle.TEXT)
+	var label := _text(text, 19, EditorialStyle.INK)
 	label.custom_minimum_size.x = 170.0
 	var slider := HSlider.new()
 	slider.min_value = min_value
@@ -358,8 +370,9 @@ func _slider(parent: VBoxContainer, key: String, text: String, min_value: float,
 	slider.step = step
 	slider.custom_minimum_size.x = 240.0
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var value := _text("", 20, HudStyle.MUTED)
-	value.custom_minimum_size.x = 62.0
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var value := EditorialStyle.make_label("", 17, EditorialStyle.INK, 700, true)
+	value.custom_minimum_size.x = 68.0
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(label)
 	row.add_child(slider)
@@ -391,7 +404,7 @@ func _on_color(index: int) -> void:
 func _on_reset() -> void:
 	_settings.reset_defaults()
 	KeyBindings.apply(_settings.bindings)
-	_set_status("", HudStyle.ACCENT)
+	_set_status("", EditorialStyle.GOLD)
 	_refresh()
 
 
@@ -400,27 +413,25 @@ func _on_bind_pressed(action: String) -> void:
 		_end_capture()
 	_awaiting_action = action
 	(_bind_buttons[action] as Button).text = "按下按键…"
-	_set_status("", HudStyle.ACCENT)
+	_set_status("", EditorialStyle.GOLD)
 
 
-## The next key or mouse press while waiting: Esc cancels, reserved inputs are
-## refused, anything bindable lands on the action (swapping on conflict).
 func _capture_binding(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		_end_capture()
-		_set_status("已取消", HudStyle.MUTED)
+		_set_status("已取消", EditorialStyle.SLATE)
 		return
 	if not KeyBindings.can_bind(event):
-		_set_status("该按键被保留（Esc / F3 / 滚轮），请换一个", HudStyle.WARNING)
+		_set_status("该按键被保留（Esc / F3 / 滚轮），请换一个", EditorialStyle.WARNING)
 		return
 	var action := _awaiting_action
 	var swapped := KeyBindings.assign(_settings.bindings, action, event)
 	_end_capture()
 	KeyBindings.apply(_settings.bindings)
 	if not swapped.is_empty():
-		_set_status("已与「%s」互换" % _label_of(swapped), HudStyle.ACCENT)
+		_set_status("已与「%s」互换" % _label_of(swapped), EditorialStyle.GOLD)
 	else:
-		_set_status("", HudStyle.ACCENT)
+		_set_status("", EditorialStyle.GOLD)
 	_settings.changed.emit()
 	_refresh_bindings()
 
@@ -478,11 +489,13 @@ func _update_colors() -> void:
 		var chosen: bool = _settings.crosshair_color == GameSettings.COLOR_PRESETS[i]
 		var style := StyleBoxFlat.new()
 		style.bg_color = GameSettings.COLOR_PRESETS[i]
-		style.border_color = HudStyle.ACCENT if chosen else Color(0.0, 0.0, 0.0, 0.5)
+		style.border_color = EditorialStyle.INK if chosen else Color(EditorialStyle.INK, 0.35)
 		style.set_border_width_all(3 if chosen else 1)
+		style.set_corner_radius_all(0)
 		_colors[i].add_theme_stylebox_override("normal", style)
 		var hover := style.duplicate() as StyleBoxFlat
-		hover.border_color = Color(0.85, 0.95, 1.0)
+		hover.border_color = EditorialStyle.GOLD
+		hover.set_border_width_all(3)
 		_colors[i].add_theme_stylebox_override("hover", hover)
 
 
@@ -495,6 +508,6 @@ func _update_preview() -> void:
 	_preview.color = Color(_settings.crosshair_color, _settings.crosshair_alpha)
 	_preview.show_lines = true
 	_preview.gap = _preview.min_gap
-	_preview.pivot_offset = Vector2(80.0, 75.0)
+	_preview.pivot_offset = Vector2(90.0, 68.0)
 	_preview.scale = Vector2(3.0, 3.0)
 	_preview.queue_redraw()

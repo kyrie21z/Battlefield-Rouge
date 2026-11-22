@@ -1,11 +1,14 @@
 class_name DualBoonCodex
 extends Control
-## Injected, read-only codex. Host owns visibility, pause, input capture and discovery persistence.
-const PAPER := Color("f2f0e9")
-const INK := Color("141923")
-const MUTED := Color("aeb8c7")
-const GOLD := Color("e7ce8c")
+## Injected, read-only codex (Scheme B: Architectural Editorial).
+## Host owns visibility, pause, input capture and discovery persistence.
+
+const PAPER := EditorialStyle.PAPER
+const INK := EditorialStyle.INK
+const MUTED := EditorialStyle.SLATE
+const GOLD := EditorialStyle.GOLD
 const PAGE_NAMES := ["共鸣合成谱", "怠惰", "恐惧", "暴怒", "悲伤"]
+
 var _manager: BoonManager
 var _discovered: Array[String] = []
 var _catalog: Array[BoonData] = []
@@ -27,6 +30,7 @@ var _detail_body: Label
 var _detail_status: Label
 var _requirements: Label
 
+
 func setup(manager: BoonManager, discovered: Array[String]) -> void:
 	_disconnect_manager()
 	_manager = manager
@@ -36,9 +40,11 @@ func setup(manager: BoonManager, discovered: Array[String]) -> void:
 	if is_node_ready():
 		refresh()
 
+
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
+	EditorialStyle.apply_theme(self)
 	_catalog = BoonCatalog.all()
 	for card in _catalog:
 		if card.rarity == BoonData.Rarity.DUAL:
@@ -47,19 +53,21 @@ func _ready() -> void:
 	visibility_changed.connect(_on_visibility_changed)
 	refresh()
 
+
 func _exit_tree() -> void:
 	_disconnect_manager()
+
 
 func _disconnect_manager() -> void:
 	if is_instance_valid(_manager) and _manager.changed.is_connected(refresh):
 		_manager.changed.disconnect(refresh)
 
+
 func _on_visibility_changed() -> void:
 	if is_visible_in_tree():
 		refresh()
 
-## Refresh the injected snapshot; call setup again for a new discovery list.
-## Equipment also updates automatically through manager.changed.
+
 func refresh() -> void:
 	if not is_node_ready():
 		return
@@ -83,32 +91,35 @@ func refresh() -> void:
 	_topology.style_edges()
 	_update_detail()
 
+
 func _build() -> void:
 	var background := ColorRect.new()
-	background.color = INK
+	background.color = PAPER
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
+
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 24)
 	add_child(margin)
+
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 12)
+	root.add_theme_constant_override("separation", 10)
 	margin.add_child(root)
-	root.add_child(_label("MIND FREAK   /   BOON CODEX", 15, GOLD))
+
 	var heading := HBoxContainer.new()
 	root.add_child(heading)
-	var title := _label("双重共鸣 · 心智合成谱", 30, PAPER)
-	title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	var title := EditorialStyle.make_label("双重共鸣 · 心智合成谱", 26, INK, 800, false, 2)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(title)
-	var hint := _label("LB / RB  切页     方向键  浏览     A / Enter  详情", 17, MUTED)
-	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
+	var hint := EditorialStyle.make_label("LB / RB 切页   ·   方向键 浏览   ·   A / Enter 详情", 14, MUTED, 600, true)
 	heading.add_child(hint)
-	_summary = _label("", 18, MUTED)
+
+	_summary = _label("", 16, MUTED)
 	root.add_child(_summary)
+
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 8)
 	root.add_child(tabs)
@@ -116,92 +127,138 @@ func _build() -> void:
 		var button := Button.new()
 		button.text = "%02d   %s" % [index + 1, PAGE_NAMES[index]]
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.custom_minimum_size.y = 42
-		_style_button(button, GOLD if index == 0 else BoonIdentity.COLORS[index - 1])
+		button.custom_minimum_size.y = 40
+		var tab_accent := GOLD if index == 0 else EditorialStyle.realm_accent(index - 1)
+		_style_tab_button(button, tab_accent)
 		button.pressed.connect(func(): _set_page(index))
 		tabs.add_child(button)
 		_tabs.append(button)
+
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 22)
+	body.add_theme_constant_override("separation", 20)
 	root.add_child(body)
+
 	var map_column := VBoxContainer.new()
 	map_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	map_column.size_flags_stretch_ratio = .9
+	map_column.size_flags_stretch_ratio = 0.9
+	map_column.add_theme_constant_override("separation", 8)
 	body.add_child(map_column)
-	map_column.add_child(_label("四种心魔，六条相遇的路径", 20, PAPER))
+	map_column.add_child(EditorialStyle.make_label("四种心魔，六条相遇的路径", 18, INK, 700))
+
+	var topo_frame := PanelContainer.new()
+	topo_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	topo_frame.add_theme_stylebox_override("panel",
+		EditorialStyle.plaque(INK, INK, 2, Vector2(4, 4), Color(INK, 0.25), 8, 8))
+	map_column.add_child(topo_frame)
+
 	_topology = CodexTopology.new()
 	_topology.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_topology.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_topology.card_selected.connect(_select_from_map)
-	map_column.add_child(_topology)
-	var legend := _label("彩色框：已持有核心   ·   金色微光：当前可获得\n共鸣需要两种心魔的核心，特质不能替代。", 17, MUTED)
+	topo_frame.add_child(_topology)
+
+	var legend := _label("彩色框：已持有核心   ·   金色连线：当前可获得\n共鸣需要两种心魔的核心，特质不能替代。", 15, MUTED)
 	map_column.add_child(legend)
-	_core_summary = _label("", 17, PAPER)
+	_core_summary = EditorialStyle.make_label("", 15, INK, 700)
+	_core_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	map_column.add_child(_core_summary)
+
 	var right := VBoxContainer.new()
 	right.custom_minimum_size.x = 560
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.size_flags_stretch_ratio = 1.25
 	right.add_theme_constant_override("separation", 10)
 	body.add_child(right)
-	_count = _label("", 18, PAPER)
+
+	_count = EditorialStyle.make_label("", 16, INK, 700, true)
 	right.add_child(_count)
+
 	_list_scroll = ScrollContainer.new()
 	_list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_list_scroll.follow_focus = true
 	right.add_child(_list_scroll)
+
 	_grid = GridContainer.new()
 	_grid.columns = 2
 	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grid.add_theme_constant_override("h_separation", 10)
 	_grid.add_theme_constant_override("v_separation", 10)
 	_list_scroll.add_child(_grid)
+
 	var detail := PanelContainer.new()
-	detail.custom_minimum_size.y = 220
+	detail.custom_minimum_size.y = 215
 	detail.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail.add_theme_stylebox_override("panel", BoonPresentation.panel(PAPER, Color("c9c6bc")))
+	detail.add_theme_stylebox_override("panel",
+		EditorialStyle.plaque(Color("ffffff"), INK, 2, Vector2(4, 4), Color(INK, 0.25), 18, 14))
 	right.add_child(detail)
+
 	_detail_scroll = ScrollContainer.new()
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.focus_mode = Control.FOCUS_ALL
 	_detail_scroll.gui_input.connect(_scroll_detail)
 	detail.add_child(_detail_scroll)
+
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 7)
+	content.add_theme_constant_override("separation", 6)
 	_detail_scroll.add_child(content)
-	_detail_title = _label("", 25, INK)
-	_detail_meta = _label("", 16, Color("4c5360"))
-	_detail_status = _label("", 18, Color("5f461d"))
-	_detail_body = _label("", 19, INK)
-	_requirements = _label("", 17, Color("3d4653"))
-	for label in [_detail_title, _detail_meta, _detail_status, _detail_body, _requirements]:
-		content.add_child(label)
-	root.add_child(_label("未发现的卡同样可以查阅。图鉴仅显示路线，实际获取仍需遇见对应赐福。", 16, MUTED))
+
+	_detail_title = EditorialStyle.make_label("", 24, INK, 800)
+	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_detail_meta = _label("", 14, MUTED)
+	_detail_status = EditorialStyle.make_label("", 15, Color("8a5d10"), 700)
+	_detail_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_detail_body = _label("", 17, INK)
+	_requirements = _label("", 15, Color("3c4350"))
+	for lbl in [_detail_title, _detail_meta, _detail_status, _detail_body, _requirements]:
+		content.add_child(lbl)
+
+	root.add_child(_label("未发现的卡同样可以查阅。图鉴仅显示路线，实际获取仍需遇见对应赐福。", 14, MUTED))
+
 
 func _label(value: String, font_size: int, color: Color) -> Label:
-	var result := BoonPresentation.label(value, font_size, color)
+	var result := EditorialStyle.make_label(value, font_size, color, 500)
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return result
 
-func _style_button(button: Button, accent: Color) -> void:
-	button.add_theme_font_size_override("font_size", 18)
-	button.add_theme_color_override("font_color", PAPER)
-	button.add_theme_color_override("font_hover_color", Color.WHITE)
-	button.add_theme_color_override("font_focus_color", Color.WHITE)
-	button.add_theme_stylebox_override("normal", _button_panel(Color("1d2430"), accent.darkened(.45)))
-	button.add_theme_stylebox_override("hover", _button_panel(Color("303947"), accent, 2))
-	button.add_theme_stylebox_override("pressed", _button_panel(Color("303947"), accent, 2))
-	button.add_theme_stylebox_override("focus", _button_panel(Color(0, 0, 0, 0), PAPER, 2))
 
-func _button_panel(background: Color, border: Color, width: int = 1) -> StyleBoxFlat:
-	var style := BoonPresentation.panel(background, border, width)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	return style
+func _style_tab_button(button: Button, accent: Color) -> void:
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.add_theme_font_override("font", EditorialStyle.font_sans(700, 1))
+	button.add_theme_font_size_override("font_size", 16)
+	button.add_theme_color_override("font_color", INK)
+	button.add_theme_color_override("font_hover_color", PAPER)
+	button.add_theme_color_override("font_focus_color", INK)
+	button.add_theme_stylebox_override("normal", EditorialStyle.button_box(EditorialStyle.PAPER_SOFT, INK, 1, Vector2.ZERO, Color.TRANSPARENT, 10, 6))
+	button.add_theme_stylebox_override("hover", EditorialStyle.button_box(INK, INK, 2, Vector2.ZERO, Color.TRANSPARENT, 10, 6))
+	button.add_theme_stylebox_override("pressed", EditorialStyle.button_box(INK, accent, 2, Vector2.ZERO, Color.TRANSPARENT, 10, 6))
+	button.add_theme_stylebox_override("focus", EditorialStyle.button_box(PAPER, GOLD, 2, Vector2.ZERO, Color.TRANSPARENT, 10, 6))
+
+
+func _style_card_button(button: Button, accent: Color, is_selected: bool) -> void:
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.add_theme_font_override("font", EditorialStyle.font_sans(600))
+	button.add_theme_font_size_override("font_size", 16)
+	var bg := INK if is_selected else Color("ffffff")
+	var fg := PAPER if is_selected else INK
+	var normal := EditorialStyle.plaque(bg, accent if is_selected else INK, 2 if is_selected else 1, Vector2(3, 3) if is_selected else Vector2.ZERO, Color(accent, 0.7), 12, 8)
+	normal.border_width_left = 5
+	normal.border_color = accent
+	button.add_theme_stylebox_override("normal", normal)
+	var hover := EditorialStyle.plaque(INK_SOFT if is_selected else EditorialStyle.PAPER_SOFT, accent, 2, Vector2(3, 3), Color(INK, 0.2), 12, 8)
+	hover.border_width_left = 5
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("focus", EditorialStyle.plaque(bg, GOLD, 2, Vector2.ZERO, Color.TRANSPARENT, 12, 8))
+	button.add_theme_color_override("font_color", fg)
+	button.add_theme_color_override("font_hover_color", PAPER if is_selected else INK)
+	button.add_theme_color_override("font_focus_color", fg)
+
+
+const INK_SOFT := EditorialStyle.INK_SOFT
+
 
 func _page_cards() -> Array[BoonData]:
 	var cards: Array[BoonData] = []
@@ -210,16 +267,16 @@ func _page_cards() -> Array[BoonData]:
 			cards.append(card)
 	return cards
 
+
 func _update_cards() -> void:
 	var cards := _page_cards()
 	if _buttons.is_empty():
 		for card in cards:
 			var button := Button.new()
-			button.custom_minimum_size = Vector2(0, 80)
+			button.custom_minimum_size = Vector2(0, 74)
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.clip_text = true
-			_style_button(button, BoonIdentity.accent(card))
 			button.pressed.connect(func(): _select(card))
 			button.focus_entered.connect(func(): _select(card))
 			_grid.add_child(button)
@@ -236,6 +293,7 @@ func _update_cards() -> void:
 		tab.focus_neighbor_bottom = _buttons[cards[0].id].get_path() if not cards.is_empty() else _detail_scroll.get_path()
 	if not cards.is_empty():
 		_detail_scroll.focus_neighbor_top = _buttons[cards.back().id].get_path()
+
 	var known_count := 0
 	for card in cards:
 		var button: Button = _buttons[card.id]
@@ -244,22 +302,29 @@ func _update_cards() -> void:
 		var owned := is_instance_valid(_manager) and _manager.has(card.id)
 		var eligible := is_instance_valid(_manager) and _manager.can_equip(card)
 		button.text = "%s\n%s · %s" % [card.name, "已发现" if known else "未发现", "已持有" if owned else ("可获得" if eligible else "查看前置")]
-		var accent := BoonIdentity.accent(card)
-		button.add_theme_stylebox_override("normal", _button_panel(Color("29303a") if _selected == card else Color("1d2430"), accent if _selected == card else accent.darkened(.55), 2 if _selected == card else 1))
+		_style_card_button(button, BoonPresentation.paper_accent(card), _selected == card)
+
 	_count.text = "%s  /  %d 张  ·  已发现 %d / %d" % [PAGE_NAMES[_page], cards.size(), known_count, cards.size()]
 	for index in _tabs.size():
-		_tabs[index].modulate = Color.WHITE if index == _page else Color("aeb8c7")
+		var tab_accent := GOLD if index == 0 else EditorialStyle.realm_accent(index - 1)
+		var active := index == _page
+		_tabs[index].add_theme_stylebox_override("normal",
+			EditorialStyle.button_box(INK if active else EditorialStyle.PAPER_SOFT, tab_accent if active else INK, 2 if active else 1, Vector2(2, 2) if active else Vector2.ZERO, Color(tab_accent, 0.7), 10, 6))
+		_tabs[index].add_theme_color_override("font_color", PAPER if active else INK)
+
 
 func _select(card: BoonData) -> void:
 	_selected = card
 	_detail_scroll.scroll_vertical = 0
 	refresh()
 
+
 func _select_from_map(card: BoonData) -> void:
 	if _page != 0:
 		_set_page(0, false)
 	_select(card)
 	_list_scroll.ensure_control_visible(_buttons[card.id])
+
 
 func _update_detail() -> void:
 	if _selected == null:
@@ -279,6 +344,7 @@ func _update_detail() -> void:
 	_detail_body.text = card.description
 	_requirements.text = "合成 / 获取前置\n" + "\n".join(CodexRequirements.describe(card, _manager, _catalog))
 
+
 func _set_page(index: int, move_focus: bool = true) -> void:
 	_page = posmod(index, PAGE_NAMES.size())
 	for child in _grid.get_children():
@@ -292,9 +358,8 @@ func _set_page(index: int, move_focus: bool = true) -> void:
 	if move_focus:
 		_tabs[_page].grab_focus()
 
+
 func _scroll_detail(event: InputEvent) -> void:
-	# ScrollContainer does not scroll JoypadButton arrows itself. Keep focus here
-	# while reading; Up at the top falls through to the last card's focus route.
 	if event.is_action_pressed(&"ui_down"):
 		_detail_scroll.scroll_vertical += 48
 		_detail_scroll.accept_event()
@@ -302,8 +367,8 @@ func _scroll_detail(event: InputEvent) -> void:
 		_detail_scroll.scroll_vertical = maxi(0, _detail_scroll.scroll_vertical - 48)
 		_detail_scroll.accept_event()
 
+
 func _input(event: InputEvent) -> void:
-	# Local shoulder handling needs no global InputMap changes; hidden tabs never consume it.
 	if not is_visible_in_tree():
 		return
 	if event is InputEventJoypadButton and event.pressed and event.button_index in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER]:

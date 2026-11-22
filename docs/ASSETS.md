@@ -516,3 +516,27 @@ Boss复用已登记原始24骨晶体人形、手枪/短刃与56预切碎片，�
 ### 同日轻柔版
 
 继续降低原创涉水声的增益与播放电平，增加高频平滑和更缓的起止；来源/许可沿用上述原创代码登记，无新第三方资产。当前音库源码SHA256=`29c69c68c0f5c8bf0a1a7989e772e401e7fa08574c8f0713e6ad6f69a7b94baa`。`docs/proof/sorrow-water-soft/audio/` 的3份WAV均为当前原创生成器的导出/六步叠加，未归一化，仅供试听，完整参数与SHA256见[轻柔版证明](proof/sorrow-water-soft/README.md)。
+
+## Pride 皇冠 VoxCPM2 原创语音替换与局内干声化（2026-11-22）
+
+17 条 Pride 皇冠中文语音（开场 5 条、随行 11 条、终局破防 1 条）由开源模型 **`openbmb/VoxCPM2`**（Apache-2.0 许可）离线合成替换原 Kokoro `zf_001` 占位；其余 6 条非皇冠语音（`interview.wav` 与 5 条终局主角心声）保留原 Kokoro `zm_010` 资产不变。音色来自纯文本原创 Voice Design 母带 `quiet_01`（seed `107`，非任何真人或商业角色克隆；母带 SHA-256：`25e3b63eeb9bc918e1bd7bc0c28032019171b5e5284266f60777cad02e363a77`），经逐句人工试听验收后无损降采至 `24 kHz / 单声道 / PCM16 WAV`（峰值归一化 `0.92`、首尾 `120/180 ms` 留白）。游戏内 `CrownVoiceDSP` 现仅在开场序列启用，局内随行与终局破防改用纯干声。
+
+| 文件 | 时长 | SHA-256 |
+| --- | :---: | --- |
+| `assets/audio/crown/opening/wake.wav` | 6.060s | `af335049c5fdadc04d0b32b415232ea638fbb9b05e895aa8612f16a8c095f40d` |
+| `assets/audio/crown/opening/care.wav` | 7.500s | `4d41753773941a1e742453a2325e5e56aebc311da8f2a05e9d39b26872ae5c83` |
+| `assets/audio/crown/opening/obstacle.wav` | 4.780s | `5c37d976ce5d3ac30dc1cadb891b0b4cf8cc08da8e6543fbdb354fe5de9f0f6c` |
+| `assets/audio/crown/opening/better.wav` | 4.620s | `dabf756a5aa4a52b717d29e19b73e2ab27c800701ae3ce9543e607747cfb4471` |
+| `assets/audio/crown/opening/invitation.wav` | 8.620s | `f8161f026e3f71f9a875707491f395f3ca7a0217a62610fd5d9cd3bf6d4c9460` |
+| `assets/audio/crown/dynamic/first.wav` | 6.540s | `e2efe9d548360e4718aa3034e61382334abd396cc70b6b94a20080324fb09c46` |
+| `assets/audio/crown/dynamic/early.wav` | 7.180s | `661d598571728bace506bc0d497b79ef9373ee3dd2cbfe7491f90253e55261ae` |
+| `assets/audio/crown/dynamic/early_abyss.wav` | 8.300s | `57c9d6d8aed59ff488689b39e69ecf296601b8783cdac666b845f3a5a00eb2fa` |
+| `assets/audio/crown/dynamic/deep.wav` | 5.420s | `923ed64b4e70e2a86dacd7a4abc06a86b0aecb2a20290cdc0ce9eb488545e72c` |
+| `assets/audio/crown/dynamic/deep_abyss.wav` | 6.860s | `8a3880b8b75d14b2690d4f9c48e9be3dcb66353e8bddb2bd39db372c991db4cf` |
+| `assets/audio/crown/dynamic/veteran.wav` | 4.140s | `3c6e5202787630c76d6f754d2ddc7ea597e37e527c3fc266d489151b04431784` |
+| `assets/audio/crown/dynamic/veteran_abyss.wav` | 3.980s | `2a5685d29a8f17aad1573e0709c346ceae4c949901ea222c917b7bfbaeba6a4f` |
+| `assets/audio/crown/dynamic/floor2.wav` | 5.580s | `f3b418eafbe00fe1fa9b6e6396c29c141646d4a82069ba4c61609e60404bbc6f` |
+| `assets/audio/crown/dynamic/floor3.wav` | 6.220s | `5f868ca42a8b6573ab06696971cbe0ad1bad2954300826ea01c509f0a17fe9da` |
+| `assets/audio/crown/dynamic/floor4.wav` | 6.700s | `b638859ba18ee1139450da6f720b99347e1cb880c81255996ddb79cec140b598` |
+| `assets/audio/crown/dynamic/floor5.wav` | 8.460s | `6ba0d5e73a1761cba2bb272cc5a48b4f9aec2272ec90b4c923b598f25c047b5c` |
+| `assets/audio/climax/crown_breakdown.wav` | 4.140s | `04498ef5694c1fddd2f15210bd792c078aafc33ac623e69e2563d77e3492dc1f` |

@@ -48,10 +48,6 @@ func _ready() -> void:
 	audio.volume_db = -5
 	audio.finished.connect(_on_audio_finished)
 	add_child(audio)
-	voice_dsp = CrownVoiceDSP.new()
-	voice_dsp.setup(audio, strength)
-	add_child(voice_dsp)
-	radiance_changed.connect(voice_dsp.set_radiance)
 	layer = CanvasLayer.new()
 	add_child(layer)
 	var light_overlay := ColorRect.new()

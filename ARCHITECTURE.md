@@ -190,6 +190,6 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 
 ### 皇冠与终局音频（#180）
 
-`CrownVoiceDSP` 只接受真实 AudioStreamPlayer/3D 引用与发光值，为每个来源复制效果并创建独立总线。CrownVoiceSystem 注入 radiance_changed；开场只在 ENCOUNTER 安装处理；DoppelgangerSpawn 用实际皇冠材质状态更新处理，并在玩家死亡时停止语音。退出恢复原发送总线并移除自有总线。
+`CrownVoiceDSP` 只接受真实 AudioStreamPlayer/3D 引用与发光值，为每个来源复制效果并创建独立总线。当前仅在开场 `OpeningSequence`（`ENCOUNTER` 阶段，刚进入精神世界意识模糊）安装滤镜；局内随行 `CrownVoiceSystem` 与终局 `DoppelgangerSpawn` 直接播放纯干声，并在玩家死亡时停止语音。退出恢复原发送总线并移除自有总线。
 
 `BodyReassembly` 保持原阶段/台词事件及时间，由 `ClimaxAudio` 订阅，预热原创 PCM 后执行100ms `AudioVacuum`、爆碎、原语音声像、重组共鸣和钢琴。AudioVacuum 的静音租约支持重叠、暂停、死亡与提前退出，原 Master 静音状态可恢复且不写 Master 音量。组件不推进剧情。最终Boss组合根通过 `setup_combat(player)` 安装通用技能音频，只有有效Stage才连接领域事件和设置；音频不读取战役单例。

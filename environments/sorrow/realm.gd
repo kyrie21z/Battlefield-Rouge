@@ -1,6 +1,10 @@
 class_name SorrowRealm
 extends Node3D
+const FLOODED_COURT := preload("res://environments/sorrow/flooded_court.gd")
+const FLOODED_SKY := preload("res://environments/sorrow/flooded_sky.gdshader")
+
 @export var boss_arena := false
+@export_range(0, 1) var chamber_style := 0
 var deprived := false
 var water_level := 0.14
 var water: MeshInstance3D
@@ -25,6 +29,7 @@ var movement_ripple_count := 0
 var shot_ripple_count := 0
 var tear_ripple_count := 0
 var _white: StandardMaterial3D
+var _court: FLOODED_COURT
 var mirror_environment: Environment
 var void_fall: RealmVoid
 
@@ -32,16 +37,23 @@ func _ready() -> void:
 	_white = StandardMaterial3D.new()
 	_white.albedo_color = Color(0.75, 0.82, 0.84)
 	_white.roughness = 0.62
-	_block("BasinFloor", Vector3(0,-0.5,0), Vector3(40,1,48))
+	var floor_body := _block("BasinFloor", Vector3(0,-0.5,0), Vector3(40,1,48))
+	var banks: Array[StaticBody3D] = []
 	for side in [-1.0,1.0]:
-		_block("Boundary", Vector3(side*20,2,0), Vector3(0.5,4,48))
+		banks.append(_block("Boundary", Vector3(side*20,2,0), Vector3(0.5,4,48)))
 	for z in [-24.0,24.0]:
-		_block("Boundary", Vector3(0,2,z), Vector3(40,4,0.5))
+		banks.append(_block("Boundary", Vector3(0,2,z), Vector3(40,4,0.5)))
 	for pos in [Vector3(-7,0.3,6),Vector3(7,0.3,-5),Vector3(-7,0.6,-13),Vector3(8,0.6,14)]:
 		platforms.append(_block("DrowningPlatform",pos,Vector3(4, pos.y*2,4)))
-	for side in [-1.0,1.0]:
-		for i in 4:
-			_column(Vector3(side*15,0,-18+i*11))
+	if provides_stage_lighting():
+		_court = FLOODED_COURT.new()
+		_court.name = "FloodedCourt"
+		add_child(_court)
+		_court.dress_basin(floor_body, banks, platforms)
+	else:
+		for side in [-1.0,1.0]:
+			for i in 4:
+				_column(Vector3(side*15,0,-18+i*11))
 	water = MeshInstance3D.new()
 	water.name = "MirrorWater"
 	var plane := PlaneMesh.new()
@@ -76,12 +88,31 @@ func _ready() -> void:
 	world.environment.ssr_fade_in = 0.1
 	world.environment.ssr_fade_out = 4.0
 	world.environment.ssr_depth_tolerance = 0.25
+	if is_instance_valid(_court):
+		var overcast := ShaderMaterial.new()
+		overcast.shader = FLOODED_SKY
+		var sky := Sky.new()
+		sky.radiance_size = Sky.RADIANCE_SIZE_128
+		sky.sky_material = overcast
+		world.environment.background_mode = Environment.BG_SKY
+		world.environment.sky = sky
+		world.environment.ambient_light_color = Color("b3cde0")
+		world.environment.ambient_light_energy = 0.63
+		world.environment.fog_enabled = true
+		world.environment.fog_light_color = Color("6c899d")
+		world.environment.fog_density = 0.0042
+		world.environment.fog_sky_affect = 0.13
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-60,-25,0)
 	sun.light_color = Color(0.76,0.87,1)
 	sun.light_energy = 1.5
 	sun.shadow_enabled = true
+	if is_instance_valid(_court):
+		sun.rotation_degrees = Vector3(-36, 46, 0)
+		sun.light_color = Color("d5e5ed")
+		sun.light_energy = 1.62
+		sun.directional_shadow_max_distance = 74.0
 	add_child(sun)
 	Events.enemy_registered.connect(_register_walker)
 	Events.gunshot.connect(_on_gunshot)
@@ -89,6 +120,9 @@ func _ready() -> void:
 	# A realm can be inserted after actors (standalone benches / restored rooms).
 	_scan_existing(get_parent())
 	_install_void()
+
+func provides_stage_lighting() -> bool:
+	return chamber_style == 1 and not boss_arena
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func player_spawn() -> Vector3:
@@ -148,6 +182,8 @@ func set_deprivation(active: bool) -> void:
 		splash.stop()
 	if _white != null:
 		_white.albedo_color = Color(0.72,0.69,0.66) if active else Color(0.75,0.82,0.84)
+	if is_instance_valid(_court):
+		_court.set_deprivation(active)
 
 ## Presentation only. Existing dive/resurface callers and splash audio keep
 ## their interface. Positions are checked against this basin before allocation.
@@ -256,6 +292,8 @@ func _physics_process(delta: float) -> void:
 	if deprived:
 		return
 	clock += delta
+	if is_instance_valid(_court):
+		_court.set_clock(clock)
 	water_material.set_shader_parameter("clock",clock)
 	_rain_motion.set_shader_parameter("clock",clock)
 	_tick_visuals()

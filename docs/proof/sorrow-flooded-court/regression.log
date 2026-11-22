@@ -1,0 +1,229 @@
+sorrow_realm
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS mirror water shader, eight melted pillars and four low platforms exist
+PASS silent white rain falls over ankle water
+PASS actual player movement emits water ripple and splash
+PASS Sorrow body retains original 24 bones
+PASS live gravity aura changes player jump and dash reach
+PASS leaving gravity range restores movement
+PASS source death clears its gravity constraint immediately
+PASS cyan death creates 56 actual rigid crystal droplets
+PASS shards preserve source cyan material
+PASS diving removes hittable body while leaving water silhouette
+PASS Corroder resurfaces behind player with restored hitboxes
+PASS behind-player emergence stays inside real WORLD boundary
+PASS actual slime projectile damages and slows player
+PASS slime source death clears slow and flying globs
+PASS actual expanding cry makes screen monochrome
+PASS cry changes real reload speed and skill cooldown stats
+PASS pause does not consume source effect duration
+PASS caster removal clears cry monochrome and reload debuff
+PASS all cyan rigid droplets expire
+PASS water visibly floods lower platforms
+PASS deprivation fully evaporates water and stops rain
+PASS dry world creates no phantom water ripples
+SORROW REALM: 22 checks, 0 failed
+
+sorrow_water
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS tests use isolated autoload profile
+PASS production map uses new opaque mirror shader
+PASS production rain is 750 GPU white threads
+PASS production realm enables SSR with 128 steps
+PASS idle feet emit no artificial actor rings
+PASS real wet movement keeps visual packets and one managed splash layer
+PASS real dash starts
+PASS dash draws denser wakes with managed slide audio and unchanged distance
+PASS real enemy AI movement drives foot ripples
+PASS dead and idle actors stop emitting
+PASS real successful pistol shot
+PASS successful shot displaces wet shooter water
+PASS cooldown rejects extra trigger
+PASS rejected trigger emits no extra water event
+PASS real tear placement creates a landing ring
+PASS real blade starts
+PASS real blade creates owned projectiles, a water ring and one spray cue
+PASS real pickup creates exactly two rings and one return cue
+PASS real gun can fire at a tear
+PASS actual gun ray consumes tear and creates its water ring
+PASS same-frame tear consumption is observed once
+PASS dry platform motion emits no false rings
+PASS airborne motion emits no water rings
+PASS teleport does not paint a room-long wake
+PASS pause freezes water and GPU rain clocks
+PASS presentation never consumes seeded gameplay RNG
+PASS event flood remains a bounded 32-entry uniform pool
+PASS flood updates rain impact height and water together
+PASS visual changes preserve collision and baked navigation
+PASS deprivation suppresses water, rain and new rings
+PASS restoring water cannot resurrect old wave packets
+PASS realm removal stops audio immediately and stays silent after geometry free
+SORROW WATER: 32 checks, 0 failed
+
+sorrow_ambience
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS rain keeps four seconds of mono PCM16 and its full loop
+PASS fresh rain synthesis is byte deterministic
+PASS rain synthesis leaves gameplay randomness untouched
+PASS rain is audible continuous noise with no clipping
+PASS loop wrap has no isolated sharp discontinuity
+RAIN_PCM rms=0.035739 peak=0.142639 wrap_delta=0.003021
+PASS idle across two loops emits no gameplay gunshot events
+PASS no idle voice plays the real player or stock enemy gunshot
+PASS idle room plays only the managed rain bed in its environment pool
+PASS idle movement does not generate water-step or slide shots
+PASS real player gunshot remains audible and emits its own event
+PASS pause freezes the environment clock
+PASS deprivation stops both environmental voices
+PASS production ambience scenario finishes
+SORROW AMBIENCE: 13 checks, 0 failed
+
+sorrow_audio_integration
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS actual Sloth room automatically owns one cross-realm tear observer
+PASS real tear pickup is audible outside Sorrow
+PASS Sloth clock does not acquire a water-bell layer
+PASS inherited Sorrow loss keeps one glass hit source across rooms
+PASS res://maps/realms/fear_1.tscn installs shared tear feedback even without a specialised director
+PASS res://maps/realms/wrath_1.tscn installs shared tear feedback even without a specialised director
+PASS actual Sorrow boss room has only managed rain and no legacy splash
+PASS real tidal windup does not ring the water bell
+PASS real radial tide release rings one positional water bell
+PASS observing the same released tide cannot replay the bell
+PASS actual boss defeat evaporates environmental rain
+PASS boss death cancels pending tidal bell with no tail or catch-up
+SORROW AUDIO INTEGRATION: 12 checks, 0 failures
+
+sorrow_monolith
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS giant keeps real Enemy/Health and original crystal skeleton
+PASS wave remains telegraphed before release
+PASS real full-room tide hits grounded player
+PASS tide pushes actual player with collision motion
+PASS locked rain launches 25 actual downward projectiles
+PASS center tear damages actual player hitbox
+PASS slap aim remains locked and can be dodged
+PASS slap punishes staying in marked area
+PASS local time stop freezes rising water and boss deadline
+PASS actual gun ray damages giant
+PASS battle progression raises actual shader water plane
+PASS low platform is actually submerged while high platform remains usable
+PASS real giant death emits one Sorrow realm event
+PASS defeat dries mirror water and shuts off rain
+PASS death clears tell, waves and unlanded rain projectiles
+PASS giant fractures into 56 physical cyan pieces
+PASS post-boss ordinary buffering stays deprived
+PASS physical Tenderness pickup enables independent 60 barrier
+PASS independent barrier absorbs 60 and actual overflow shatters HP
+PASS pickup never restores ordinary buffering and real HP loss sounds brittle
+PASS giant physical shards fully clean up
+PASS duplicate damage cannot duplicate Sorrow completion
+SORROW MONOLITH: 22 checks, 0 failed
+
+campaign_realms
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first production room installs
+PASS room 0 has baked traversable geometry
+PASS room 0 applies current depth to real damage
+PASS room 0 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 0 unlocks only after completion
+PASS room 0 physical gate advances
+PASS room 0 loads next scene without duplicate exit
+PASS room 1 has baked traversable geometry
+PASS room 1 applies current depth to real damage
+PASS room 1 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 1 unlocks only after completion
+PASS room 1 physical gate advances
+PASS room 1 loads next scene without duplicate exit
+PASS room 2 has baked traversable geometry
+PASS room 2 applies current depth to real damage
+PASS room 2 inherits all previous losses
+PASS boss 2 records death before pickup
+PASS boss 2 drops actual shard
+PASS boss 2 pickup activates independent core
+PASS room 2 unlocks only after completion
+PASS room 2 physical gate advances
+PASS room 2 loads next scene without duplicate exit
+PASS room 3 has baked traversable geometry
+PASS room 3 applies current depth to real damage
+PASS room 3 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 3 unlocks only after completion
+PASS room 3 physical gate advances
+PASS room 3 loads next scene without duplicate exit
+PASS room 4 has baked traversable geometry
+PASS room 4 applies current depth to real damage
+PASS room 4 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 4 unlocks only after completion
+PASS room 4 physical gate advances
+PASS room 4 loads next scene without duplicate exit
+PASS room 5 has baked traversable geometry
+PASS room 5 applies current depth to real damage
+PASS room 5 inherits all previous losses
+PASS boss 3 records death before pickup
+PASS boss 3 drops actual shard
+PASS boss 3 pickup activates independent core
+PASS room 5 unlocks only after completion
+PASS room 5 physical gate advances
+PASS room 5 loads next scene without duplicate exit
+PASS room 6 has baked traversable geometry
+PASS room 6 applies current depth to real damage
+PASS room 6 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 6 unlocks only after completion
+PASS room 6 physical gate advances
+PASS room 6 loads next scene without duplicate exit
+PASS room 7 has baked traversable geometry
+PASS room 7 applies current depth to real damage
+PASS room 7 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 7 unlocks only after completion
+PASS room 7 physical gate advances
+PASS room 7 loads next scene without duplicate exit
+PASS room 8 has baked traversable geometry
+PASS room 8 applies current depth to real damage
+PASS room 8 inherits all previous losses
+PASS boss 1 records death before pickup
+PASS boss 1 drops actual shard
+PASS boss 1 pickup activates independent core
+PASS room 8 unlocks only after completion
+PASS room 8 physical gate advances
+PASS room 8 loads next scene without duplicate exit
+PASS room 9 has baked traversable geometry
+PASS room 9 applies current depth to real damage
+PASS room 9 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 9 unlocks only after completion
+PASS room 9 physical gate advances
+PASS room 9 loads next scene without duplicate exit
+PASS room 10 has baked traversable geometry
+PASS room 10 applies current depth to real damage
+PASS room 10 inherits all previous losses
+PASS normal room clear opens actual reward choice
+PASS room 10 unlocks only after completion
+PASS room 10 physical gate advances
+PASS room 10 loads next scene without duplicate exit
+PASS room 11 has baked traversable geometry
+PASS room 11 applies current depth to real damage
+PASS room 11 inherits all previous losses
+PASS boss 0 records death before pickup
+PASS boss 0 drops actual shard
+PASS boss 0 pickup activates independent core
+PASS room 11 unlocks only after completion
+PASS room 11 physical gate advances
+PASS room 11 loads next scene without duplicate exit
+PASS all twelve actual rooms visited without repetition
+PASS final destination is the real return corridor
+PASS final player owns all four cores and losses
+PASS threshold keeps equipped combat boons
+PASS final body has actual fourth fracture level
+ALL PASSED (98 checks)

@@ -45,6 +45,8 @@ func run() -> void:
 		return
 	player.aim_at(Vector3(0.0, 2.0, -20.0))
 	await capture("entrance")
+	pose_camera(Vector3(-1.2, 0.04, 15.2), Vector3(-6.8, 0.04, 9.6))
+	await capture("lava-pool")
 	pose_camera(Vector3(13.0, 0.04, 8.9), Vector3(0.0, 1.8, -12.0))
 	await capture("side-route")
 	pose_camera(Vector3(-5.0, 0.04, -10.0), Vector3(-12.2, 6.6, -26.0))
@@ -123,6 +125,7 @@ func run() -> void:
 			and accumulator.health.last_damage_context.get("body_part") == Hitbox.BodyPart.HEAD)
 		accumulator.transform = original_pose
 		await verify_routes()
+		await verify_lava()
 		await verify_escape()
 	room.queue_free()
 	await frames(3)
@@ -226,6 +229,45 @@ func verify_routes() -> void:
 	check("production AI follows a detour around the side cover", hidden and found_route)
 
 
+func verify_lava() -> void:
+	var realm := room.geometry as WrathRealm
+	var pools := realm.get_node_or_null("LavaPools") as Node3D
+	check("three lava surfaces are active in the formal kiln", pools != null and pools.get_child_count() == 3)
+	if pools == null:
+		return
+	var pillar := realm.get_node("KilnPillar1") as StaticBody3D
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(-8, 1.4, 3.7), Vector3(-2.5, 1.4, 3.7), CollisionLayers.WORLD)
+	var hit := room.get_world_3d().direct_space_state.intersect_ray(ray)
+	check("kiln pillar blocks a real shot and belongs to navigation geometry",
+		hit.get("collider") == pillar and pillar.is_in_group("navigation_geometry"))
+	var hp := player.health.health
+	player.position = Vector3(-6.5, 0.90, 9.7)
+	await frames(5)
+	check("airborne player above lava is safe", is_equal_approx(player.health.health, hp))
+	player.velocity = Vector3.ZERO
+	player.set_physics_process(true)
+	for tick in 50:
+		await frames(1)
+		if player.health.health < hp:
+			break
+	check("landing in molten lava immediately deals 12 damage", is_equal_approx(player.health.health, hp - 12.0)
+		and player.health.last_damage_context.get("tag") == &"lava")
+	await frames(12)
+	check("lava does not damage every frame", is_equal_approx(player.health.health, hp - 12.0))
+	await frames(36)
+	check("standing in lava takes another tick", is_equal_approx(player.health.health, hp - 24.0))
+	player.position = Vector3(-9.25, 0.05, 9.7)
+	await frames(45)
+	check("the solid-looking rim outside the hot surface is safe", is_equal_approx(player.health.health, hp - 24.0))
+	realm.set_deprivation(true)
+	player.position = Vector3(-6.5, 0.05, 9.7)
+	await frames(44)
+	check("cooled lava is safe to walk across", is_equal_approx(player.health.health, hp - 24.0))
+	player.position = Vector3(0.0, 0.05, 16.0)
+	realm.set_deprivation(false)
+	player.set_physics_process(false)
+
+
 func walk_route(waypoints: Array[Vector3]) -> bool:
 	for destination in waypoints:
 		for index in 600:
@@ -298,6 +340,7 @@ func verify_other_rooms() -> void:
 		player.aim_at(Vector3(0.0, 2.0, -20.0))
 		await capture("first-room-entrance")
 		await verify_routes()
+		await verify_lava()
 		await verify_escape()
 	room.queue_free()
 	await frames(4)
@@ -306,6 +349,7 @@ func verify_other_rooms() -> void:
 	add_child(boss)
 	check("wrath_boss loads its arena and boss roster",
 		boss.geometry.chamber_style == 0 and not boss.geometry.has_node("CrackedKilnScenery")
+		and not boss.geometry.has_node("LavaPools")
 		and boss.living_enemies() == 1)
 	boss.queue_free()
 	await frames(4)

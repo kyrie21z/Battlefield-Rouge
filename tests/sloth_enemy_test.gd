@@ -250,7 +250,7 @@ func _run() -> void:
 	_check("a fixed upper-level field does not slow the player on the lower storey",
 		is_equal_approx(_player.stasis_multiplier(), 1.0))
 
-	print("== slowing keeps the player's dash available and at full distance")
+	print("== active slowing fields block Shift without spending its charges")
 	await _world(Vector3(0, 0, -8))
 	_player.set_physics_process(true)
 	await _after_steps(8)
@@ -265,14 +265,20 @@ func _run() -> void:
 	anchor.cast_attack()
 	await _frames(61)
 	_check("the real player is slowed before the dash", is_equal_approx(_player.stasis_multiplier(), 0.75))
-	var slowed_dash := await _measure_dash()
-	_check("a dash remains available inside the slowing field", slowed_dash.started)
-	_check("the slowed dash matches its five-meter control (%.3f vs %.3f)" % [
-		slowed_dash.distance, baseline_dash.distance],
-		absf(slowed_dash.distance - baseline_dash.distance) < 0.05
-		and absf(slowed_dash.distance - 5.0) < 0.3)
-	print("  dash samples: steps=15, control dt=%.6f..%.6f, slowed dt=%.6f..%.6f" % [
-		baseline_dash.min_delta, baseline_dash.max_delta, slowed_dash.min_delta, slowed_dash.max_delta])
+	var charges := _player.dash.charges()
+	Input.action_press("dash")
+	await _after_steps(2)
+	Input.action_release("dash")
+	_check("Shift is blocked inside the active field without spending a charge",
+		not _player.dash.is_dashing() and _player.dash.charges() == charges)
+	anchor.boon_time_scale = 0.0
+	_player.position.x += SlothAttack.FIELD_RADIUS + 0.45
+	await _after_steps(2)
+	_check("leaving a frozen field clears the slowdown on the next tick",
+		is_equal_approx(_player.stasis_multiplier(), 1.0))
+	var escaped_dash := await _measure_dash()
+	_check("outside the field dash works again at its original distance",
+		escaped_dash.started and absf(escaped_dash.distance - baseline_dash.distance) < 0.05)
 	_player.set_physics_process(false)
 
 	print("== recluse wave: safe opening, one hit, cover and jump")
@@ -446,15 +452,9 @@ func _measure_dash() -> Dictionary:
 	await step_finished
 	var start := _player.global_position
 	var started := _player.dash.try_dash()
-	var min_delta := INF
-	var max_delta := 0.0
-	for i in 15:
-		var delta: float = await step_finished
-		min_delta = minf(min_delta, delta)
-		max_delta = maxf(max_delta, delta)
+	await _after_steps(15)
 	var travelled := _player.global_position - start
-	return {"started": started, "distance": Vector2(travelled.x, travelled.z).length(),
-		"min_delta": min_delta, "max_delta": max_delta}
+	return {"started": started, "distance": Vector2(travelled.x, travelled.z).length()}
 
 
 func _space_key(pressed: bool) -> void:

@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+PASS native capture room-1-entry
+PASS Sorrow 1: formal basin has the new court and original encounter size
+PASS Sorrow 1: scenery is separate from navigation and world collisions
+PASS Sorrow 1: six ruins add navigable cover and block actual world rays
+PASS Sorrow 1: water stays at ankle height with its reflection environment
+PASS Sorrow 1: rain and the three spillways start active
+PASS Sorrow 1: deprivation dries the court as well as the basin
+PASS Sorrow 1: restoring sorrow resumes spillways and rain
+PASS Sorrow 1: player walks the central approach
+PASS Sorrow 1: player can bypass the platforms on the side route
+PASS Sorrow 1: real movement adds ripples on the wet floor
+PASS Sorrow 1: clearing the real encounter opens a talent orb
+PASS Sorrow 1: pressing F opens the actual reward picker
+PASS Sorrow 1: pressing F at the open gate requests one transition
+PASS native capture room-2-entry
+PASS native capture room-2-spillway
+PASS native capture room-2-blue-cry
+PASS Sorrow 2: formal basin has the new court and original encounter size
+PASS Sorrow 2: scenery is separate from navigation and world collisions
+PASS Sorrow 2: six ruins add navigable cover and block actual world rays
+PASS Sorrow 2: water stays at ankle height with its reflection environment
+PASS Sorrow 2: rain and the three spillways start active
+PASS Sorrow 2: deprivation dries the court as well as the basin
+PASS Sorrow 2: restoring sorrow resumes spillways and rain
+PASS Sorrow 2: player walks the central approach
+PASS Sorrow 2: player can bypass the platforms on the side route
+PASS Sorrow 2: real movement adds ripples on the wet floor
+PASS Sorrow 2: clearing the real encounter opens a talent orb
+PASS Sorrow 2: pressing F opens the actual reward picker
+PASS Sorrow 2: pressing F at the open gate requests one transition
+PASS the Monolith room still owns its original basin and boss
+SORROW COURT: 31 checks, 0 failed

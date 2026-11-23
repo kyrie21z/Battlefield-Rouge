@@ -5,6 +5,7 @@ signal changed
 
 var player: Player
 var effects: Dictionary = {}
+var ground_current: Callable
 var move_multiplier := 1.0
 var jump_multiplier := 1.0
 var dash_distance_multiplier := 1.0

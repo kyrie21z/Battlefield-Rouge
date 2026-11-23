@@ -26,7 +26,8 @@ func _ready() -> void:
 		add_child(boss)
 		_check("the Monolith room still owns its original basin and boss",
 			boss.geometry is SorrowRealm and boss.geometry.boss_arena
-			and not boss.geometry.has_node("FloodedCourt") and boss.living_enemies() == 1)
+			and not boss.geometry.has_node("FloodedCourt") and boss.living_enemies() == 1
+			and not boss.player.realm_effects.ground_current.is_valid())
 		boss.queue_free()
 		await _frames(4)
 	print("SORROW COURT: %d checks, %d failed" % [_checks, _failures])
@@ -42,11 +43,18 @@ func _room(scene: PackedScene, index: int) -> void:
 	var player := stage.player
 	player.health.invulnerable = true
 	player.set_physics_process(false)
+	player.set_process_unhandled_input(false)
 	for actor in stage.enemies:
 		actor.set_physics_process(false)
 	await _frames(10)
 	player.aim_at(Vector3(0, 3.8, -24))
 	await _capture("room-%d-entry" % (index + 1))
+	if not _baseline:
+		await _frames(36)
+		var swirl: Vector4 = realm._whirlpools[0]
+		player.position = Vector3(swirl.x + 0.4, 0.38, swirl.y + 3.35)
+		player.aim_at(Vector3(swirl.x, realm.water_level - 0.34, swirl.y))
+		await _capture("room-%d-whirlpool" % (index + 1))
 	if index == 1:
 		player.position = Vector3(4, 0.10, 8)
 		player.aim_at(Vector3(18, 5.0, -12))
@@ -83,16 +91,26 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	_check(room + "scenery is separate from navigation and world collisions",
 		court.find_children("*", "CollisionObject3D", true, false).is_empty()
 		and realm.platforms.size() == 4 and stage._region.navigation_mesh.get_polygon_count() > 0)
+	var ruins := realm.find_children("BasinRuin*", "StaticBody3D", false, false)
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(-8, 1.4, 0.7), Vector3(-2.4, 1.4, 0.7), CollisionLayers.WORLD)
+	var hit := stage.get_world_3d().direct_space_state.intersect_ray(ray)
+	_check(room + "six ruins add navigable cover and block actual world rays",
+		ruins.size() == 6 and hit.get("collider") == realm.get_node_or_null("BasinRuin1")
+		and ruins.all(func(ruin: Node) -> bool: return ruin.is_in_group("navigation_geometry")))
 	_check(room + "water stays at ankle height with its reflection environment",
 		is_equal_approx(realm.water_level, 0.14) and realm.mirror_environment.ssr_enabled
 		and stage.player.view_camera.environment == realm.mirror_environment)
 	var spillways := court.get_node("Spillways") as Node3D
 	_check(room + "rain and the three spillways start active", realm.rain.emitting and spillways.visible
 		and spillways.get_child_count() == 4)
+	await _verify_whirlpools(stage, realm, room)
+	var current_time := realm.clock
 	realm.set_deprivation(true)
 	await _frames(4)
 	_check(room + "deprivation dries the court as well as the basin",
-		not spillways.visible and not realm.rain.emitting and not realm.water.visible)
+		not spillways.visible and not realm.rain.emitting and not realm.water.visible
+		and is_equal_approx(realm.clock, current_time)
+		and is_zero_approx(realm._basin_floor_visual.position.y))
 	realm.set_deprivation(false)
 	await _frames(4)
 	_check(room + "restoring sorrow resumes spillways and rain",
@@ -106,11 +124,83 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	_check(room + "player walks the central approach", walked)
 	player.position = spawn
 	player.velocity = Vector3.ZERO
-	walked = await _walk(player, [Vector3(4,0,10.4), Vector3(14.2,0,8.1), Vector3(14.2,0,-15), Vector3(2.6,0,-18.2)])
+	walked = await _walk(player, [Vector3(4,0,10.4), Vector3(14.6,0,9.8), Vector3(15.5,0,-16.6), Vector3(2.6,0,-18.2)])
 	_check(room + "player can bypass the platforms on the side route", walked)
 	_check(room + "real movement adds ripples on the wet floor", realm.movement_ripple_count > 4)
 	player.set_physics_process(false)
 	await _clear_and_exit(stage, room)
+
+
+func _verify_whirlpools(stage: RealmStage, realm: SorrowRealm, room: String) -> void:
+	var first: Vector4 = realm._whirlpools[0]
+	realm.start_whirlpools(stage.run_seed, stage.room_index)
+	_check(room + "the opening center is reproducible from the run seed and room",
+		is_equal_approx(first.z, 2.6) and Vector2(first.x, first.y).is_equal_approx(
+			Vector2(realm._whirlpools[0].x, realm._whirlpools[0].y)))
+	var starts := {}
+	for trial in 12:
+		realm.start_whirlpools(stage.run_seed + trial, stage.room_index)
+		var sample: Vector4 = realm._whirlpools[0]
+		starts[Vector2(sample.x, sample.y).round()] = true
+	_check(room + "different run seeds pick different open water sites", starts.size() > 4)
+	realm.start_whirlpools(stage.run_seed, stage.room_index)
+	first = realm._whirlpools[0]
+	var clearance := CylinderShape3D.new()
+	clearance.radius = SorrowRealm.WHIRLPOOL_RADIUS + SorrowRealm.WHIRLPOOL_JITTER * sqrt(2.0)
+	clearance.height = 0.34
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = clearance
+	query.collision_mask = CollisionLayers.WORLD
+	var clear_sites := true
+	for site: Vector2 in SorrowRealm.WHIRLPOOL_SITES:
+		query.transform = Transform3D(Basis.IDENTITY, Vector3(site.x, 0.31, site.y))
+		clear_sites = clear_sites and realm.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+	_check(room + "all full-size funnels and their site jitter are clear of ruins", clear_sites)
+	_check(room + "the submerged surface has vertices for a deep funnel without moving the walking floor",
+		(realm.water.mesh as PlaneMesh).subdivide_width > 80
+		and is_equal_approx(realm.water_material.get_shader_parameter("whirlpool_depth"), 0.60)
+		and is_equal_approx(realm._basin_floor_visual.position.y, -0.60)
+		and is_zero_approx((realm.get_node("BasinFloor") as StaticBody3D).position.y + 0.5))
+
+	var player := stage.player
+	var edge := Vector3(first.x + 1.40, 0.09, first.y)
+	player.position = edge
+	player.velocity = Vector3.ZERO
+	player.set_physics_process(true)
+	await _frames(85)
+	_check(room + "a stationary grounded player is pulled toward the center",
+		edge.x - player.position.x > 0.35 and player.position.x >= first.x)
+	_check(room + "the current only exists in shallow water inside the rim",
+		realm._ground_current(Vector3(first.x + 0.8, 1.2, first.y)).is_zero_approx()
+		and realm._ground_current(Vector3(first.x + 2.65, 0.0, first.y)).is_zero_approx())
+	player.aim_at(Vector3(first.x + 6.0, player.eye_position().y, first.y))
+	Input.action_press("move_forward")
+	await _frames(60)
+	Input.action_release("move_forward")
+	_check(room + "walking against the current carries the player out of the funnel",
+		player.position.x > first.x + SorrowRealm.WHIRLPOOL_RADIUS)
+	player.set_physics_process(false)
+
+	await _until(realm, first.w + 4.90)
+	_check(room + "the first funnel stands alone before five seconds", realm._whirlpools.size() == 1)
+	await _until(realm, first.w + 5.06)
+	_check(room + "five seconds later both funnels coexist at different centers",
+		realm._whirlpools.size() == 2 and realm._whirlpools[0] == first
+		and Vector2(realm._whirlpools[1].x - first.x, realm._whirlpools[1].y - first.y).length() > 5.2)
+	await _until(realm, first.w + 10.06)
+	_check(room + "ten seconds after opening there are three distinct active funnels", realm._whirlpools.size() == 3)
+	await _until(realm, first.w + 14.94)
+	_check(room + "the opening funnel lasts until the fifteen second boundary",
+		realm._whirlpools.size() == 3 and realm._whirlpools[0] == first)
+	await _until(realm, first.w + 15.06)
+	_check(room + "at fifteen seconds the first expires and its replacement keeps the active count at three",
+		realm._whirlpools.size() == 3 and not realm._whirlpools.has(first)
+		and is_equal_approx(realm._whirlpools.back().w, first.w + 15.0))
+
+
+func _until(realm: SorrowRealm, target_time: float) -> void:
+	while realm.clock < target_time:
+		await get_tree().physics_frame
 
 
 func _clear_and_exit(stage: RealmStage, room: String) -> void:
@@ -149,6 +239,7 @@ func _walk(player: Player, targets: Array[Vector3]) -> bool:
 			await get_tree().physics_frame
 		Input.action_release("move_forward")
 		if Vector2(player.position.x - goal.x, player.position.z - goal.z).length() >= 0.60:
+			print("Route stopped at %s before %s" % [player.position, goal])
 			return false
 	return true
 

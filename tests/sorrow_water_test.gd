@@ -47,8 +47,17 @@ func _run() -> void:
 	player.aim_at(player.global_position+Vector3.FORWARD*10+Vector3.UP*1.5)
 	var dash_from := player.position
 	check("real dash starts",player.dash.try_dash())
-	await frames(15)
-	check("dash draws denser wakes with managed slide audio and unchanged distance",realm.movement_ripple_count > moving+3 and audio.cue_counts.get(&"water_slide",0)>0 and not realm.splash.playing and player.position.distance_to(dash_from)>4.8 and player.position.distance_to(dash_from)<5.1)
+	var dash_distance := 0.0
+	for tick in 15:
+		var dashing := player.dash.is_dashing()
+		await frames(1)
+		if dashing:
+			dash_distance = player.position.distance_to(dash_from)
+	check("dash draws denser wakes with managed slide audio and unchanged distance",
+		realm.movement_ripple_count > moving+3 and audio.cue_counts.get(&"water_slide",0)>0
+		and not realm.splash.playing and absf(dash_distance - 5.0) < 0.1)
+	check("walking can pick up the current after the dash", not player.dash.is_dashing()
+		and not realm._ground_current(player.global_position).is_zero_approx())
 	var actor := stage.enemies[1] as SorrowRealmEnemy
 	actor.position = Vector3(0,0,-6)
 	actor.set_physics_process(true)

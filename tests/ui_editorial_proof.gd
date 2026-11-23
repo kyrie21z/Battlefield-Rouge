@@ -17,13 +17,14 @@ func _ready() -> void:
 	await _shot_sloth_hud(abs_out)
 	await _shot_wrath_hud(abs_out)
 	await _shot_boss_bar(abs_out)
+	await _shot_climax_boss(abs_out)
 	await _shot_boon_picker(abs_out)
 	await _shot_build_inspector(abs_out)
 	await _shot_crown_forge(abs_out)
 	await _shot_pause_menu(abs_out)
 	await _shot_opening_title(abs_out)
 
-	print("UI EDITORIAL PROOF: 8 screenshots saved to ", abs_out)
+	print("UI EDITORIAL PROOF: 9 screenshots saved to ", abs_out)
 	get_tree().quit(0)
 
 
@@ -70,6 +71,38 @@ func _shot_boss_bar(out: String) -> void:
 	await _frames(4)
 	await _save(out, "03-boss-bar.png")
 	stage.queue_free()
+	await _frames(3)
+
+
+func _shot_climax_boss(out: String) -> void:
+	var corridor := preload("res://levels/climax/threshold_corridor.tscn").instantiate()
+	add_child(corridor)
+	await _frames(4)
+	var player: Player = corridor.player
+	_equip_sample_build(player)
+	for realm in 4:
+		player.fragments.acquire(realm)
+	player.fragments.configure_deprivation([0, 1, 2, 3])
+	player.position = Vector3(0, 0.1, -39)
+	corridor.reconstituted = true
+	corridor._start_duel()
+	await _frames(4)
+	var encounter := corridor.encounter as DoppelgangerSpawn
+	if is_instance_valid(encounter):
+		encounter.phase = DoppelgangerSpawn.Phase.COMBAT
+		encounter._unlock_player()
+		encounter.boss.visual.show()
+		encounter.boss.visual.set_print_progress(1.0)
+		encounter.boss.set_combat_active(true)
+		encounter.boss.phase = FlawlessDoppelganger.Phase.EXPOSED
+		encounter.boss.health.apply_damage(encounter.boss.health.max_health * 0.28, Hitbox.BodyPart.BODY, player, {"true_damage": true})
+		encounter.label.hide()
+		encounter.hud.set_combat_visible(true)
+	player.weapon.ammo = 5
+	player.health.apply_damage(22.0, Hitbox.BodyPart.BODY, null)
+	await _frames(5)
+	await _save(out, "09-climax-boss.png")
+	corridor.queue_free()
 	await _frames(3)
 
 

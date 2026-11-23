@@ -94,12 +94,33 @@ func _on_player_died(_source:Node)->void:
 	if RunDirector.active:
 		RunDirector.record_death(&"doppelganger")
 	var layer:=CanvasLayer.new()
+	layer.layer=50
 	add_child(layer)
-	var label:=Label.new()
-	label.text="心智破碎 · 按 R 再次出发"
-	label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	label.add_theme_font_size_override("font_size",28)
-	layer.add_child(label)
+	var backdrop:=ColorRect.new()
+	backdrop.color=Color(0.05,0.06,0.08,0.72)
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(backdrop)
+	var panel:=PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.offset_left=-260
+	panel.offset_right=260
+	panel.offset_top=-90
+	panel.offset_bottom=90
+	var style:=EditorialStyle.plaque(EditorialStyle.PAPER,EditorialStyle.INK,2,Vector2(8,8),Color(EditorialStyle.INK,0.92),32,28)
+	style.border_width_top=6
+	style.border_color=EditorialStyle.WARNING
+	panel.add_theme_stylebox_override("panel",style)
+	layer.add_child(panel)
+	var col:=VBoxContainer.new()
+	col.alignment=BoxContainer.ALIGNMENT_CENTER
+	col.add_theme_constant_override("separation",14)
+	panel.add_child(col)
+	var title:=EditorialStyle.make_label("心智破碎",28,EditorialStyle.INK,800,false,2)
+	title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(title)
+	var label:=EditorialStyle.make_label("按 R 再次出发",18,EditorialStyle.SLATE,700,true,1)
+	label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(label)
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func _block(pos:Vector3,size:Vector3)->StaticBody3D:

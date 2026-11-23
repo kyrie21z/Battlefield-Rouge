@@ -18,6 +18,8 @@ var _boons: Label
 var _boss_bar: RealmBossBar
 var _boss_name: Label
 var _boss_header: PanelContainer
+var _boss_state: Label
+var _boss_hp: Label
 var _boss_code: Label
 var _monochrome: ColorRect
 var _stasis: ColorRect
@@ -177,20 +179,37 @@ func _build_boss_ruler() -> void:
 	_boss_header.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_boss_header.offset_left = -260
 	_boss_header.offset_right = 260
-	_boss_header.offset_top = 22
-	_boss_header.offset_bottom = 54
+	_boss_header.offset_top = 20
+	_boss_header.offset_bottom = 56
 	_boss_header.add_theme_stylebox_override("panel",
-		EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.INK, 2, Vector2(3, 3), Color(EditorialStyle.INK, 0.72), 14, 4))
+		EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.INK, 2, Vector2(4, 4), Color(EditorialStyle.INK, 0.78), 14, 5))
 	_root.add_child(_boss_header)
 
 	var header_row := HBoxContainer.new()
 	header_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header_row.add_theme_constant_override("separation", 10)
 	_boss_header.add_child(header_row)
 
-	_boss_name = EditorialStyle.make_label(EditorialStyle.BOSS_NAMES[stage.realm], 17, EditorialStyle.PAPER, 700, false, 3)
+	var accent_tag := ColorRect.new()
+	accent_tag.color = accent
+	accent_tag.custom_minimum_size = Vector2(5, 18)
+	accent_tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	accent_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header_row.add_child(accent_tag)
+
+	_boss_name = EditorialStyle.make_label(EditorialStyle.BOSS_NAMES[stage.realm], 18, EditorialStyle.PAPER, 800, false, 3)
 	_boss_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_boss_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header_row.add_child(_boss_name)
+
+	_boss_state = EditorialStyle.make_label("", 12, EditorialStyle.WARNING, 700, true, 1)
+	_boss_state.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_boss_state.hide()
+	header_row.add_child(_boss_state)
+
+	_boss_hp = EditorialStyle.make_label("", 15, EditorialStyle.PAPER, 700, true, 1)
+	_boss_hp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header_row.add_child(_boss_hp)
 
 	_boss_code = EditorialStyle.make_label("BOSS // %02d" % (stage.realm + 1), 12, EditorialStyle.ASH, 700, true, 2)
 	_boss_code.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -202,12 +221,49 @@ func _build_boss_ruler() -> void:
 	_boss_bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_boss_bar.offset_left = -260
 	_boss_bar.offset_right = 260
-	_boss_bar.offset_top = 54
-	_boss_bar.offset_bottom = 68
+	_boss_bar.offset_top = 56
+	_boss_bar.offset_bottom = 74
 	_boss_bar.setup(stage.boss.health if is_instance_valid(stage.boss) else null, accent)
 
 	_sync_boss_header_visibility()
+	_update_boss_readout()
 	_boss_bar.visibility_changed.connect(_sync_boss_header_visibility)
+
+
+func _update_boss_readout() -> void:
+	if _boss_hp == null:
+		return
+	if not is_instance_valid(stage.boss) or stage.boss.health == null or stage.boss.health.is_dead():
+		_boss_hp.text = ""
+		if _boss_state != null:
+			_boss_state.hide()
+		return
+	var h := stage.boss.health
+	var cur := maxi(0, ceili(h.health))
+	var max_h := maxi(1, ceili(h.max_health))
+	var pct := clampi(roundi(100.0 * h.health / maxf(h.max_health, 1.0)), 0, 100)
+	if h.shield_points > 0.0:
+		_boss_hp.text = "%d / %d (+%d) · %d%%" % [cur, max_h, ceili(h.shield_points), pct]
+	else:
+		_boss_hp.text = "%d / %d · %d%%" % [cur, max_h, pct]
+	if _boss_state != null:
+		if stage.boss is FearOculus and (stage.boss as FearOculus).phase == 2:
+			if _boss_state.text != "破绽":
+				_boss_state.text = "破绽"
+				_boss_state.add_theme_color_override("font_color", EditorialStyle.PAPER)
+				_boss_state.add_theme_stylebox_override("normal",
+					EditorialStyle.plaque(EditorialStyle.WARNING, EditorialStyle.WARNING, 0, Vector2.ZERO, Color.TRANSPARENT, 7, 2))
+			_boss_state.show()
+		elif h.shield_points > 0.0:
+			if _boss_state.text != "护盾":
+				_boss_state.text = "护盾"
+				_boss_state.add_theme_color_override("font_color", EditorialStyle.PAPER)
+				_boss_state.add_theme_stylebox_override("normal",
+					EditorialStyle.plaque(EditorialStyle.SHIELD, EditorialStyle.SHIELD, 0, Vector2.ZERO, Color.TRANSPARENT, 7, 2))
+			_boss_state.show()
+		else:
+			_boss_state.text = ""
+			_boss_state.hide()
 
 
 func _sync_boss_header_visibility() -> void:
@@ -443,6 +499,7 @@ func _process(delta: float) -> void:
 	_resonance.visible = show_chrome and player.fragments.has_shard(PsycheFragments.SLOTH)
 	_resonance.text = "[ %s ]  沉睡共鸣  ·  %s" % [KeyHint.of("psyche_resonance"), "就绪" if player.fragments.resonance_cooldown <= 0 else "%.1f s" % player.fragments.resonance_cooldown]
 	_objective.text = stage.objective_text()
+	_update_boss_readout()
 	_ammo.text = "%d / %d\n%s" % [player.weapon.ammo, player.weapon.magazine_capacity(), "晶体重组…" if player.weapon.is_reloading() else "黑晶手枪"]
 
 	var camera := get_viewport().get_camera_3d()

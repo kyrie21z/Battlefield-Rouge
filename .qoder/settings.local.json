@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "/home/kyrie/.local/bin/uvx",
+      "args": [
+        "--python",
+        "3.11",
+        "mcp-for-blender"
+      ],
+      "env": {
+        "UV_PYTHON_PREFERENCE": "only-managed"
+      }
+    }
+  }
+}

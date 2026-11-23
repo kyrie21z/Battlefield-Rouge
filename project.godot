@@ -46,5 +46,4 @@ world/region_use_async_iterations=false
 
 environment/ssao/quality=1
 environment/ssil/quality=1
-
 anti_aliasing/quality/use_debanding=true

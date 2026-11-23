@@ -8,6 +8,7 @@ uniform float clock = 0.0;
 uniform vec4 ripples[32]; // x/z position, birth time, strength
 uniform bool rain_enabled = true;
 uniform float rain_strength : hint_range(0.0, 1.0) = 0.22;
+uniform vec3 whirlpool = vec3(0.0); // local x/z and radius
 varying vec3 water_pos;
 
 // Derivative of a damped concentric wave packet; normals bend the actual
@@ -41,9 +42,26 @@ void fragment() {
 		}
 	}
 	vec2 breath = vec2(sin(water_pos.y + water_pos.x * 0.43 + clock * 0.23), cos(water_pos.z * 0.51 - clock * 0.19)) * 0.0015;
+	vec2 current = water_pos.xz - whirlpool.xy;
+	float foam = 0.0;
+	float eddy = 0.0;
+	if (dot(current, current) < whirlpool.z * whirlpool.z) {
+		float distance = length(current);
+		float t = distance / whirlpool.z;
+		float rim = 1.0 - smoothstep(0.52, 1.0, t);
+		vec2 outward = current / max(distance, 0.045);
+		float angle = atan(current.y, current.x + 0.00001);
+		float phase = 3.0 * angle + t * 15.0 - clock * 3.3;
+		float arm = cos(phase + 0.25 * sin(angle * 7.0 + t * 23.0 - clock * 1.7));
+		float threads = 0.76 + 0.24 * cos(t * 48.0 - angle * 5.0 + clock * 0.9);
+		foam = smoothstep(0.41, 0.98, arm) * smoothstep(0.06, 0.18, t) * rim * threads;
+		eddy = (1.0 - smoothstep(0.06, 0.66, t)) * 0.82;
+		waves.xy += (outward * (0.065 * rim) + vec2(-outward.y, outward.x) * foam * 0.054)
+			* smoothstep(0.03, 0.18, t);
+	}
 	vec2 slope = clamp(waves.xy + breath, vec2(-0.16), vec2(0.16));
 	NORMAL = normalize((VIEW_MATRIX * MODEL_MATRIX * vec4(normalize(vec3(-slope.x, 1.0, -slope.y)), 0.0)).xyz);
-	ALBEDO = water_color.rgb;
+	ALBEDO = mix(water_color.rgb * (1.0 - eddy), vec3(0.044, 0.136, 0.164), foam * 0.75);
 	METALLIC = 0.32;
 	ROUGHNESS = 0.055;
 	SPECULAR = 0.95;
@@ -51,5 +69,6 @@ void fragment() {
 	RIM_TINT = 0.3;
 	BACKLIGHT = vec3(0.0, 0.008, 0.015);
 	float fresnel = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
-	EMISSION = vec3(0.02, 0.10, 0.16) * (fresnel * 0.08 + min(waves.z, 2.0) * 0.05);
+	EMISSION = vec3(0.02, 0.10, 0.16) * (fresnel * 0.08 + min(waves.z, 2.0) * 0.05)
+		+ vec3(0.035, 0.065, 0.076) * foam;
 }

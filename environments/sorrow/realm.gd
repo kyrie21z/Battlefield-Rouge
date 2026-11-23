@@ -2,6 +2,12 @@ class_name SorrowRealm
 extends Node3D
 const FLOODED_COURT := preload("res://environments/sorrow/flooded_court.gd")
 const FLOODED_SKY := preload("res://environments/sorrow/flooded_sky.gdshader")
+const WHIRLPOOL_RADIUS := 1.35
+## Clear patches of ankle-deep water between the platforms, pillars and paths.
+const WHIRLPOOL_SITES := [
+	Vector2(-10.5, 10.2), Vector2(12.0, 8.2), Vector2(-10.5, 1.6), Vector2(11.2, -9.3),
+	Vector2(-12.0, -15.8), Vector2(8.6, -17.4), Vector2(3.0, 0.2), Vector2(-3.0, -4.0),
+]
 
 @export var boss_arena := false
 @export_range(0, 1) var chamber_style := 0
@@ -137,6 +143,15 @@ func _build_basin_ruins() -> void:
 
 func provides_stage_lighting() -> bool:
 	return chamber_style == 1 and not boss_arena
+
+func place_whirlpool(run_seed: int, room_index: int) -> void:
+	if not provides_stage_lighting():
+		return
+	var layout := RandomNumberGenerator.new()
+	layout.seed = run_seed ^ ((room_index + 1) * 0x47B9A13D)
+	var center: Vector2 = WHIRLPOOL_SITES[layout.randi_range(0, WHIRLPOOL_SITES.size() - 1)]
+	center += Vector2(layout.randf_range(-0.35, 0.35), layout.randf_range(-0.35, 0.35))
+	water_material.set_shader_parameter("whirlpool", Vector3(center.x, center.y, WHIRLPOOL_RADIUS))
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func player_spawn() -> Vector3:

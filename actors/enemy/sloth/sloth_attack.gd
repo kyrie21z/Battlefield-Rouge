@@ -54,6 +54,9 @@ func warning_time() -> float:
 
 
 func _ready() -> void:
+	if kind == 1:
+		# Refresh field membership before PlayerDash processes Shift at -10.
+		process_physics_priority = -11
 	top_level = true
 	global_transform = Transform3D.IDENTITY
 	_origin = caster.global_position + Vector3.UP * 1.42
@@ -102,6 +105,8 @@ func _physics_process(delta: float) -> void:
 		cancel()
 		return
 	if caster.boon_stunned or caster.boon_time_scale <= 0.0:
+		if kind == 1 and phase == 1:
+			_update_stasis()
 		return
 	delta *= caster.boon_time_scale * caster.boon_attack_scale
 	elapsed += delta

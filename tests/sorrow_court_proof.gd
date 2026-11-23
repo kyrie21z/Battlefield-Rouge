@@ -42,11 +42,17 @@ func _room(scene: PackedScene, index: int) -> void:
 	var player := stage.player
 	player.health.invulnerable = true
 	player.set_physics_process(false)
+	player.set_process_unhandled_input(false)
 	for actor in stage.enemies:
 		actor.set_physics_process(false)
 	await _frames(10)
 	player.aim_at(Vector3(0, 3.8, -24))
 	await _capture("room-%d-entry" % (index + 1))
+	if not _baseline:
+		var swirl: Vector3 = realm.water_material.get_shader_parameter("whirlpool")
+		player.position = Vector3(swirl.x + 0.4, 0.10, swirl.y + 3.3)
+		player.aim_at(Vector3(swirl.x, realm.water_level, swirl.y))
+		await _capture("room-%d-whirlpool" % (index + 1))
 	if index == 1:
 		player.position = Vector3(4, 0.10, 8)
 		player.aim_at(Vector3(18, 5.0, -12))
@@ -95,6 +101,7 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	var spillways := court.get_node("Spillways") as Node3D
 	_check(room + "rain and the three spillways start active", realm.rain.emitting and spillways.visible
 		and spillways.get_child_count() == 4)
+	_verify_whirlpool(stage, realm, room)
 	realm.set_deprivation(true)
 	await _frames(4)
 	_check(room + "deprivation dries the court as well as the basin",
@@ -112,11 +119,36 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	_check(room + "player walks the central approach", walked)
 	player.position = spawn
 	player.velocity = Vector3.ZERO
-	walked = await _walk(player, [Vector3(4,0,10.4), Vector3(14.2,0,8.1), Vector3(14.2,0,-15), Vector3(2.6,0,-18.2)])
+	walked = await _walk(player, [Vector3(4,0,10.4), Vector3(14.6,0,9.8), Vector3(15.5,0,-16.6), Vector3(2.6,0,-18.2)])
 	_check(room + "player can bypass the platforms on the side route", walked)
 	_check(room + "real movement adds ripples on the wet floor", realm.movement_ripple_count > 4)
 	player.set_physics_process(false)
 	await _clear_and_exit(stage, room)
+
+
+func _verify_whirlpool(stage: RealmStage, realm: SorrowRealm, room: String) -> void:
+	var current: Vector3 = realm.water_material.get_shader_parameter("whirlpool")
+	realm.place_whirlpool(stage.run_seed, stage.room_index)
+	_check(room + "one whirlpool is reproducible from the run seed and room",
+		is_equal_approx(current.z, 1.35) and realm.water_material.get_shader_parameter("whirlpool") == current)
+	var distinct := {}
+	for trial in 12:
+		realm.place_whirlpool(stage.run_seed + trial, stage.room_index)
+		var sample: Vector3 = realm.water_material.get_shader_parameter("whirlpool")
+		distinct[Vector2(sample.x, sample.y)] = true
+	_check(room + "different run seeds move the whirlpool", distinct.size() > 4)
+	realm.place_whirlpool(stage.run_seed, stage.room_index)
+	var clearance := CylinderShape3D.new()
+	clearance.radius = SorrowRealm.WHIRLPOOL_RADIUS + 0.50
+	clearance.height = 0.34
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = clearance
+	query.collision_mask = CollisionLayers.WORLD
+	var clear_sites := true
+	for site: Vector2 in SorrowRealm.WHIRLPOOL_SITES:
+		query.transform = Transform3D(Basis.IDENTITY, Vector3(site.x, 0.31, site.y))
+		clear_sites = clear_sites and realm.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+	_check(room + "all whirlpool spawn sites and their jitter are clear of ruins", clear_sites)
 
 
 func _clear_and_exit(stage: RealmStage, room: String) -> void:
@@ -155,6 +187,7 @@ func _walk(player: Player, targets: Array[Vector3]) -> bool:
 			await get_tree().physics_frame
 		Input.action_release("move_forward")
 		if Vector2(player.position.x - goal.x, player.position.z - goal.z).length() >= 0.60:
+			print("Route stopped at %s before %s" % [player.position, goal])
 			return false
 	return true
 

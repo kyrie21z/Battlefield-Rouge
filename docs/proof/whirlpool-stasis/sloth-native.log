@@ -1,0 +1,80 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.351 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4060 Laptop GPU
+
+== delayed volley: warning, fixed aim and real hits
+  [ok] a lingerer can start one attack
+  [ok] an active cast cannot be duplicated
+  [ok] all four suspended tells sit ahead of the chest for readability
+  [ok] the warning phase cannot hurt the player
+  [ok] no projectiles are launched during the warning
+  [ok] the final warning locks aim after slow formation
+  [ok] the full two-second formation completes before any shot
+  [ok] only the first shot releases at the start of the burst
+  [ok] the second shot is staggered after the first
+  [ok] the third shot is staggered after the second
+  [ok] the caster stays in its attack until the fourth shot
+  [ok] four visible fast projectiles are released, each with nine damage
+  [ok] all four shots keep their locked direction after lateral movement
+  [ok] a completed burst opens a recovery window
+  [ok] the next cast cannot skip the recovery window
+  [ok] a lateral dodge avoids the locked four-shot volley
+  [ok] nearby WORLD cover keeps suspended tells from appearing beyond a thin wall
+  [ok] standing on the announced trajectory actually receives damage
+== four-shot burst pause and cancellation after release
+  [ok] two projectiles are emitted before the mid-burst pause
+  [ok] pausing freezes the remaining shot schedule
+  [ok] pausing also freezes already released projectiles
+  [ok] resuming releases exactly the two remaining shots
+  [ok] two shots precede death
+  [ok] death cancels the unreleased third and fourth shots
+  [ok] two shots precede retreat
+  [ok] retreat cancels the unreleased third and fourth shots
+== interrupted casts and retreat
+  [ok] killing the caster cancels an unreleased volley
+  [ok] retreat cancels pending attacks without releasing bullets
+  [ok] a melee shove interrupts a winding-up recluse
+  [ok] an interrupted wave causes no later damage
+== anchored field: telegraph, overlap, escape and death cleanup
+  [ok] a field does not slow during its warning
+  [ok] the field's announced position never follows the player
+  [ok] leaving the announced zone before activation avoids the slow
+  [ok] entering the active field applies a bounded 25 percent slow
+  [ok] overlapping fields do not stack the movement penalty
+  [ok] destroying one source preserves the remaining field
+  [ok] destroying the final anchor removes the slow immediately
+  [ok] a new field can apply after prior sources were destroyed
+  [ok] walking out clears the slow on the next physics update
+  [ok] a field expires rather than slowing indefinitely
+== the slowing field respects solid cover
+  [ok] a solid wall blocks the field between its center and the player
+== field tells follow a slope and remain on their storey
+  [ok] a slowing field outline follows the actual sloped WORLD surface
+  [ok] telegraph projection is sampled once instead of recasting every frame
+  [ok] an upper-level tell does not snap to another storey five metres below
+  [ok] a fixed upper-level field does not slow the player on the lower storey
+== active slowing fields block Shift without spending its charges
+  [ok] the unmodified dash control starts normally
+  [ok] the unmodified dash control travels five meters (5.093)
+  [ok] the real player is slowed before the dash
+  [ok] Shift is blocked inside the active field without spending a charge
+  [ok] leaving a frozen field clears the slowdown on the next tick
+  [ok] outside the field dash works again at its original distance
+== recluse wave: safe opening, one hit, cover and jump
+  [ok] remaining inside the announced open wedge is safe
+  [ok] a wave's warning deals no damage even outside its opening
+  [ok] crossing the wave receives exactly one 14-damage hit
+  [ok] solid cover blocks the wave's damage
+  [ok] ordinary SPACE input lifts the real player over the arriving wave (peak 0.681, crossing 0.576)
+  [ok] an ordinary jump avoids the incoming wave
+  jump samples: peak=0.681, wave crossing samples=6, crossing health=1000.0
+== a closed shell remains damageable; its opening rewards aimed fire
+  [ok] the closed shell exposes a normal body hitbox
+  [ok] the closed shell is damageable without a special weapon
+  [ok] opening the shell makes the chest core hittable
+  [ok] an aimed core hit rewards the player with double damage
+  [ok] the exposed core closes again after the recovery window
+== pause freezes attack phases
+  [ok] attack time remains frozen during a pause
+  [ok] a warning cannot turn into a slow while paused
+  [ok] resuming advances the same attack into its active field
+SLOTH ENEMIES: ALL PASSED (65 checks, 0 failed)

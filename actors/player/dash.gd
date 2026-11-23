@@ -83,8 +83,10 @@ func _physics_process(delta: float) -> void:
 func try_dash() -> bool:
 	if get_tree().paused or _health == null or _health.is_dead() or _charges <= 0:
 		return false
-	if _player is Player and _player.realm_effects != null and _player.realm_effects.dash_blocked:
-		return false
+	if _player is Player:
+		var player := _player as Player
+		if player.stasis_multiplier() < 1.0 or (player.realm_effects != null and player.realm_effects.dash_blocked):
+			return false
 	if not _player.is_on_floor():
 		if _air_used >= air_charges:
 			return false

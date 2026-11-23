@@ -228,8 +228,12 @@ func _physics_process(delta: float) -> void:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel
 	if not dashing:
-		velocity.x = move_toward(velocity.x, direction.x * speed, accel * speed * delta)
-		velocity.z = move_toward(velocity.z, direction.z * speed, accel * speed * delta)
+		var target_velocity := direction * speed
+		if not lunging and is_on_floor() and velocity.y <= 0.0 and realm_effects.ground_current.is_valid():
+			var current: Vector3 = realm_effects.ground_current.call(global_position)
+			target_velocity += current.limit_length(speed * 0.48)
+		velocity.x = move_toward(velocity.x, target_velocity.x, accel * speed * delta)
+		velocity.z = move_toward(velocity.z, target_velocity.z, accel * speed * delta)
 		# A melee swing carries the player: the step overrides the walked velocity
 		# for its short duration, so the distance is exactly `speed * duration`
 		# instead of building up frame by frame.

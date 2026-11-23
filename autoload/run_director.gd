@@ -208,9 +208,6 @@ func _stage_cleared(stage: Node) -> void:
 	earned_will += ROOM_WILL
 	changed.emit()
 
-## Depth scaling is a three-axis vector and never depends on realm identity:
-## health climbs fastest, damage stays fair, and tempo tightens the enemy
-## attack cadence. Only the depth and the lost realms may change it.
 func _depth_index(depth: int) -> int:
 	return clampi(floor_index if depth < 0 else depth,0,3)
 

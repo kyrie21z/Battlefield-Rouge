@@ -123,10 +123,13 @@ func _apply_enemy_rules(enemy: Node) -> void:
 		enemy.set_ordinary_impacts_enabled(not deprivations.has(WRATH))
 
 func _after_damage(context: Dictionary) -> void:
-	if player.health.unbuffered and float(context.get("dealt",0.0)) > 0.0:
+	var dealt := float(context.get("dealt",0.0))
+	if shards.has(SORROW) and dealt > 0.0:
+		_barrier_recovery = TENDERNESS_RECOVERY_DELAY
+	if player.health.unbuffered and dealt > 0.0:
 		brittle_hits += 1
 		_glass.play()
-	if not shards.has(WRATH) or _counter_left > 0.0 or player.health.is_dead() or float(context.get("dealt",0.0)) <= 0.0:
+	if not shards.has(WRATH) or _counter_left > 0.0 or player.health.is_dead() or dealt <= 0.0:
 		return
 	var source := context.get("source") as Node3D
 	_release_spite(source)

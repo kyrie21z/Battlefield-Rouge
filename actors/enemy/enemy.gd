@@ -165,6 +165,8 @@ var _base_max_health := -1.0
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_READY:
 		ensure_hit_reaction()
+		if not is_equal_approx(realm_tempo_scale, 1.0):
+			set_realm_tempo(realm_tempo_scale)
 
 
 ## Every actor that has not authored its own HitReaction gets the shared one, so
@@ -674,8 +676,10 @@ func effective_windup_scale() -> float:
 ## Idempotent. Only regular patrol/chase speed follows tempo at half strength;
 ## a standing actor stays at 0.0 and lunge/knockback impulses are untouched.
 func set_realm_tempo(value: float) -> void:
-	_snapshot_run_speed()
 	realm_tempo_scale = maxf(value,0.25)
+	if not is_node_ready():
+		return
+	_snapshot_run_speed()
 	if is_zero_approx(_base_run_speed):
 		run_speed = 0.0
 	else:

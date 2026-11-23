@@ -161,6 +161,11 @@ func begin_retreat(goal: Vector3, timeout: float) -> void:
 	_dismiss_wisps()
 	super.begin_retreat(goal,timeout)
 
+func set_realm_tempo(value: float) -> void:
+	super.set_realm_tempo(value)
+	for wisp in living_wisps():
+		wisp.set_realm_tempo(realm_tempo_scale)
+
 func _on_died(_source: Node) -> void:
 	if state == State.DEAD: return
 	state = State.DEAD

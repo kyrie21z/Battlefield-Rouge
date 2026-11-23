@@ -178,10 +178,15 @@ func _effective_tempo() -> float:
 ## A boss killed inside this room adds the Sloth haste here. When the run
 ## director already included it, the flag keeps it from stacking twice.
 func _fold_sloth_haste() -> void:
-	if not campaign or tempo_includes_sloth_haste or not deprivations.has(0):
+	if not campaign:
 		return
-	tempo_multiplier += SLOTH_HASTE
-	tempo_includes_sloth_haste = true
+	var has_sloth := deprivations.has(0)
+	if has_sloth and not tempo_includes_sloth_haste:
+		tempo_multiplier += SLOTH_HASTE
+		tempo_includes_sloth_haste = true
+	elif not has_sloth and tempo_includes_sloth_haste:
+		tempo_multiplier = maxf(0.25,tempo_multiplier - SLOTH_HASTE)
+		tempo_includes_sloth_haste = false
 
 func _apply_actor_deprivation(actor: Enemy) -> void:
 	if "warnings_enabled" in actor:

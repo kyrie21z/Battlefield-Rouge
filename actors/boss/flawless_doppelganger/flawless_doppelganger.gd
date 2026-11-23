@@ -104,7 +104,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_fragment_motion = false
 	var flat := (target.global_position-global_position)*Vector3(1,0,1)
-	phase_left -= delta*boon_attack_scale*(HIGH_PRESSURE_CLOCK if _high_pressure() else 1.0)
+	var clock_scale := boon_attack_scale if phase == Phase.EXPOSED else effective_attack_scale()*(HIGH_PRESSURE_CLOCK if _high_pressure() else 1.0)
+	phase_left -= delta*clock_scale
 	visual.set_guard(phase == Phase.GUARD)
 	if phase != Phase.DASHING:
 		_face(flat,delta*2)
@@ -205,7 +206,7 @@ func _recover() -> void:
 	phase_left = HIGH_PRESSURE_RECOVER if _high_pressure() else RECOVER_WINDOW
 	visual.set_guard(false)
 func _high_pressure() -> bool:
-	return health.health < health.max_health*HIGH_PRESSURE
+	return health.health + 0.001 < health.max_health*HIGH_PRESSURE
 func _expose(duration: float,reason: StringName) -> void:
 	phase = Phase.EXPOSED
 	phase_left = duration

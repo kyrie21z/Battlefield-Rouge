@@ -33,6 +33,7 @@ func _ready() -> void:
 	await _run_depth_curve()
 	var hasted_fear := await _run_sloth_haste()
 	await _run_boon_orthogonality(hasted_fear)
+	await _run_review_edge_guards()
 	await _run_fragment_sustain()
 	await _finish()
 
@@ -101,6 +102,9 @@ func _run_final_boss() -> void:
 	boss.health.health = boss.health.max_health*0.56
 	boss._recover()
 	check("56% HP still keeps the readable recover window", is_equal_approx(boss.phase_left,0.85))
+	boss.health.health = 1540.0
+	boss._recover()
+	check("exact 55% HP (1540/2800) still keeps the readable recover window", is_equal_approx(boss.phase_left,0.85))
 	boss.health.health = boss.health.max_health*0.54
 	boss._recover()
 	check("below 55% HP compresses the recover window to 0.55 s",
@@ -110,6 +114,22 @@ func _run_final_boss() -> void:
 	check("below 55% HP compresses the wait gap to 0.15 s",
 		boss.phase==FlawlessDoppelganger.Phase.WAIT and is_equal_approx(boss.phase_left,0.15))
 
+	boss._expose(1.6,&"spite_wall")
+	await _frames(6)
+	check("high pressure does not shorten the EXPOSED punish window (%.3f)" % boss.phase_left,
+		absf(boss.phase_left-1.5)<0.015)
+
+	boss.health.health = boss.health.max_health
+	boss.set_realm_tempo(1.4)
+	boss.begin_move(FlawlessDoppelganger.Move.GUN)
+	var hasted_windup := 0
+	while boss.phase == FlawlessDoppelganger.Phase.WINDUP and hasted_windup < 60:
+		await get_tree().physics_frame
+		hasted_windup += 1
+	check("explicit 1.4x realm tempo shortens final boss gun windup (%d frames)" % hasted_windup,
+		hasted_windup >= 18 and hasted_windup <= 22)
+	boss.set_realm_tempo(1.0)
+	boss.phase = FlawlessDoppelganger.Phase.RECOVER
 	boss.health.health = boss.health.max_health
 	boss.phase_left = 1.0
 	await _frames(1)
@@ -160,8 +180,9 @@ func _run_depth_curve() -> void:
 				and is_equal_approx(actor.realm_hp_scale,float(profile["hp_scale"])) \
 				and is_equal_approx(actor.realm_damage_scale,float(profile["damage_scale"])) \
 				and is_equal_approx(actor.realm_tempo_scale,tempo)
-			health_ok = health_ok and is_equal_approx(actor.health.max_health,actor._base_max_health*float(profile["hp_scale"]))
-			var base_speed: float = actor._base_run_speed
+			var authored := _authored_base_stats(actor)
+			health_ok = health_ok and is_equal_approx(actor.health.max_health,float(authored["hp"])*float(profile["hp_scale"]))
+			var base_speed := float(authored["speed"])
 			var expected := 0.0 if is_zero_approx(base_speed) else base_speed*(1.0+(tempo-1.0)*0.5)
 			speed_ok = speed_ok and is_equal_approx(actor.run_speed,expected)
 		check("depth %d actors carry the hp/damage/tempo vector" % [depth+1],vector_ok)
@@ -320,8 +341,12 @@ func _run_fragment_sustain() -> void:
 		and is_equal_approx(player.fragments._barrier_recovery,6.5))
 	await _frames(300)
 	check("the barrier stays empty through the first five seconds",is_zero_approx(player.fragments.barrier))
-	await _frames(60)
-	check("the barrier stays empty through six seconds",is_zero_approx(player.fragments.barrier))
+	player.health.apply_damage(1,Hitbox.BodyPart.BODY)
+	check("a hit while Tenderness is empty resets the 6.5 s delay",
+		is_zero_approx(player.fragments.barrier)
+		and is_equal_approx(player.fragments._barrier_recovery,6.5))
+	await _frames(360)
+	check("the barrier stays empty through six seconds after the second hit",is_zero_approx(player.fragments.barrier))
 	await _frames(60)
 	check("the barrier resumes after the six and a half second delay",
 		player.fragments.barrier>1.0 and player.fragments.barrier<10.0)
@@ -388,6 +413,97 @@ func _run_fragment_sustain() -> void:
 	await _frames(60)
 	check("the carried Tenderness delay blocks early recharge in the new room",
 		is_equal_approx(next_player.fragments.barrier,saved_barrier))
+
+
+func _run_review_edge_guards() -> void:
+	var reaper_probe := preload("res://actors/enemy/fear/fear_reaper.tscn").instantiate() as FearReaper
+	reaper_probe.set_realm_tempo(1.4)
+	add_child(reaper_probe)
+	await _frames(2)
+	check("pre-ready tempo uses FearReaper authored 2.4 base speed (%.2f)" % reaper_probe.run_speed,
+		is_equal_approx(reaper_probe.run_speed,2.4*(1.0+(1.4-1.0)*0.5)))
+	reaper_probe.queue_free()
+	await _frames(2)
+
+	var fear_stage := await _install_run_room(1,[],1)
+	_guard_player(fear_stage)
+	var live_reaper: FearReaper = null
+	for actor in fear_stage.enemies:
+		actor.set_physics_process(false)
+		if actor is FearReaper:
+			live_reaper = actor as FearReaper
+	var live_wisp: FearWisp = null
+	if live_reaper != null:
+		live_reaper._summon()
+		var wisps := live_reaper.living_wisps()
+		if not wisps.is_empty():
+			live_wisp = wisps[0]
+			live_wisp.set_physics_process(false)
+	fear_stage.configure_run(1,[0],[],100.0,[])
+	check("live Sloth deprivation refresh propagates to active FearWisp",
+		live_reaper != null and live_wisp != null
+		and is_equal_approx(live_reaper.realm_tempo_scale,TEMPO_CURVE[1]+SLOTH_HASTE)
+		and is_equal_approx(live_wisp.realm_tempo_scale,TEMPO_CURVE[1]+SLOTH_HASTE))
+	fear_stage.configure_run(1,[],[],100.0,[])
+	check("clearing Sloth deprivation restores base room tempo on reaper and wisp",
+		live_reaper != null and live_wisp != null
+		and is_equal_approx(live_reaper.realm_tempo_scale,TEMPO_CURVE[1])
+		and is_equal_approx(live_wisp.realm_tempo_scale,TEMPO_CURVE[1]))
+
+	var wrath_boss := await _install_run_room(2,[0],2)
+	_guard_player(wrath_boss)
+	var spire := wrath_boss.boss as WrathSpire
+	if spire != null:
+		spire.set_realm_tempo(1.4)
+		wrath_boss.player.global_position = Vector3(0,0.05,4)
+		await _frames(1)
+		spire.begin_move(WrathSpire.Move.ERUPTION)
+		var windup_ticks := 0
+		var hit_ticks := 0
+		var hp_before := wrath_boss.player.health.health
+		for tick in range(1,90):
+			await get_tree().physics_frame
+			if windup_ticks == 0 and spire.attack_phase != WrathRealmEnemy.Attack.WINDUP:
+				windup_ticks = tick
+			if hit_ticks == 0 and wrath_boss.player.health.health < hp_before:
+				hit_ticks = tick
+				break
+		check("WrathSpire eruption hits in lockstep with 1.4x windup (%d vs %d ticks, spawned=%d)" % [hit_ticks,windup_ticks,spire.spawned_eruptions],
+			spire.spawned_eruptions > 0 and windup_ticks >= 49 and windup_ticks <= 55 and abs(hit_ticks-windup_ticks) <= 2)
+
+	var sloth_boss := await _install_run_room(0,[0],2)
+	_guard_player(sloth_boss)
+	var colossus := sloth_boss.boss as SlothColossus
+	if colossus != null:
+		colossus.set_realm_tempo(1.4)
+		colossus.attack_finished()
+		var before_attacks := colossus.attacks_started
+		var wait_ticks := 0
+		while colossus.attacks_started == before_attacks and wait_ticks < 110:
+			await get_tree().physics_frame
+			wait_ticks += 1
+		check("SlothColossus recovery scales with 1.4x tempo (%d ticks)" % wait_ticks,
+			wait_ticks >= 74 and wait_ticks <= 81)
+
+
+func _authored_base_stats(actor: Enemy) -> Dictionary:
+	if actor is SlothEnemy:
+		var k := (actor as SlothEnemy).kind
+		return {"hp":[90.0,140.0,180.0][k],"speed":[2.8,2.1,2.4][k]}
+	if actor is SlothMire:
+		return {"hp":105.0,"speed":2.45}
+	if actor is FearReaper:
+		return {"hp":140.0,"speed":2.4}
+	if actor is FearRealmEnemy:
+		var v := (actor as FearRealmEnemy).variant
+		return {"hp":[65.0,85.0,115.0][v],"speed":[0.0,3.4,5.0][v]}
+	if actor is WrathRealmEnemy:
+		var v := (actor as WrathRealmEnemy).variant
+		return {"hp":[110.0,220.0,160.0,90.0][v],"speed":[3.6,1.6,5.0,WrathRealmEnemy.READER_WALK_SPEED][v]}
+	if actor is SorrowRealmEnemy:
+		var v := (actor as SorrowRealmEnemy).variant
+		return {"hp":[110.0,230.0,130.0][v],"speed":[2.7,1.6,0.7][v]}
+	return {"hp":actor.health.max_health,"speed":actor.run_speed}
 
 
 func _install_run_room(depth: int, deprivations: Array, room: int,

@@ -4,6 +4,16 @@ signal defeated
 signal shell_broken(reason: StringName)
 enum Move { GUN, DASH_BLADE, SHIELD }
 enum Phase { WAIT, WINDUP, FIRING, DASHING, GUARD, RECOVER, EXPOSED }
+const BASE_HEALTH := 2800.0
+const GUN_DAMAGE := 14.0
+const SLASH_DAMAGE := 28.0
+## Below this fraction the shell drops its readable cadence for the last stand.
+const HIGH_PRESSURE := 0.55
+const HIGH_PRESSURE_CLOCK := 1.30
+const RECOVER_WINDOW := 0.85
+const HIGH_PRESSURE_RECOVER := 0.55
+const WAIT_GAP := 0.25
+const HIGH_PRESSURE_WAIT := 0.15
 var visual: FlawlessVisual
 var combat_active := false
 var phase := Phase.WAIT
@@ -29,8 +39,8 @@ func _enter_tree() -> void:
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
 func _ready() -> void:
 	visual = $Model as FlawlessVisual
-	health.max_health = 1650
-	health.health = 1650
+	health.max_health = BASE_HEALTH
+	health.health = BASE_HEALTH
 	health.headshot_multiplier = 1.5
 	run_speed = 6.0
 	health.before_damage.connect(_before_damage)
@@ -94,7 +104,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_fragment_motion = false
 	var flat := (target.global_position-global_position)*Vector3(1,0,1)
-	phase_left -= delta*boon_attack_scale*(1.18 if health.health < health.max_health*0.5 else 1.0)
+	phase_left -= delta*boon_attack_scale*(HIGH_PRESSURE_CLOCK if _high_pressure() else 1.0)
 	visual.set_guard(phase == Phase.GUARD)
 	if phase != Phase.DASHING:
 		_face(flat,delta*2)
@@ -146,7 +156,7 @@ func _physics_process(delta: float) -> void:
 			_cycles += 1
 			move_kind = (move_kind+1)%3
 			phase = Phase.WAIT
-			phase_left = 0.25
+			phase_left = HIGH_PRESSURE_WAIT if _high_pressure() else WAIT_GAP
 	_move_timed()
 func _move_timed() -> void:
 	var unscaled := velocity
@@ -169,7 +179,7 @@ func begin_move(kind: int) -> void:
 func _fire() -> void:
 	var bullet := FlawlessBullet.new()
 	bullet.source = self
-	bullet.damage = 10
+	bullet.damage = GUN_DAMAGE
 	bullet.speed = 42
 	bullet.max_distance = 40
 	bullet.tint = Color(0.9,0.97,1.0)
@@ -187,13 +197,15 @@ func _slash() -> void:
 	var toward := ((locked_point-global_position)*Vector3(1,0,1)).normalized()
 	if flat.length() < 3.0 and flat.normalized().dot(toward) > 0.35 and _line_clear(target.global_position+Vector3.UP):
 		var hp := target.get_node("Health") as Health
-		var dealt := hp.apply_damage(22,Hitbox.BodyPart.BODY,self,{"tag":&"aurora_slash"})
+		var dealt := hp.apply_damage(SLASH_DAMAGE,Hitbox.BodyPart.BODY,self,{"tag":&"aurora_slash"})
 		if dealt > 0 and target.has_method("apply_external_impulse"):
 			target.call("apply_external_impulse",flat.normalized(),8.0,0.18)
 func _recover() -> void:
 	phase = Phase.RECOVER
-	phase_left = 0.85
+	phase_left = HIGH_PRESSURE_RECOVER if _high_pressure() else RECOVER_WINDOW
 	visual.set_guard(false)
+func _high_pressure() -> bool:
+	return health.health < health.max_health*HIGH_PRESSURE
 func _expose(duration: float,reason: StringName) -> void:
 	phase = Phase.EXPOSED
 	phase_left = duration

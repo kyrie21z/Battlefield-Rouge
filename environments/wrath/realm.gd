@@ -4,6 +4,7 @@ extends Node3D
 const KILN_SHELL := preload("res://environments/wrath/cracked_kiln.gd")
 const KILN_FLOOR := preload("res://assets/materials/wrath_kiln_floor.gdshader")
 const KILN_SKY := preload("res://assets/materials/wrath_kiln_sky.gdshader")
+const LAVA_POOLS := preload("res://environments/wrath/lava_pools.gd")
 
 @export var boss_arena := false
 @export_range(0, 1) var chamber_style := 0
@@ -16,6 +17,7 @@ var ambience: AudioStreamPlayer3D
 var _white: StandardMaterial3D
 var _hot: StandardMaterial3D
 var _kiln_shell: KILN_SHELL
+var lava_pools: LAVA_POOLS
 var player: Player
 var void_fall: RealmVoid
 
@@ -62,6 +64,7 @@ func _ready() -> void:
 			_kiln_shell.dress_cover(entry_cover)
 			_kiln_shell.dress_cover(exit_cover)
 			_kiln_shell.dress_end_wall(walls[-2])
+			_build_kiln_floor_details()
 			_kiln_shell.spillway.set_deprivation(deprived)
 		else:
 			for pos in [Vector3(-8, 0.7, 1), Vector3(8, 0.7, -10)]:
@@ -107,12 +110,29 @@ func _ready() -> void:
 		ambience.play()
 	_install_void()
 
+func _build_kiln_floor_details() -> void:
+	var centers := [Vector2(-4.8, 3.7), Vector2(3.85, 3.5), Vector2(-5.2, -6.2), Vector2(5.9, -11.5)]
+	var sizes := [Vector3(1.65, 3.8, 1.62), Vector3(1.58, 2.65, 1.54),
+		Vector3(1.73, 3.35, 1.75), Vector3(1.65, 4.1, 1.80)]
+	for i in centers.size():
+		var size: Vector3 = sizes[i]
+		var pillar := _block("KilnPillar%d" % (i + 1), Vector3(centers[i].x, size.y * 0.5, centers[i].y), size, true)
+		pillar.rotation.y = [-0.19, 0.26, 0.07, -0.23][i]
+		_kiln_shell.dress_pillar(pillar, i)
+	lava_pools = LAVA_POOLS.new()
+	lava_pools.name = "LavaPools"
+	lava_pools.player = player
+	add_child(lava_pools)
+	lava_pools.set_deprivation(deprived)
+
 func provides_stage_lighting() -> bool:
 	return chamber_style == 1 and not boss_arena
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func set_player(value: Player) -> void:
 	player = value
+	if is_instance_valid(lava_pools):
+		lava_pools.player = value
 	if is_instance_valid(void_fall):
 		void_fall.setup(value)
 
@@ -151,6 +171,8 @@ func set_deprivation(active: bool) -> void:
 	_hot.albedo_color = Color(0.10, 0.085, 0.08) if active else Color(1.0, 0.10, 0.015)
 	if is_instance_valid(_kiln_shell):
 		_kiln_shell.spillway.set_deprivation(active)
+	if is_instance_valid(lava_pools):
+		lava_pools.set_deprivation(active)
 	for particles in steam:
 		particles.emitting = not active
 	if is_instance_valid(ambience):

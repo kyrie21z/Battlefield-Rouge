@@ -68,6 +68,42 @@ func dress_basin(floor_body: StaticBody3D, banks: Array[StaticBody3D], platforms
 	_install_mesh(self, "BasinCoping", trims.commit(), _stone)
 
 
+func dress_ruins(ruins: Array[StaticBody3D]) -> void:
+	var finish := _stone.duplicate() as ShaderMaterial
+	finish.set_shader_parameter("base_tint", Color("6d8894"))
+	_stone_surfaces.append(finish)
+	var masonry := SurfaceTool.new()
+	masonry.begin(Mesh.PRIMITIVE_TRIANGLES)
+	masonry.set_smooth_group(-1)
+	for i in ruins.size():
+		var ruin := ruins[i]
+		var visual := ruin.get_child(1) as MeshInstance3D
+		var size := (visual.mesh as BoxMesh).size
+		visual.material_override = finish
+		var cap := ruin.position + Vector3.UP * (size.y * 0.5 - 0.06)
+		if size.y > 2.0:
+			_box(masonry, cap, Vector3(size.x + 0.14, 0.14, size.z + 0.12), LIMESTONE, ruin.basis)
+		else:
+			for stone in 3:
+				var top := cap + ruin.basis * Vector3((stone - 1) * size.x / 3.0, 0.033 * (stone % 2), 0)
+				_box(masonry, top, Vector3(size.x * 0.318, 0.16, size.z + 0.10),
+					LIMESTONE if stone != 1 else SLATE, ruin.basis * Basis(Vector3.UP, (stone - 1) * 0.055))
+		_box(masonry, ruin.position + Vector3.UP * (0.29 - size.y * 0.5),
+			Vector3(size.x + 0.16, 0.25, size.z + 0.18), BASALT, ruin.basis)
+		for side: float in [-1.0, 1.0]:
+			var rib := ruin.basis * Vector3(side * size.x * 0.29, 0, size.z * 0.5 + 0.025)
+			_box(masonry, ruin.position + rib, Vector3(0.16, size.y * 0.75, 0.095), BRONZE, ruin.basis)
+		if size.y > 2.0:
+			for shoulder: float in [-1.0, 1.0]:
+				var edge := ruin.basis * Vector3(shoulder * (size.x * 0.5 + 0.03), size.y * 0.22, 0)
+				_box(masonry, ruin.position + edge, Vector3(0.13, 0.20, size.z * 0.96), LIMESTONE, ruin.basis)
+		var chip := ruin.basis * Vector3(size.x * (0.42 if i % 2 == 0 else -0.40), 0.07 - size.y * 0.5, size.z * 0.74)
+		_box(masonry, ruin.position + chip, Vector3(0.58, 0.15, 0.43), SLATE,
+			ruin.basis * Basis(Vector3.UP, i * 0.81))
+	masonry.generate_normals()
+	_install_mesh(self, "RuinTrim", masonry.commit(), _stone)
+
+
 func set_clock(seconds: float) -> void:
 	_fall.set_shader_parameter("water_clock", seconds)
 

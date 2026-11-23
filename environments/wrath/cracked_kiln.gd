@@ -163,6 +163,26 @@ func dress_cover(cover: StaticBody3D) -> void:
 				Vector3(0.18, 0.20, 0.09), Vector3(0, PI * 0.5, 0.08), _oxidised)
 
 
+func dress_pillar(pillar: StaticBody3D, index: int) -> void:
+	var core := pillar.get_child(1) as MeshInstance3D
+	var size := (core.mesh as BoxMesh).size
+	core.material_override = _soot
+	for face in 4:
+		var frame := Basis(Vector3.UP, face * PI * 0.5)
+		var depth := size.z if face % 2 == 0 else size.x
+		var span := size.x if face % 2 == 0 else size.z
+		for course in 3:
+			var twist := 0.10 * sin(index * 2.7 + face * 1.4 + course * 2.1)
+			var p := frame * Vector3(twist * 0.68, size.y * (-0.28 + course * 0.28), depth * 0.5 + 0.036)
+			var finish: Material = _ash if (course + face + index) % 3 == 0 else _glaze
+			_tile(pillar, p, Vector3(span * 0.99, size.y * 0.35, 0.12),
+				Vector3(0.0, face * PI * 0.5, twist), finish)
+	_tile(pillar, Vector3(0, -size.y * 0.43, 0), Vector3(size.x * 1.06, size.z * 1.06, 0.23),
+		Vector3(PI * 0.5, 0, 0.03), _iron)
+	_tile(pillar, Vector3(0, size.y * 0.50, 0), Vector3(size.x * 0.96, size.z * 0.96, 0.09),
+		Vector3(PI * 0.5, 0, index * 0.08), _ash)
+
+
 func _tile(parent: Node3D, point: Vector3, size: Vector3, angles: Vector3, finish: Material) -> void:
 	var tile := MeshInstance3D.new()
 	tile.mesh = _panel

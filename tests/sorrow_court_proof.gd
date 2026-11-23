@@ -83,6 +83,12 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	_check(room + "scenery is separate from navigation and world collisions",
 		court.find_children("*", "CollisionObject3D", true, false).is_empty()
 		and realm.platforms.size() == 4 and stage._region.navigation_mesh.get_polygon_count() > 0)
+	var ruins := realm.find_children("BasinRuin*", "StaticBody3D", false, false)
+	var ray := PhysicsRayQueryParameters3D.create(Vector3(-8, 1.4, 0.7), Vector3(-2.4, 1.4, 0.7), CollisionLayers.WORLD)
+	var hit := stage.get_world_3d().direct_space_state.intersect_ray(ray)
+	_check(room + "six ruins add navigable cover and block actual world rays",
+		ruins.size() == 6 and hit.get("collider") == realm.get_node_or_null("BasinRuin1")
+		and ruins.all(func(ruin: Node) -> bool: return ruin.is_in_group("navigation_geometry")))
 	_check(room + "water stays at ankle height with its reflection environment",
 		is_equal_approx(realm.water_level, 0.14) and realm.mirror_environment.ssr_enabled
 		and stage.player.view_camera.environment == realm.mirror_environment)

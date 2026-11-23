@@ -50,6 +50,7 @@ func _ready() -> void:
 		_court.name = "FloodedCourt"
 		add_child(_court)
 		_court.dress_basin(floor_body, banks, platforms)
+		_build_basin_ruins()
 	else:
 		for side in [-1.0,1.0]:
 			for i in 4:
@@ -120,6 +121,19 @@ func _ready() -> void:
 	# A realm can be inserted after actors (standalone benches / restored rooms).
 	_scan_existing(get_parent())
 	_install_void()
+
+func _build_basin_ruins() -> void:
+	var points := [Vector2(-4.8, 0.7), Vector2(4.6, 4.2), Vector2(-4.6, -9.9),
+		Vector2(5.0, -12.0), Vector2(-12.8, -3.9), Vector2(10.7, 0.3)]
+	var sizes := [Vector3(1.68, 3.6, 1.56), Vector3(1.76, 2.85, 1.60),
+		Vector3(1.55, 2.55, 1.60), Vector3(1.96, 3.38, 1.65), Vector3(3.85, 1.30, 1.02), Vector3(2.75, 1.24, 0.95)]
+	var ruins: Array[StaticBody3D] = []
+	for i in points.size():
+		var size: Vector3 = sizes[i]
+		var block := _block("BasinRuin%d" % (i + 1), Vector3(points[i].x, size.y * 0.5, points[i].y), size)
+		block.rotation.y = [0.17, -0.31, 0.24, 0.11, 0.51, -0.35][i]
+		ruins.append(block)
+	_court.dress_ruins(ruins)
 
 func provides_stage_lighting() -> bool:
 	return chamber_style == 1 and not boss_arena

@@ -117,7 +117,7 @@ func _physics_process(delta: float) -> void:
 	if state == State.IDLE:
 		_boon_move_and_slide()
 		return
-	cooldown_left = maxf(0.0, cooldown_left - delta * boon_attack_scale)
+	cooldown_left = maxf(0.0, cooldown_left - delta * effective_attack_scale())
 	cloak_recover_left = maxf(0.0, cloak_recover_left - delta)
 	_seek_retry = maxf(0.0, _seek_retry - delta)
 	_exposed_left = maxf(0.0, _exposed_left - delta)

@@ -21,22 +21,24 @@ func _ready()->void:
 	check("ordinary shield cannot be activated",not player.shield.try_activate())
 	check("new damage cannot create deferred debt",is_zero_approx(effect._traits.pending_damage()))
 	check("unbuffered HP damage emits brittle glass feedback",player.fragments.brittle_hits>=2)
-	check("tenderness activates separate 60 point barrier",player.fragments.acquire(3) and is_equal_approx(player.fragments.barrier,60))
+	check("tenderness activates separate 40 point barrier",player.fragments.acquire(3) and is_equal_approx(player.fragments.barrier,40))
 	var before:=player.health.health
 	player.health.apply_damage(70,Hitbox.BodyPart.BODY)
-	check("independent absorption handles exact overflow",is_equal_approx(before-player.health.health,10) and is_equal_approx(player.fragments.absorption_total,60))
+	check("independent absorption handles exact overflow",is_equal_approx(before-player.health.health,30) and is_equal_approx(player.fragments.absorption_total,40))
 	check("pickup does not restore ordinary defenses",player.health.unbuffered and player.health.shield_points==100 and player.boons.shield_amount==100)
-	check("actual Health context accounts for independent absorption",is_equal_approx(player.health.last_damage_context.absorbed,60) and is_equal_approx(player.health.last_damage_context.dealt,10))
-	await frames(210)
-	check("barrier respects four second recovery delay",is_zero_approx(player.fragments.barrier))
+	check("actual Health context accounts for independent absorption",is_equal_approx(player.health.last_damage_context.absorbed,40) and is_equal_approx(player.health.last_damage_context.dealt,30))
+	await frames(300)
+	check("barrier stays empty through the first five seconds",is_zero_approx(player.fragments.barrier))
+	await frames(60)
+	check("barrier respects six and a half second recovery delay",is_zero_approx(player.fragments.barrier))
 	await frames(90)
-	check("barrier recovers without healing lost HP",player.fragments.barrier>4 and player.fragments.barrier<8 and is_equal_approx(player.health.health,before-10))
+	check("barrier recovers without healing lost HP",player.fragments.barrier>5 and player.fragments.barrier<7 and is_equal_approx(player.health.health,before-30))
 	var barrier:=player.fragments.barrier
 	get_tree().paused=true
 	await get_tree().create_timer(0.2,true).timeout
 	check("pause freezes fragment recharge",is_equal_approx(player.fragments.barrier,barrier))
 	get_tree().paused=false
-	player.fragments.barrier=60
+	player.fragments.barrier=PsycheFragments.TENDERNESS_CAPACITY
 	player.health.apply_damage(1,Hitbox.BodyPart.BODY,null,{"environmental_fatal":true})
 	check("abyss bypasses all independent defenses",player.health.is_dead())
 	for child in get_children(): child.free()

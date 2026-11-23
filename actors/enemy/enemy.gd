@@ -153,9 +153,20 @@ var boon_stunned := false
 var boon_windup_scale := 1.0
 var boon_attack_scale := 1.0
 
+## Depth scaling injected by the room. It lives beside the boon status layer on
+## purpose: refreshing or clearing a boon status must never wipe it.
+var realm_hp_scale := 1.0
+var realm_tempo_scale := 1.0
+## Lazy base snapshots taken on the first realm call. Every later call
+## recomputes from these, which keeps repeated scaling idempotent.
+var _base_run_speed := -1.0
+var _base_max_health := -1.0
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_READY:
 		ensure_hit_reaction()
+		if not is_equal_approx(realm_tempo_scale, 1.0):
+			set_realm_tempo(realm_tempo_scale)
 
 
 ## Every actor that has not authored its own HitReaction gets the shared one, so
@@ -389,10 +400,16 @@ func _process_engage(delta: float) -> void:
 	velocity.x = side.x
 	velocity.z = side.z
 
-	_react_left -= delta * boon_attack_scale / boon_windup_scale
+	# Aiming delay is a windup: realm haste shortens it once and the attack
+	# component keeps its legacy slowdown factor. At 1.0x this is byte-identical
+	# to the old boon_attack_scale / boon_windup_scale step.
+	_react_left -= delta * boon_attack_scale / effective_windup_scale()
 	if _react_left > 0.0 or not sees:
 		return
-	_shot_timer -= delta * boon_attack_scale / (boon_windup_scale if _shots_left <= 0 else 1.0)
+	# Burst cadence is a cooldown: realm haste shortens it once. Only the first
+	# shot of a burst also waits out its boon-extended windup, so the realm
+	# tempo never squares into a double compression.
+	_shot_timer -= delta * effective_attack_scale() / (boon_windup_scale if _shots_left <= 0 else 1.0)
 	if _shot_timer > 0.0:
 		return
 	if _shots_left <= 0:
@@ -645,6 +662,49 @@ func _on_died(_source: Node) -> void:
 func set_boon_animation_scale(value: float) -> void:
 	if is_instance_valid(_anim):
 		_anim.speed_scale = value
+
+## Combined attack cadence: the boon status layer and the room's depth tempo
+## multiply, so a slow card stays effective under any realm haste.
+func effective_attack_scale() -> float:
+	return boon_attack_scale * realm_tempo_scale
+
+## Combined windup: boon extends it, realm tempo shortens it. One division, so
+## a hastened room never compresses a windup twice.
+func effective_windup_scale() -> float:
+	return boon_windup_scale / realm_tempo_scale
+
+## Idempotent. Only regular patrol/chase speed follows tempo at half strength;
+## a standing actor stays at 0.0 and lunge/knockback impulses are untouched.
+func set_realm_tempo(value: float) -> void:
+	realm_tempo_scale = maxf(value,0.25)
+	if not is_node_ready():
+		return
+	_snapshot_run_speed()
+	if is_zero_approx(_base_run_speed):
+		run_speed = 0.0
+	else:
+		run_speed = _base_run_speed * (1.0 + (realm_tempo_scale - 1.0) * 0.5)
+
+## Idempotent realm entry point used by RealmStage when it registers an actor.
+## Health follows the scaled maximum while keeping the current health ratio.
+func apply_realm_scaling(hp_scale: float, damage_scale: float, tempo_scale: float) -> void:
+	_snapshot_max_health()
+	realm_hp_scale = maxf(hp_scale,0.01)
+	if health != null and _base_max_health > 0.0:
+		var ratio := clampf(health.health / health.max_health,0.0,1.0)
+		health.max_health = _base_max_health * realm_hp_scale
+		health.health = clampf(health.max_health * ratio,0.0,health.max_health)
+	if "realm_damage_scale" in self:
+		set("realm_damage_scale",maxf(damage_scale,0.0))
+	set_realm_tempo(tempo_scale)
+
+func _snapshot_run_speed() -> void:
+	if _base_run_speed < 0.0:
+		_base_run_speed = run_speed
+
+func _snapshot_max_health() -> void:
+	if _base_max_health < 0.0 and health != null:
+		_base_max_health = health.max_health
 
 func _boon_move_and_slide() -> void:
 	var scale_value := boon_time_scale * boon_movement_scale

@@ -42,8 +42,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_instance_valid(active_attack):
 		return
-	recovery_left = maxf(0,recovery_left-delta)
-	cooldown_left = maxf(0,cooldown_left-delta*boon_attack_scale)
+	recovery_left = maxf(0,recovery_left-delta*effective_attack_scale())
+	cooldown_left = maxf(0,cooldown_left-delta*effective_attack_scale())
 	if cooldown_left <= 0 and recovery_left<=0:
 		start_attack(attack_index)
 		attack_index = (attack_index+1)%3

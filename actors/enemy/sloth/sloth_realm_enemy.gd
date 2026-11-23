@@ -77,7 +77,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(target) or not target.has_node("Health") or (target.get_node("Health") as Health).is_dead():
 		_clear_anchor()
 		return
-	cooldown_left = maxf(0.0,cooldown_left-delta*boon_attack_scale)
+	cooldown_left = maxf(0.0,cooldown_left-delta*effective_attack_scale())
 	retreat_left = maxf(0.0,retreat_left-delta)
 	_face(target.global_position-global_position,delta)
 	if _impact_left > 0.0:
@@ -94,7 +94,7 @@ func _physics_process(delta: float) -> void:
 		_boon_move_and_slide()
 		return
 	if cast_left > 0.0:
-		cast_left = maxf(0.0,cast_left-delta*boon_attack_scale/maxf(boon_windup_scale,0.01))
+		cast_left = maxf(0.0,cast_left-delta*effective_attack_scale()/maxf(boon_windup_scale,0.01))
 		visual.set_cast(1.0-cast_left/1.2 if warnings_enabled else 0.0)
 		if cast_left <= 0.0:
 			_release_volley()

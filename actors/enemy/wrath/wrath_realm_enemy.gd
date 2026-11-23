@@ -79,7 +79,7 @@ func _physics_process(delta: float) -> void:
 		_face(flat, delta)
 	visual.pressure = pressure / 100.0
 	visual.set_cast(1.0 if warnings_enabled and attack_phase == Attack.WINDUP else 0.0)
-	attack_left -= delta * boon_attack_scale
+	attack_left -= delta * effective_attack_scale()
 	if attack_phase == Attack.APPROACH:
 		_pursue(flat)
 		if variant == Variant.ACCUMULATOR:
@@ -134,7 +134,7 @@ func _pursue(flat: Vector3) -> void:
 	visual.play_motion("walk")
 
 func _process_reader(delta: float, flat: Vector3, height_delta: float) -> void:
-	attack_left -= delta * boon_attack_scale
+	attack_left -= delta * effective_attack_scale()
 	var distance := flat.length()
 	if attack_phase == Attack.RECOVER:
 		_stop()
@@ -211,7 +211,8 @@ func _before_damage(ctx: Dictionary) -> void:
 	if variant == Variant.READER and not paper_torn and not ctx.cancelled and float(ctx.damage) > 0.0 and ctx.source is Player:
 		paper_torn = true
 		ctx.cancelled = not ctx.get("true_damage", false)
-		run_speed = READER_CHASE_SPEED
+		_base_run_speed = READER_CHASE_SPEED
+		set_realm_tempo(realm_tempo_scale)
 		visual.tear_paper()
 		return
 	if variant != Variant.ACCUMULATOR or attack_phase in [Attack.RELEASE, Attack.RECOVER]:

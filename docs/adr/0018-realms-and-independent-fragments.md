@@ -35,3 +35,13 @@ Boss 死亡先累计对应剥夺、发一次 `Events.sin_defeated(count)`；真�
 ### 同日补充：涉水质感使用原创合成
 
 用户继续指出行走声也应为水波荡漾，提供录音作参考，随后明确选择“根据这个音频对应的改一版我们自己的，并上传PR”。因此新增原创滤波噪声/液体共鸣的步行和冲刺音色，替换此前低频敲击，复用到独立场景fallback；保持动作触发与战斗数值。参考录音只指导风格，不进入新提交或运行时，原录音本地预览另行保留。验证与原创试听见[涉水续改](../proof/sorrow-water-audio/README.md)。
+
+## 2026-11-23：正式战役难度曲线 Phase A（#256–#261）
+
+本节追加并覆盖本页最初「HP 与实际伤害倍率只按当前深度 `1 + 0.18 × depth` 增加」的单一标量决策；此前历史正文保持原样。正式战役现在由 `RunDirector` 输出并锁定三维深度向量：生命 `1.00/1.35/1.85/2.45`、伤害 `1.00/1.15/1.32/1.50`、节奏 `1.00/1.08/1.18/1.28`（第 1→4 层），只取深度、不取领域身份。`difficulty()` 保留为伤害倍率兼容入口；`install_stage()` 同时注入 `hp_multiplier`、`difficulty_multiplier` 与 `tempo_multiplier`，由 `RealmStage` 通过 `apply_realm_scaling()` 一次性施加给本房敌人，Boss 死后刷新剥夺时只更新存活敌人的节奏倍率，不重复乘算生命。
+
+`Enemy` 的深度节奏位于 `realm_tempo_scale`，与 `BoonManager` 的 `boon_*_scale` 状态层正交：时钟已乘 `attack_scale` 推进的敌人与攻击体（怠惰、愤怒、悲伤及 `SpireEruption`）在时钟递减/推进处读取 `effective_attack_scale() = boon_attack_scale × realm_tempo_scale`，前摇基准保持 `boon_windup_scale`；仅按纯 `delta` 推进前摇的恐惧系（含 `FearWisp`）冷却读取 `effective_attack_scale()`、前摇读取 `effective_windup_scale() = boon_windup_scale / realm_tempo_scale`，保证两类敌人均只压缩一次、绝不出现 `tempo²`。常规移速按半强度跟随节奏，静止、冲锋与击退冲量速度不受影响。
+
+击败怠惰后，后续所有房间的有效节奏额外 `+0.12`（例如第 3 层 `1.18 → 1.30`）；组合根注入时已折叠该加速，房间通过 `tempo_includes_sloth_haste` 防止二次叠加。沉睡碎片保留脱战 5 秒后的 `2 HP/s` 回血，但每房上限 `30 HP`，同房快照保留已用额度，`advance_room()` 只重置该额度；温润碎片屏障容量收敛为 `40`、受击后恢复延迟 `6.5s`、恢复速率仍 `6.0/s`，跨房保留余额与冷却。终局 `FlawlessDoppelganger` 提升到 `2800 HP`、弹丸 `14`、斩击 `28`；生命低于 `55%` 时阶段时钟 `1.30×`、恢复窗口 `0.85 → 0.55s`、等待间隔 `0.25 → 0.15s`，破防与 56 片碎裂演出保持。
+
+验证新增高层集成接缝 `tests/difficulty_curve_phase_a_test.tscn`：由 `RunDirector` 在四个深度安装生产 `RealmStage`，并用真实物理帧校验怠惰加速、赐福状态正交、`FearWisp` 三轴继承、沉睡单房上限与温润跨房边界；既有 `run_director_test`、`campaign_realms_test`、`realm_tempo_wiring_test`、`slumber_fragment_test`、`tenderness_fragment_test`、`flawless_combat_test` 及 AC-07 `fixture_test` 全量回归通过。

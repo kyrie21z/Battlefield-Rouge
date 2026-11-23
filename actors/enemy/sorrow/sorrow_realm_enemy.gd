@@ -66,7 +66,7 @@ func _physics_process(delta: float) -> void:
 	var flat := (target.global_position-global_position)*Vector3(1,0,1)
 	var distance := flat.length()
 	_face(flat,delta)
-	action_left -= delta*boon_attack_scale
+	action_left -= delta*effective_attack_scale()
 	visual.set_cast(1.0 if warnings_enabled and action == 1 else 0.0)
 	if variant == 0:
 		_corroding(distance,flat)

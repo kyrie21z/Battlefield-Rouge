@@ -14,10 +14,14 @@ var deprivations: Array[int] = []
 var supported: Array[int] = [SLOTH, FEAR, WRATH, SORROW]
 var since_combat := 0.0
 var healing_total := 0.0
+## Rest healing is budgeted per room so idling after a clear cannot refill.
+const SLUMBER_ROOM_HEAL_CAP := 30.0
+var room_healed := 0.0
 var counterpushes := 0
 var spite_charge := 0
 var _counter_left := 0.0
-const TENDERNESS_CAPACITY := 60.0
+const TENDERNESS_CAPACITY := 40.0
+const TENDERNESS_RECOVERY_DELAY := 6.5
 var barrier := 0.0
 var absorption_total := 0.0
 var brittle_hits := 0
@@ -119,10 +123,13 @@ func _apply_enemy_rules(enemy: Node) -> void:
 		enemy.set_ordinary_impacts_enabled(not deprivations.has(WRATH))
 
 func _after_damage(context: Dictionary) -> void:
-	if player.health.unbuffered and float(context.get("dealt",0.0)) > 0.0:
+	var dealt := float(context.get("dealt",0.0))
+	if shards.has(SORROW) and dealt > 0.0:
+		_barrier_recovery = TENDERNESS_RECOVERY_DELAY
+	if player.health.unbuffered and dealt > 0.0:
 		brittle_hits += 1
 		_glass.play()
-	if not shards.has(WRATH) or _counter_left > 0.0 or player.health.is_dead() or float(context.get("dealt",0.0)) <= 0.0:
+	if not shards.has(WRATH) or _counter_left > 0.0 or player.health.is_dead() or dealt <= 0.0:
 		return
 	var source := context.get("source") as Node3D
 	_release_spite(source)
@@ -133,7 +140,7 @@ func _absorb(amount: float) -> float:
 	var caught := minf(amount,barrier)
 	barrier -= caught
 	absorption_total += caught
-	_barrier_recovery = 4.0
+	_barrier_recovery = TENDERNESS_RECOVERY_DELAY
 	activated.emit(SORROW)
 	changed.emit()
 	return amount - caught
@@ -151,6 +158,10 @@ func _release_spite(source: Node3D) -> void:
 
 func mark_combat() -> void:
 	since_combat = 0.0
+
+## A new room hands the player a fresh rest budget; the same room never does.
+func reset_room_healing() -> void:
+	room_healed = 0.0
 
 func _on_boon_event(event: StringName, context: Dictionary) -> void:
 	if event == &"enemy_registered":
@@ -182,6 +193,11 @@ func _physics_process(delta: float) -> void:
 	# A live enemy with a clear nearby line of sight prevents healing by idling.
 	if not player.boons.targets_in_radius(player.global_position + Vector3.UP,12.0).is_empty():
 		return
+	var budget := maxf(0.0, SLUMBER_ROOM_HEAL_CAP - room_healed)
+	if budget <= 0.0:
+		return
 	var before := player.health.health
-	player.health.health = minf(player.health.max_health, player.health.health + 2.0 * delta)
-	healing_total += player.health.health - before
+	player.health.health = minf(player.health.max_health, player.health.health + minf(2.0 * delta, budget))
+	var healed := player.health.health - before
+	room_healed += healed
+	healing_total += healed

@@ -84,10 +84,10 @@ func _run() -> void:
 	shard.setup(player)
 	add_child(shard)
 	await _frames(2)
-	_check("physical Tenderness pickup enables independent 60 barrier",player.fragments.has_shard(3) and is_equal_approx(player.fragments.barrier,60) and not is_instance_valid(shard))
+	_check("physical Tenderness pickup enables independent 40 barrier",player.fragments.has_shard(3) and is_equal_approx(player.fragments.barrier,PsycheFragments.TENDERNESS_CAPACITY) and not is_instance_valid(shard))
 	before = player.health.health
-	player.health.apply_damage(80,Hitbox.BodyPart.BODY,null)
-	_check("independent barrier absorbs 60 and actual overflow shatters HP",is_equal_approx(player.health.health,before-20) and player.fragments.barrier == 0)
+	player.health.apply_damage(PsycheFragments.TENDERNESS_CAPACITY+20.0,Hitbox.BodyPart.BODY,null)
+	_check("independent barrier absorbs 40 and actual overflow shatters HP",is_equal_approx(player.health.health,before-20) and player.fragments.barrier == 0)
 	_check("pickup never restores ordinary buffering and real HP loss sounds brittle",player.health.unbuffered and player.fragments.brittle_hits > 0)
 	await _frames(130)
 	_check("giant physical shards fully clean up",not is_instance_valid(boss.visual.shatter))

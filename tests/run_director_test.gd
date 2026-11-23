@@ -34,11 +34,25 @@ func _ready()->void:
 	check("same seed reproduces exact order",RunDirector.order==first)
 	RunDirector.begin_run(91234)
 	check("ordinary room cannot trigger boss deprivation",not RunDirector.defeat_realm(RunDirector.current_realm()))
+	check("early floors already raise health and damage on separate curves",is_equal_approx(RunDirector.hp_scale(1),1.35) and is_equal_approx(RunDirector.damage_scale(1),1.15))
+	check("scalar difficulty stays the damage multiplier",is_equal_approx(RunDirector.difficulty(3),1.50) and is_equal_approx(RunDirector.damage_scale(3),1.50))
+	check("lost Sloth adds exactly one tempo step",is_equal_approx(RunDirector.tempo_scale(3,[]),1.28) and is_equal_approx(RunDirector.tempo_scale(3,[0]),1.40) and is_equal_approx(RunDirector.tempo_scale(0,[0]),1.12))
+	var canonical:=RunDirector.difficulty_profile()
+	RunDirector.order.assign([3,2,1,0])
+	check("depth scaling never depends on realm identity",RunDirector.difficulty_profile()==canonical)
+	RunDirector.order.assign([0,1,2,3])
 	var levels: Array[int] = []
 	var listener:=func(count:int):levels.append(count)
 	Events.sin_defeated.connect(listener)
+	var hp_curve:= [1.0,1.35,1.85,2.45]
+	var damage_curve:=[1.0,1.15,1.32,1.50]
+	var tempo_curve:= [1.0,1.08,1.18,1.28]
 	for depth in 4:
-		check("depth %d scales without realm identity" % (depth+1),is_equal_approx(RunDirector.difficulty(),1.0+depth*0.18))
+		var profile:=RunDirector.difficulty_profile()
+		var haste:=0.12 if RunDirector.deprivations.has(0) else 0.0
+		check("depth %d health scaling follows its own curve" % (depth+1),is_equal_approx(RunDirector.hp_scale(),hp_curve[depth]) and is_equal_approx(float(profile["hp_scale"]),hp_curve[depth]))
+		check("depth %d damage scaling stays fair" % (depth+1),is_equal_approx(RunDirector.difficulty(),damage_curve[depth]) and is_equal_approx(float(profile["damage_scale"]),damage_curve[depth]))
+		check("depth %d tempo follows the lost Sloth" % (depth+1),is_equal_approx(RunDirector.tempo_scale(),tempo_curve[depth]+haste) and is_equal_approx(float(profile["tempo_scale"]),tempo_curve[depth]+haste))
 		check("first combat room advances to second",RunDirector.advance_room() and RunDirector.room_index==1)
 		check("second combat room advances to boss",RunDirector.advance_room() and RunDirector.room_index==2)
 		check("boss gate blocks before defeat",not RunDirector.advance_room())
@@ -49,6 +63,7 @@ func _ready()->void:
 		RunDirector.shards.append(realm)
 		check("collected core opens next realm",RunDirector.advance_room())
 	check("fracture signal exactly follows four unique defeats",levels==[1,2,3,4])
+	check("all four losses still cap tempo at one point four",is_equal_approx(RunDirector.tempo_scale(3,RunDirector.deprivations),1.40))
 	check("fourth boss routes into real threshold scene",RunDirector.scene_path()==RunDirector.THRESHOLD and ResourceLoader.exists(RunDirector.scene_path()))
 	check("all deprivations remain cumulative",RunDirector.deprivations.size()==4 and RunDirector.shards.size()==4)
 	check("crown emission grows above fifteen",RunDirector.crown_strength>15.0)
@@ -61,6 +76,8 @@ func _ready()->void:
 	player.fragments._barrier_recovery=2.5
 	player.fragments._counter_left=0.7
 	player.fragments.spite_charge=2
+	player.fragments.resonance_cooldown=1.5
+	player.fragments.room_healed=12.5
 	var saved_card:=BoonCatalog.all().filter(func(card:BoonData):return card.core and card.prerequisites.is_empty())[0] as BoonData
 	player.boons.equip(saved_card)
 	player.health.health=43
@@ -73,6 +90,16 @@ func _ready()->void:
 	check("new player restores equipped boons outside RealmStage",player.boons.has(saved_card.id) and player.boons.all_equipped()==RunDirector.boons)
 	check("new player preserves exact HP and fragment balance",player.health.health==43 and player.fragments.barrier==17)
 	check("room change cannot reset fragment cooldowns",player.fragments._barrier_recovery==2.5 and is_equal_approx(player.fragments._counter_left,0.7) and player.fragments.spite_charge==2)
+	check("same room snapshot keeps the used healing budget",is_equal_approx(player.fragments.room_healed,12.5))
+	var saved_floor:=RunDirector.floor_index
+	var saved_room:=RunDirector.room_index
+	RunDirector.floor_index=0
+	RunDirector.room_index=0
+	RunDirector.capture_player(player)
+	check("advancing a room resets the healing budget",RunDirector.advance_room() and RunDirector.room_index==1 and is_zero_approx(float(RunDirector.fragment_state.get("room_healed",-1.0))))
+	check("advancing a room keeps barrier recovery, spite and cooldowns",is_equal_approx(float(RunDirector.fragment_state.get("recovery",-1.0)),2.5) and is_equal_approx(float(RunDirector.fragment_state.get("counter",-1.0)),0.7) and int(RunDirector.fragment_state.get("charge",-1))==2 and is_equal_approx(float(RunDirector.fragment_state.get("resonance",-1.0)),1.5))
+	RunDirector.floor_index=saved_floor
+	RunDirector.room_index=saved_room
 	check("new player retains all deprivation rules",player.health.unbuffered and not player.realm_effects.warnings_enabled and player.fragments.deprivations.size()==4)
 	check("new body restores actual fracture level four",player.get_node("ShadowBody").fracture_level==4)
 	check("physical crown restores exponential emission",player.get_node("CrownVoiceSystem").strength>15.0)

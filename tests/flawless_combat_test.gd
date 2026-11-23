@@ -27,13 +27,20 @@ func _run() -> void:
 	player.boons.register_enemy(boss)
 	boss.set_combat_active(true)
 	await frames(3)
+	check("final shell enters with the 2800 HP endgame body",boss.health.max_health==2800.0 and boss.health.health==2800.0)
 	check("white humanoid retains 24 bones and real original gun/blade",boss.visual.skeleton.get_bone_count()==24 and boss.visual.gun != null and boss.visual.blade != null)
 	check("final loadout preserves all four ordinary deprivations",player.health.unbuffered and not boss.ordinary_impacts_enabled and not player.realm_effects.warnings_enabled)
 	boss.begin_move(FlawlessDoppelganger.Move.GUN)
 	var hp := player.health.health
 	await frames(75)
 	check("fast gun burst launches four real swept bullets",boss.shots==4)
-	check("Tenderness absorbs real burst without restoring ordinary shield",player.fragments.barrier<60 and player.health.health==hp and player.health.unbuffered)
+	check("Tenderness absorbs real burst without restoring ordinary shield",is_zero_approx(player.fragments.barrier) and player.health.health<hp and hp-player.health.health<16.5 and player.health.unbuffered)
+	boss.locked_point = player.global_position+Vector3.UP
+	player.fragments.barrier = 0
+	hp = player.health.health
+	boss._fire()
+	await frames(18)
+	check("a real gun round deals its final 14 damage",is_equal_approx(hp-player.health.health,14.0))
 	boss.begin_move(FlawlessDoppelganger.Move.DASH_BLADE)
 	var start := boss.position
 	var lock := boss.locked_direction
@@ -48,9 +55,39 @@ func _run() -> void:
 	boss.begin_move(FlawlessDoppelganger.Move.DASH_BLADE)
 	hp = player.health.health
 	await frames(60)
-	check("dash blade deals actual HP damage when not dodged",player.health.health<hp and boss.slashes==2)
+	check("dash blade deals its final 28 damage when not dodged",is_equal_approx(hp-player.health.health,28.0) and boss.slashes==2)
 	await frames(35)
 	player.position = boss.position+Vector3(5,0,4)
+
+	boss.health.health = boss.health.max_health
+	boss._recover()
+	check("readable recover window holds above 55% HP",boss.phase==FlawlessDoppelganger.Phase.RECOVER and is_equal_approx(boss.phase_left,0.85))
+	boss.phase_left = 0
+	await frames(1)
+	check("readable wait gap holds above 55% HP",boss.phase==FlawlessDoppelganger.Phase.WAIT and is_equal_approx(boss.phase_left,0.25))
+	boss.health.health = boss.health.max_health*0.6
+	boss._recover()
+	check("60% HP still keeps the readable recover window",is_equal_approx(boss.phase_left,0.85))
+	boss.health.health = boss.health.max_health*0.5
+	boss._recover()
+	check("high pressure compresses the recover window to 0.55 s",boss.phase==FlawlessDoppelganger.Phase.RECOVER and is_equal_approx(boss.phase_left,0.55))
+	boss.phase_left = 0
+	await frames(1)
+	check("high pressure compresses the wait gap to 0.15 s",boss.phase==FlawlessDoppelganger.Phase.WAIT and is_equal_approx(boss.phase_left,0.15))
+	boss.health.health = boss.health.max_health
+	boss.phase_left = 1
+	await frames(1)
+	var calm_clock := boss.phase_left
+	await frames(10)
+	calm_clock -= boss.phase_left
+	boss.health.health = boss.health.max_health*0.5
+	boss.phase_left = 1
+	await frames(1)
+	var pressure_clock := boss.phase_left
+	await frames(10)
+	pressure_clock -= boss.phase_left
+	check("high pressure advances the boss clock at 1.30x",absf(pressure_clock/calm_clock-1.30)<0.02)
+	boss.health.health = boss.health.max_health
 
 	boss.phase = FlawlessDoppelganger.Phase.GUARD
 	boss.phase_left = 5

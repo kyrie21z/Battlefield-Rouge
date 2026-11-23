@@ -50,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if source.boon_stunned or source.boon_time_scale <= 0:
 		return
-	elapsed += delta*source.boon_time_scale*source.boon_attack_scale
+	elapsed += delta*source.boon_time_scale*source.effective_attack_scale()
 	marker.visible = source.warnings_enabled and not released
 	if not released and elapsed >= warning_seconds:
 		released = true

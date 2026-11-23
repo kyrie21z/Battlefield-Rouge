@@ -120,11 +120,11 @@ func advance_attack(delta: float) -> void:
 				_beam.hide()
 		2:
 			visual.charge = 0.85
-			if phase_time >= 1.4 / maxf(boon_attack_scale, 0.1):
+			if phase_time >= 1.4 / maxf(effective_attack_scale(), 0.1):
 				start_attack((attack_kind + 1) % 3)
 
 func windup() -> float:
-	return [1.4, 1.25, 1.1][attack_kind] * boon_windup_scale
+	return [1.4, 1.25, 1.1][attack_kind] * effective_windup_scale()
 
 func eye_position() -> Vector3:
 	return global_position + Vector3.UP * 5.3

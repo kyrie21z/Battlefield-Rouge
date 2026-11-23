@@ -15,6 +15,9 @@ func _ready()->void:
 	# The test driver stays at root while actual campaign scenes replace each other.
 	get_tree().current_scene=null
 	RunDirector.begin_run(190146)
+	# Fixed route so the lost-Sloth haste is observable in later rooms; the
+	# shuffled distribution itself is covered by run_director_test.
+	RunDirector.order.assign([0,1,2,3])
 	check("first production room installs",RunDirector.install_stage(load(RunDirector.scene_path()))==OK)
 	var visited:Array[String]=[]
 	for index in 12:
@@ -27,8 +30,24 @@ func _ready()->void:
 		stage.player.set_physics_process(false)
 		for enemy in stage.enemies:enemy.set_physics_process(false)
 		check("room %d has baked traversable geometry"%index,stage._region.navigation_mesh.get_polygon_count()>0)
-		check("room %d applies current depth to real damage"%index,stage.enemies.all(func(enemy):return is_equal_approx(enemy.realm_damage_scale,RunDirector.difficulty())))
+		var vector_ok:=stage.enemies.all(func(enemy):
+			return is_equal_approx(enemy.realm_hp_scale,RunDirector.hp_scale()) \
+				and is_equal_approx(enemy.realm_damage_scale,RunDirector.damage_scale()) \
+				and is_equal_approx(enemy.realm_tempo_scale,RunDirector.tempo_scale()) \
+				and is_equal_approx(enemy.health.max_health,enemy._base_max_health*RunDirector.hp_scale()))
+		check("room %d injects the three-axis depth vector"%index,vector_ok)
 		check("room %d inherits all previous losses"%index,stage.player.fragments.deprivations==RunDirector.deprivations)
+		if RunDirector.deprivations.has(0):
+			check("room %d keeps the lost-Sloth global haste"%index,stage.enemies.all(func(enemy):return is_equal_approx(enemy.realm_tempo_scale,RunDirector.tempo_scale()) and enemy.realm_tempo_scale>RunDirector.tempo_scale(-1,[])))
+		if not stage.enemies.is_empty():
+			var sample:=stage.enemies[0]
+			var base_tempo:=sample.realm_tempo_scale
+			stage.player.boons.set_status(sample,&"test_realm_tempo",10.0,0.5,1.0,false,2.0,false,0.6)
+			var status_ok:=is_equal_approx(sample.realm_tempo_scale,base_tempo) \
+				and is_equal_approx(sample.effective_attack_scale(),0.6*base_tempo) \
+				and is_equal_approx(sample.effective_windup_scale(),2.0/base_tempo)
+			stage.player.boons.clear_status(sample,&"test_realm_tempo")
+			check("room %d keeps realm tempo orthogonal to boon status"%index,status_ok and is_equal_approx(sample.realm_tempo_scale,base_tempo) and is_equal_approx(sample.effective_attack_scale(),base_tempo) and is_equal_approx(sample.effective_windup_scale(),1.0/base_tempo))
 		if is_instance_valid(stage.selection):
 			var picker:=stage.selection
 			picker._choose(picker._offered[0])

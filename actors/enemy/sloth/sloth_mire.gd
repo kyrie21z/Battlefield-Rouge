@@ -115,10 +115,10 @@ func _physics_process(delta: float) -> void:
 		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO,IMPACT_DECAY * delta)
 	else:
 		_face(_locked_point - global_position if cast_left > 0.0 else target.global_position - global_position, delta)
-		cooldown_left = maxf(0.0,cooldown_left - delta * boon_attack_scale)
+		cooldown_left = maxf(0.0,cooldown_left - delta * effective_attack_scale())
 		_update_sight()
 		if cast_left > 0.0:
-			_update_cast(delta * boon_attack_scale)
+			_update_cast(delta * effective_attack_scale())
 		elif not _sees_target or _distance_to_target() > 18.0:
 			_move_to(target.global_position,run_speed)
 		elif cooldown_left <= 0.0:

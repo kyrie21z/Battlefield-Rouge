@@ -108,7 +108,7 @@ func _physics_process(delta: float) -> void:
 		if kind == 1 and phase == 1:
 			_update_stasis()
 		return
-	delta *= caster.boon_time_scale * caster.boon_attack_scale
+	delta *= caster.boon_time_scale * caster.effective_attack_scale()
 	elapsed += delta
 	_graphics.visible = caster.warnings_enabled or (_time_field != null and elapsed >= warning_time())
 	if elapsed < warning_time():

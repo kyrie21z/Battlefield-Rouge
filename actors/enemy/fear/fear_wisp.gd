@@ -20,8 +20,9 @@ static func prepare_visuals() -> void:
 
 func _ready() -> void:
 	prepare_visuals()
-	health.max_health = 18.0*realm_damage_scale
+	health.max_health = 18.0*realm_hp_scale
 	health.health = health.max_health
+	run_speed = SPEED
 	health.died.connect(_on_died)
 	collision_layer = CollisionLayers.ENEMIES
 	collision_mask = CollisionLayers.WORLD | CollisionLayers.ACTORS
@@ -37,9 +38,9 @@ func _ready() -> void:
 func activate(point: Vector3, owner_actor: Enemy, victim: CharacterBody3D) -> void:
 	dormant = false
 	summoner = weakref(owner_actor)
-	realm_damage_scale = float(owner_actor.get("realm_damage_scale"))
 	warnings_enabled = bool(owner_actor.get("warnings_enabled"))
-	health.max_health = 18.0*realm_damage_scale
+	apply_realm_scaling(owner_actor.realm_hp_scale,
+		float(owner_actor.get("realm_damage_scale")), owner_actor.realm_tempo_scale)
 	health.health = health.max_health
 	global_position = point
 	scale = Vector3.ONE
@@ -77,18 +78,19 @@ func _physics_process(delta: float) -> void:
 	if elapsed >= LIFETIME:
 		dismiss()
 		return
+	var windup_time := WINDUP*effective_windup_scale()
 	var offset := _target_point()-global_position
 	_face(offset,delta)
 	if attack_elapsed < 0:
-		velocity = offset.normalized()*SPEED
+		velocity = offset.normalized()*run_speed
 		if offset.length() <= TRIGGER_RANGE and _sight():
 			attack_elapsed = 0.0
 			locked_direction = offset.normalized()
 	else:
 		attack_elapsed += delta
-		velocity = Vector3.ZERO if attack_elapsed < WINDUP*boon_windup_scale else locked_direction*12.0
-	var lunging := attack_elapsed >= WINDUP*boon_windup_scale
-	var expression := 1.0 if lunging else (maxf(0.0,attack_elapsed)/maxf(0.01,WINDUP*boon_windup_scale) if warnings_enabled else 0.0)
+		velocity = Vector3.ZERO if attack_elapsed < windup_time else locked_direction*12.0
+	var lunging := attack_elapsed >= windup_time
+	var expression := 1.0 if lunging else (maxf(0.0,attack_elapsed)/maxf(0.01,windup_time) if warnings_enabled else 0.0)
 	visual.advance(delta,expression,lunging)
 	if _impact_left > 0:
 		_impact_left -= delta
@@ -96,13 +98,13 @@ func _physics_process(delta: float) -> void:
 		_impact_velocity = _impact_velocity.move_toward(Vector3.ZERO,IMPACT_DECAY*delta)
 	var before := global_position
 	_boon_move_and_slide()
-	if attack_elapsed >= WINDUP*boon_windup_scale:
+	if attack_elapsed >= windup_time:
 		var closest := Geometry3D.get_closest_point_to_segment(_target_point(),before,global_position)
 		if closest.distance_to(_target_point()) < 0.85 and _sight():
 			hits += 1
 			(target.get_node("Health") as Health).apply_damage(8.0*realm_damage_scale,Hitbox.BodyPart.BODY,self)
 			dismiss()
-		elif attack_elapsed >= WINDUP*boon_windup_scale+0.25: dismiss()
+		elif attack_elapsed >= windup_time+0.25: dismiss()
 
 func _on_died(_source: Node) -> void:
 	dismiss()

@@ -103,7 +103,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if caster.boon_stunned or caster.boon_time_scale <= 0.0:
 		return
-	delta *= caster.boon_time_scale * caster.boon_attack_scale
+	delta *= caster.boon_time_scale * caster.effective_attack_scale()
 	elapsed += delta
 	_graphics.visible = caster.warnings_enabled or (_time_field != null and elapsed >= warning_time())
 	if elapsed < warning_time():

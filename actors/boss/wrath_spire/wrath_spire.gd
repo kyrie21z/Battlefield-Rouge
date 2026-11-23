@@ -51,8 +51,8 @@ func _physics_process(delta: float) -> void:
 		_boon_move_and_slide()
 		return
 	var flat := (target.global_position - global_position) * Vector3(1, 0, 1)
-	phase_elapsed += delta * boon_attack_scale
-	attack_left -= delta * boon_attack_scale
+	phase_elapsed += delta * effective_attack_scale()
+	attack_left -= delta * effective_attack_scale()
 	_pulse_left -= delta
 	var model := visual as WrathSpireVisual
 	model.speed_factor = 5.0 if attack_phase == Attack.RUSH else 1.0

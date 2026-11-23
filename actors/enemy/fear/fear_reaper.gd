@@ -94,13 +94,13 @@ func _physics_process(delta: float) -> void:
 		_boon_move_and_slide()
 		return
 	_face(target.global_position-global_position,delta)
-	attack_cooldown = maxf(0.0,attack_cooldown-delta*boon_attack_scale)
+	attack_cooldown = maxf(0.0,attack_cooldown-delta*effective_attack_scale())
 	if attack_elapsed < 0:
 		if _distance_to_target() > 10.0 or not _sight(): _move_to(target.global_position,run_speed)
 		if attack_cooldown <= 0 and _distance_to_target() <= 22.0 and _sight(): start_attack()
 	else:
 		attack_elapsed += delta
-		var duration := (SCYTHE_WINDUP if melee else SUMMON_WINDUP)*boon_windup_scale
+		var duration := (SCYTHE_WINDUP if melee else SUMMON_WINDUP)*effective_windup_scale()
 		visual.set_ritual(clampf(attack_elapsed/maxf(duration,0.01),0.0,1.0) if warnings_enabled else 0.0,melee)
 		if attack_elapsed >= duration:
 			if melee: _scythe_strike()

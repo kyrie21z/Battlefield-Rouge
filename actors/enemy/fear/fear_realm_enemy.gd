@@ -108,7 +108,7 @@ func _physics_process(delta: float) -> void:
 	elif variant != Variant.WATCHER and attack_elapsed < 0.0:
 		if _distance_to_target() > 2.0:
 			_move_to(target.global_position, run_speed)
-	attack_cooldown = maxf(0.0, attack_cooldown - delta * boon_attack_scale)
+	attack_cooldown = maxf(0.0, attack_cooldown - delta * effective_attack_scale())
 	if attack_elapsed < 0.0 and attack_cooldown <= 0.0 and has_line_of_sight():
 		start_attack()
 	if attack_elapsed >= 0.0:
@@ -182,7 +182,7 @@ func advance_attack(delta: float) -> void:
 				_finish_attack(1.6)
 
 func windup() -> float:
-	return [1.6, 0.55, 0.65][variant] * boon_windup_scale
+	return [1.6, 0.55, 0.65][variant] * effective_windup_scale()
 
 func _finish_attack(cooldown: float) -> void:
 	attack_elapsed = -1.0

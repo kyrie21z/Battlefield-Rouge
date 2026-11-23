@@ -50,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if caster.boon_time_scale<=0 or caster.boon_stunned:
 		return
-	delta *= caster.boon_time_scale*caster.boon_attack_scale
+	delta *= caster.boon_time_scale*caster.effective_attack_scale()
 	elapsed += delta
 	if phase == 0:
 		if not caster.warnings_enabled:

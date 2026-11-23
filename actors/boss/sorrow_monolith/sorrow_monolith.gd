@@ -42,7 +42,7 @@ func _physics_process(delta: float) -> void:
 		_boon_move_and_slide()
 		return
 	_stop()
-	action_left -= delta*boon_attack_scale
+	action_left -= delta*effective_attack_scale()
 	visual.set_cast(1.0 if warnings_enabled and action == 1 else 0.0)
 	(visual as SorrowMonolithVisual).slam = maxf(0.0,action_left/0.8) if action == 2 and move_kind == Move.SLAP else 0.0
 	if action == 0 or action == 3:

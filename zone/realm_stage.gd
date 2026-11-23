@@ -108,7 +108,7 @@ func _ready() -> void:
 	if geometry.has_method("set_player"):
 		geometry.call("set_player",player)
 	if geometry is SorrowRealm:
-		(geometry as SorrowRealm).place_whirlpool(run_seed, room_index)
+		(geometry as SorrowRealm).start_whirlpools(run_seed, room_index)
 	_apply_run()
 	player.health.died.connect(_on_player_died)
 	_spawn_encounter()

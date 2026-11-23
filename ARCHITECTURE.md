@@ -54,7 +54,7 @@
 
 紧凑修订中，环境用 `combat_bounds`（小关x±20/z±24）或 `combat_radius`（Boss25米）声明实际战斗范围；`_scenery_building` 在构造外围时直接抑制碰撞创建，避免纯景观的柱顶、桥面进入烘焙。`sloth_scenery` 组用于验证景观没有 PhysicsBody。低栏与高差提示边界，高 BOUNDARY 仅拦玩家冲刺，不参与导航；增援点与掩体全部在核心内。地板、掩体和坡道按米重排，未通过整体缩放改变角色或武器比例。
 
-`SlothEnemy extends Enemy` 保留 `setup`、Health、State、`begin_hunt`、`begin_retreat`、`departed` 契约，`ZoneDirector.reinforcement_scene` 由地图选择迟滞者场景，默认仍为旧 Enemy，防止独立测试场景被隐式换种。增援位置在 `add_child` 前设置。`SlothAttack` 使用物理步长管理预警/四连发/结束；暂停冻结、死亡/撤退/换关取消。锚定减速通过 Player 的弱引用来源列表取最强值，最多减速 25%，不影响冲刺；攻击移除会清理来源。`Hitbox.apply_hit_at` 的同步上下文把真实命中点交给闪避和碎裂，已有 `apply_hit` 保持兼容。
+`SlothEnemy extends Enemy` 保留 `setup`、Health、State、`begin_hunt`、`begin_retreat`、`departed` 契约，`ZoneDirector.reinforcement_scene` 由地图选择迟滞者场景，默认仍为旧 Enemy，防止独立测试场景被隐式换种。增援位置在 `add_child` 前设置。`SlothAttack` 使用物理步长管理预警/四连发/结束；暂停冻结、死亡/撤退/换关取消。锚定减速通过 Player 的弱引用来源列表取最强值，最多减速 25%，阵内暂时锁定 Shift 冲刺；攻击移除会清理来源。`Hitbox.apply_hit_at` 的同步上下文把真实命中点交给闪避和碎裂，已有 `apply_hit` 保持兼容。
 
 波次微调为每批4名、最多8名后，两小关使用9个生成marker。选择与最远fallback均用缓存的2米高/0.6米半径胶囊查询ENEMIES层占位，避免下一批刷到仍在射击的上一批身上；无空位本批少刷，下一间隔再尝试，不强行堆叠。查询仅刷新时发生，不逐帧执行、不消耗随机数；满场及按空位补充规则保持。
 
@@ -135,7 +135,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## Epic 3：领域约束接口（#138）
 
-Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责。恐惧玩家坠落使用 Health 的 `environmental_penalty` 分支扣30点实际生命，绕过战斗护盾、无敌与复活拦截，扣至0生命时才发正常死亡信号；敌人和其他明确致死边界继续使用 `environmental_fatal`。
+Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。悲伤浅水的吸力以地面水流回调注入同一组件，由 Player 叠加到步行速度并使用现有碰撞移动。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责。恐惧玩家坠落使用 Health 的 `environmental_penalty` 分支扣30点实际生命，绕过战斗护盾、无敌与复活拦截，扣至0生命时才发正常死亡信号；敌人和其他明确致死边界继续使用 `environmental_fatal`。
 
 `FearRealm` 通过注入的Player弱引用每0.15秒保存稳定静态地面落点，检查脚下及四侧支撑，排除翻转板。深渊Area与高度-12米判定汇入同一个延迟恢复回调及0.3秒防重；恢复前检查支撑与角色胶囊占位，受阻时查入口九个候选。Player取消冲刺、吸附和外部冲量、清零速度并重置物理插值后才扣生命；HUD只消费真实伤害信号显示扣血/返回提示。
 

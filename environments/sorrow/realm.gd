@@ -2,11 +2,18 @@ class_name SorrowRealm
 extends Node3D
 const FLOODED_COURT := preload("res://environments/sorrow/flooded_court.gd")
 const FLOODED_SKY := preload("res://environments/sorrow/flooded_sky.gdshader")
-const WHIRLPOOL_RADIUS := 1.35
-## Clear patches of ankle-deep water between the platforms, pillars and paths.
+const WHIRLPOOL_RADIUS := 2.6
+const WHIRLPOOL_DEPTH := 0.60
+const WHIRLPOOL_INTERVAL := 5.0
+const WHIRLPOOL_DURATION := 15.0
+const WHIRLPOOL_LIMIT := int(WHIRLPOOL_DURATION / WHIRLPOOL_INTERVAL)
+const WHIRLPOOL_PULL_SPEED := 1.25
+const WHIRLPOOL_JITTER := 0.35
+## Clear patches of water with enough room to form a full funnel.
 const WHIRLPOOL_SITES := [
-	Vector2(-10.5, 10.2), Vector2(12.0, 8.2), Vector2(-10.5, 1.6), Vector2(11.2, -9.3),
-	Vector2(-12.0, -15.8), Vector2(8.6, -17.4), Vector2(3.0, 0.2), Vector2(-3.0, -4.0),
+	Vector2(-14, 8), Vector2(-11, 15), Vector2(8, 8), Vector2(1, 10),
+	Vector2(-10, 0), Vector2(-1, 4), Vector2(14, -3), Vector2(1, -5),
+	Vector2(-13, -9), Vector2(0, -14), Vector2(-15, -16), Vector2(12, -15), Vector2(5, -18),
 ]
 
 @export var boss_arena := false
@@ -36,6 +43,10 @@ var shot_ripple_count := 0
 var tear_ripple_count := 0
 var _white: StandardMaterial3D
 var _court: FLOODED_COURT
+var _basin_floor_visual: MeshInstance3D
+var _whirlpool_rng: RandomNumberGenerator
+var _whirlpools: Array[Vector4] = [] # x/z center, radius, birth time
+var _next_whirlpool_at := 0.0
 var mirror_environment: Environment
 var void_fall: RealmVoid
 
@@ -56,6 +67,9 @@ func _ready() -> void:
 		_court.name = "FloodedCourt"
 		add_child(_court)
 		_court.dress_basin(floor_body, banks, platforms)
+		_basin_floor_visual = floor_body.get_child(1) as MeshInstance3D
+		# The opaque water can dip below its walking collision without the dry-floor mesh clipping it.
+		_basin_floor_visual.position.y = -WHIRLPOOL_DEPTH
 		_build_basin_ruins()
 	else:
 		for side in [-1.0,1.0]:
@@ -65,6 +79,10 @@ func _ready() -> void:
 	water.name = "MirrorWater"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(39.6,47.6)
+	if is_instance_valid(_court):
+		plane.subdivide_width = 95
+		plane.subdivide_depth = 115
+		water.extra_cull_margin = WHIRLPOOL_DEPTH
 	water.mesh = plane
 	water_material = ShaderMaterial.new()
 	water_material.shader = preload("res://environments/sorrow/water_mirror.gdshader")
@@ -144,14 +162,53 @@ func _build_basin_ruins() -> void:
 func provides_stage_lighting() -> bool:
 	return chamber_style == 1 and not boss_arena
 
-func place_whirlpool(run_seed: int, room_index: int) -> void:
-	if not provides_stage_lighting():
+func start_whirlpools(run_seed: int, room_index: int) -> void:
+	if not is_instance_valid(_court):
 		return
-	var layout := RandomNumberGenerator.new()
-	layout.seed = run_seed ^ ((room_index + 1) * 0x47B9A13D)
-	var center: Vector2 = WHIRLPOOL_SITES[layout.randi_range(0, WHIRLPOOL_SITES.size() - 1)]
-	center += Vector2(layout.randf_range(-0.35, 0.35), layout.randf_range(-0.35, 0.35))
-	water_material.set_shader_parameter("whirlpool", Vector3(center.x, center.y, WHIRLPOOL_RADIUS))
+	_whirlpool_rng = RandomNumberGenerator.new()
+	_whirlpool_rng.seed = run_seed ^ ((room_index + 1) * 0x47B9A13D)
+	_whirlpools.clear()
+	_next_whirlpool_at = clock
+	water_material.set_shader_parameter("whirlpool_lifetime", WHIRLPOOL_DURATION)
+	water_material.set_shader_parameter("whirlpool_depth", WHIRLPOOL_DEPTH)
+	_tick_whirlpools()
+
+
+func _tick_whirlpools() -> void:
+	if _whirlpool_rng == null or clock + 0.00001 < _next_whirlpool_at:
+		return
+	var clear_sites := WHIRLPOOL_SITES.filter(func(site: Vector2) -> bool:
+		for funnel in _whirlpools:
+			if site.distance_to(Vector2(funnel.x, funnel.y)) < 2.0 * WHIRLPOOL_RADIUS + WHIRLPOOL_JITTER * 2.0:
+				return false
+		return true)
+	var center: Vector2 = clear_sites[_whirlpool_rng.randi_range(0, clear_sites.size() - 1)]
+	center += Vector2(_whirlpool_rng.randf_range(-WHIRLPOOL_JITTER, WHIRLPOOL_JITTER),
+		_whirlpool_rng.randf_range(-WHIRLPOOL_JITTER, WHIRLPOOL_JITTER))
+	if _whirlpools.size() == WHIRLPOOL_LIMIT:
+		_whirlpools.pop_front()
+	_whirlpools.append(Vector4(center.x, center.y, WHIRLPOOL_RADIUS, _next_whirlpool_at))
+	_next_whirlpool_at += WHIRLPOOL_INTERVAL
+	var shader_funnels := PackedVector4Array(_whirlpools)
+	shader_funnels.resize(WHIRLPOOL_LIMIT)
+	water_material.set_shader_parameter("whirlpools", shader_funnels)
+
+
+func _ground_current(point: Vector3) -> Vector3:
+	if deprived or not is_inside_tree() or not _over_water(point):
+		return Vector3.ZERO
+	var local := to_local(point)
+	for funnel in _whirlpools:
+		var toward := Vector2(funnel.x - local.x, funnel.y - local.z)
+		var fraction := toward.length() / funnel.z
+		if fraction >= 1.0:
+			continue
+		var falloff := smoothstep(0.0, 0.16, fraction) * (1.0 - smoothstep(0.30, 1.0, fraction))
+		var age := clock - funnel.w
+		var strength := smoothstep(0.0, 0.55, age) * smoothstep(0.0, 0.55, WHIRLPOOL_DURATION - age)
+		var flow := toward.normalized() * WHIRLPOOL_PULL_SPEED * falloff * strength
+		return global_basis * Vector3(flow.x, 0.0, flow.y)
+	return Vector3.ZERO
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func player_spawn() -> Vector3:
@@ -177,6 +234,8 @@ func set_audio_managed(active: bool) -> void:
 
 func set_player(value: Player) -> void:
 	player = value
+	if is_instance_valid(_court):
+		player.realm_effects.ground_current = _ground_current
 	_register_walker(value)
 	# RealmStage also owns a generic WorldEnvironment; use an explicit camera
 	# override so sorrow SSR cannot depend on world-environment ready order.
@@ -212,6 +271,7 @@ func set_deprivation(active: bool) -> void:
 	if _white != null:
 		_white.albedo_color = Color(0.72,0.69,0.66) if active else Color(0.75,0.82,0.84)
 	if is_instance_valid(_court):
+		_basin_floor_visual.position.y = 0.0 if active else -WHIRLPOOL_DEPTH
 		_court.set_deprivation(active)
 
 ## Presentation only. Existing dive/resurface callers and splash audio keep
@@ -321,6 +381,7 @@ func _physics_process(delta: float) -> void:
 	if deprived:
 		return
 	clock += delta
+	_tick_whirlpools()
 	if is_instance_valid(_court):
 		_court.set_clock(clock)
 	water_material.set_shader_parameter("clock",clock)

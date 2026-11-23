@@ -69,7 +69,7 @@ func _ready() -> void:
 	player.health.died.connect(_on_player_died)
 	_build_effects()
 	hud = ClimaxCombatHUD.new()
-	hud.setup(player)
+	hud.setup(player,boss)
 	add_child(hud)
 func _carrier() -> RigidBody3D:
 	var body := RigidBody3D.new()
@@ -120,12 +120,17 @@ func _build_effects() -> void:
 	flash.color = Color(1,1,1,0)
 	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(flash)
-	label = Label.new()
-	label.position = Vector2(28,26)
-	label.add_theme_font_size_override("font_size",26)
-	label.add_theme_color_override("font_shadow_color",Color(0,0,0,0.95))
-	label.add_theme_constant_override("shadow_offset_x",2)
-	label.add_theme_constant_override("shadow_offset_y",2)
+	label = EditorialStyle.make_label("", 24, EditorialStyle.PAPER, 700, false, 2)
+	label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	label.offset_left = -380
+	label.offset_right = 380
+	label.offset_top = -126
+	label.offset_bottom = -64
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var caption_style := EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.GOLD, 2, Vector2(4, 4), Color(EditorialStyle.INK, 0.8), 22, 10)
+	label.add_theme_stylebox_override("normal", caption_style)
+	label.hide()
 	layer.add_child(label)
 	print_ring = MeshInstance3D.new()
 	var ring := TorusMesh.new()
@@ -166,6 +171,7 @@ func _physics_process(delta: float) -> void:
 			voice_dsp.set_radiance(0,float(crown.get("emission_strength")))
 	if phase == Phase.DROP:
 		label.text = ""
+		label.hide()
 		if carrier.get_contact_count()>0:
 			carrier.freeze = true
 			phase = Phase.RANT
@@ -173,6 +179,7 @@ func _physics_process(delta: float) -> void:
 			if not _audio_stopped: voice.play()
 	elif phase == Phase.RANT:
 		label.text = "皇冠：你简直无药可救了！！"
+		label.show()
 		if phase_elapsed >= voice.stream.get_length()+0.3:
 			_rise_from = carrier.position
 			phase = Phase.RISE
@@ -189,6 +196,7 @@ func _physics_process(delta: float) -> void:
 			crown.call("set_emission_strength",5.0)
 	elif phase == Phase.PRINT:
 		label.text = "完美替身"
+		label.show()
 		var amount := clampf(phase_elapsed/PRINT_DURATION,0,1)
 		boss.visual.set_print_progress(amount)
 		print_ring.position.y = lerpf(2.5,-0.2,amount)
@@ -219,13 +227,14 @@ func _physics_process(delta: float) -> void:
 			phase = Phase.COMBAT
 			phase_elapsed = 0
 			_unlock_player()
+			label.hide()
 			hud.set_combat_visible(true)
 			combat_started.emit()
 	elif phase == Phase.COMBAT:
-		var cooldown := player.fragments.resonance_cooldown
-		label.text = "完美替身  %d / %d\n%s 沉睡共鸣 %s · 温润屏障 %d\n减速打断护盾 · 抓住破绽暴击 · 反震撞墙" % [boss.health.health,boss.health.max_health,KeyHint.of("psyche_resonance"),"就绪" if cooldown<=0 else "%.1f s"%cooldown,player.fragments.barrier]
+		label.hide()
 	elif phase == Phase.ANNIHILATE:
 		label.text = "完美，已经碎了。"
+		label.show()
 		flash.color.a = clampf(1.0-absf(phase_elapsed-0.25)/0.9,0,0.9)
 		nova.scale = Vector3.ONE*(0.1+phase_elapsed*9)
 		(nova.material_override as StandardMaterial3D).albedo_color.a = maxf(0,0.7-phase_elapsed*0.5)

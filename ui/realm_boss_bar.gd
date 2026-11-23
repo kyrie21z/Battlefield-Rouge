@@ -1,11 +1,12 @@
 class_name RealmBossBar
 extends Control
 ## Architectural ruler boss health bar (Scheme B):
-## Ivory paper track framed in sharp carbon ink, realm accent fill, and dark cut trail.
+## Ivory paper track framed in sharp carbon ink, realm accent fill, crimson/ink cut trail,
+## optional shield hairline and crisp quarter ticks.
 
 const SHAKE_TIME := 0.12
 const SHAKE_PIXELS := 4.0
-const TRACK_COLOR := Color("f6f4eef2")
+const TRACK_COLOR := Color("f6f4eef5")
 
 var trail := HealthTrail.new()
 var shake_offset := 0.0
@@ -27,8 +28,10 @@ func setup(health: Health, accent: Color) -> void:
 	set_process(visible)
 	if visible:
 		trail.reset(_health.health)
-		_health.damaged.connect(_on_damaged)
-		_health.died.connect(_on_died)
+		if not _health.damaged.is_connected(_on_damaged):
+			_health.damaged.connect(_on_damaged)
+		if not _health.died.is_connected(_on_died):
+			_health.died.connect(_on_died)
 
 
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, _source: Node) -> void:
@@ -71,20 +74,25 @@ func _draw() -> void:
 	var delayed_width := inner_size.x * clampf(trail.delayed / max_health, 0.0, 1.0)
 
 	# Hard offset shadow + ivory ruler track
-	draw_rect(Rect2(origin + Vector2(3.0, 3.0), size), Color(EditorialStyle.INK, 0.72))
+	draw_rect(Rect2(origin + Vector2(4.0, 4.0), size), Color(EditorialStyle.INK, 0.78))
 	draw_rect(Rect2(origin, size), TRACK_COLOR)
 	# Realm accent fill
 	if current_width > 0.0:
 		draw_rect(Rect2(inner_origin, Vector2(current_width, inner_size.y)), _fill_color)
-	# Delayed damage cut in translucent carbon ink for high contrast on paper
+	# Delayed damage cut in sharp carbon ink for unmistakable readability on ivory
 	if delayed_width > current_width:
 		draw_rect(Rect2(inner_origin + Vector2(current_width, 0.0),
 			Vector2(delayed_width - current_width, inner_size.y)),
-			Color(EditorialStyle.INK, 0.35))
+			Color(EditorialStyle.INK, 0.42))
+	# Optional boss shield strip along top edge
+	if _health.shield_points > 0.0:
+		var max_sh := maxf(_health.max_shield, _health.shield_points)
+		var sh_w := inner_size.x * clampf(_health.shield_points / maxf(max_sh, 1.0), 0.0, 1.0)
+		draw_rect(Rect2(inner_origin, Vector2(sh_w, 3.0)), EditorialStyle.SHIELD)
 	# Crisp quarter divisions
 	for q in range(1, 4):
 		var tx := inner_origin.x + inner_size.x * (float(q) * 0.25)
 		draw_line(Vector2(tx, inner_origin.y), Vector2(tx, inner_origin.y + inner_size.y),
-			Color(EditorialStyle.INK, 0.22), 1.0)
+			Color(EditorialStyle.INK, 0.28), 1.0)
 	# Sharp outer ink border
 	draw_rect(Rect2(origin, size), EditorialStyle.INK, false, 2.0)

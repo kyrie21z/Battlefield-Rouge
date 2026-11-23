@@ -270,6 +270,7 @@ func capture_player(player: Player) -> void:
 		"counter":player.fragments._counter_left,"charge":player.fragments.spite_charge,
 		"since_combat":player.fragments.since_combat,
 		"resonance":player.fragments.resonance_cooldown,
+		"room_healed":player.fragments.room_healed,
 	}
 
 func restore_player(player: Player) -> void:
@@ -288,6 +289,7 @@ func restore_player(player: Player) -> void:
 		player.fragments.spite_charge = int(fragment_state.get("charge",0))
 		player.fragments.since_combat = float(fragment_state.get("since_combat",0.0))
 		player.fragments.resonance_cooldown = float(fragment_state.get("resonance",0.0))
+		player.fragments.room_healed = float(fragment_state.get("room_healed",0.0))
 	var body := player.get_node_or_null("ShadowBody")
 	if body != null and body.has_method("set_fracture_level"):
 		body.set_fracture_level(defeated.size())
@@ -393,6 +395,9 @@ func advance_room() -> bool:
 		room_index = 0
 	else:
 		room_index += 1
+	# A new room restores the rest budget only; fragment cooldowns carry over.
+	if not fragment_state.is_empty():
+		fragment_state["room_healed"] = 0.0
 	changed.emit()
 	return true
 

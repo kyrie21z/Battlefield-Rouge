@@ -76,6 +76,8 @@ func _ready()->void:
 	player.fragments._barrier_recovery=2.5
 	player.fragments._counter_left=0.7
 	player.fragments.spite_charge=2
+	player.fragments.resonance_cooldown=1.5
+	player.fragments.room_healed=12.5
 	var saved_card:=BoonCatalog.all().filter(func(card:BoonData):return card.core and card.prerequisites.is_empty())[0] as BoonData
 	player.boons.equip(saved_card)
 	player.health.health=43
@@ -88,6 +90,16 @@ func _ready()->void:
 	check("new player restores equipped boons outside RealmStage",player.boons.has(saved_card.id) and player.boons.all_equipped()==RunDirector.boons)
 	check("new player preserves exact HP and fragment balance",player.health.health==43 and player.fragments.barrier==17)
 	check("room change cannot reset fragment cooldowns",player.fragments._barrier_recovery==2.5 and is_equal_approx(player.fragments._counter_left,0.7) and player.fragments.spite_charge==2)
+	check("same room snapshot keeps the used healing budget",is_equal_approx(player.fragments.room_healed,12.5))
+	var saved_floor:=RunDirector.floor_index
+	var saved_room:=RunDirector.room_index
+	RunDirector.floor_index=0
+	RunDirector.room_index=0
+	RunDirector.capture_player(player)
+	check("advancing a room resets the healing budget",RunDirector.advance_room() and RunDirector.room_index==1 and is_zero_approx(float(RunDirector.fragment_state.get("room_healed",-1.0))))
+	check("advancing a room keeps barrier recovery, spite and cooldowns",is_equal_approx(float(RunDirector.fragment_state.get("recovery",-1.0)),2.5) and is_equal_approx(float(RunDirector.fragment_state.get("counter",-1.0)),0.7) and int(RunDirector.fragment_state.get("charge",-1))==2 and is_equal_approx(float(RunDirector.fragment_state.get("resonance",-1.0)),1.5))
+	RunDirector.floor_index=saved_floor
+	RunDirector.room_index=saved_room
 	check("new player retains all deprivation rules",player.health.unbuffered and not player.realm_effects.warnings_enabled and player.fragments.deprivations.size()==4)
 	check("new body restores actual fracture level four",player.get_node("ShadowBody").fracture_level==4)
 	check("physical crown restores exponential emission",player.get_node("CrownVoiceSystem").strength>15.0)

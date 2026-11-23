@@ -61,6 +61,19 @@ func _ready()->void:
 	enemy.health.apply_damage(10000,Hitbox.BodyPart.BODY,player)
 	await frames(330)
 	check("healing resumes after foe is dead and combat ends",player.health.health>before)
+	check("rest healing is charged to the room budget",player.fragments.room_healed>0.0 and player.fragments.room_healed<PsycheFragments.SLUMBER_ROOM_HEAL_CAP)
+	player.health.health=20.0
+	player.fragments.room_healed=PsycheFragments.SLUMBER_ROOM_HEAL_CAP-1.0
+	player.fragments.mark_combat()
+	await frames(390)
+	check("one room cannot heal past the thirty HP cap",player.health.health>20.99 and player.health.health<21.01 and is_equal_approx(player.fragments.room_healed,PsycheFragments.SLUMBER_ROOM_HEAL_CAP))
+	var capped:=player.health.health
+	await frames(180)
+	check("an exhausted room budget stops rest healing",is_equal_approx(player.health.health,capped) and is_equal_approx(player.fragments.room_healed,PsycheFragments.SLUMBER_ROOM_HEAL_CAP))
+	player.fragments.reset_room_healing()
+	player.fragments.mark_combat()
+	await frames(390)
+	check("reset_room_healing reopens the room budget",player.fragments.room_healed>1.5 and player.health.health>capped+1.5)
 	player.fragments.restore([0,0])
 	check("restoration deduplicates persistent shards",player.fragments.shards.size()==1)
 	player.health.apply_damage(1,Hitbox.BodyPart.BODY,null,{"environmental_fatal":true})

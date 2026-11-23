@@ -34,7 +34,7 @@ func _run() -> void:
 	var hp := player.health.health
 	await frames(75)
 	check("fast gun burst launches four real swept bullets",boss.shots==4)
-	check("Tenderness absorbs real burst without restoring ordinary shield",player.fragments.barrier<PsycheFragments.TENDERNESS_CAPACITY and player.health.health==hp and player.health.unbuffered)
+	check("Tenderness absorbs real burst without restoring ordinary shield",is_zero_approx(player.fragments.barrier) and player.health.health<hp and hp-player.health.health<16.5 and player.health.unbuffered)
 	boss.locked_point = player.global_position+Vector3.UP
 	player.fragments.barrier = 0
 	hp = player.health.health

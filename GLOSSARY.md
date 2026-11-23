@@ -1,5 +1,16 @@
 # 术语表
 
+## 2026-11-23 正式战役难度曲线 Phase A
+
+| 术语 | 代码 | 含义 |
+| --- | --- | --- |
+| 三维深度缩放 | `RunDirector.HP_SCALES` / `DAMAGE_SCALES` / `TEMPO_SCALES` | 正式战役只按楼层输出独立缩放向量：生命 `1.00/1.35/1.85/2.45`、伤害 `1.00/1.15/1.32/1.50`、节奏 `1.00/1.08/1.18/1.28`（第 1→4 层），与领域身份无关。`difficulty()` 仍返回伤害倍率以兼容旧调用方。 |
+| 领域节奏正交 | `Enemy.realm_tempo_scale` / `effective_attack_scale()` / `effective_windup_scale()` | 深度/剥夺节奏独立于赐福状态层：攻击冷却按 `boon_attack_scale × realm_tempo_scale`，前摇按 `boon_windup_scale / realm_tempo_scale` 单次压缩。刷新或清除赐福状态不会丢失领域节奏，也不会出现 `tempo²`；常规移速只按半强度跟随节奏。 |
+| 怠惰剥夺全局加速 | `RunDirector.SLOTH_HASTE` / `RealmStage.tempo_includes_sloth_haste` | 击败怠惰后，后续所有房间的有效节奏额外 `+0.12`（例如第 3 层 `1.18 → 1.30`）；组合根注入时已折叠，房间不会二次叠加。 |
+| 沉睡单房回血上限 | `PsycheFragments.SLUMBER_ROOM_HEAL_CAP` / `room_healed` | 沉睡碎片保留脱战 5 秒后 `2 HP/s` 的回血手感，但每房最多回复 `30 HP`；同房快照保留已用额度，进入下一房才重置。 |
+| 温润屏障收敛 | `PsycheFragments.TENDERNESS_CAPACITY` / `TENDERNESS_RECOVERY_DELAY` | 独立屏障容量 `40`；受击后 `6.5s` 才开始以 `6 HP/s` 恢复。跨房保留余额与恢复延迟，暂停冻结。 |
+| 终局完美替身高压节拍 | `FlawlessDoppelganger` | 基础生命 `2800`，弹丸 `14` / 斩击 `28`；生命低于 `55%` 后阶段时钟 `1.30×`，恢复窗口 `0.85 → 0.55s`、等待间隔 `0.25 → 0.15s`；破防与 56 片碎裂演出不变。 |
+
 ## 2026-11-20 愤怒读报者
 
 读报者（`WrathRealmEnemy.Variant.READER`）是愤怒第二小关的红晶近战守卫。静读时以 3 米/秒走动。玩家首次普通命中撕破报纸并消耗这次伤害，后续命中立即扣血。真实伤害在撕报时也会穿透。它有 90 点基础生命，撕报即以 9.2 米/秒追击。进入 4 米内看到玩家就锁向出拳，以 20 米/秒直冲最多 0.17 秒，单次接触造成 10 点基础近战伤害，随后休整 0.9 秒。生命与伤害沿用房间难度倍率。

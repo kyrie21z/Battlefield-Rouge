@@ -13,7 +13,16 @@ signal retry_requested(stage: RealmStage)
 @export var room_index: int = 0
 @export var boss_room := false
 @export var campaign := false
+## Damage multiplier. Kept under the historical name so standing callers work.
 @export var difficulty_multiplier := 1.0
+## Health multiplier, split out of the old single scalar.
+@export var hp_multiplier := 1.0
+## Enemy tempo multiplier: attack cooldowns and windups tighten with depth.
+@export var tempo_multiplier := 1.0
+## True when tempo_multiplier already carries the lost-Sloth haste because the
+## run director folded it in before this room was installed.
+@export var tempo_includes_sloth_haste := false
+const SLOTH_HASTE := 0.12
 const REALMS := ["sloth","fear","wrath","sorrow"]
 const TITLES := ["怠惰 · 凝滞庭院","恐惧 · 破碎长廊","愤怒 · 焦灼竞技场","悲伤 · 泪海"]
 const BOSSES := ["sloth_colossus","fear_oculus","wrath_spire","sorrow_monolith"]
@@ -48,6 +57,9 @@ var run_seed := 13800
 var rerolls_remaining := 2
 var _reward_context := ""
 var _reward_offer: Array[BoonData] = []
+## True when a stage wired before the vector split only set the legacy scalar
+## and never injected health or tempo. Those stages scaled health with it.
+var _legacy_scalar_scaling := false
 ## The reclaimed-talent orb that appears in front of the exit gate once the room
 ## is clear. The player walks up and presses interact to open the reward offer.
 var talent_orb: TalentOrb
@@ -79,6 +91,9 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	_legacy_scalar_scaling = is_equal_approx(hp_multiplier,1.0) \
+		and is_equal_approx(tempo_multiplier,1.0) \
+		and not is_equal_approx(difficulty_multiplier,1.0)
 	CrystalBurst.prepare(self)
 	BoonCatalog.all()
 	SimClock.restart()
@@ -146,6 +161,27 @@ func _apply_run() -> void:
 		audio.set_deprived(deprivations.has(realm))
 	for actor in enemies:
 		_apply_actor_deprivation(actor)
+	_refresh_enemy_tempo()
+
+## Runs after deprivations change: tighten or relax the living actors without
+## touching their health again.
+func _refresh_enemy_tempo() -> void:
+	var tempo := _effective_tempo()
+	for actor in enemies:
+		if is_instance_valid(actor) and not actor.health.is_dead():
+			actor.set_realm_tempo(tempo)
+
+func _effective_tempo() -> float:
+	_fold_sloth_haste()
+	return maxf(0.25,tempo_multiplier)
+
+## A boss killed inside this room adds the Sloth haste here. When the run
+## director already included it, the flag keeps it from stacking twice.
+func _fold_sloth_haste() -> void:
+	if not campaign or tempo_includes_sloth_haste or not deprivations.has(0):
+		return
+	tempo_multiplier += SLOTH_HASTE
+	tempo_includes_sloth_haste = true
 
 func _apply_actor_deprivation(actor: Enemy) -> void:
 	if "warnings_enabled" in actor:
@@ -221,11 +257,11 @@ func _spawn_boss() -> void:
 	_register_actor(boss)
 
 func _register_actor(actor: Enemy) -> void:
-	var scale_value := maxf(0.1,difficulty_multiplier)
-	actor.health.max_health *= scale_value
-	actor.health.health = actor.health.max_health
-	if "realm_damage_scale" in actor:
-		actor.set("realm_damage_scale",scale_value)
+	var damage_scale := maxf(0.1,difficulty_multiplier)
+	var hp_scale := maxf(0.1,hp_multiplier)
+	if _legacy_scalar_scaling:
+		hp_scale = damage_scale
+	actor.apply_realm_scaling(hp_scale,damage_scale,_effective_tempo())
 	_apply_actor_deprivation(actor)
 	actor.setup(player,[])
 	player.boons.register_enemy(actor)
@@ -267,6 +303,7 @@ func _finish_boss_defeat() -> void:
 	geometry.call("set_deprivation",true)
 	for actor in enemies:
 		_apply_actor_deprivation(actor)
+	_refresh_enemy_tempo()
 	realm_defeated.emit(self)
 	# Revisited debug maps can already own the shard; do not create an uncollectable gate.
 	if player.fragments.has_shard(realm):
@@ -617,6 +654,8 @@ func _standalone_next() -> void:
 	var next := (load(path) as PackedScene).instantiate() as RealmStage
 	next.configure_run(depth,deprivations,player.fragments.shards,player.health.health,player.boons.all_equipped())
 	next.difficulty_multiplier = difficulty_multiplier
+	next.hp_multiplier = hp_multiplier
+	next.tempo_multiplier = tempo_multiplier
 	next.run_seed = run_seed
 	next.rerolls_remaining = rerolls_remaining
 	get_tree().root.add_child(next)

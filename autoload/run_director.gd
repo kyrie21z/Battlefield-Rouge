@@ -34,6 +34,14 @@ var _starter_given := false
 var _epoch := 0
 const KILL_WILL := 5
 const ROOM_WILL := 20
+## Depth scaling is a three-axis vector and never depends on realm identity:
+## health climbs fastest, damage stays fair, and tempo tightens the enemy
+## attack cadence. Only the depth and the lost realms may change it.
+const HP_SCALES := [1.0, 1.35, 1.85, 2.45]
+const DAMAGE_SCALES := [1.0, 1.15, 1.32, 1.50]
+const TEMPO_SCALES := [1.0, 1.08, 1.18, 1.28]
+## Losing Sloth deprives the run of rest: every later room runs faster.
+const SLOTH_HASTE := 0.12
 var run_id := ""
 var earned_will := 0
 var earned_anchors := 0
@@ -200,8 +208,35 @@ func _stage_cleared(stage: Node) -> void:
 	earned_will += ROOM_WILL
 	changed.emit()
 
+## Depth scaling is a three-axis vector and never depends on realm identity:
+## health climbs fastest, damage stays fair, and tempo tightens the enemy
+## attack cadence. Only the depth and the lost realms may change it.
+func _depth_index(depth: int) -> int:
+	return clampi(floor_index if depth < 0 else depth,0,3)
+
+func hp_scale(depth: int = -1) -> float:
+	return float(HP_SCALES[_depth_index(depth)])
+
+func damage_scale(depth: int = -1) -> float:
+	return float(DAMAGE_SCALES[_depth_index(depth)])
+
+func tempo_scale(depth: int = -1, active_deprivations = null) -> float:
+	var values: Array = deprivations if active_deprivations == null else active_deprivations
+	var value := float(TEMPO_SCALES[_depth_index(depth)])
+	if values.has(0):
+		value += SLOTH_HASTE
+	return value
+
+func difficulty_profile(depth: int = -1) -> Dictionary:
+	return {
+		"hp_scale":hp_scale(depth),
+		"damage_scale":damage_scale(depth),
+		"tempo_scale":tempo_scale(depth),
+	}
+
+## Backward-compatible scalar entry: it keeps meaning the damage multiplier.
 func difficulty(depth: int = -1) -> float:
-	return 1.0 + 0.18 * clampi(floor_index if depth < 0 else depth,0,3)
+	return damage_scale(depth)
 
 func current_realm() -> int:
 	return order[floor_index] if floor_index < order.size() else -1
@@ -277,7 +312,12 @@ func install_stage(packed: PackedScene) -> Error:
 	var next := packed.instantiate()
 	if next.has_method("configure_run"):
 		next.set("campaign",true)
-		next.set("difficulty_multiplier",difficulty())
+		next.set("hp_multiplier",hp_scale())
+		next.set("difficulty_multiplier",damage_scale())
+		next.set("tempo_multiplier",tempo_scale())
+		# The room must not add the Sloth haste a second time when the run
+		# director already folded it into tempo_multiplier.
+		next.set("tempo_includes_sloth_haste",deprivations.has(0))
 		next.set("run_seed",run_seed)
 		next.set("rerolls_remaining",rerolls)
 		next.configure_run(floor_index,deprivations,shards,hp,boons)

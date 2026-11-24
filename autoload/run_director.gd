@@ -9,6 +9,9 @@ const REALMS := ["sloth","fear","wrath","sorrow"]
 const PLAYTEST_ORDER := [1,0,2,3]
 var randomize_realm_order := true
 const THRESHOLD := "res://levels/climax/threshold_corridor.tscn"
+const STASIS_HUB := "res://levels/stasis_hub/stasis_hub.tscn"
+## Ticket 04 replaces this temporary entry with the dedicated title scene.
+const TITLE_ENTRY := "res://ui/game_start.tscn"
 var active := false
 var completed := false
 var run_count := 0
@@ -49,8 +52,7 @@ var forge_visited := false
 ## True once the first room's opening three-card choice has been taken. A
 ## resumed 0:0 run must never offer that choice again.
 var entry_reward_claimed := false
-## Set only for the first restored room: resuming must not replay the historical
-## death line that belongs to a fresh entry into that floor.
+## Set for a resumed room or a fresh departure after the hub debrief.
 var suppress_entry_history_voice := false
 var _departure_prepared := false
 var _settled := false
@@ -124,7 +126,7 @@ func begin_run(value_seed: int = -1) -> bool:
 	return true
 
 func prepare_departure() -> void:
-	# Called after the starting Forge closes, before the first Player is spawned.
+	# Apply permanent talents and checkpoint the run before the first combat Player.
 	if _departure_prepared or floor_index != 0 or room_index != 0:
 		return
 	_departure_prepared = true
@@ -494,6 +496,8 @@ func install_stage(packed: PackedScene) -> Error:
 		next.exit_requested.connect(_stage_exit)
 		next.player_fallen.connect(_stage_fallen)
 		next.retry_requested.connect(_stage_retry)
+		next.hub_requested.connect(_stage_hub, CONNECT_DEFERRED)
+		next.title_requested.connect(_stage_title, CONNECT_DEFERRED)
 		next.reward_selected.connect(_reward_selected)
 		next.reroll_spent.connect(_reroll_spent)
 	var previous := get_tree().current_scene
@@ -576,7 +580,7 @@ func advance_room() -> bool:
 	changed.emit()
 	return true
 
-func _load_current(epoch: int) -> void:
+func _load_current(epoch: int, require_initial_checkpoint := false) -> void:
 	if epoch != _epoch or _dead or not active:
 		return
 	get_tree().paused = true
@@ -585,15 +589,27 @@ func _load_current(epoch: int) -> void:
 	await fade.fade_to_black(0.22)
 	if epoch != _epoch or _dead or not active:
 		fade.discard()
-		get_tree().paused = false
 		return
+	if require_initial_checkpoint and MetaProgression.active_run.get("run_id", "") != run_id:
+		if not _checkpoint_active_run():
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			fade.show_error("挑战起点尚未保存，请重试。", func():
+				fade.discard()
+				_load_current(epoch, true))
+			return
 	fade.show_loading()
 	await get_tree().process_frame
+	if epoch != _epoch or _dead or not active:
+		fade.discard()
+		return
 	var packed := load(scene_path()) as PackedScene
 	if install_stage(packed) != OK:
 		_transitioning = false
 		get_tree().paused = false
-		fade.show_error("门扉未能展开，请重试。",func():_load_current(_epoch))
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		fade.show_error("门扉未能展开，请重试。", func():
+			fade.discard()
+			_load_current(epoch, require_initial_checkpoint))
 		push_error("Cannot load campaign stage: " + scene_path())
 		return
 	fade.reveal(3,0.35)
@@ -606,6 +622,63 @@ func _stage_fallen(stage: Node, cause: StringName) -> void:
 func _stage_retry(stage: Node) -> void:
 	if stage == current_stage:
 		restart.call_deferred()
+
+func _stage_hub(stage: Node) -> void:
+	if stage == current_stage and _dead:
+		enter_hub("post_death")
+
+func _stage_title(stage: Node) -> void:
+	if stage == current_stage:
+		return_to_title()
+
+func enter_hub(reason := "") -> void:
+	if (_dead or completed) and not settle_rewards():
+		return
+	if MetaProgression.has_active_run() or get_tree().current_scene is StasisHub:
+		return
+	var hub := (load(STASIS_HUB) as PackedScene).instantiate() as StasisHub
+	hub.hub_reason = reason
+	hub.run_count = run_count
+	hub.last_death_depth = last_death_depth
+	hub.last_death_cause = last_death_cause
+	hub.departure_requested.connect(_depart_from_hub.bind(hub), CONNECT_DEFERRED)
+	hub.title_requested.connect(return_to_title, CONNECT_DEFERRED)
+	_install_noncombat_scene(hub)
+
+func _depart_from_hub(hub: StasisHub) -> void:
+	if hub != get_tree().current_scene:
+		return
+	if not begin_run():
+		hub.allow_departure_retry()
+		return
+	suppress_entry_history_voice = hub.hub_reason == "post_death"
+	forge_visited = true
+	prepare_departure()
+	_transitioning = true
+	_load_current(_epoch, true)
+
+func return_to_title() -> void:
+	if (_dead or completed) and not settle_rewards():
+		return
+	# This route must leave the latest room checkpoint intact.
+	var title := (load(TITLE_ENTRY) as PackedScene).instantiate()
+	title.set("title_fallback", true)
+	_install_noncombat_scene(title)
+
+func _install_noncombat_scene(next: Node) -> void:
+	var tree := get_tree()
+	var previous := tree.current_scene
+	active = false
+	_dead = false
+	_transitioning = false
+	current_stage = null
+	_epoch += 1
+	tree.paused = false
+	tree.root.add_child(next)
+	tree.current_scene = next
+	if is_instance_valid(previous):
+		previous.queue_free()
+	changed.emit()
 
 func record_death(cause: StringName) -> void:
 	if not active or _dead or completed:
@@ -632,8 +705,10 @@ func restart() -> void:
 		return
 	if not begin_run():
 		return
-	get_tree().paused = false
-	get_tree().change_scene_to_file("res://ui/game_start.tscn")
+	forge_visited = true
+	prepare_departure()
+	_transitioning = true
+	_load_current.call_deferred(_epoch)
 
 func finish_campaign() -> void:
 	if active and not run_id.is_empty():

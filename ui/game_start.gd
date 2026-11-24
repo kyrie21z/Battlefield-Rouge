@@ -15,11 +15,15 @@ var _zone_path := ""
 var _fade: SceneFade
 var _packed: PackedScene
 var forge: CrownForge
+var title_fallback := false
 
 
 func _ready() -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if title_fallback:
+		_show_title_fallback()
+		return
 	if RunState.fixture == null and not RunDirector.active:
 		if not RunDirector.begin_run():
 			return
@@ -31,6 +35,34 @@ func _ready() -> void:
 	add_child(opening)
 	opening.start()
 	_zone_path = _target_scene()
+
+
+func _show_title_fallback() -> void:
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+	EditorialStyle.apply_theme(center)
+	var menu := VBoxContainer.new()
+	menu.add_theme_constant_override("separation", 20)
+	center.add_child(menu)
+	menu.add_child(EditorialStyle.make_label("MIND FREAK", 36, EditorialStyle.PAPER, 800))
+	var resume := Button.new()
+	var has_checkpoint := MetaProgression.has_active_run()
+	resume.text = "继续当前挑战" if has_checkpoint else "返回静滞之门"
+	EditorialStyle.style_button(resume, true, false, 20)
+	resume.pressed.connect(func():
+		if get_tree().current_scene != self:
+			return
+		if has_checkpoint:
+			RunDirector.resume_run()
+		else:
+			RunDirector.enter_hub(), CONNECT_DEFERRED)
+	menu.add_child(resume)
+	var quit_button := Button.new()
+	quit_button.text = "退出"
+	quit_button.pressed.connect(func(): get_tree().quit())
+	menu.add_child(quit_button)
+	resume.grab_focus()
 
 
 func _target_scene() -> String:

@@ -15,6 +15,8 @@ extends CharacterBody3D
 var ads_sensitivity := 1.0
 @export var base_fov := 75.0
 @export var fov_lerp_speed := 14.0
+## A calm scene can keep locomotion and ShadowBody while holstering both weapons.
+@export var combat_enabled := true
 
 ## Seed of the shake's own random generator: what the player sees must never
 ## draw from the global sequence (ADR 0005).
@@ -133,6 +135,13 @@ func _ready() -> void:
 	focus.name = "ADSFocus"
 	add_child(focus)
 	focus.bind(self)
+	if not combat_enabled:
+		weapon.trigger_enabled = false
+		weapon.hide()
+		melee.deactivate()
+		melee.hide()
+		shield.set_process(false)
+		combat_traits.set_process(false)
 
 
 ## Read-only dash state for the HUD.
@@ -219,7 +228,7 @@ func _physics_process(delta: float) -> void:
 
 	# A dash drops the sights for its duration: holding aim through it does not
 	# keep the player scoped mid-dash. Reloading is left alone.
-	var aiming := Input.is_action_pressed("aim") and not weapon.is_reloading() \
+	var aiming := combat_enabled and Input.is_action_pressed("aim") and not weapon.is_reloading() \
 		and not dashing
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()

@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://levels/stasis_hub/stasis_hub.gd" id="1_hub"]
+[ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="2_player"]
+
+[node name="StasisHub" type="Node3D"]
+script = ExtResource("1_hub")
+
+[node name="Architecture" type="Node3D" parent="."]
+
+[node name="ForgeAltar" type="Node3D" parent="."]
+position = Vector3(-4.2, 0, -1.5)
+
+[node name="ArchiveStele" type="Node3D" parent="."]
+position = Vector3(4.2, 0, -1.5)
+
+[node name="DepartureGate" type="Node3D" parent="."]
+position = Vector3(0, 0, -10.5)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(0, 0.02, 2)
+combat_enabled = false

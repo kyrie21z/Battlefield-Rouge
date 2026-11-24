@@ -28,3 +28,7 @@ Sloth 开场任务 #45 的早期交付是独立 Godot 预演，所以双击 Batt
 ## #147 后续替代
 
 2026-11-10：以上保留历史决策；旧点击推进开场已由 `ui/cinematics/opening_sequence.tscn` 的真实第一人称连续演出替代。旧图集与对白原件移至 `docs/levels/sloth-opening/` 归档。首次 Run 播完整开场，死亡重开和 fixture 旁路仍保留。
+
+## #274 静滞之门
+
+阵亡面板和终局菜单可进入 `StasisHub`。出征由 `RunDirector` 保存首房起点后切入实际战役。阵亡回大厅先听皇冠复盘，首房省略已经播放的历史对白。按 R 再战直接进入首房并播报历史对白。独立标题场景交由 Ticket 04，当前返回标题使用 `GameStart` 内的临时菜单。

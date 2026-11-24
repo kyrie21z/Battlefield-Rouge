@@ -107,15 +107,10 @@ func _run() -> void:
 	RunDirector.settle_rewards()
 	check("repeated death settlement cannot increase wallet",MetaProgression.will_shards==wallet+earned)
 	RunDirector.restart()
-	await get_tree().scene_changed
-	await frames(3)
-	forge=get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
-	check("death returns directly to funded Forge with old history intact",forge!=null and forge._wallet.text.contains(str(wallet+earned)) and RunDirector.run_count==2 and MetaProgression.history.death_cause=="abyss")
-	await capture("campaign-death-bank.png")
-	forge.close()
 	while not is_instance_valid(RunDirector.current_stage): await frames(1)
 	await frames(4)
 	stage=RunDirector.current_stage
+	check("instant retry enters combat with banked rewards and old history intact",get_tree().current_scene==stage and MetaProgression.will_shards==wallet+earned and RunDirector.run_count==2 and MetaProgression.history.death_cause=="abyss")
 	check("new run refreshes one revival and maximum HP without duplicate starter",not MetaProgression.defiance_consumed and stage.player.health.health==120 and stage.player.boons.all_equipped().size()==1)
 	check("re-entry uses actual persisted abyss response",stage.player.get_node("CrownVoiceSystem").played_keys.has("early_abyss"))
 	if is_instance_valid(stage.selection): stage.selection._buttons[0].pressed.emit()

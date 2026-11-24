@@ -75,10 +75,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		check("real death records historical depth and cause", RunDirector._dead and RunDirector.last_death_depth == 1)
 		RunDirector.restart()
-		await get_tree().scene_changed
 		while not is_instance_valid(RunDirector.current_stage) or RunDirector.current_stage.get_instance_id() == stage_id:
-			var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
-			if is_instance_valid(forge): forge.close()
 			await get_tree().process_frame
 		check("death re-entry bypasses the fixed cinematic for dynamic Crown voice", RunDirector.run_count == 2 and get_tree().current_scene.get_node_or_null("OpeningSequence") == null and get_tree().current_scene.get_instance_id() != stage_id)
 		get_tree().paused = false

@@ -25,19 +25,15 @@ float studio_env(vec3 d) {
 	return (top_panel + key_panel + side_strip + horizon) * (0.22 + 0.78 * floor_dark);
 }
 
-// Planar bands and thin cleavage flashes inside the crystal.
-vec2 internal_cleavage(vec3 pos, vec3 r_in, vec3 n_world) {
-	vec3 p1 = pos * 5.2 + r_in * 0.38;
-	vec3 p2 = pos * 8.4 + r_in * 0.72;
-	float s1 = abs(fract(dot(p1, vec3(0.577, 0.577, 0.577))) - 0.5);
-	float s2 = abs(fract(dot(p1, vec3(-0.707, 0.500, 0.500))) - 0.5);
-	float s3 = abs(fract(dot(p2, vec3(0.354, -0.707, 0.612))) - 0.5);
-	float band_a = step(0.24, s1) * 0.55 + step(0.30, s2) * 0.45;
-	float gleam = (1.0 - smoothstep(0.0, 0.032, s1)) * 0.45
-		+ (1.0 - smoothstep(0.0, 0.028, s2)) * 0.35
-		+ (1.0 - smoothstep(0.0, 0.024, s3)) * 0.25;
-	float angle_mod = 0.55 + 0.45 * abs(dot(n_world, vec3(0.42, 0.81, -0.40)));
-	return vec2(band_a * angle_mod, gleam);
+// Non-periodic internal crystal depth and caustic sheen along the refracted ray.
+vec2 internal_refraction(vec3 pos, vec3 r_in, vec3 n_world) {
+	vec3 p = pos * 2.1 + r_in * 0.65;
+	float w1 = sin(dot(p, vec3(1.73, 2.41, -1.97)));
+	float w2 = cos(dot(p, vec3(-2.63, 1.37, 2.19)) + w1 * 0.55);
+	float depth_band = 0.5 + 0.5 * sin((w1 + w2) * 1.15);
+	float caustic = pow(max(0.0, 0.5 + 0.5 * (w1 * w2)), 6.0);
+	float angle_mod = 0.60 + 0.40 * abs(dot(n_world, vec3(0.42, 0.81, -0.40)));
+	return vec2(depth_band * angle_mod, caustic);
 }
 
 CrystalSurface evaluate_crystal(
@@ -70,10 +66,6 @@ CrystalSurface evaluate_crystal(
 	float f0 = mix(0.11, 0.08, is_quartz);
 	float fresnel = f0 + (1.0 - f0) * pow(1.0 - ndv, 4.2);
 
-	// Coplanar facets contribute no normal change.
-	float edge_delta = length(dFdx(n)) + length(dFdy(n));
-	float ridge = smoothstep(0.13, 0.64, edge_delta);
-
 	// Reflect the refracted ray off a quantized back facet to approximate TIR.
 	float ior = mix(1.77, 1.55, is_quartz);
 	vec3 r_out = reflect(-v_world, n_world);
@@ -83,7 +75,7 @@ CrystalSurface evaluate_crystal(
 
 	float surf_spec = studio_env(r_out);
 	float inner_spec = studio_env(r_tir);
-	vec2 cleavage = internal_cleavage(crystal_pos, r_in, n_world);
+	vec2 inner = internal_refraction(crystal_pos, r_in, n_world);
 
 	// Normalize the hue so dark gems keep colored refracted highlights.
 	vec3 gem_hue = base_color / max(cmax, 0.001);
@@ -104,13 +96,11 @@ CrystalSurface evaluate_crystal(
 	);
 
 	// Strong dark-core to bright-facet internal refraction step
-	float inner_light = clamp(inner_spec * 0.62 + cleavage.x * 0.26 + pow(1.0 - ndv, 1.9) * 0.36, 0.0, 1.0);
+	float inner_light = clamp(inner_spec * 0.66 + inner.x * 0.22 + pow(1.0 - ndv, 1.9) * 0.36, 0.0, 1.0);
 	vec3 crystal_body = mix(deep_core, mid_crystal, smoothstep(0.08, 0.50, inner_light));
 	crystal_body = mix(crystal_body, bright_refract, smoothstep(0.54, 0.94, inner_light));
-	// Crisp subtle internal cleavage flash
-	crystal_body += bright_refract * cleavage.y * (0.14 + 0.32 * inner_spec) * mix(0.85, 0.65, is_quartz);
+	crystal_body += bright_refract * inner.y * (0.14 + 0.30 * inner_spec) * mix(0.85, 0.65, is_quartz);
 
-	// Subtle prismatic dispersion at grazing angles & crystal ridges
 	vec3 dispersion = vec3(
 		pow(1.0 - ndv, 3.0) * 0.95,
 		pow(1.0 - ndv, 3.8) * 0.85,
@@ -120,26 +110,22 @@ CrystalSurface evaluate_crystal(
 	CrystalSurface surface;
 	surface.normal = n;
 	surface.albedo = mix(deep_core * 0.82, vec3(0.24, 0.30, 0.38), is_quartz);
-	surface.roughness = clamp(roughness_value * 0.5, 0.025, 0.16);
+	surface.roughness = clamp(roughness_value * 0.25, 0.025, 0.085);
 	surface.metallic = mix(0.12, 0.05, is_quartz);
 	surface.specular = clamp(specular_amount, 0.0, 1.0);
 	surface.clearcoat = 1.0;
 	surface.clearcoat_roughness = 0.02;
 
-	float rim_scale = clamp(rim_strength / 0.45, 0.35, 2.6);
 	vec3 mirror_glint = mix(spec_color, vec3(0.97, 0.99, 1.0), 0.72)
 		* surf_spec * (0.15 + fresnel * 0.95 * shard_damp);
-	vec3 ridge_line = mix(rim_color, vec3(0.95, 0.99, 1.0), mix(0.42, 0.88, is_quartz))
-		* ridge * (0.20 + 0.55 * fresnel + 0.28 * surf_spec) * min(rim_scale, 1.6) * shard_damp;
 	float rim = f0 + (1.0 - f0) * pow(1.0 - ndv, rim_power);
 	vec3 rim_accent = rim_color * rim * rim_strength * mix(0.45, 0.22, is_quartz) * shard_damp;
 	vec3 cast_glow = emission_color * emission_strength * mix(0.32, 0.10, is_quartz);
 
 	surface.emission = crystal_body * (0.44 + inner_glow * 0.32)
 		+ mirror_glint
-		+ ridge_line
 		+ rim_accent
-		+ dispersion * (0.28 + ridge * 0.75)
+		+ dispersion * 0.30
 		+ cast_glow;
 	return surface;
 }

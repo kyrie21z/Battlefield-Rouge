@@ -159,7 +159,7 @@ func _measure_wisp_windup(tempo: float, hp_scale: float, damage_scale: float) ->
 func _build_floor() -> void:
 	var body := StaticBody3D.new()
 	body.collision_layer = CollisionLayers.WORLD
-	body.collision_mask = 0
+	body.collision_mask = CollisionLayers.NONE
 	body.position = Vector3(0, -0.5, 0)
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()

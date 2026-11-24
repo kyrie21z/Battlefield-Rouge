@@ -36,7 +36,7 @@ func _ready() -> void:
 	check("reserves never register with boon targeting",not stage.player.boons.enemies().has(reserve[0]))
 	check("reserves do not change room kill count",stage.living_enemies() == 4)
 	master.position = Vector3(0,0.05,10)
-	master.realm_damage_scale = 1.4
+	master.apply_realm_scaling(1.4,1.2,1.15)
 	stage.player.fragments.configure_deprivation([1])
 	master.warnings_enabled = false
 	master._summon()
@@ -44,7 +44,7 @@ func _ready() -> void:
 	check("cast activates the exact three reserved nodes",live.size() == 3 and reserve.has(live[0]) and reserve.has(live[1]) and reserve.has(live[2]))
 	for wisp in live: wisp.set_physics_process(false)
 	check("activation restores visibility and shootable layers",live[0].visible and live[0].collision_layer == CollisionLayers.ENEMIES and live[0].get_node("TorsoHitbox").collision_layer == CollisionLayers.HITBOXES)
-	check("activation uses current health scale and deprivation",is_equal_approx(live[0].health.health,25.2) and not live[0].warnings_enabled)
+	check("activation uses current health scale and deprivation",is_equal_approx(live[0].health.health,25.2) and is_equal_approx(live[0].realm_damage_scale,1.2) and is_equal_approx(live[0].realm_tempo_scale,1.15) and not live[0].warnings_enabled)
 	check("only activated ghosts join boon targeting",stage.player.boons.enemies().has(live[0]) and stage.living_enemies() == 4)
 	master._dismiss_wisps()
 	await frames(8)

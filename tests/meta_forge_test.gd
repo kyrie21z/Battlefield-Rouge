@@ -3,13 +3,14 @@ var checks := 0
 var failures := 0
 var files: Array[String] = []
 var profile := ""
+var store: MetaProgressionStore
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().create_timer(90,true).timeout.connect(func():get_tree().quit(2))
 	profile = "user://meta_152_test_%d.json" % OS.get_process_id()
 	files.append(profile)
-	var store := MetaProgressionStore.new()
+	store = MetaProgressionStore.new()
 	store.override_path = profile
 	add_child(store)
 	check("new test store never loads the real profile",store.will_shards==0 and store.reality_anchors==0 and store.load_status=="new")
@@ -146,6 +147,139 @@ func _ready() -> void:
 	invalid_history.override_path=malformed_path
 	add_child(invalid_history)
 	check("valid checksum cannot bypass run history type validation",invalid_history.load_status=="invalid" and invalid_history.history.run_count==0)
+	# --- Optional v1 fields: opening flag and the resumable run checkpoint ---
+	var core_id := ""
+	var trait_id := ""
+	var conflicting_cores: Array = []
+	var slot_owner := {}
+	for card in BoonCatalog.all():
+		if card.core and core_id.is_empty():
+			core_id = card.id
+		if not card.core and card.rarity != BoonData.Rarity.DUAL and trait_id.is_empty():
+			trait_id = card.id
+		if card.core:
+			if slot_owner.has(card.slot) and conflicting_cores.is_empty():
+				conflicting_cores = [slot_owner[card.slot],card.id]
+			slot_owner[card.slot] = card.id
+	check("catalog exposes a core and a trait for snapshot fixtures",not core_id.is_empty() and not trait_id.is_empty() and conflicting_cores.size()==2)
+	var resume_store := MetaProgressionStore.new()
+	resume_store.override_path = profile+".active"
+	files.append(resume_store.override_path)
+	add_child(resume_store)
+	check("blank profile has no opening flag, no unfinished run and no profile",not resume_store.opening_completed and not resume_store.has_active_run() and not resume_store.has_profile())
+	check("opening completion is a transactional write",resume_store.mark_opening_completed() and resume_store.opening_completed and resume_store.has_profile())
+	check("blank wallet cannot afford any upgrade",not resume_store.has_affordable_upgrade())
+	check("banked will makes at least one upgrade affordable",resume_store.settle_run("forge-ready",60,0) and resume_store.has_affordable_upgrade())
+	var snapshot := active_snapshot({"boon_ids":[core_id,trait_id]})
+	check("valid room snapshot is accepted",resume_store.save_active_run(snapshot) and resume_store.has_active_run() and resume_store.active_run_id=="active-run-77")
+	check("snapshot with non-positive hp is rejected without touching the stored one",not resume_store.save_active_run(active_snapshot({"hp":0.0})) and is_equal_approx(float(resume_store.active_run.get("hp",0.0)),96.5))
+	var tamper_cases := {
+		"empty run id":{"run_id":""},
+		"already settled run id":{"settled_run":true},
+		"order is not a permutation":{"order":[1,0,2,2]},
+		"floor above the return corridor":{"floor_index":5},
+		"room above the boss room":{"room_index":3},
+		"return corridor with a sub-room":{"floor_index":4,"room_index":1},
+		"return corridor without four cores":{"floor_index":4,"room_index":0,"defeated":[0,1,2,3],"deprivations":[0,1,2,3],"shards":[0,1]},
+		"duplicate defeated realm":{"defeated":[1,1]},
+		"duplicate deprivation realm":{"deprivations":[1,1]},
+		"duplicate shard realm":{"shards":[1,2,2]},
+		"unknown boon id":{"boon_ids":["not_a_real_card"]},
+		"two cores in one slot":{"boon_ids":conflicting_cores},
+		"rerolls above the cap":{"rerolls":11},
+		"negative pending will":{"earned_will":-1},
+		"negative pending anchors":{"earned_anchors":-1},
+		"entry claim is not a boolean":{"entry_reward_claimed":1},
+		"defiance latch is not a boolean":{"defiance_consumed":"yes"},
+		"fragment state is not numeric":{"fragment_state":{"barrier":"lots"}},
+	}
+	var tamper_index := 0
+	for label in tamper_cases:
+		var tampered_payload := resume_store._payload()
+		var tampered_snapshot := active_snapshot(tamper_cases[label])
+		if bool(tamper_cases[label].get("settled_run",false)):
+			tampered_snapshot["run_id"] = "forge-ready"
+		tampered_snapshot.erase("settled_run")
+		tampered_payload.active_run = tampered_snapshot
+		var tampered_path := profile+".tamper-%d" % tamper_index
+		tamper_index += 1
+		files.append(tampered_path)
+		write_checksummed(tampered_path,tampered_payload)
+		var tampered := MetaProgressionStore.new()
+		tampered.override_path = tampered_path
+		add_child(tampered)
+		check("tampered checkpoint rejected: "+label,tampered.load_status=="invalid" and not tampered.has_active_run())
+		tampered.queue_free()
+	check("return-corridor checkpoint at 4:0 with every core is valid",resume_store.save_active_run(active_snapshot({"floor_index":4,"room_index":0,"defeated":[0,1,2,3],"deprivations":[0,1,2,3],"shards":[0,1,2,3],"selections":[]})))
+	check("clear_active_run removes the checkpoint and its run binding",resume_store.clear_active_run() and not resume_store.has_active_run() and resume_store.active_run_id.is_empty())
+	check("checkpoint and opening flag survive a restart",resume_store.save_active_run(snapshot))
+	var journal := MetaProgressionStore.new()
+	journal.override_path = resume_store.override_path
+	add_child(journal)
+	check("reloaded profile exposes the unfinished run",journal.opening_completed and journal.has_active_run() and journal.active_run_id=="active-run-77" and int(journal.active_run.get("floor_index",-1))==1 and int(journal.active_run.get("earned_will",-1))==145)
+	journal.queue_free()
+	check("settling a checkpointed run clears the checkpoint in the same write",resume_store.settle_run("active-run-77",5,1) and not resume_store.has_active_run() and resume_store.settled_runs.has("active-run-77"))
+	check("a settled checkpoint id cannot be written or paid again",not resume_store.save_active_run(snapshot) and not resume_store.settle_run("active-run-77",9,9))
+	# Legacy v1 files written before the two optional fields must load cleanly.
+	var legacy_fields_path := profile+".v1-fields"
+	files.append(legacy_fields_path)
+	var legacy_fields_data := resume_store._payload()
+	legacy_fields_data.erase("opening_completed")
+	legacy_fields_data.erase("active_run")
+	legacy_fields_data.history = {"run_count":2,"last_depth":1,"death_cause":"combat"}
+	write_checksummed(legacy_fields_path,legacy_fields_data)
+	var legacy_fields := MetaProgressionStore.new()
+	legacy_fields.override_path = legacy_fields_path
+	add_child(legacy_fields)
+	check("legacy v1 without new fields infers a completed opening",legacy_fields.load_status=="loaded" and legacy_fields.opening_completed and not legacy_fields.has_active_run())
+	check("legacy v1 keeps its wallet and talents",legacy_fields.will_shards==resume_store.will_shards and legacy_fields.has_profile())
+	legacy_fields.queue_free()
+	var blank_fields_data := legacy_fields_data.duplicate(true)
+	blank_fields_data.history = {"run_count":0,"last_depth":0,"death_cause":""}
+	blank_fields_data.settled_runs = []
+	blank_fields_data.discovered_boons = []
+	blank_fields_data.will_shards = 0
+	blank_fields_data.reality_anchors = 0
+	blank_fields_data.levels = {}
+	for id in MetaProgressionStore.IDS:
+		blank_fields_data.levels[id] = 0
+	blank_fields_data.archive = {"visited_realms":[],"defeated_realms":[],"introduced_realms":[],"reconciled":false}
+	var blank_fields_path := profile+".v1-blank"
+	files.append(blank_fields_path)
+	write_checksummed(blank_fields_path,blank_fields_data)
+	var blank_fields := MetaProgressionStore.new()
+	blank_fields.override_path = blank_fields_path
+	add_child(blank_fields)
+	check("legacy v1 with no progress keeps the opening pending",blank_fields.load_status=="loaded" and not blank_fields.opening_completed and not blank_fields.has_profile())
+	blank_fields.queue_free()
+	var visited_fields_data := blank_fields_data.duplicate(true)
+	visited_fields_data.archive = {"visited_realms":[2],"defeated_realms":[],"introduced_realms":[],"reconciled":false}
+	var visited_fields_path := profile+".v1-visited"
+	files.append(visited_fields_path)
+	write_checksummed(visited_fields_path,visited_fields_data)
+	var visited_fields := MetaProgressionStore.new()
+	visited_fields.override_path = visited_fields_path
+	add_child(visited_fields)
+	check("legacy v1 with a visited realm also implies a completed opening",visited_fields.opening_completed and visited_fields.has_profile())
+	visited_fields.queue_free()
+	# New game: the current valid file is preserved as .bak before the wipe.
+	var reset_store := MetaProgressionStore.new()
+	reset_store.override_path = profile+".reset"
+	files.append(reset_store.override_path)
+	add_child(reset_store)
+	reset_store.settle_run("reset-run",80,2)
+	reset_store.purchase("resolve")
+	reset_store.mark_opening_completed()
+	reset_store.save_active_run(active_snapshot({"run_id":"reset-active"}))
+	var before_reset := FileAccess.get_file_as_string(reset_store.override_path)
+	check("reset scenario starts with a real profile",reset_store.has_profile() and reset_store.has_active_run() and reset_store.level("resolve")==1)
+	check("reset_profile wipes wallet, talents, history and the checkpoint",reset_store.reset_profile() and not reset_store.has_profile() and not reset_store.opening_completed and not reset_store.has_active_run() and reset_store.will_shards==0 and reset_store.reality_anchors==0 and reset_store.level("resolve")==0 and reset_store.settled_runs.is_empty())
+	check("reset_profile backs the previous valid file up to .bak",FileAccess.get_file_as_string(reset_store.override_path+".bak")==before_reset)
+	var reset_reload := MetaProgressionStore.new()
+	reset_reload.override_path = reset_store.override_path
+	add_child(reset_reload)
+	check("reset profile persists as a brand new save",reset_reload.load_status=="loaded" and not reset_reload.has_profile() and not reset_reload.has_active_run())
+	reset_reload.queue_free()
 	legacy.queue_free()
 	invalid_history.queue_free()
 	transaction.queue_free()
@@ -166,6 +300,36 @@ func _ready() -> void:
 func frames(count: int) -> void:
 	for i in count:
 		await get_tree().physics_frame
+
+## A complete, valid room-start checkpoint. Cases override one field each so a
+## rejection can only come from the field under test.
+func active_snapshot(overrides: Dictionary = {}) -> Dictionary:
+	var value := {
+		"run_id":"active-run-77",
+		"run_seed":91234,
+		"order":[1,0,2,3],
+		"floor_index":1,
+		"room_index":1,
+		"defeated":[1],
+		"deprivations":[1],
+		"shards":[1],
+		"hp":96.5,
+		"boon_ids":[],
+		"fragment_state":{"barrier":40.0,"recovery":0.0,"counter":0.0,"charge":1,"since_combat":0.0,"resonance":0.0,"room_healed":0.0},
+		"rerolls":2,
+		"selections":[{"floor":1,"room":0,"realm":1,"boon_id":"dual_slumber_magma"}],
+		"entry_reward_claimed":true,
+		"earned_will":145,
+		"earned_anchors":2,
+		"defiance_consumed":false,
+	}
+	value.merge(overrides,true)
+	return value
+
+func write_checksummed(path: String, data: Dictionary) -> void:
+	var file := FileAccess.open(path,FileAccess.WRITE)
+	file.store_string(JSON.stringify({"payload":data,"checksum":store._checksum(data)}))
+	file.close()
 
 func check(label: String,passed: bool) -> void:
 	checks+=1

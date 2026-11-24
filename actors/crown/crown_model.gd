@@ -8,6 +8,7 @@ const INNER_WIDTH := 0.17125
 const INNER_DEPTH := 0.2055
 var emission_strength := 0.5
 var worn := false
+var show_when_worn := false
 var gold: StandardMaterial3D
 var ivory: StandardMaterial3D
 
@@ -46,7 +47,7 @@ func _ready() -> void:
 func set_worn(value: bool) -> void:
 	worn = value
 	for part in find_children("*", "MeshInstance3D", true, false):
-		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if worn \
+		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if worn and not show_when_worn \
 			else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
 static func worn_transform(eye: Node3D) -> Transform3D:

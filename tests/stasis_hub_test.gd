@@ -153,10 +153,11 @@ func _run() -> void:
 	await _frames()
 	_check("RealmStage title exit leaves the current checkpoint and count intact",
 		tree.current_scene.scene_file_path == TITLE and not RunDirector.active
+		and tree.current_scene.get("title_screen") is TitleScreen
 		and MetaProgression.active_run.get("run_id") == saved_id and RunDirector.run_count == 3)
 	_find_button(tree.current_scene, "继续当前挑战").pressed.emit()
 	await _wait_for_room()
-	_check("temporary title continues the same room without starting another run",
+	_check("title continues the same room without starting another run",
 		tree.current_scene is RealmStage and RunDirector.run_id == saved_id
 		and RunDirector.run_count == 3 and RunDirector.room_index == 0)
 	await _test_title_and_ending()
@@ -265,8 +266,9 @@ func _test_title_and_ending() -> void:
 	ending._archive_reader.closed.emit()
 	_find_button(ending, "返回标题画面").pressed.emit()
 	await _frames()
-	_check("EndingMenu title option returns to the fallback without starting a run",
-		tree.current_scene.scene_file_path == TITLE and RunDirector.run_count == 3)
+	_check("EndingMenu returns to TitleScreen without starting a run",
+		tree.current_scene.scene_file_path == TITLE and RunDirector.run_count == 3
+		and tree.current_scene.get("title_screen") is TitleScreen)
 	await _show_ending()
 	_find_button(tree.current_scene, "开启新的挑战").pressed.emit()
 	await _frames()
@@ -281,8 +283,9 @@ func _test_title_and_ending() -> void:
 	_send_key(KEY_ESCAPE)
 	(hub.get_node("HubInterface/PauseMenu") as PauseMenu)._title_exit.pressed.emit()
 	await _frames()
-	_check("Hub PauseMenu emits title request once and takes the safe fallback route",
+	_check("Hub PauseMenu requests the TitleScreen once",
 		requests == [true] and tree.current_scene.scene_file_path == TITLE
+		and tree.current_scene.get("title_screen") is TitleScreen
 		and not tree.paused and RunDirector.run_count == 3 and not MetaProgression.has_active_run())
 
 	await _show_ending()

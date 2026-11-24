@@ -18,6 +18,7 @@ const MATERIAL_PARAMETERS := ["base_color", "emission_color", "emission_strength
 
 @export_range(0, 4) var fracture_level := 0
 @export var enable_debug_keys := false
+var follow_combat := true
 var fracture_materials: Array[ShaderMaterial] = []
 var fragments: Array[Dictionary] = []
 var source_meshes: Dictionary = {}
@@ -30,7 +31,8 @@ var _blade_weight := 0.0
 
 
 func _ready() -> void:
-	Events.sin_defeated.connect(set_fracture_level)
+	if follow_combat:
+		Events.sin_defeated.connect(set_fracture_level)
 
 
 func _exit_tree() -> void:
@@ -106,7 +108,6 @@ func _process(delta: float) -> void:
 
 func _uses_fragments(part: String) -> bool:
 	# Keep the rigged torso (the library has only one torso piece) and head.
-	# Head must remain shadow-only even at the final fracture state.
 	if part == "torso" or part == "head":
 		return false
 	return fracture_level >= (3 if "arm" in part else 4)

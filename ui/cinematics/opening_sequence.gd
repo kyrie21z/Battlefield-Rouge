@@ -180,6 +180,7 @@ func _make_ui() -> void:
 
 	motion_button = CheckButton.new()
 	motion_button.text = "减少镜头移动 / 无模糊"
+	motion_button.set_pressed_no_signal(reduced_motion)
 	motion_button.position = Vector2(28, 82)
 	motion_button.add_theme_font_override("font", EditorialStyle.font_sans(600))
 	motion_button.add_theme_font_size_override("font_size", 16)
@@ -267,6 +268,10 @@ func skip() -> void:
 	phase_time = duration(Phase.CROWNING)
 	_apply_frame()
 	_release_control()
+
+func allow_entry_retry() -> void:
+	player.position.z = -12.0
+	phase = Phase.PLAYABLE
 
 func duration(value: int) -> float:
 	match value:

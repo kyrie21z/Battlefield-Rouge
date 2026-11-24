@@ -30,6 +30,7 @@ const UPPER_BONES: Array[StringName] = [
 
 @export_range(0, 4) var fracture_level := 0
 @export var enable_debug_keys := false
+@export var portrait := false
 var _anim: AnimationPlayer
 var _skeleton: Skeleton3D
 var _tree: AnimationTree
@@ -58,6 +59,11 @@ func _ready() -> void:
 		var local := _anim.get_animation(clip).duplicate() as Animation
 		local.loop_mode = Animation.LOOP_LINEAR
 		_anim.get_animation_library("").add_animation(clip, local)
+	if portrait:
+		set_process(false)
+		set_portrait_motion(true)
+		_create_fracture()
+		return
 	_sample_pose()
 	_build_tree()
 	var player := get_parent()
@@ -74,11 +80,25 @@ func _ready() -> void:
 	modifier.body = self
 	_skeleton.add_child(modifier)
 	Events.sin_defeated.connect(set_fracture_level)
+	_create_fracture()
+
+func _create_fracture() -> void:
 	fracture = preload("res://actors/player/body_fracture.gd").new()
 	fracture.name = "BodyFracture"
+	fracture.follow_combat = not portrait
 	add_child(fracture)
 	fracture.setup(_anim.get_parent(), _skeleton)
 	set_fracture_level(fracture_level)
+
+func set_portrait_motion(enabled: bool) -> void:
+	_anim.play(IDLE_ANIM, -1, 0.65)
+	if not enabled:
+		_anim.seek(0.0, true)
+		_anim.pause()
+
+func portrait_crown_position() -> Vector3:
+	var skull := _skeleton.get_bone_global_pose(_skeleton.find_bone("Head")).origin
+	return to_local(_skeleton.to_global(skull + Vector3(0.0, 0.045, -0.160) + CrownModel.WEAR_OFFSET))
 
 func _process(delta: float) -> void:
 	_blade_grip_weight = move_toward(_blade_grip_weight, 0.0, delta / REGRIP_TIME)
@@ -92,7 +112,7 @@ func _dress_meshes() -> void:
 	opaque.albedo_color = Color(0.8, 0.81, 0.83)
 	for node in find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
-		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if mesh.name == "GEO_m_head" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if not portrait and mesh.name == "GEO_m_head" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 		mesh.material_override = opaque
 		mesh.material_overlay = MATERIAL.duplicate()
 

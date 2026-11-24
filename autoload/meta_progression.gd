@@ -159,7 +159,9 @@ func has_affordable_upgrade() -> bool:
 			return true
 	return false
 
-func mark_opening_completed() -> bool:
+func mark_opening_completed(first_room: Dictionary = {}, run_history: Dictionary = {}) -> bool:
+	if not first_room.is_empty():
+		return _save_active_run(first_room, true, run_history)
 	if opening_completed:
 		return true
 	var old := _payload()
@@ -173,6 +175,9 @@ func mark_opening_completed() -> bool:
 ## Persists one room-start snapshot. Rejecting a malformed snapshot keeps the
 ## previous valid checkpoint so a broken caller can never destroy the run.
 func save_active_run(snapshot: Dictionary) -> bool:
+	return _save_active_run(snapshot, false, {})
+
+func _save_active_run(snapshot: Dictionary, completes_opening: bool, run_history: Dictionary) -> bool:
 	if _read_only:
 		return false
 	var settled := {}
@@ -182,6 +187,9 @@ func save_active_run(snapshot: Dictionary) -> bool:
 		last_error = "残局快照无效"
 		return false
 	var old := _payload()
+	opening_completed = opening_completed or completes_opening
+	if not run_history.is_empty():
+		history = run_history.duplicate()
 	active_run = snapshot.duplicate(true)
 	active_run_id = str(active_run.get("run_id",""))
 	defiance_consumed = bool(active_run.get("defiance_consumed",defiance_consumed))

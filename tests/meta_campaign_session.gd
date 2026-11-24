@@ -22,24 +22,30 @@ func _run() -> void:
 	check("registered autoload automatically uses an isolated test profile",MetaProgression.isolated_profile and MetaProgression.save_path()!=MetaProgression.SAVE_PATH)
 	MetaProgression.settle_run("test-fixture-budget",2000,30)
 	RunState.clear_fixture()
-	RunDirector.run_count = 0
-	RunDirector.begin_run(152)
-	RunDirector.order.assign([0,1,2,3])
+	RunDirector.randomize_realm_order = false
 	get_tree().change_scene_to_file("res://ui/game_start.tscn")
 	await get_tree().scene_changed
+	var title := get_tree().current_scene.get("title_screen") as TitleScreen
+	(title.find_child("Primary", true, false) as Button).pressed.emit()
+	while not get_tree().current_scene is StasisHub:
+		await frames(1)
+	var hub := get_tree().current_scene as StasisHub
+	hub.player.recover_from_fall(Vector3(-4.2, 0.02, 0.5))
+	hub.player.aim_at(hub.player.eye_position() + Vector3.FORWARD)
+	var interact := InputEventAction.new()
+	interact.action = &"interact"
+	interact.pressed = true
+	Input.parse_input_event(interact)
 	await frames()
-	var opening: OpeningSequence = get_tree().current_scene.opening
-	opening.skip()
-	opening.player.position.z = -13.2
-	opening.advance(0.1)
-	var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
-	check("walking through the cinematic gate opens the real starting Forge",forge!=null and RunDirector.current_stage==null and get_tree().paused)
+	var forge := hub.get_node_or_null("CrownForge") as CrownForge
+	check("title Continue reaches the real Hub forge altar",forge!=null and RunDirector.current_stage==null and get_tree().paused and hub.hub_reason=="title")
 	await capture("campaign-forge-start.png")
 	for id in ["resolve","resolve","reflex","reflex","reflex","focus","focus","focus","reroll","reroll","keepsake_slots","keepsake_slots","defiance","first_edge"]:
 		(forge._cards[id].button as Button).pressed.emit()
 	check("real Forge button transactions unlock talents and deduct saved currency",MetaProgression.maximum_health()==120 and MetaProgression.level("first_edge")==1 and MetaProgression.slots_used()==2 and MetaProgression.will_shards<2000 and MetaProgression.reality_anchors<30)
 	await capture("campaign-forge-upgraded.png")
 	forge.close()
+	hub.player.position = Vector3(0, 0.02, -11.5)
 	while not is_instance_valid(RunDirector.current_stage): await frames(1)
 	await frames(4)
 	var stage: RealmStage = RunDirector.current_stage
@@ -106,8 +112,12 @@ func _run() -> void:
 	check("real abyss death atomically banks every earned currency and cause",RunDirector._dead and MetaProgression.will_shards==wallet+earned and MetaProgression.reality_anchors==bank_anchors+1 and MetaProgression.history.death_cause=="abyss" and MetaProgression.settled_runs.has(run_id))
 	RunDirector.settle_rewards()
 	check("repeated death settlement cannot increase wallet",MetaProgression.will_shards==wallet+earned)
-	RunDirector.restart()
-	while not is_instance_valid(RunDirector.current_stage): await frames(1)
+	var retry := InputEventKey.new()
+	retry.physical_keycode = KEY_R
+	retry.pressed = true
+	Input.parse_input_event(retry)
+	while not is_instance_valid(RunDirector.current_stage) or RunDirector.current_stage == stage:
+		await frames(1)
 	await frames(4)
 	stage=RunDirector.current_stage
 	check("instant retry enters combat with banked rewards and old history intact",get_tree().current_scene==stage and MetaProgression.will_shards==wallet+earned and RunDirector.run_count==2 and MetaProgression.history.death_cause=="abyss")

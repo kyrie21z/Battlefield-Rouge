@@ -31,7 +31,7 @@
 
 ## 一个战区的流程
 
-项目入口为 `ui/game_start.tscn`。正式战役由 `RunDirector` 组合首次开场、锻造与领域入场。fixture 沿旧 `RunState` 路径进入战区，`--skip-opening` 跳过开场演出。战役死亡后按 R 由 `RunDirector` 直接重开，点「返回静滞之门」则进入 `StasisHub`。标题入口在 Ticket 04 前复用 `GameStart` 的临时菜单，保留当前房间快照。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
+项目入口为 `ui/game_start.tscn`。普通启动显示 `TitleScreen`，由玩家选择首次开场、续关或进入静滞之门。开场穿门时，`RunDirector` 将开场完成标记、挑战历史和首房快照一次落盘。锻造入口位于 `StasisHub` 的皇冠锻造台。fixture 沿旧 `RunState` 路径直达战区，`--skip-opening` 直达战役首房。战役死亡后按 R 直接重开，点「返回静滞之门」进入大厅。战区、大厅和结局都能返回标题页，保留最近的房间快照。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
 赐福每清完一个房间领一次（4 领域 × 3 房，最多 12 次），开局另有一次三选一；这对应 AC-04 的后续修订（D-002 于 2026-10-27 改为三次，现为每房一次）。发牌从全部 54 张里抽，不再按房间领域过滤；强化（特性）卡必须先拥有同系核心，双重卡要求两系核心同时在场；一轮最多给一张「会替换现有核心」的卡，其余名额留给特性，三张全是替换时可以直接放弃。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通敲钟 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
@@ -109,7 +109,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## 第一人称完整身躯（#105）
 
-`Player/ShadowBody` 是唯一的 `ProtagonistBody`，复用 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见。原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。Blender 制作的双手握姿仍绑定在原手骨上。挥刃期间左手跟随 `MeleeWeapon.grip_transform()` 并切到短刃手型，收刀后手型与手腕一起用 0.14 秒回握。单一角色骨架和武器模型同时提供第一人称和投影。
+`Player/ShadowBody` 是战斗玩家的 `ProtagonistBody`，复用 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见。原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。Blender 制作的双手握姿仍绑定在原手骨上。挥刃期间左手跟随 `MeleeWeapon.grip_transform()` 并切到短刃手型，收刀后手型与手腕一起用 0.14 秒回握。单一角色骨架和武器模型同时提供第一人称和投影。标题页以肖像模式复用同一骨架，使用完整待机动画、可见头部和从档案注入的裂痕等级。
 
 眼位来自头骨位置与固定眼睛偏移；低头时采用确定性的上身前倾，跑步动画不驱动逻辑眼位。实际 `Head` 同时带动瞄准相机和渲染子相机，既有受击/开火震动仍仅作用于渲染相机。两相机 near=0.025，保留近处手臂和胸部。
 

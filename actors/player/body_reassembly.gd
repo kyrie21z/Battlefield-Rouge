@@ -189,27 +189,6 @@ func _next_line()->void:
 	line_started.emit(_line_index,LINES[_line_index])
 
 static func apply_kintsugi(value: Player)->void:
-	var body:=value.get_node("ShadowBody")
-	body.set_fracture_level(0)
-	var fracture:=body.fracture as BodyFracture
-	var old_flow:=body.get_node_or_null("KintsugiFlow")
-	if old_flow!=null:
-		body.remove_child(old_flow)
-		old_flow.queue_free()
-	var flow:=KintsugiFlow.new()
-	flow.name="KintsugiFlow"
-	flow.crown=value.get_node_or_null("CrownVoiceSystem") as CrownVoiceSystem
-	body.add_child(flow)
-	var index:=0
-	for part in fracture.source_meshes:
-		var entry:Dictionary=fracture.source_meshes[part]
-		var material:=ShaderMaterial.new()
-		material.shader=KINTSUGI
-		material.set_shader_parameter("accent",COLORS[index%4])
-		entry.node.mesh=entry.seam_mesh
-		entry.node.material_override=material
-		entry.node.material_overlay=null
-		flow.materials.append(material)
-		index+=1
-	flow._process(0.0)
+	var body := value.get_node("ShadowBody") as ProtagonistBody
+	KintsugiFlow.attach(body, COLORS, value.get_node_or_null("CrownVoiceSystem") as CrownVoiceSystem)
 	value.set_meta("kintsugi_complete",true)

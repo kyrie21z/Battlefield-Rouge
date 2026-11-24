@@ -4,6 +4,8 @@ extends Control
 ## Styled in Scheme B (Architectural Editorial ivory settings plaque).
 
 signal return_to_title_requested
+signal opened
+signal closed
 
 static var allow_headless := false
 
@@ -19,6 +21,7 @@ var _updating := false
 var _preview: Crosshair
 var _style: OptionButton
 var _dynamic: CheckButton
+var _reduced_motion: CheckButton
 var _colors: Array[Button] = []
 var _sliders: Dictionary = {}
 var _labels: Dictionary = {}
@@ -88,6 +91,9 @@ func try_open() -> bool:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_refresh()
 	_refresh_exit_controls()
+	if not is_instance_valid(_player):
+		_tab_settings.grab_focus()
+	opened.emit()
 	return true
 
 
@@ -120,6 +126,7 @@ func _close(leaving_scene: bool) -> void:
 				or (DisplayServer.get_name() == "headless" and is_instance_valid(_player))):
 			capture_requests += 1
 		Input.mouse_mode = _prev_mouse_mode
+	closed.emit()
 
 
 func _can_open() -> bool:
@@ -339,6 +346,16 @@ func _build_settings(parent: VBoxContainer) -> void:
 			_after())
 	parent.add_child(_dynamic)
 
+	_reduced_motion = CheckButton.new()
+	_reduced_motion.text = "减少标题与开场动态效果"
+	_reduced_motion.add_theme_font_size_override("font_size", 18)
+	_reduced_motion.add_theme_color_override("font_color", EditorialStyle.INK)
+	_reduced_motion.toggled.connect(func(on: bool) -> void:
+		if not _updating:
+			_settings.reduced_motion = on
+			_after())
+	parent.add_child(_reduced_motion)
+
 	var preview_row := HBoxContainer.new()
 	preview_row.add_theme_constant_override("separation", 16)
 	var preview_lbl := _text("准星预览", 19, EditorialStyle.SLATE)
@@ -535,6 +552,7 @@ func _refresh() -> void:
 		(_labels[key] as Label).text = _format(key, value)
 	_style.selected = _settings.crosshair_style
 	_dynamic.button_pressed = _settings.dynamic_gap
+	_reduced_motion.set_pressed_no_signal(_settings.reduced_motion)
 	_update_colors()
 	_update_preview()
 	_refresh_bindings()

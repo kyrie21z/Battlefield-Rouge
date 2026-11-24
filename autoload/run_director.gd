@@ -10,7 +10,6 @@ const PLAYTEST_ORDER := [1,0,2,3]
 var randomize_realm_order := true
 const THRESHOLD := "res://levels/climax/threshold_corridor.tscn"
 const STASIS_HUB := "res://levels/stasis_hub/stasis_hub.tscn"
-## Ticket 04 replaces this temporary entry with the dedicated title scene.
 const TITLE_ENTRY := "res://ui/game_start.tscn"
 var active := false
 var completed := false
@@ -48,7 +47,6 @@ const SLOTH_HASTE := 0.12
 var run_id := ""
 var earned_will := 0
 var earned_anchors := 0
-var forge_visited := false
 ## True once the first room's opening three-card choice has been taken. A
 ## resumed 0:0 run must never offer that choice again.
 var entry_reward_claimed := false
@@ -72,7 +70,7 @@ func _ready() -> void:
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-func begin_run(value_seed: int = -1) -> bool:
+func begin_run(value_seed: int = -1, persist_history := true) -> bool:
 	# Never discard a failed settlement when the player asks for another run.
 	if not run_id.is_empty() and not _settled and (_dead or completed or earned_will>0 or earned_anchors>0):
 		if not settle_rewards():
@@ -89,7 +87,6 @@ func begin_run(value_seed: int = -1) -> bool:
 	_rewarded_kills.clear()
 	_rewarded_rooms.clear()
 	_settled = false
-	forge_visited = false
 	_departure_prepared = false
 	MetaProgression.begin_run(run_id)
 	run_count += 1
@@ -121,11 +118,21 @@ func begin_run(value_seed: int = -1) -> bool:
 	entry_reward_claimed = false
 	suppress_entry_history_voice = false
 	_epoch += 1
-	MetaProgression.record_history(run_count,last_death_depth,str(last_death_cause))
+	if persist_history:
+		MetaProgression.record_history(run_count,last_death_depth,str(last_death_cause))
 	changed.emit()
 	return true
 
-func prepare_departure() -> void:
+func start_opening_run(audio: AudioStreamPlayer) -> bool:
+	# Publish the opening flag, history and first room in the same store write.
+	if _transitioning or not begin_run(-1, false):
+		return false
+	prepare_departure(true)
+	_transitioning = true
+	_load_current(_epoch, true, true, audio)
+	return true
+
+func prepare_departure(completes_opening := false) -> void:
 	# Apply permanent talents and checkpoint the run before the first combat Player.
 	if _departure_prepared or floor_index != 0 or room_index != 0:
 		return
@@ -140,14 +147,17 @@ func prepare_departure() -> void:
 	entry_reward_claimed = false
 	# Boundary 1: the run stands at the first room's doorstep. Nothing earned,
 	# nothing claimed, no mid-room state can leak into the checkpoint.
-	_checkpoint_active_run()
+	_checkpoint_active_run(completes_opening)
 
 ## Boundary 2/3 shared writer. Only room-start state is ever captured: a resume
 ## restarts the room, so unfinished kills must stay in memory, not on disk.
-func _checkpoint_active_run() -> bool:
+func _checkpoint_active_run(completes_opening := false) -> bool:
 	if not active or completed or _dead or run_id.is_empty():
 		return false
-	return MetaProgression.save_active_run(_active_run_snapshot())
+	var snapshot := _active_run_snapshot()
+	if completes_opening:
+		return MetaProgression.mark_opening_completed(snapshot, _history())
+	return MetaProgression.save_active_run(snapshot)
 
 func _active_run_snapshot() -> Dictionary:
 	var boon_ids: Array[String] = []
@@ -228,7 +238,6 @@ func resume_run(stage_scene: PackedScene = null) -> bool:
 	_rewarded_kills.clear()
 	_rewarded_rooms.clear()
 	_starter_given = false
-	forge_visited = true
 	# The saved run already passed its departure; re-running the starter gift
 	# here would duplicate an "初见锋芒" boon.
 	_departure_prepared = true
@@ -275,6 +284,12 @@ func _finish_abandoned_run() -> void:
 	floor_index = 0
 	room_index = 0
 	hp = -1.0
+	run_seed = 0
+	order.clear()
+	rerolls = RunState.STARTING_REROLLS
+	crown_strength = 0.5
+	_rewarded_kills.clear()
+	_rewarded_rooms.clear()
 	entry_reward_claimed = false
 	suppress_entry_history_voice = false
 	_departure_prepared = false
@@ -282,6 +297,21 @@ func _finish_abandoned_run() -> void:
 	current_stage = null
 	_epoch += 1
 	changed.emit()
+
+func reset_campaign() -> bool:
+	if not MetaProgression.reset_profile():
+		return false
+	run_count = 0
+	last_death_depth = 0
+	last_death_cause = &""
+	_settled = false
+	settlement_error = ""
+	if is_instance_valid(_save_notice):
+		_save_notice.queue_free()
+	_save_notice = null
+	_save_retry = null
+	_finish_abandoned_run()
+	return true
 
 func _boon_by_id(id: String) -> BoonData:
 	for card in BoonCatalog.all():
@@ -580,24 +610,35 @@ func advance_room() -> bool:
 	changed.emit()
 	return true
 
-func _load_current(epoch: int, require_initial_checkpoint := false) -> void:
+func _load_current(epoch: int, require_initial_checkpoint := false, completes_opening := false,
+		opening_audio: AudioStreamPlayer = null) -> void:
 	if epoch != _epoch or _dead or not active:
 		return
 	get_tree().paused = true
 	var fade := SceneFade.new()
 	get_tree().root.add_child(fade)
-	await fade.fade_to_black(0.22)
+	if is_instance_valid(opening_audio):
+		var start_db := opening_audio.volume_db
+		await fade.fade_to_black(0.45, func(progress: float):
+			if is_instance_valid(opening_audio):
+				opening_audio.volume_db = lerpf(start_db, -60.0, progress))
+		if is_instance_valid(opening_audio):
+			opening_audio.stop()
+	else:
+		await fade.fade_to_black(0.22)
 	if epoch != _epoch or _dead or not active:
 		fade.discard()
 		return
 	if require_initial_checkpoint and MetaProgression.active_run.get("run_id", "") != run_id:
-		if not _checkpoint_active_run():
+		if not _checkpoint_active_run(completes_opening):
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			fade.show_error("挑战起点尚未保存，请重试。", func():
 				fade.discard()
-				_load_current(epoch, true))
+				_load_current(epoch, true, completes_opening))
 			return
 	fade.show_loading()
+	# Present the overlay before a synchronous load can stall rendering.
+	await get_tree().process_frame
 	await get_tree().process_frame
 	if epoch != _epoch or _dead or not active:
 		fade.discard()
@@ -609,7 +650,7 @@ func _load_current(epoch: int, require_initial_checkpoint := false) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		fade.show_error("门扉未能展开，请重试。", func():
 			fade.discard()
-			_load_current(epoch, require_initial_checkpoint))
+			_load_current(epoch, require_initial_checkpoint, completes_opening))
 		push_error("Cannot load campaign stage: " + scene_path())
 		return
 	fade.reveal(3,0.35)
@@ -652,7 +693,6 @@ func _depart_from_hub(hub: StasisHub) -> void:
 		hub.allow_departure_retry()
 		return
 	suppress_entry_history_voice = hub.hub_reason == "post_death"
-	forge_visited = true
 	prepare_departure()
 	_transitioning = true
 	_load_current(_epoch, true)
@@ -662,7 +702,7 @@ func return_to_title() -> void:
 		return
 	# This route must leave the latest room checkpoint intact.
 	var title := (load(TITLE_ENTRY) as PackedScene).instantiate()
-	title.set("title_fallback", true)
+	title.set("allow_cli_bypass", false)
 	_install_noncombat_scene(title)
 
 func _install_noncombat_scene(next: Node) -> void:
@@ -705,7 +745,6 @@ func restart() -> void:
 		return
 	if not begin_run():
 		return
-	forge_visited = true
 	prepare_departure()
 	_transitioning = true
 	_load_current.call_deferred(_epoch)

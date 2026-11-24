@@ -44,7 +44,7 @@ func _run_final_boss() -> void:
 	add_child(_arena)
 	var floor_body := StaticBody3D.new()
 	floor_body.collision_layer = CollisionLayers.WORLD
-	floor_body.collision_mask = 0
+	floor_body.collision_mask = CollisionLayers.NONE
 	floor_body.position = Vector3(0,-0.5,0)
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()

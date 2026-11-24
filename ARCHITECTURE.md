@@ -31,7 +31,7 @@
 
 ## 一个战区的流程
 
-项目入口为 `ui/game_start.tscn`。普通启动显示 `TitleScreen`，由玩家选择首次开场、续关或进入静滞之门。开场穿门时，`RunDirector` 将开场完成标记、挑战历史和首房快照一次落盘。锻造入口位于 `StasisHub` 的皇冠锻造台。fixture 沿旧 `RunState` 路径直达战区，`--skip-opening` 直达战役首房。战役死亡后按 R 直接重开，点「返回静滞之门」进入大厅。战区、大厅和结局都能返回标题页，保留最近的房间快照。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
+项目入口为 `ui/game_start.tscn`。普通启动显示 `TitleScreen`，由玩家选择首次开场、续关或进入静滞之门。开场穿门时，`RunDirector` 将开场完成标记、挑战历史和首房快照一次落盘。锻造入口位于 `StasisHub` 的皇冠锻造台。fixture 沿旧 `RunState` 路径直达战区，`--skip-opening` 直达战役首房。战役死亡后按 R 直接重开，点「返回静滞之门」进入大厅。战区、大厅和结局都能返回标题页，保留最近的房间快照；标题页和大厅的「设置与按键」在没有 `Player` 时也可用。`active_run` 只在进入新房间、`0:0` 选卡完成时写入，死亡、和解或确认放弃时原子清空。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
 赐福每清完一个房间领一次（4 领域 × 3 房，最多 12 次），开局另有一次三选一；这对应 AC-04 的后续修订（D-002 于 2026-10-27 改为三次，现为每房一次）。发牌从全部 54 张里抽，不再按房间领域过滤；强化（特性）卡必须先拥有同系核心，双重卡要求两系核心同时在场；一轮最多给一张「会替换现有核心」的卡，其余名额留给特性，三张全是替换时可以直接放弃。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通敲钟 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 

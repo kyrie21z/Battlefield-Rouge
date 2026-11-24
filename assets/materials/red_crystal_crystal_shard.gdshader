@@ -17,8 +17,6 @@ uniform float roughness_value : hint_range(0.0, 1.0) = 0.22;
 
 uniform float inner_glow : hint_range(0.0, 4.0) = 0.15;
 uniform float spec_rim : hint_range(0.0, 1.0) = 0.06;
-// Kept for material compatibility. Writing ALPHA would select the transparent pass.
-uniform float alpha : hint_range(0.0, 1.0) = 1.0;
 
 varying vec3 local_pos;
 

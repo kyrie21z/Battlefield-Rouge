@@ -16,4 +16,3 @@ shader_parameter/spec_color = Color(1, 0.186, 0, 1)
 shader_parameter/specular_amount = 0.95
 shader_parameter/roughness_value = 0.06
 shader_parameter/inner_glow = 0.12
-shader_parameter/alpha = 1.0

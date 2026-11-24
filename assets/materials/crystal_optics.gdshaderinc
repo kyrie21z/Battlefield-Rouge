@@ -16,7 +16,6 @@ vec3 quantize_crystal_plane(vec3 d) {
 }
 
 float studio_env(vec3 d) {
-	// Bright studio panels with negative fill below the horizon.
 	float top_panel = smoothstep(0.58, 0.72, d.y) * 0.95;
 	float key_panel = pow(max(dot(d, normalize(vec3(0.54, 0.64, 0.55))), 0.0), 30.0) * 2.0;
 	float side_strip = pow(max(dot(d, normalize(vec3(-0.76, 0.28, -0.58))), 0.0), 18.0) * 1.05;
@@ -25,7 +24,6 @@ float studio_env(vec3 d) {
 	return (top_panel + key_panel + side_strip + horizon) * (0.22 + 0.78 * floor_dark);
 }
 
-// Non-periodic internal crystal depth and caustic sheen along the refracted ray.
 vec2 internal_refraction(vec3 pos, vec3 r_in, vec3 n_world) {
 	vec3 p = pos * 2.1 + r_in * 0.65;
 	float w1 = sin(dot(p, vec3(1.73, 2.41, -1.97)));
@@ -56,17 +54,14 @@ CrystalSurface evaluate_crystal(
 	vec3 n_world = normalize((inv_view_matrix * vec4(n, 0.0)).xyz);
 	vec3 v_world = normalize((inv_view_matrix * vec4(frag_view, 0.0)).xyz);
 
-	// Quartz requires low HSV saturation and a bright base color.
 	float cmax = max(base_color.r, max(base_color.g, base_color.b));
 	float cmin = min(base_color.r, min(base_color.g, base_color.b));
 	float sat = (cmax - cmin) / max(cmax, 0.001);
 	float is_quartz = (1.0 - smoothstep(0.08, 0.26, sat)) * smoothstep(0.45, 0.72, cmax);
 
-	// High-IOR Schlick Fresnel (quartz ~1.55, colored gem ~1.77)
 	float f0 = mix(0.11, 0.08, is_quartz);
 	float fresnel = f0 + (1.0 - f0) * pow(1.0 - ndv, 4.2);
 
-	// Reflect the refracted ray off a quantized back facet to approximate TIR.
 	float ior = mix(1.77, 1.55, is_quartz);
 	vec3 r_out = reflect(-v_world, n_world);
 	vec3 r_in = refract(-v_world, n_world, 1.0 / ior);
@@ -77,7 +72,6 @@ CrystalSurface evaluate_crystal(
 	float inner_spec = studio_env(r_tir);
 	vec2 inner = internal_refraction(crystal_pos, r_in, n_world);
 
-	// Normalize the hue so dark gems keep colored refracted highlights.
 	vec3 gem_hue = base_color / max(cmax, 0.001);
 	vec3 deep_core = mix(
 		base_color * 0.24 + gem_hue * 0.035,
@@ -95,7 +89,6 @@ CrystalSurface evaluate_crystal(
 		is_quartz
 	);
 
-	// Strong dark-core to bright-facet internal refraction step
 	float inner_light = clamp(inner_spec * 0.66 + inner.x * 0.22 + pow(1.0 - ndv, 1.9) * 0.36, 0.0, 1.0);
 	vec3 crystal_body = mix(deep_core, mid_crystal, smoothstep(0.08, 0.50, inner_light));
 	crystal_body = mix(crystal_body, bright_refract, smoothstep(0.54, 0.94, inner_light));

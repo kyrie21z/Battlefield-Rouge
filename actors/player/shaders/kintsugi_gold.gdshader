@@ -3,6 +3,9 @@ render_mode depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
 #include "res://assets/materials/crystal_optics.gdshaderinc"
 
+uniform vec4 base_color : source_color = vec4(0.8, 0.81, 0.83, 1.0);
+uniform vec4 emission_color : source_color = vec4(0.3, 0.31, 0.33, 1.0);
+uniform vec4 rim_color : source_color = vec4(0.92, 0.95, 1.0, 1.0);
 uniform vec4 accent : source_color = vec4(1.0, 0.62, 0.12, 1.0);
 uniform float seam_width = 0.0016;
 uniform float restored : hint_range(0.0, 1.0) = 1.0;
@@ -17,11 +20,10 @@ void vertex() {
 	rest_position = VERTEX;
 }
 void fragment() {
-	// Match the protagonist material's source colors in linear space.
 	CrystalSurface crystal = evaluate_crystal(
 		VERTEX, NORMAL, VIEW, INV_VIEW_MATRIX, rest_position,
-		vec3(0.603827, 0.620916, 0.655931), vec3(0.073239, 0.078288, 0.088982), 0.16,
-		vec3(0.827571, 0.890005, 1.000000), 0.45, 2.6, vec3(1.0), 0.95, 0.06, 0.12, 1.0
+		base_color.rgb, emission_color.rgb, 0.16,
+		rim_color.rgb, 0.45, 2.6, vec3(1.0), 0.95, 0.06, 0.12, 1.0
 	);
 	float d = 100.0;
 	if ((edges & 1) != 0) { d = min(d, distances.x); }

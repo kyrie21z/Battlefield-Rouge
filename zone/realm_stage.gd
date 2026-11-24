@@ -26,6 +26,12 @@ const SLOTH_HASTE := 0.12
 const REALMS := ["sloth","fear","wrath","sorrow"]
 const TITLES := ["怠惰 · 凝滞庭院","恐惧 · 破碎长廊","愤怒 · 焦灼竞技场","悲伤 · 泪海"]
 const BOSSES := ["sloth_colossus","fear_oculus","wrath_spire","sorrow_monolith"]
+const ESCORT_SCENES := [
+	"res://actors/enemy/sloth/sloth_enemy.tscn",
+	"res://actors/enemy/fear/fear_realm_enemy.tscn",
+	"res://actors/enemy/wrath/wrath_realm_enemy.tscn",
+	"res://actors/enemy/sorrow/sorrow_realm_enemy.tscn",
+]
 const SHARD := preload("res://zone/psyche_shard_pickup.tscn")
 const PLAYER := preload("res://actors/player/player.tscn")
 const PICKER := preload("res://ui/boon_picker/boon_picker.tscn")
@@ -33,6 +39,7 @@ var player: Player
 var geometry: Node3D
 var enemies: Array[Enemy] = []
 var boss: Enemy
+var boss_escorts: Array[Enemy] = []
 var boss_drop_position := Vector3.ZERO
 var shard: PsycheShardPickup
 var boss_defeated := false
@@ -262,6 +269,52 @@ func _spawn_boss() -> void:
 		boss.set("arena",geometry)
 	add_child(boss)
 	_register_actor(boss)
+	if campaign and boss.has_signal("phase_changed"):
+		boss.connect("phase_changed",Callable(self,"_on_boss_phase_changed"))
+
+func _on_boss_phase_changed(new_phase: int) -> void:
+	if new_phase != 2 or not campaign or not boss_room or fallen or boss_defeated:
+		return
+	if not boss_escorts.is_empty():
+		return
+	_spawn_boss_escorts()
+
+## Two flank minions arrive the moment the campaign boss crosses half health.
+## They are real registered enemies but never gate the boss-defeat settlement.
+func _spawn_boss_escorts() -> void:
+	var path: String = ESCORT_SCENES[realm]
+	if not ResourceLoader.exists(path):
+		return
+	var to_player := player.global_position-boss.global_position
+	to_player.y = 0.0
+	if to_player.length() < 0.1:
+		to_player = Vector3.FORWARD
+	to_player = to_player.normalized()
+	var side := to_player.cross(Vector3.UP).normalized()
+	for i in 2:
+		var actor := (load(path) as PackedScene).instantiate() as Enemy
+		if actor is SlothEnemy:
+			(actor as SlothEnemy).kind = SlothEnemy.Kind.LINGERER
+			(actor as SlothEnemy).realm_encounter = true
+		elif "variant" in actor:
+			actor.set("variant",i%3)
+		if "opening_delay" in actor:
+			actor.set("opening_delay",0.5+i*0.2)
+		if "arena" in actor:
+			actor.set("arena",geometry)
+		var desired := boss.global_position+side*(5.0 if i == 0 else -5.0)+to_player*2.0
+		var landing := NavigationServer3D.map_get_closest_point(_region.get_navigation_map(),desired)
+		actor.position = landing+Vector3.UP*0.1
+		add_child(actor)
+		_register_actor(actor)
+		boss_escorts.append(actor)
+
+func _clear_boss_escorts() -> void:
+	for escort in boss_escorts:
+		if is_instance_valid(escort) and not escort.health.is_dead():
+			escort.health.apply_damage(escort.health.max_health+escort.health.shield_points+1.0,
+				Hitbox.BodyPart.BODY,boss,{"true_damage":true,"allow_friendly_fire":true})
+	boss_escorts.clear()
 
 func _register_actor(actor: Enemy) -> void:
 	var damage_scale := maxf(0.1,difficulty_multiplier)
@@ -290,10 +343,13 @@ func living_enemies() -> int:
 	return count
 
 func _check_clear() -> void:
-	if cleared or fallen or living_enemies() > 0:
+	if cleared or fallen:
 		return
 	if boss_room:
-		_finish_boss_defeat()
+		if not is_instance_valid(boss) or boss.health.is_dead():
+			_finish_boss_defeat()
+		return
+	if living_enemies() > 0:
 		return
 	cleared = true
 	stage_cleared.emit(self)
@@ -303,6 +359,7 @@ func _finish_boss_defeat() -> void:
 	if boss_defeated:
 		return
 	boss_defeated = true
+	_clear_boss_escorts()
 	if not deprivations.has(realm):
 		deprivations.append(realm)
 	player.fragments.configure_deprivation(deprivations)

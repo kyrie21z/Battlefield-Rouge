@@ -2,12 +2,14 @@ class_name SlothColossus
 extends SlothRealmEnemy
 ## Colossus keeps the Enemy/Health contract while choosing three authored attacks.
 signal realm_defeated(realm_id: int)
+signal phase_changed(new_phase: int)
 var arena: Node3D
 var active_attack: SlothColossusAttack
 var attack_index := 0
 var attacks_started := 0
 var recovery_left := 0.0
 var defeated_once := false
+var boss_phase := 1
 
 func _enter_tree() -> void:
 	var visual_node := $Model as SlothRealmVisual
@@ -25,6 +27,7 @@ func _ready() -> void:
 	eye_height = 3.8
 	cooldown_left = 1.2
 	visual.play_motion("CowerIdle")
+	health.after_damage.connect(_on_phase_damage)
 
 func setup(p_target: CharacterBody3D, p_cover_points: Array[CoverPoint],
 		p_firing_board: FiringPositionBoard = null) -> void:
@@ -62,9 +65,26 @@ func start_attack(kind: int) -> bool:
 
 func attack_finished() -> void:
 	active_attack = null
-	recovery_left = 1.4
-	cooldown_left = 1.8 if health.health>health.max_health*0.5 else 1.2
+	if boss_phase >= 2:
+		recovery_left = 1.0
+		cooldown_left = 0.9
+	else:
+		recovery_left = 1.4
+		cooldown_left = 1.8 if health.health>health.max_health*0.5 else 1.2
 	visual.set_cast(0)
+
+func _on_phase_damage(_context: Dictionary) -> void:
+	if boss_phase != 1 or health.is_dead():
+		return
+	if health.health > health.max_health*0.50+0.001:
+		return
+	boss_phase = 2
+	boss_phase_tempo_scale = 1.20
+	health.max_shield = roundf(health.max_health*0.15)
+	health.shield_points = health.max_shield
+	health.shield_regeneration_rate = 0.0
+	health.shield_changed.emit(health.shield_points)
+	phase_changed.emit(2)
 
 func _on_damaged(amount: float,part: Hitbox.BodyPart,source: Node) -> void:
 	super._on_damaged(amount,part,source)

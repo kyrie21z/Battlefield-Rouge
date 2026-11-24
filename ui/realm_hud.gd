@@ -261,6 +261,13 @@ func _update_boss_readout() -> void:
 				_boss_state.add_theme_stylebox_override("normal",
 					EditorialStyle.plaque(EditorialStyle.SHIELD, EditorialStyle.SHIELD, 0, Vector2.ZERO, Color.TRANSPARENT, 7, 2))
 			_boss_state.show()
+		elif int(stage.boss.get("boss_phase")) >= 2:
+			if _boss_state.text != "二阶段":
+				_boss_state.text = "二阶段"
+				_boss_state.add_theme_color_override("font_color", EditorialStyle.PAPER)
+				_boss_state.add_theme_stylebox_override("normal",
+					EditorialStyle.plaque(EditorialStyle.GOLD, EditorialStyle.GOLD, 0, Vector2.ZERO, Color.TRANSPARENT, 7, 2))
+			_boss_state.show()
 		else:
 			_boss_state.text = ""
 			_boss_state.hide()

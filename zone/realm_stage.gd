@@ -9,6 +9,8 @@ signal reward_selected(stage: RealmStage, card: BoonData)
 signal reroll_spent(stage: RealmStage)
 signal player_fallen(stage: RealmStage, cause: StringName)
 signal retry_requested(stage: RealmStage)
+signal hub_requested(stage: RealmStage)
+signal title_requested(stage: RealmStage)
 @export_range(0,3) var realm: int = 0
 @export var room_index: int = 0
 @export var boss_room := false
@@ -630,6 +632,12 @@ func retry() -> void:
 	elif get_tree().current_scene == self:
 		get_tree().paused = false
 		get_tree().reload_current_scene.call_deferred()
+
+func request_hub() -> void:
+	hub_requested.emit(self)
+
+func request_title() -> void:
+	title_requested.emit(self)
 
 func request_exit() -> bool:
 	if not exit_ready or fallen or transitioning or get_tree().paused:

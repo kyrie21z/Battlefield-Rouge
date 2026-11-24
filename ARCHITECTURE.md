@@ -15,6 +15,7 @@
 | `buffs/` | 增益，每个增益一个 `.tres`。流派身份是 `School`（图标和方向，不含效果数值） |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
+| `levels/` | 战役组合场景（如 `levels/stasis_hub/` 静滞之门大厅、`levels/climax/` 终局回廊）；可组合 UI 与 autoload，不持有对局状态 |
 | `environments/sloth/` | 整合草稿的纯场景几何、碰撞、掩体点与材质，不控制关卡进度 |
 | `tools/` | 编辑器外的辅助脚本 |
 | `docs/` | 设计文档。游戏方向以 `docs/CREATIVE_VISION.md` 为准；本轮范围和验收看 `docs/Cut-002.md`，它未改动的玩法规则沿用 `docs/Cut-001b.md`、`docs/MVP_Scope.md` |

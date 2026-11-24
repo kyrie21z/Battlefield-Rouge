@@ -26,7 +26,9 @@ func run_checks() -> void:
 	player.set_physics_process(false)
 	player.dash.set_physics_process(false)
 	await frames(3)
-	check("three real trap slabs and four connected encounter platforms", realm.tiles.size() == 3 and realm.spawn_points().size() == 4)
+	check("three real trap slabs and eight connected encounter platforms", realm.tiles.size() == 3 and realm.spawn_points().size() == 8)
+	check("the four legacy island spawn points stay first",
+		realm.spawn_points().slice(0,4) == [Vector3(-7,0,8),Vector3(7,0,8),Vector3(-7,0,-8),Vector3(7,0,-8)])
 	var connected := true
 	for z in range(-20, 19):
 		connected = connected and ground_at(Vector3(0.7, 0, z))

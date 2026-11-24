@@ -1,6 +1,7 @@
 class_name FearOculus
 extends Enemy
 signal defeated
+signal phase_changed(new_phase: int)
 @export var realm_damage_scale := 1.0
 @export var warnings_enabled := true:
 	set(value):
@@ -23,6 +24,8 @@ var _beam_material: StandardMaterial3D
 var _projectiles: Array[WeakRef] = []
 var _alarm: AudioStreamPlayer3D
 var _started := false
+var boss_phase := 1
+var _second_ring_left := -1.0
 
 func _ready() -> void:
 	enable_crystal_feedback(1)
@@ -35,6 +38,7 @@ func _ready() -> void:
 	health.headshot_multiplier = 1.5
 	health.before_damage.connect(_before_damage)
 	health.died.connect(_on_died)
+	health.after_damage.connect(_on_phase_damage)
 	_hitbox_rids.append(get_rid())
 	for node in find_children("*", "Hitbox", true, false):
 		_hitbox_rids.append((node as Hitbox).get_rid())
@@ -88,6 +92,11 @@ func _physics_process(delta: float) -> void:
 func advance_attack(delta: float) -> void:
 	if get_tree().paused or health.is_dead() or not is_instance_valid(target):
 		return
+	if _second_ring_left > 0.0:
+		_second_ring_left -= delta
+		if _second_ring_left <= 0.0:
+			_second_ring_left = -1.0
+			_release_offset_ring()
 	phase_time += delta
 	visual.charge = minf(1.0, phase_time / windup()) if phase == 0 and warnings_enabled else 0.1
 	match phase:
@@ -120,7 +129,8 @@ func advance_attack(delta: float) -> void:
 				_beam.hide()
 		2:
 			visual.charge = 0.85
-			if phase_time >= 1.4 / maxf(effective_attack_scale(), 0.1):
+			var recovery := 1.05 if boss_phase >= 2 else 1.4
+			if phase_time >= recovery / maxf(effective_attack_scale(), 0.1):
 				start_attack((attack_kind + 1) % 3)
 
 func windup() -> float:
@@ -152,6 +162,29 @@ func release_ring() -> void:
 		var bullet := Projectile.spawn(get_parent(), global_position + Vector3.UP * 1.1 + direction * 1.0,
 			direction, self, 12.0 * realm_damage_scale, 13.0, _hitbox_rids, Color(0.6, 0.2, 0.95))
 		_projectiles.append(weakref(bullet))
+	if boss_phase >= 2:
+		_second_ring_left = 0.35
+
+func _release_offset_ring() -> void:
+	for index in 12:
+		var angle := TAU * (float(index) + 0.5) / 12.0
+		var direction := Vector3(sin(angle), 0, cos(angle))
+		var bullet := Projectile.spawn(get_parent(), global_position + Vector3.UP * 1.1 + direction * 1.0,
+			direction, self, 12.0 * realm_damage_scale, 13.0, _hitbox_rids, Color(0.6, 0.2, 0.95))
+		_projectiles.append(weakref(bullet))
+
+func _on_phase_damage(_context: Dictionary) -> void:
+	if boss_phase != 1 or health.is_dead():
+		return
+	if health.health > health.max_health * 0.50:
+		return
+	boss_phase = 2
+	boss_phase_tempo_scale = 1.20
+	health.max_shield = roundf(health.max_health * 0.15)
+	health.shield_points = health.max_shield
+	health.shield_regeneration_rate = 0.0
+	health.shield_changed.emit(health.shield_points)
+	phase_changed.emit(2)
 
 func set_beam(direction: Vector3, radius: float, distance: float) -> void:
 	_beam_mesh.top_radius = radius
@@ -174,6 +207,7 @@ func _on_died(_source: Node) -> void:
 		return
 	state = State.DEAD
 	_started = false
+	_second_ring_left = -1.0
 	_beam.hide()
 	_alarm.stop()
 	collision_layer = 0

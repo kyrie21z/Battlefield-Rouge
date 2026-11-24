@@ -1,5 +1,5 @@
-extends Node
 ## The boot entry owns the title and opening handoff. RunDirector owns the campaign.
+extends Node
 const TITLE := "res://ui/title_screen/title_screen.tscn"
 const OPENING := "res://ui/cinematics/opening_sequence.tscn"
 
@@ -21,8 +21,7 @@ func _ready() -> void:
 
 
 func _enter_direct() -> void:
-	# The RunState command-line redirect may already own a later fixture.
-	if get_tree().current_scene != self:
+	if not is_inside_tree() or get_tree().current_scene != self:
 		return
 	if RunState.fixture != null:
 		get_tree().change_scene_to_file(RunState.zone_scene())

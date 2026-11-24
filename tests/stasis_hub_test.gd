@@ -270,10 +270,10 @@ func _test_title_and_ending() -> void:
 		tree.current_scene.scene_file_path == TITLE and RunDirector.run_count == 3
 		and tree.current_scene.get("title_screen") is TitleScreen)
 	await _show_ending()
-	_find_button(tree.current_scene, "开启新的挑战").pressed.emit()
+	_find_button(tree.current_scene, "返回静滞之门").pressed.emit()
 	await _frames()
 	var hub := tree.current_scene as StasisHub
-	_check("EndingMenu new challenge opens a quiet epilogue Hub",
+	_check("EndingMenu Hub exit opens a quiet epilogue Hub",
 		hub != null and hub.hub_reason == "epilogue" and hub.crown.played_keys.is_empty()
 		and RunDirector.run_count == 3)
 	var requests: Array[bool] = []
@@ -293,14 +293,14 @@ func _test_title_and_ending() -> void:
 	await _frames()
 	hub = tree.current_scene as StasisHub
 	if hub == null:
-		_check("EndingMenu Hub exit opens StasisHub", false)
+		_check("EndingMenu Hub exit reopens StasisHub", false)
 		return
 	_place_player(hub.player, Vector3(0, 0.02, -8.5), Vector3(0, 1.5, -10.5))
 	await _physics_frames()
 	await _capture("hub-gate")
 	_send_action(&"interact")
 	await _wait_for_room()
-	_check("alternate EndingMenu Hub exit supports interact departure",
+	_check("EndingMenu Hub exit supports interact departure",
 		tree.current_scene is RealmStage and RunDirector.run_count == 4)
 
 

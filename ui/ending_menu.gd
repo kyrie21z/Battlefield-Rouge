@@ -48,20 +48,12 @@ func _ready() -> void:
 	box.add_child(EditorialStyle.make_rule(EditorialStyle.PAPER_DIM, 2))
 
 	var start := Button.new()
-	start.text = "开启新的挑战  →"
+	start.text = "返回静滞之门  →"
 	start.custom_minimum_size = Vector2(360, 56)
 	start.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	EditorialStyle.style_button(start, true, true, 20)
 	start.pressed.connect(_start_new_challenge)
 	box.add_child(start)
-
-	var hub_button := Button.new()
-	hub_button.text = "返回静滞之门"
-	hub_button.custom_minimum_size = Vector2(360, 48)
-	hub_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	EditorialStyle.style_button(hub_button, false, true, 18)
-	hub_button.pressed.connect(_start_new_challenge)
-	box.add_child(hub_button)
 
 	_archive_button = Button.new()
 	_archive_button.text = "心象日记"

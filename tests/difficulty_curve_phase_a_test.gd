@@ -181,13 +181,15 @@ func _run_depth_curve() -> void:
 				and is_equal_approx(actor.realm_damage_scale,float(profile["damage_scale"])) \
 				and is_equal_approx(actor.realm_tempo_scale,tempo)
 			var authored := _authored_base_stats(actor)
-			health_ok = health_ok and is_equal_approx(actor.health.max_health,float(authored["hp"])*float(profile["hp_scale"]))
+			var elite_hp := 1.25 if actor.is_elite else 1.0
+			health_ok = health_ok and is_equal_approx(actor.health.max_health,float(authored["hp"])*elite_hp*float(profile["hp_scale"]))
 			var base_speed := float(authored["speed"])
-			var expected := 0.0 if is_zero_approx(base_speed) else base_speed*(1.0+(tempo-1.0)*0.5)
+			var elite_tempo := actor.elite_tempo_scale if actor.is_elite else 1.0
+			var expected := 0.0 if is_zero_approx(base_speed) else base_speed*(1.0+((tempo*elite_tempo)-1.0)*0.5)
 			speed_ok = speed_ok and is_equal_approx(actor.run_speed,expected)
 		check("depth %d actors carry the hp/damage/tempo vector" % [depth+1],vector_ok)
-		check("depth %d real max health follows %.2fx" % [depth+1,float(profile["hp_scale"])],health_ok)
-		check("depth %d run speed follows half-strength tempo" % [depth+1],speed_ok)
+		check("depth %d real max health follows %.2fx for elites and regulars" % [depth+1,float(profile["hp_scale"])],health_ok)
+		check("depth %d run speed follows half-strength tempo with the elite layer" % [depth+1],speed_ok)
 		check("depth %d keeps the scalar damage entry at %.2f" % [depth+1,float(profile["damage_scale"])],
 			is_equal_approx(RunDirector.difficulty(depth),float(profile["damage_scale"])))
 	check("four depths host all four realms in production rooms",realms==[0,1,2,3])
@@ -326,8 +328,7 @@ func _run_fragment_sustain() -> void:
 	player.health.health = 40.0
 	for actor in stage.enemies:
 		actor.set_physics_process(false)
-		actor.health.apply_damage(100000,Hitbox.BodyPart.BODY,player,{"true_damage":true})
-	await _frames(6)
+	await _clear_all_waves(stage)
 	check("the Sorrow shard restores the 40 point Tenderness barrier",
 		is_equal_approx(player.fragments.barrier,PsycheFragments.TENDERNESS_CAPACITY)
 		and is_equal_approx(PsycheFragments.TENDERNESS_CAPACITY,40.0))
@@ -504,6 +505,20 @@ func _authored_base_stats(actor: Enemy) -> Dictionary:
 		var v := (actor as SorrowRealmEnemy).variant
 		return {"hp":[110.0,230.0,130.0][v],"speed":[2.7,1.6,0.7][v]}
 	return {"hp":actor.health.max_health,"speed":actor.run_speed}
+
+
+func _clear_all_waves(stage: RealmStage) -> void:
+	stage.wave_spawned.connect(func(s: RealmStage, _wave: int, _total: int) -> void:
+		for actor in s.enemies:
+			actor.set_physics_process(false))
+	var guard := 0
+	while (stage.living_enemies() > 0 or stage.has_pending_waves()) and guard < 16:
+		for actor in stage.enemies:
+			actor.set_physics_process(false)
+			if is_instance_valid(actor) and not actor.health.is_dead():
+				actor.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
+		await _frames(4)
+		guard += 1
 
 
 func _install_run_room(depth: int, deprivations: Array, room: int,

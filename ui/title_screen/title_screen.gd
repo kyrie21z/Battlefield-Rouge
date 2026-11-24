@@ -134,7 +134,6 @@ func show_error(message: String) -> void:
 
 
 func _position_gallery() -> void:
-	# Keep the same portrait size and centre as the viewport grows sideways.
 	var aspect := size.x / maxf(size.y, 1.0)
 	_camera.h_offset = -0.205 * _camera.size * aspect
 	_update_pose()
@@ -154,7 +153,7 @@ func _apply_motion() -> void:
 	_body.fracture.set_process(not _settings.reduced_motion)
 	if is_instance_valid(_flow):
 		_flow.reduced_motion = _settings.reduced_motion
-		_flow._process(0.0)
+		_flow.refresh()
 	if _settings.reduced_motion:
 		_time = 0.0
 		_parallax = Vector2.ZERO

@@ -215,6 +215,17 @@ func player_spawn() -> Vector3:
 	return Vector3(0, 0, 16)
 
 
+## Legacy five first, then open basin floor clear of BasinRuins, platform
+## edges and the boundary walls in both chamber styles.
+func spawn_points() -> Array[Vector3]:
+	return [
+		Vector3(-8, 0.1, 3), Vector3(11.5, 0.1, -4), Vector3(0, 0.1, -12),
+		Vector3(-11, 0.1, -12), Vector3(11, 0.1, -14),
+		Vector3(-14, 0.1, 10), Vector3(14, 0.1, 8),
+		Vector3(-12, 0.1, -19), Vector3(2, 0.1, 8),
+	]
+
+
 func exit_position() -> Vector3:
 	return Vector3(0, 0, -20)
 

@@ -162,11 +162,31 @@ var realm_tempo_scale := 1.0
 var _base_run_speed := -1.0
 var _base_max_health := -1.0
 
+## Additive tempo layers beside the boon status and realm depth axes. Boon
+## refreshes and set_realm_tempo() never write them.
+var is_elite := false
+var elite_tempo_scale := 1.0
+var boss_phase_tempo_scale := 1.0
+var _elite_shield_ratio := 0.65
+var _elite_hp_bonus := 1.25
+var _elite_tempo_bonus := 1.10
+var _elite_pending := false
+var _elite_visual_scaled := false
+var _elite_halo: MeshInstance3D
+
+const ELITE_SHIELD_REGEN_DELAY := 5.5
+const ELITE_SHIELD_REGEN_FRACTION := 0.10
+const ELITE_HALO_SPIN := 1.6
+const ELITE_MODEL_SCALE := 1.12
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_READY:
 		ensure_hit_reaction()
 		if not is_equal_approx(realm_tempo_scale, 1.0):
 			set_realm_tempo(realm_tempo_scale)
+		if _elite_pending:
+			_elite_pending = false
+			_finalize_elite()
 
 
 ## Every actor that has not authored its own HitReaction gets the shared one, so
@@ -655,6 +675,9 @@ func _on_died(_source: Node) -> void:
 	velocity = Vector3.ZERO
 	collision_layer = CollisionLayers.NONE
 	_set_hitboxes_layer(CollisionLayers.NONE)
+	if is_instance_valid(_elite_halo):
+		_elite_halo.queue_free()
+	_elite_halo = null
 	_anim.play("Death")
 	Events.enemy_killed.emit(self)
 
@@ -663,15 +686,16 @@ func set_boon_animation_scale(value: float) -> void:
 	if is_instance_valid(_anim):
 		_anim.speed_scale = value
 
-## Combined attack cadence: the boon status layer and the room's depth tempo
-## multiply, so a slow card stays effective under any realm haste.
+## Combined attack cadence: boon status, realm depth tempo and the additive
+## elite/boss-phase layers multiply, so a slow card stays effective under any
+## haste and no refresh path can wipe the bonus layers.
 func effective_attack_scale() -> float:
-	return boon_attack_scale * realm_tempo_scale
+	return boon_attack_scale * realm_tempo_scale * elite_tempo_scale * boss_phase_tempo_scale
 
-## Combined windup: boon extends it, realm tempo shortens it. One division, so
-## a hastened room never compresses a windup twice.
+## Combined windup: boon extends it, every tempo layer shortens it. One
+## division, so a hastened room never compresses a windup twice.
 func effective_windup_scale() -> float:
-	return boon_windup_scale / realm_tempo_scale
+	return boon_windup_scale / (realm_tempo_scale * elite_tempo_scale * boss_phase_tempo_scale)
 
 ## Idempotent. Only regular patrol/chase speed follows tempo at half strength;
 ## a standing actor stays at 0.0 and lunge/knockback impulses are untouched.
@@ -679,11 +703,7 @@ func set_realm_tempo(value: float) -> void:
 	realm_tempo_scale = maxf(value,0.25)
 	if not is_node_ready():
 		return
-	_snapshot_run_speed()
-	if is_zero_approx(_base_run_speed):
-		run_speed = 0.0
-	else:
-		run_speed = _base_run_speed * (1.0 + (realm_tempo_scale - 1.0) * 0.5)
+	_refresh_tempo_speed()
 
 ## Idempotent realm entry point used by RealmStage when it registers an actor.
 ## Health follows the scaled maximum while keeping the current health ratio.
@@ -694,9 +714,89 @@ func apply_realm_scaling(hp_scale: float, damage_scale: float, tempo_scale: floa
 		var ratio := clampf(health.health / health.max_health,0.0,1.0)
 		health.max_health = _base_max_health * realm_hp_scale
 		health.health = clampf(health.max_health * ratio,0.0,health.max_health)
+		if is_elite:
+			_sync_elite_shield(health, health.shield_points / maxf(health.max_shield,0.001))
 	if "realm_damage_scale" in self:
 		set("realm_damage_scale",maxf(damage_scale,0.0))
 	set_realm_tempo(tempo_scale)
+
+## Idempotent elite promotion. The hp bonus folds into the base snapshot, so
+## calling this before or after apply_realm_scaling() lands on the same
+## max_health == _base_max_health * realm_hp_scale, and the crystal shield
+## always tracks that scaled maximum.
+func apply_elite(shield_ratio := 0.65, hp_bonus := 1.25, tempo_bonus := 1.10) -> void:
+	if is_elite:
+		if is_node_ready() and not _elite_pending:
+			_ensure_elite_halo()
+		return
+	_elite_shield_ratio = clampf(shield_ratio,0.0,1.0)
+	_elite_hp_bonus = maxf(hp_bonus,1.0)
+	_elite_tempo_bonus = maxf(tempo_bonus,1.0)
+	elite_tempo_scale = _elite_tempo_bonus
+	is_elite = true
+	if not is_node_ready():
+		_elite_pending = true
+		return
+	_finalize_elite()
+
+func _finalize_elite() -> void:
+	var hp := health if health != null else get_node_or_null("Health") as Health
+	if hp == null:
+		return
+	var ratio := clampf(hp.health / maxf(hp.max_health,0.001),0.0,1.0)
+	if _base_max_health < 0.0:
+		_base_max_health = hp.max_health
+	_base_max_health *= _elite_hp_bonus
+	hp.max_health = _base_max_health * realm_hp_scale
+	hp.health = clampf(hp.max_health * ratio,0.0,hp.max_health)
+	_sync_elite_shield(hp, 1.0)
+	_refresh_tempo_speed()
+	_ensure_elite_halo()
+	var model := get_node_or_null("Model") as Node3D
+	if model != null and not _elite_visual_scaled:
+		_elite_visual_scaled = true
+		model.scale *= ELITE_MODEL_SCALE
+
+func _sync_elite_shield(hp: Health, fill_fraction: float) -> void:
+	hp.max_shield = roundf(hp.max_health * _elite_shield_ratio)
+	hp.shield_points = hp.max_shield * clampf(fill_fraction,0.0,1.0)
+	hp.shield_regeneration_delay = ELITE_SHIELD_REGEN_DELAY
+	hp.shield_regeneration_rate = hp.max_shield * ELITE_SHIELD_REGEN_FRACTION
+
+## Patrol speed follows realm and elite tempo at half strength; the boss phase
+## clock never touches it.
+func _refresh_tempo_speed() -> void:
+	_snapshot_run_speed()
+	if is_zero_approx(_base_run_speed):
+		run_speed = 0.0
+	else:
+		var tempo := realm_tempo_scale * elite_tempo_scale
+		run_speed = _base_run_speed * (1.0 + (tempo - 1.0) * 0.5)
+
+func _ensure_elite_halo() -> void:
+	if is_instance_valid(_elite_halo):
+		return
+	var halo := EliteHalo.new()
+	halo.name = "EliteHalo"
+	halo.host = self
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.30
+	ring.outer_radius = 0.42
+	ring.rings = 6
+	ring.ring_segments = 16
+	halo.mesh = ring
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(1.0, 0.85, 0.4, 0.85)
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.8, 0.35)
+	material.emission_energy_multiplier = 1.5
+	halo.material_override = material
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	halo.position = Vector3(0.0, eye_height + 0.55, 0.0)
+	add_child(halo)
+	_elite_halo = halo
 
 func _snapshot_run_speed() -> void:
 	if _base_run_speed < 0.0:
@@ -791,3 +891,17 @@ func _crystal_damage(context: Dictionary) -> void:
 	var point: Vector3 = global_position + Vector3.UP * eye_height * 0.6 if killed else context.get("position",global_position+Vector3.UP)
 	if CrystalBurst.spawn(get_parent(),point,sin_type,&"death" if killed else &"hit",context.get("direction",Vector3.UP)) != null:
 		crystal_bursts += 1
+
+
+## Presentation-only crystal ring. Realm subclasses own their death callbacks,
+## so the halo also retires itself once the host is dead.
+class EliteHalo extends MeshInstance3D:
+	var host: Enemy
+
+	func _process(delta: float) -> void:
+		if not is_instance_valid(host) or host.health.is_dead():
+			queue_free()
+			return
+		if host.boon_stunned or host.boon_time_scale <= 0.0:
+			return
+		rotate_y(delta * host.boon_time_scale * ELITE_HALO_SPIN)

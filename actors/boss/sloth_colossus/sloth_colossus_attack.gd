@@ -110,6 +110,12 @@ func _wave(radius: float) -> void:
 func _barrage() -> void:
 	var from := caster._eye()+Vector3.UP*0.8
 	var point := target.global_position+Vector3.UP
+	if caster.boss_phase >= 2:
+		for i in 9:
+			var origin := from+Vector3((i-4)*0.45,absf(i-4)*0.12,0)
+			var heading := (point-origin).normalized().rotated(Vector3.UP,(i-4)*0.10)
+			SlothRealmProjectile.launch(caster.get_parent(),origin,heading,caster,12*caster.realm_damage_scale,0.65+i*0.08)
+		return
 	for i in 7:
 		var origin := from+Vector3((i-3)*0.5,absf(i-3)*0.15,0)
 		var heading := (point-origin).normalized().rotated(Vector3.UP,(i-3)*0.065)

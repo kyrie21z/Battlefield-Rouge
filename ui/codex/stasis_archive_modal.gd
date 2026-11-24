@@ -1,6 +1,6 @@
+## Displays snapshots supplied by the hub and owns the modal input state.
 class_name StasisArchiveModal
 extends Control
-## Displays snapshots supplied by the hub and owns the modal input state.
 
 signal closed
 

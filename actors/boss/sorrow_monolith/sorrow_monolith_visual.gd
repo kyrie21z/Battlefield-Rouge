@@ -22,8 +22,8 @@ func _build() -> void:
 	_outfit.add_child(base)
 	if drops != null:
 		drops.position = Vector3(0,4.6,-0.8)
-		drops.amount = 70
-		drops.lifetime = 2.4
+		drops.scale = Vector3.ONE * 2.2
+		configure_drops(18, 2.4)
 func _process(delta: float) -> void:
 	super._process(delta)
 	if _dead:

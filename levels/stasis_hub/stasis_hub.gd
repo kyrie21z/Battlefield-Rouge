@@ -1,6 +1,6 @@
+## The hall owns player interaction and presentation. RunDirector owns departure.
 class_name StasisHub
 extends Node3D
-## The hall owns player interaction and presentation. RunDirector owns departure.
 signal departure_requested
 signal title_requested
 

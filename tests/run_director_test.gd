@@ -94,13 +94,16 @@ func _ready()->void:
 	check("same room snapshot keeps the used healing budget",is_equal_approx(player.fragments.room_healed,12.5))
 	var saved_floor:=RunDirector.floor_index
 	var saved_room:=RunDirector.room_index
+	var saved_defeated:=RunDirector.defeated.duplicate()
 	RunDirector.floor_index=0
 	RunDirector.room_index=0
+	RunDirector.defeated.clear()
 	RunDirector.capture_player(player)
 	check("advancing a room resets the healing budget",RunDirector.advance_room() and RunDirector.room_index==1 and is_zero_approx(float(RunDirector.fragment_state.get("room_healed",-1.0))))
 	check("advancing a room keeps barrier recovery, spite and cooldowns",is_equal_approx(float(RunDirector.fragment_state.get("recovery",-1.0)),2.5) and is_equal_approx(float(RunDirector.fragment_state.get("counter",-1.0)),0.7) and int(RunDirector.fragment_state.get("charge",-1))==2 and is_equal_approx(float(RunDirector.fragment_state.get("resonance",-1.0)),1.5))
 	RunDirector.floor_index=saved_floor
 	RunDirector.room_index=saved_room
+	RunDirector.defeated.assign(saved_defeated)
 	check("new player retains all deprivation rules",player.health.unbuffered and not player.realm_effects.warnings_enabled and player.fragments.deprivations.size()==4)
 	check("new body restores actual fracture level four",player.get_node("ShadowBody").fracture_level==4)
 	check("physical crown restores exponential emission",player.get_node("CrownVoiceSystem").strength>15.0)

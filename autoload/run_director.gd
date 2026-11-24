@@ -54,6 +54,7 @@ var entry_reward_claimed := false
 var suppress_entry_history_voice := false
 var _departure_prepared := false
 var _settled := false
+var _pending_checkpoint: Dictionary = {}
 var _rewarded_kills := {}
 var _rewarded_rooms := {}
 var settlement_error := ""
@@ -75,9 +76,9 @@ func begin_run(value_seed: int = -1, persist_history := true) -> bool:
 	if not run_id.is_empty() and not _settled and (_dead or completed or earned_will>0 or earned_anchors>0):
 		if not settle_rewards():
 			return false
-	# A new campaign must not inherit a stale resumable room from an older one.
 	if MetaProgression.has_active_run():
 		MetaProgression.clear_active_run()
+	_pending_checkpoint.clear()
 	active = true
 	completed = false
 	current_stage = null
@@ -124,7 +125,6 @@ func begin_run(value_seed: int = -1, persist_history := true) -> bool:
 	return true
 
 func start_opening_run(audio: AudioStreamPlayer) -> bool:
-	# Publish the opening flag, history and first room in the same store write.
 	if _transitioning or not begin_run(-1, false):
 		return false
 	prepare_departure(true)
@@ -133,7 +133,6 @@ func start_opening_run(audio: AudioStreamPlayer) -> bool:
 	return true
 
 func prepare_departure(completes_opening := false) -> void:
-	# Apply permanent talents and checkpoint the run before the first combat Player.
 	if _departure_prepared or floor_index != 0 or room_index != 0:
 		return
 	_departure_prepared = true
@@ -145,19 +144,22 @@ func prepare_departure(completes_opening := false) -> void:
 	if starting != null:
 		boons.append(starting)
 	entry_reward_claimed = false
-	# Boundary 1: the run stands at the first room's doorstep. Nothing earned,
-	# nothing claimed, no mid-room state can leak into the checkpoint.
 	_checkpoint_active_run(completes_opening)
 
-## Boundary 2/3 shared writer. Only room-start state is ever captured: a resume
-## restarts the room, so unfinished kills must stay in memory, not on disk.
 func _checkpoint_active_run(completes_opening := false) -> bool:
 	if not active or completed or _dead or run_id.is_empty():
 		return false
 	var snapshot := _active_run_snapshot()
-	if completes_opening:
-		return MetaProgression.mark_opening_completed(snapshot, _history())
-	return MetaProgression.save_active_run(snapshot)
+	var ok := MetaProgression.mark_opening_completed(snapshot, _history()) if completes_opening else MetaProgression.save_active_run(snapshot)
+	if ok:
+		_pending_checkpoint.clear()
+		if is_instance_valid(_save_notice):
+			_save_notice.queue_free()
+			_save_notice = null
+			_save_retry = null
+	elif not completes_opening:
+		_pending_checkpoint = snapshot.duplicate(true)
+	return ok
 
 func _active_run_snapshot() -> Dictionary:
 	var boon_ids: Array[String] = []
@@ -184,19 +186,63 @@ func _active_run_snapshot() -> Dictionary:
 		"defiance_consumed":MetaProgression.defiance_consumed,
 	}
 
-## A spent revival is a monotonic safety latch: leaving mid-room must not hand
-## the player a fresh defiance, but the same room's unfinished kills stay
-## excluded. Only the boolean is rewritten.
 func _revived_for_checkpoint(_player: Player) -> void:
-	if run_id.is_empty() or MetaProgression.active_run.is_empty():
+	var base: Dictionary = _pending_checkpoint if not _pending_checkpoint.is_empty() else MetaProgression.active_run
+	if run_id.is_empty() or base.is_empty():
 		return
-	if str(MetaProgression.active_run.get("run_id","")) != run_id:
+	if str(base.get("run_id","")) != run_id:
 		return
-	if bool(MetaProgression.active_run.get("defiance_consumed",false)):
+	if bool(base.get("defiance_consumed",false)) and _pending_checkpoint.is_empty():
 		return
-	var updated: Dictionary = MetaProgression.active_run.duplicate(true)
+	var updated: Dictionary = base.duplicate(true)
 	updated["defiance_consumed"] = true
-	MetaProgression.save_active_run(updated)
+	if MetaProgression.save_active_run(updated):
+		_pending_checkpoint.clear()
+	else:
+		_pending_checkpoint = updated
+
+func _flush_pending_checkpoint() -> bool:
+	if _pending_checkpoint.is_empty():
+		return true
+	if MetaProgression.save_active_run(_pending_checkpoint):
+		_pending_checkpoint.clear()
+		settlement_error = ""
+		if is_instance_valid(_save_notice):
+			_save_notice.queue_free()
+			_save_notice = null
+			_save_retry = null
+		return true
+	settlement_error = MetaProgression.last_error if not MetaProgression.last_error.is_empty() else "无法保存当前进度"
+	_show_checkpoint_save_failure()
+	return false
+
+func _show_checkpoint_save_failure() -> void:
+	if is_instance_valid(_save_notice):
+		return
+	_save_notice = CanvasLayer.new()
+	_save_notice.layer = 90
+	_save_notice.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_save_notice)
+	var panel := PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.offset_left = -360
+	panel.offset_right = 360
+	panel.offset_top = -100
+	panel.offset_bottom = 100
+	_save_notice.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation",18)
+	panel.add_child(column)
+	var label := Label.new()
+	label.text = "当前房间进度尚未保存\n%s\n请重试保存后再切换场景。" % settlement_error
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size",24)
+	column.add_child(label)
+	_save_retry = Button.new()
+	_save_retry.text = "重试保存"
+	_save_retry.pressed.connect(_flush_pending_checkpoint)
+	column.add_child(_save_retry)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 ## Rebuilds the whole campaign from the stored room-start snapshot and installs
 ## that room. Callers route here instead of begin_run when a checkpoint exists.
@@ -238,9 +284,8 @@ func resume_run(stage_scene: PackedScene = null) -> bool:
 	_rewarded_kills.clear()
 	_rewarded_rooms.clear()
 	_starter_given = false
-	# The saved run already passed its departure; re-running the starter gift
-	# here would duplicate an "初见锋芒" boon.
 	_departure_prepared = true
+	_pending_checkpoint.clear()
 	suppress_entry_history_voice = true
 	MetaProgression.active_run_id = run_id
 	MetaProgression.defiance_consumed = bool(snapshot.get("defiance_consumed",false))
@@ -293,6 +338,7 @@ func _finish_abandoned_run() -> void:
 	entry_reward_claimed = false
 	suppress_entry_history_voice = false
 	_departure_prepared = false
+	_pending_checkpoint.clear()
 	_starter_given = false
 	current_stage = null
 	_epoch += 1
@@ -516,8 +562,6 @@ func install_stage(packed: PackedScene) -> Error:
 		next.set("run_seed",run_seed)
 		next.set("rerolls_remaining",rerolls)
 		if "skip_entry_reward" in next:
-			# The opening gift belongs to a fresh 0:0 entry only. A resumed run
-			# that already claimed it must not be offered the same card twice.
 			next.set("skip_entry_reward",floor_index == 0 and room_index == 0 and entry_reward_claimed)
 		next.configure_run(floor_index,deprivations,shards,hp,boons)
 		next.realm_defeated.connect(_realm_defeated)
@@ -530,6 +574,8 @@ func install_stage(packed: PackedScene) -> Error:
 		next.title_requested.connect(_stage_title, CONNECT_DEFERRED)
 		next.reward_selected.connect(_reward_selected)
 		next.reroll_spent.connect(_reroll_spent)
+	elif next.has_signal("title_requested"):
+		next.connect("title_requested", _stage_title, CONNECT_DEFERRED)
 	var previous := get_tree().current_scene
 	get_tree().paused = false
 	get_tree().root.add_child(next)
@@ -539,8 +585,6 @@ func install_stage(packed: PackedScene) -> Error:
 		previous.queue_free()
 	if "player" in next and next.get("player") is Player:
 		restore_player(next.get("player"))
-	# The suppression belongs to the first restored room only; later floors in
-	# the same session must keep their normal entry lines.
 	suppress_entry_history_voice = false
 	if active and next is RealmStage and current_realm() >= 0:
 		MetaProgression.record_archive(current_realm())
@@ -566,9 +610,7 @@ func _reward_selected(stage: Node, card: BoonData) -> void:
 		return
 	selections.append({"floor":floor_index+1,"room":room_index,"realm":current_realm(),"boon_id":card.id})
 	capture_player(stage.player)
-	if floor_index == 0 and room_index == 0:
-		# Boundary 2: the opening choice is spent. It happens before the room is
-		# cleared, so no mid-room reward can ride along with this write.
+	if floor_index == 0 and room_index == 0 and not entry_reward_claimed and stage.get("cleared") != true:
 		entry_reward_claimed = true
 		_checkpoint_active_run()
 	changed.emit()
@@ -595,6 +637,10 @@ func _stage_exit(stage: Node) -> void:
 func advance_room() -> bool:
 	if not active or _dead or floor_index >= 4:
 		return false
+	var old_floor := floor_index
+	var old_room := room_index
+	var old_fragment_state := fragment_state.duplicate(true)
+	var old_pending := _pending_checkpoint.duplicate(true)
 	if room_index == 2:
 		if not defeated.has(current_realm()) or not shards.has(current_realm()):
 			return false
@@ -602,11 +648,16 @@ func advance_room() -> bool:
 		room_index = 0
 	else:
 		room_index += 1
-	# A new room restores the rest budget only; fragment cooldowns carry over.
 	if not fragment_state.is_empty():
 		fragment_state["room_healed"] = 0.0
-	# Boundary 3: the next room's doorstep, including the floor-5 return corridor.
-	_checkpoint_active_run()
+	if not _checkpoint_active_run():
+		floor_index = old_floor
+		room_index = old_room
+		fragment_state = old_fragment_state
+		_pending_checkpoint = old_pending
+		settlement_error = MetaProgression.last_error if not MetaProgression.last_error.is_empty() else "无法保存当前进度"
+		_show_checkpoint_save_failure()
+		return false
 	changed.emit()
 	return true
 
@@ -700,7 +751,8 @@ func _depart_from_hub(hub: StasisHub) -> void:
 func return_to_title() -> void:
 	if (_dead or completed) and not settle_rewards():
 		return
-	# This route must leave the latest room checkpoint intact.
+	if active and not _dead and not completed and not _flush_pending_checkpoint():
+		return
 	var title := (load(TITLE_ENTRY) as PackedScene).instantiate()
 	title.set("allow_cli_bypass", false)
 	_install_noncombat_scene(title)
@@ -730,7 +782,7 @@ func record_death(cause: StringName) -> void:
 	if current_realm() >= 0:
 		MetaProgression.record_archive(current_realm())
 	if settle_rewards() and not run_id.is_empty():
-		# The run is banked, so its checkpoint must not survive as a second life.
+		_pending_checkpoint.clear()
 		MetaProgression.clear_active_run()
 	run_failed.emit(last_death_depth,cause)
 	changed.emit()

@@ -27,13 +27,15 @@ static func attach(body: ProtagonistBody, colors: Array, source: CrownVoiceSyste
 		entry.node.material_overlay = null
 		flow.materials.append(material)
 		index += 1
-	flow._process(0.0)
+	flow.refresh()
 	return flow
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 func _process(delta: float) -> void:
 	visual_time += delta
+	refresh()
+func refresh() -> void:
 	var reduce := reduced_motion or (is_instance_valid(crown) and crown.reduced_motion)
 	for material in materials:
 		material.set_shader_parameter("visual_time",visual_time)

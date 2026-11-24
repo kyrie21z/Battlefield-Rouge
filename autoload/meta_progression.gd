@@ -187,6 +187,8 @@ func _save_active_run(snapshot: Dictionary, completes_opening: bool, run_history
 		last_error = "残局快照无效"
 		return false
 	var old := _payload()
+	var was_defiance := defiance_consumed
+	var prior_run_id := active_run_id
 	opening_completed = opening_completed or completes_opening
 	if not run_history.is_empty():
 		history = run_history.duplicate()
@@ -195,6 +197,8 @@ func _save_active_run(snapshot: Dictionary, completes_opening: bool, run_history
 	defiance_consumed = bool(active_run.get("defiance_consumed",defiance_consumed))
 	if not save():
 		_restore(old)
+		if was_defiance and active_run_id == prior_run_id:
+			defiance_consumed = true
 		return false
 	changed.emit()
 	return true
@@ -259,7 +263,6 @@ func settle_run(run_id: String,will: int,anchors: int,run_history: Dictionary = 
 	reality_anchors += anchors
 	settled_runs.append(run_id)
 	if str(active_run.get("run_id","")) == run_id:
-		# One transaction, so a banked run can never keep a resumable checkpoint.
 		active_run = {}
 		active_run_id = ""
 	if not run_history.is_empty():

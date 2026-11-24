@@ -198,6 +198,9 @@ func _run() -> void:
 	_check("the clear offer can be taken", _take_reward(stage.selection))
 	await _frames(3)
 	_check("the clear reward opens the next-room gate", stage.exit_ready)
+	_check("the 0:0 clear boon does not leak room income into the 0:0 checkpoint before crossing the gate",
+		int(MetaProgression.active_run.get("earned_will", -1)) == 0
+		and int(MetaProgression.active_run.get("room_index", -1)) == 0)
 
 	var earned_before_exit := RunDirector.earned_will
 	var previous_stage_id := stage.get_instance_id()
@@ -454,6 +457,49 @@ func _run() -> void:
 		and is_equal_approx(reloaded.mouse_sensitivity, 1.35)
 		and not _title._error.visible)
 	await _free_scene()
+
+	# Fault-injection guard: failed checkpoint write keeps defiance_consumed latched
+	# and blocks advance_room / return_to_title until disk recovers.
+	RunDirector.begin_run(27699)
+	RunDirector.prepare_departure()
+	var tmp_blocker := ProjectSettings.globalize_path(MetaProgression.save_path() + ".tmp")
+	DirAccess.make_dir_recursive_absolute(tmp_blocker)
+	MetaProgression.defiance_consumed = true
+	RunDirector._revived_for_checkpoint(null)
+	_check("failed defiance checkpoint write never rolls back in-memory defiance_consumed",
+		MetaProgression.defiance_consumed and not RunDirector._pending_checkpoint.is_empty())
+	var floor_before := RunDirector.floor_index
+	var room_before := RunDirector.room_index
+	_check("advance_room rolls back when checkpoint write fails",
+		not RunDirector.advance_room() and RunDirector.floor_index == floor_before
+		and RunDirector.room_index == room_before)
+	var before_title_scene := tree.current_scene
+	RunDirector.return_to_title()
+	_check("return_to_title refuses to leave while a pending checkpoint cannot flush",
+		tree.current_scene == before_title_scene and RunDirector.active)
+	DirAccess.remove_absolute(tmp_blocker)
+	_check("pending checkpoint flushes cleanly once disk recovers",
+		RunDirector._flush_pending_checkpoint() and bool(MetaProgression.active_run.get("defiance_consumed", false)))
+
+	# Threshold corridor (4:0) exposes a PauseMenu wired to title_requested.
+	var corridor := (load(RunDirector.THRESHOLD) as PackedScene).instantiate()
+	tree.root.add_child(corridor)
+	tree.current_scene = corridor
+	await _frames(2)
+	var corridor_menu := corridor.get("pause_menu") as PauseMenu
+	var corridor_exits: Array[Node] = []
+	corridor.connect("title_requested", func(s: Node): corridor_exits.append(s))
+	_check("threshold corridor mounts a PauseMenu with title exit",
+		corridor_menu != null and corridor_menu.try_open() and corridor_menu._title_exit.visible)
+	if corridor_menu != null:
+		corridor_menu._title_exit.pressed.emit()
+	await _frames(2)
+	_check("threshold corridor PauseMenu emits title_requested",
+		corridor_exits == [corridor] and not tree.paused)
+	corridor.queue_free()
+	tree.current_scene = null
+	await _frames(2)
+	RunDirector.abandon_active_run()
 
 	_restore_settings()
 	for suffix in ["", ".bak", ".tmp"]:

@@ -7,9 +7,11 @@ const NEAR_RANGE := 18.0
 const AIM_COSINE := 0.9902680687 # cos(8 degrees)
 const REVEAL_TIME := 0.10
 const BAR_SIZE := Vector2(58, 5)
+const ELITE_BAR_SIZE := Vector2(72, 6)
 const TRACK_COLOR := Color(0.06, 0.06, 0.07, 0.85)
 const DEFAULT_FILL := Color("f26464")
 const SHIELD_COLOR := Color("73f1ff")
+const ELITE_MARK_COLOR := Color("ffd75e")
 
 class Entry:
 	var enemy: WeakRef
@@ -85,6 +87,7 @@ func _track(node: Node3D) -> void:
 					break
 	_tracked[id] = entry
 	enemy.health.damaged.connect(_on_enemy_damaged.bind(id))
+	enemy.health.shield_changed.connect(_on_enemy_shield_changed.bind(id))
 	enemy.health.died.connect(_on_enemy_died.bind(id), CONNECT_ONE_SHOT)
 	enemy.tree_exiting.connect(_untrack.bind(id), CONNECT_ONE_SHOT)
 
@@ -114,6 +117,28 @@ func _on_enemy_damaged(_amount: float, _part: Hitbox.BodyPart, _source: Node, id
 
 func _on_enemy_died(_source: Node, id: int) -> void:
 	_untrack(id)
+
+
+## A shield-only hit never emits `damaged`, so the reveal and the cyan shield
+## strip refresh here instead.
+func _on_enemy_shield_changed(points: float, id: int) -> void:
+	var entry := _tracked.get(id) as Entry
+	if entry == null:
+		return
+	var enemy := entry.enemy.get_ref() as Enemy
+	var health := enemy.health
+	if health.is_dead():
+		return
+	entry.was_damaged = entry.was_damaged or points < health.max_shield
+	if get_tree().paused:
+		return
+	if _shown.has(id):
+		var bar := _shown[id]
+		bar.shield = points
+		bar.max_shield = health.max_shield
+		if entry.was_damaged:
+			bar.alpha = 1.0
+		queue_redraw()
 
 
 func _untrack(id: int) -> void:
@@ -232,6 +257,7 @@ func _project(id: int, entry: Entry, enemy: Enemy, camera: Camera3D, delta: floa
 		"shield": health.shield_points,
 		"max_shield": health.max_shield,
 		"alpha": entry.alpha,
+		"elite": enemy.is_elite,
 	}
 
 
@@ -239,20 +265,27 @@ func _draw() -> void:
 	if not _can_show():
 		return
 	for bar in _shown.values():
-		var origin: Vector2 = (bar.position - Vector2(BAR_SIZE.x * 0.5, BAR_SIZE.y)).round()
+		var elite: bool = bar.get("elite", false)
+		var size: Vector2 = ELITE_BAR_SIZE if elite else BAR_SIZE
+		var origin: Vector2 = (bar.position - Vector2(size.x * 0.5, size.y)).round()
 		var inner := origin + Vector2.ONE
-		var interior := BAR_SIZE - Vector2(2, 2)
+		var interior := size - Vector2(2, 2)
 		var current := _fill_width(bar.health, bar.max_health, interior.x)
 		var delayed := _fill_width(bar.delayed, bar.max_health, interior.x)
-		draw_rect(Rect2(origin, BAR_SIZE), Color(TRACK_COLOR, TRACK_COLOR.a * bar.alpha))
+		draw_rect(Rect2(origin, size), Color(TRACK_COLOR, TRACK_COLOR.a * bar.alpha))
 		draw_rect(Rect2(inner, Vector2(current, interior.y)), Color(_fill, bar.alpha))
 		if delayed > current:
 			draw_rect(Rect2(inner + Vector2(current, 0), Vector2(delayed - current, interior.y)),
 				Color(Color.WHITE, bar.alpha))
+		if elite:
+			var mark := origin + Vector2(-5.0, size.y * 0.5)
+			draw_colored_polygon(PackedVector2Array([
+				mark + Vector2(0, -3), mark + Vector2(3, 0),
+				mark + Vector2(0, 3), mark + Vector2(-3, 0)]), Color(ELITE_MARK_COLOR, bar.alpha))
 		if bar.max_shield > 0.0 or bar.shield > 0.0:
 			var shield_origin := origin - Vector2(0, 3)
-			var shield_width := _fill_width(bar.shield, maxf(bar.max_shield, bar.shield), BAR_SIZE.x)
-			draw_rect(Rect2(shield_origin, Vector2(BAR_SIZE.x, 2)), Color(TRACK_COLOR, TRACK_COLOR.a * bar.alpha))
+			var shield_width := _fill_width(bar.shield, maxf(bar.max_shield, bar.shield), size.x)
+			draw_rect(Rect2(shield_origin, Vector2(size.x, 2)), Color(TRACK_COLOR, TRACK_COLOR.a * bar.alpha))
 			draw_rect(Rect2(shield_origin, Vector2(shield_width, 2)), Color(SHIELD_COLOR, bar.alpha))
 
 

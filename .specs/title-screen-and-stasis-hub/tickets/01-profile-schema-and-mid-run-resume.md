@@ -3,7 +3,7 @@
 - **GitHub Issue**: `#272`
 - **Parent Spec**: `#271` (`.specs/title-screen-and-stasis-hub/spec.md`)
 - **Blocked by**: None
-- **Status**: `ready-for-agent`
+- **Status**: `done`
 
 ## What to build
 

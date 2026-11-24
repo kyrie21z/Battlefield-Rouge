@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/materials/red_crystal_crystal.gdshader" id="1_crystal"]
+
+[resource]
+shader = ExtResource("1_crystal")
+shader_parameter/base_color = Color(0.88, 0.64, 0.16, 1)
+shader_parameter/emission_color = Color(0.86, 0.60, 0.14, 1)
+shader_parameter/emission_strength = 0.5
+shader_parameter/rim_color = Color(1, 0.89, 0.56, 1)
+shader_parameter/rim_strength = 0.50
+shader_parameter/rim_power = 2.8
+shader_parameter/spec_color = Color(1, 0.95, 0.78, 1)
+shader_parameter/specular_amount = 0.95
+shader_parameter/roughness_value = 0.06
+shader_parameter/inner_glow = 0.16

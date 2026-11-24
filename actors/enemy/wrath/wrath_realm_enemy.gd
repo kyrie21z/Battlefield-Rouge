@@ -7,6 +7,24 @@ const READER_CHASE_SPEED := 9.2
 const READER_LUNGE_SPEED := 20.0
 const READER_LUNGE_DURATION := 0.17
 const READER_RECOVERY := 0.90
+## 穿刺者"疯狗化"：撞墙不再自毁，而是吃一记硬直、叠加一层狂怒，然后立刻再扑。
+## 每层狂怒让它更快、前摇更短，最多叠三层；冲刺前段会小幅度咬向玩家。
+const FRENZY_MAX := 3
+const FRENZY_WINDUP := 0.88
+const FRENZY_SPEED := 1.5
+const FRENZY_CHASE := 0.45
+const FRENZY_STAGGER := 0.75
+const HOMING_RATE := 2.2
+const HOMING_WINDOW := 0.35
+## 蓄压者：压力不只来自被盾挡下的子弹，打头也会喂它，而且放着不管它自己也会涨。
+## 满 100 释放冲击波；每秒自涨 9，等于站着不动约 11 秒也会放一次。
+const PRESSURE_REGEN := 9.0
+const HEAD_PRESSURE_RATIO := 0.6
+## 蓄压者释放的冲击波参数（Boss 的地裂仍用 WrathShockwave 的默认值）。
+## 只削弱伤害与速度，覆盖半径保持上游默认的 18 米。
+const ACCUMULATOR_WAVE_DAMAGE := 11.0
+const ACCUMULATOR_WAVE_RADIUS := 18.0
+const ACCUMULATOR_WAVE_SPEED := 13.0
 @export_enum("Piercer", "Accumulator", "Aggressor", "Reader") var variant := 0
 @export var warnings_enabled := true
 @export var realm_damage_scale := 1.0
@@ -21,6 +39,9 @@ var wave_releases := 0
 var locked_direction := Vector3.FORWARD
 var _contact_hit := false
 var paper_torn := false
+## 穿刺者撞墙后的狂怒层数（0..FRENZY_MAX），其它变体恒为 0。
+var frenzy := 0
+var _rush_elapsed := 0.0
 
 func _enter_tree() -> void:
 	($Model as WrathVisual).kind = variant
@@ -30,9 +51,10 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	enable_crystal_feedback(2)
 	visual = $Model as WrathVisual
-	health.max_health = [110.0, 220.0, 160.0, 90.0][variant]
+	# 血量：穿刺者降到 90（躯干 3 枪、爆头 2 枪），其余沿用上游基准。
+	health.max_health = [90.0, 220.0, 160.0, 90.0][variant]
 	health.health = health.max_health
-	run_speed = [3.6, 1.6, 5.0, READER_WALK_SPEED][variant]
+	run_speed = [3.2, 1.6, 5.0, READER_WALK_SPEED][variant]
 	health.before_damage.connect(_before_damage)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -75,13 +97,19 @@ func _physics_process(delta: float) -> void:
 		_process_reader(delta, flat, offset.y)
 		_boon_move_and_slide()
 		return
+	if variant == Variant.ACCUMULATOR:
+		_tick_pressure(delta)
 	if attack_phase != Attack.RUSH:
 		_face(flat, delta)
-	visual.pressure = pressure / 100.0
-	visual.set_cast(1.0 if warnings_enabled and attack_phase == Attack.WINDUP else 0.0)
+	var pressure_visual := pressure / 100.0
+	if variant == Variant.PIERCER:
+		pressure_visual = maxf(pressure_visual, float(frenzy) / float(FRENZY_MAX))
+	visual.pressure = pressure_visual
+	# 冲刺时也亮起来，读起来像红着眼睛撞过来。
+	visual.set_cast(1.0 if warnings_enabled and attack_phase in [Attack.WINDUP, Attack.RUSH] else 0.0)
 	attack_left -= delta * effective_attack_scale()
 	if attack_phase == Attack.APPROACH:
-		_pursue(flat)
+		_pursue(flat, chase_speed())
 		if variant == Variant.ACCUMULATOR:
 			if distance < 8.0:
 				_stop()
@@ -97,7 +125,16 @@ func _physics_process(delta: float) -> void:
 			if variant == Variant.ACCUMULATOR:
 				release_wave()
 	elif attack_phase == Attack.RUSH:
-		var speed_value := 23.0 if variant == Variant.PIERCER else 14.0
+		var speed_value := 14.0
+		if variant == Variant.PIERCER:
+			_rush_elapsed += delta
+			# 疯狗咬人：冲刺前段小幅追踪，之后方向锁死，留一个能躲的窗口。
+			if _rush_elapsed <= HOMING_WINDOW and flat.length_squared() > 0.01:
+				var to_target := flat.normalized()
+				var turn := locked_direction.signed_angle_to(to_target, Vector3.UP)
+				locked_direction = locked_direction.rotated(Vector3.UP,
+					clampf(turn, -HOMING_RATE * delta, HOMING_RATE * delta))
+			speed_value = 23.0 + frenzy * FRENZY_SPEED
 		velocity.x = locked_direction.x * speed_value
 		velocity.z = locked_direction.z * speed_value
 		if distance < 1.3 and not _contact_hit:
@@ -113,8 +150,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		_stop()
 		if attack_left <= 0:
+			# 穿刺者冲完要多缓一拍才允许再起手，给玩家留出拉开距离的时间。
 			attack_phase = Attack.APPROACH
-			attack_left = 0.8
+			attack_left = 1.8 if variant == Variant.PIERCER else 0.8
 	_boon_move_and_slide()
 	if variant == Variant.PIERCER and attack_phase == Attack.RUSH:
 		for i in get_slide_collision_count():
@@ -124,14 +162,19 @@ func _physics_process(delta: float) -> void:
 				detonate_at_wall(collision.get_position(), collision.get_normal())
 				break
 
-func _pursue(flat: Vector3) -> void:
+func _pursue(flat: Vector3, speed: float) -> void:
 	var direction := flat.normalized()
-	velocity.x = direction.x * run_speed
-	velocity.z = direction.z * run_speed
+	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed
 	var nav := _agent.get_navigation_map()
 	if nav.is_valid() and NavigationServer3D.map_get_iteration_id(nav) > 0:
-		_move_to(target.global_position, run_speed)
+		_move_to(target.global_position, speed)
 	visual.play_motion("walk")
+
+
+## 追击速度：穿刺者每层狂怒再快一点，其它变体保持原速。
+func chase_speed() -> float:
+	return run_speed + (frenzy * FRENZY_CHASE if variant == Variant.PIERCER else 0.0)
 
 func _process_reader(delta: float, flat: Vector3, height_delta: float) -> void:
 	attack_left -= delta * effective_attack_scale()
@@ -151,7 +194,7 @@ func _process_reader(delta: float, flat: Vector3, height_delta: float) -> void:
 			visual.play_motion("idle")
 			return
 		else:
-			_pursue(flat)
+			_pursue(flat, run_speed)
 			return
 	velocity.x = locked_direction.x * READER_LUNGE_SPEED
 	velocity.z = locked_direction.z * READER_LUNGE_SPEED
@@ -181,14 +224,21 @@ func start_attack() -> void:
 		visual.play_motion("run")
 		return
 	attack_phase = Attack.WINDUP
-	attack_left = (0.75 if variant != Variant.AGGRESSOR else 0.4) * boon_windup_scale
+	var windup := 0.75 if variant != Variant.AGGRESSOR else 0.4
+	if variant == Variant.PIERCER:
+		windup *= pow(FRENZY_WINDUP, frenzy)
+	attack_left = windup * boon_windup_scale
+	_rush_elapsed = 0.0
 	_contact_hit = false
 
 func release_wave() -> void:
 	var wave := WrathShockwave.new()
 	wave.source = self
 	wave.target = target
-	wave.damage *= realm_damage_scale
+	# 蓄压者的波只削弱伤害（16 → 11）与速度（15 → 13），半径保持 18 米。
+	wave.damage = ACCUMULATOR_WAVE_DAMAGE * realm_damage_scale
+	wave.max_radius = ACCUMULATOR_WAVE_RADIUS
+	wave.speed = ACCUMULATOR_WAVE_SPEED
 	get_parent().add_child(wave)
 	wave.global_position = global_position
 	pressure = 0.0
@@ -196,6 +246,7 @@ func release_wave() -> void:
 	attack_phase = Attack.RECOVER
 	attack_left = 1.8
 
+## 撞墙不再自爆：碎片照样炸开，但它只会被撞懵一下、更愤怒，然后立刻再扑。
 func detonate_at_wall(point: Vector3, normal: Vector3) -> void:
 	if state == State.DEAD:
 		return
@@ -205,7 +256,28 @@ func detonate_at_wall(point: Vector3, normal: Vector3) -> void:
 		var direction := Vector3(sin(angle), 0.08, cos(angle)).normalized()
 		WrathRicochet.launch(get_parent(), point + normal * 0.5 + Vector3.UP * 0.8, direction, self, 10.0 * realm_damage_scale)
 		emitted_shards += 1
-	health.apply_damage(health.health + 1.0, Hitbox.BodyPart.BODY, null, {"true_damage": true})
+	frenzy = mini(FRENZY_MAX, frenzy + 1)
+	_rush_elapsed = 0.0
+	_impact_left = 0.0
+	_impact_velocity = Vector3.ZERO
+	_contact_hit = false
+	# 比正常冲刺后的 1.0 秒恢复略短，读起来是"撞完缓一口气又来"。
+	attack_phase = Attack.RECOVER
+	attack_left = FRENZY_STAGGER
+	visual.pressure = float(frenzy) / float(FRENZY_MAX)
+
+## 蓄压者主动蓄能：只要不在放波/收招，压力自己就往上走，放着不管也会放波。
+func _tick_pressure(delta: float) -> void:
+	if attack_phase in [Attack.RELEASE, Attack.RECOVER]:
+		return
+	# 开场缓冲与收招后的间隔都记在 attack_left 上，那段时间不涨。
+	if attack_left > 0.0 or pressure >= 100.0:
+		return
+	pressure = minf(100.0, pressure + PRESSURE_REGEN * delta)
+	visual.pressure = pressure / 100.0
+	if pressure >= 100.0 and attack_phase == Attack.APPROACH:
+		start_attack()
+
 
 func _before_damage(ctx: Dictionary) -> void:
 	if variant == Variant.READER and not paper_torn and not ctx.cancelled and float(ctx.damage) > 0.0 and ctx.source is Player:
@@ -216,6 +288,14 @@ func _before_damage(ctx: Dictionary) -> void:
 		visual.tear_paper()
 		return
 	if variant != Variant.ACCUMULATOR or attack_phase in [Attack.RELEASE, Attack.RECOVER]:
+		return
+	# 六片瓷盾只护胸腹：正面打头照样算命中，瞄头是躲开盾牌的正解。
+	# 但打头也会喂它压力——头部伤害照常结算，同时按比例充能。
+	if ctx.get("body_part", Hitbox.BodyPart.BODY) == Hitbox.BodyPart.HEAD:
+		pressure = minf(100.0, pressure + maxf(float(ctx.damage), 0.0) * HEAD_PRESSURE_RATIO)
+		visual.pressure = pressure / 100.0
+		if pressure >= 100.0 and attack_phase == Attack.APPROACH:
+			start_attack()
 		return
 	if ctx.get("kind", &"") != &"gun" and ctx.get("tag", &"") not in [&"projectile", &"wrath_projectile"]:
 		return
@@ -248,6 +328,10 @@ func _on_died(_source: Node) -> void:
 
 func apply_impact(direction: Vector3, force: float, stagger: float) -> void:
 	if variant == Variant.AGGRESSOR:
+		return
+	# 冲刺中的穿刺者咬着不放：只被轻微推开，不会被打断这次冲锋。
+	if variant == Variant.PIERCER and attack_phase == Attack.RUSH:
+		super.apply_impact(direction, force * 0.35, minf(stagger, 0.08))
 		return
 	super.apply_impact(direction, force, stagger)
 

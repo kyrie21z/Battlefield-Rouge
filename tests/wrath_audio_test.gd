@@ -171,6 +171,10 @@ func run_checks() -> void:
 	stage.player.health.invulnerable = false
 	stage.player.health.apply_damage(99999, Hitbox.BodyPart.BODY)
 	check("real death stops every managed sound", director.stopped and director.voices.all(func(v): return not v.playing) and director.actor_voices.bindings.is_empty())
+	# The piercer no longer self-destructs on wall contact, so this fixture actor
+	# survives the slam and would keep standing in front of later fixtures' walls.
+	detonator.queue_free()
+	await frames(2)
 	var boss_stage := preload("res://maps/realms/wrath_boss.tscn").instantiate() as RealmStage
 	add_child(boss_stage)
 	boss_stage.player.set_physics_process(false)
@@ -294,13 +298,18 @@ func last_piercer_reward_checks() -> void:
 	# the last piercer must die before the room clears, which is when the talent
 	# orb appears in front of the gate - claim it so the picker opens
 	var claimed_orb := false
+	var wall_hit := false
 	while not is_instance_valid(room.selection) and Time.get_ticks_msec()<deadline:
+		# 撞墙不再自毁：等它撞出那一次重击后由玩家补刀，房间才会清场。
+		if not wall_hit and actor.wall_detonations >= 1 and not actor.health.is_dead():
+			wall_hit = true
+			actor.health.apply_damage(99999,Hitbox.BodyPart.BODY,room.player)
 		if not claimed_orb and room.orb_pending():
 			claimed_orb = true
 			room.claim_talent()
 		await get_tree().process_frame
-	var real_path := is_instance_valid(room.selection) and actor.wall_detonations==1 and actor.health.is_dead() and room.cleared and get_tree().paused
-	check("last piercer really self-detonates and opens the paused reward picker",real_path)
+	var real_path := is_instance_valid(room.selection) and actor.wall_detonations>=1 and actor.health.is_dead() and room.cleared and get_tree().paused
+	check("last piercer survives the wall slam, then the finish opens the paused reward picker",real_path)
 	if not real_path:
 		room.queue_free()
 		await frames(1)

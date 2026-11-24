@@ -45,3 +45,17 @@ Boss 死亡先累计对应剥夺、发一次 `Events.sin_defeated(count)`；真�
 击败怠惰后，后续所有房间的有效节奏额外 `+0.12`（例如第 3 层 `1.18 → 1.30`）；组合根注入时已折叠该加速，房间通过 `tempo_includes_sloth_haste` 防止二次叠加。沉睡碎片保留脱战 5 秒后的 `2 HP/s` 回血，但每房上限 `30 HP`，同房快照保留已用额度，`advance_room()` 只重置该额度；温润碎片屏障容量收敛为 `40`、受击后恢复延迟 `6.5s`、恢复速率仍 `6.0/s`，跨房保留余额与冷却。终局 `FlawlessDoppelganger` 提升到 `2800 HP`、弹丸 `14`、斩击 `28`；生命低于 `55%` 时阶段时钟 `1.30×`、恢复窗口 `0.85 → 0.55s`、等待间隔 `0.25 → 0.15s`，破防与 56 片碎裂演出保持。
 
 验证新增高层集成接缝 `tests/difficulty_curve_phase_a_test.tscn`：由 `RunDirector` 在四个深度安装生产 `RealmStage`，并用真实物理帧校验怠惰加速、赐福状态正交、`FearWisp` 三轴继承、沉睡单房上限与温润跨房边界；既有 `run_director_test`、`campaign_realms_test`、`realm_tempo_wiring_test`、`slumber_fragment_test`、`tenderness_fragment_test`、`flawless_combat_test` 及 AC-07 `fixture_test` 全量回归通过。
+
+## 2026-11-23：正式战役难度曲线 Phase B（#265–#270）
+
+Phase B 只扩正式战役的遭遇结构，不触碰旧 `ZoneDirector`、旧三图与 `fixtures/*.tres`。`RealmEncounter` 以 `depth`、`room_index` 与领域名确定性查表，`RealmStage` 仅在 `campaign == true`、非 Boss 房且已注入深度向量时启用多波；`campaign == false` 的单房继续按旧规则一次性生成既有数量与零精英。如此既保留 `fear_realm_test` 等单房验收的原始意图，也让 AC-07 的 fixture 哈希保持零漂移。
+
+多波刷新不消费全局随机数：波次表是常量数据，增援点按“距离玩家 `>= 10m`、`ENEMIES` 胶囊查询未占用、同波不重复”的几何筛选确定，全部计时跟随物理步长并随暂停冻结。清房门禁统一为 `living_enemies() == 0 and not has_pending_waves()`，因此门扉与天赋球不会在增援未清完时提前解锁。
+
+节奏层保持正交：`Enemy.elite_tempo_scale` 与 `boss_phase_tempo_scale` 只参与 `effective_attack_scale()` / `effective_windup_scale()` 的乘除，不与 `realm_tempo_scale` 或 `boon_*_scale` 相互覆写；`apply_realm_scaling()`、剥夺刷新和赐福清除只更新各自那一层。精英生命加成折叠进 `_base_max_health`，护盾始终按缩放后的 `max_health` 重算，重复晋升或重新缩放都不会二次叠加。
+
+四界 Boss 的二阶段同样走单次状态迁移：`boss_phase == 1` 且首次 `<= 50%` 时发放一次性 `15%` 非再生晶盾、`1.20×` 阶段节拍与领域招式强化，`phase_changed(2)` 只发一次。战役护卫由 `RealmStage` 在订阅到该信号后生成，仅作为普通战斗单位存在；Boss 死亡时强制清退，不参与碎片掉落与通关门禁。`RealmHUD` 的「二阶段」徽章优先级低于瞬态「破绽」「护盾」。
+
+Boss 控制的唯一闸口是 `BoonManager.set_status()`：硬控按 12 秒窗口 `1.0× → 0.5× → 0.25× → 免疫` 递减，`freeze_world()` 复用同一通道；软控在 `_refresh_status()` 钳位到安全下限/上限。普通怪与精英没有该分支，完美替身的沉睡共鸣与撞墙破防也不经过该闸口，因此固有破防在免疫阶段仍然有效。
+
+验证新增统一端到端接缝 `tests/difficulty_curve_phase_b_test.tscn`：由 `RunDirector` 在真实四界生产房间覆盖 Depth 1→4 的首发密度、增援触发与安全选点、清房门禁、单房兼容、精英护盾/回复/正交节奏/血条、四界 Boss 二阶段与护卫清退，以及 `SlothColossus`、`FlawlessDoppelganger`、普通与精英目标的控制递减。既有 `campaign_realms_test`、`difficulty_curve_phase_a_test` 与 `fear_realm_test` 已对齐多波清房、精英生命/护盾和 8 点恐惧出生池；AC-07 `fixture_test --fixed-fps 60` 与 `tools/review/run_checks.sh` 保持全绿。

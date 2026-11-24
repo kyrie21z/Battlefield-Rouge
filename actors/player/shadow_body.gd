@@ -108,13 +108,11 @@ func _process(delta: float) -> void:
 	_tree.set("parameters/legs/blend_amount", _run_blend)
 
 func _dress_meshes() -> void:
-	var opaque := StandardMaterial3D.new()
-	opaque.albedo_color = Color(0.8, 0.81, 0.83)
 	for node in find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if not portrait and mesh.name == "GEO_m_head" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		mesh.material_override = opaque
-		mesh.material_overlay = MATERIAL.duplicate()
+		mesh.material_override = MATERIAL.duplicate()
+		mesh.material_overlay = null
 
 func _sample_pose() -> void:
 	_anim.play(AIM_ANIM)

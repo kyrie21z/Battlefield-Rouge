@@ -20,6 +20,7 @@ const CORE_PULSE_TIME := 0.10
 const MUZZLE_LIGHT_ENERGY := 2.6
 const MUZZLE_LIGHT_TIME := 0.045
 const MUZZLE_LIGHT_COLOR := Color(0.45, 0.72, 1.0)
+const OBSIDIAN_MATERIAL := preload("res://assets/materials/obsidian_weapon_material.tres")
 
 var _pieces: Array[Node3D] = []
 var _rest: Array[Transform3D] = []
@@ -36,6 +37,8 @@ func _ready() -> void:
 	for piece_name in ["barrel_block", "slide_block", "grip_block", "core_crystal"]:
 		var piece := $Model.find_child(piece_name, true, false) as MeshInstance3D
 		piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if piece_name != "core_crystal":
+			piece.material_override = OBSIDIAN_MATERIAL
 		_pieces.append(piece)
 		_rest.append(piece.transform)
 	var core := $Model.find_child("core_crystal", true, false) as MeshInstance3D

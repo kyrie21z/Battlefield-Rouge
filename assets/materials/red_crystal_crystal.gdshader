@@ -1,16 +1,7 @@
-// Red crystal enemy - Godot 4 crystal shader
-// Colour values taken from the source material "MAIN RedCrystalNuEnemyMaterial":
-//   _Color         = (0.7206, 0, 0)      -> base_color
-//   _EmissionColor = (0.5221, 0, 0)      -> emission_color
-//   _SpecColor     = (1.0, 0.186, 0)     -> spec_color
-//   _RampColor     = (1.0, 0.145, 0)     -> rim_color
-// The source is a custom "MAIN" forward shader (translucent crystal + fresnel
-// rim + phase flicker). This reproduces the look with a Godot spatial shader:
-// solid red body + fresnel rim light + slight emission.
-// Mesh normals are flat (as authored), so the low-poly facets survive.
-
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+render_mode depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+
+#include "res://assets/materials/crystal_optics.gdshaderinc"
 
 uniform vec4 base_color : source_color = vec4(0.720588, 0.0, 0.0, 1.0);
 uniform vec4 emission_color : source_color = vec4(0.522059, 0.0, 0.0, 1.0);
@@ -25,22 +16,25 @@ uniform float specular_amount : hint_range(0.0, 2.0) = 0.5;
 uniform float roughness_value : hint_range(0.0, 1.0) = 0.18;
 
 uniform float inner_glow : hint_range(0.0, 4.0) = 0.15;
-uniform float alpha : hint_range(0.0, 1.0) = 1.0;
+
+varying vec3 local_pos;
+
+void vertex() {
+	local_pos = VERTEX;
+}
 
 void fragment() {
-	vec3 n = normalize(NORMAL);
-	float ndv = clamp(dot(n, VIEW), 0.0, 1.0);
-	float fresnel = pow(1.0 - ndv, rim_power);
-	float inner = pow(ndv, 1.5);
-
-	ALBEDO = base_color.rgb;
-	ROUGHNESS = roughness_value;
-	SPECULAR = specular_amount;
-	METALLIC = 0.0;
-	ALPHA = alpha;
-
-	EMISSION = emission_color.rgb * emission_strength
-		+ rim_color.rgb * fresnel * rim_strength
-		+ base_color.rgb * inner * inner_glow
-		+ spec_color.rgb * fresnel * 0.2;
+	CrystalSurface crystal = evaluate_crystal(
+		VERTEX, NORMAL, VIEW, INV_VIEW_MATRIX, local_pos, base_color.rgb,
+		emission_color.rgb, emission_strength, rim_color.rgb, rim_strength,
+		rim_power, spec_color.rgb, specular_amount, roughness_value, inner_glow, 1.0
+	);
+	NORMAL = crystal.normal;
+	ALBEDO = crystal.albedo;
+	ROUGHNESS = crystal.roughness;
+	METALLIC = crystal.metallic;
+	SPECULAR = crystal.specular;
+	CLEARCOAT = crystal.clearcoat;
+	CLEARCOAT_ROUGHNESS = crystal.clearcoat_roughness;
+	EMISSION = crystal.emission;
 }

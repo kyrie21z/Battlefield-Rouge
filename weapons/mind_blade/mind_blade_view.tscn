@@ -1,7 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://assets/models/weapons/mind_blade.glb" id="1_model"]
+[ext_resource type="Script" path="res://weapons/mind_blade/mind_blade_view.gd" id="2_script"]
 
 [node name="MindBladeView" type="Node3D"]
+script = ExtResource("2_script")
 
 [node name="Model" parent="." instance=ExtResource("1_model")]

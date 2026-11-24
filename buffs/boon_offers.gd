@@ -21,7 +21,19 @@ static func pick(manager: BoonManager, rng: RandomNumberGenerator, count: int = 
 				realms.append(card.sin)
 		if realms.is_empty():
 			return result
-		var opening_sin: int = realms[rng.randi_range(0, realms.size() - 1)]
+		# 重抽必须换一个领域：每个系每个槽只有唯一一张核心卡，留在原系只会
+		# 抽回完全相同的一张，玩家点了"重抽"却什么都没变。
+		var used: Array[int] = []
+		for card in previous:
+			if card.core and not used.has(card.sin):
+				used.append(card.sin)
+		var pool_realms: Array[int] = []
+		for sin in realms:
+			if not used.has(sin):
+				pool_realms.append(sin)
+		if pool_realms.is_empty():
+			pool_realms = realms
+		var opening_sin: int = pool_realms[rng.randi_range(0, pool_realms.size() - 1)]
 		for slot in [BoonData.Slot.GUN, BoonData.Slot.BLADE, BoonData.Slot.DASH]:
 			var matching: Array[BoonData] = []
 			for card in candidates:

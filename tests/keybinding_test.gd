@@ -79,6 +79,7 @@ func _test_in_game() -> void:
 	_hud = scene.get_node("HUD")
 	_director = scene.get_node("ZoneDirector") as ZoneDirector
 	_menu = _hud.get_node("PauseLayer/PauseMenu") as PauseMenu
+	_check("pause menu offers a way back to the main menu", _has_menu_button("返回主菜单"))
 
 	var settings := GameSettings.new()
 	KeyBindings.assign(settings.bindings, "melee", _key_event(KEY_T))
@@ -258,3 +259,13 @@ func _check(label: String, ok: bool) -> void:
 	if not ok:
 		_failures += 1
 	print("  [%s] %s" % ["ok" if ok else "FAIL", label])
+
+
+## 暂停菜单底部的按钮是按文本找的，避免测试依赖具体的容器层级。
+func _has_menu_button(text: String) -> bool:
+	if not is_instance_valid(_menu):
+		return false
+	for node in _menu.find_children("*", "Button", true, false):
+		if (node as Button).text == text:
+			return true
+	return false

@@ -85,6 +85,19 @@ func _run() -> void:
 		get_tree().current_scene.queue_free()
 		get_tree().current_scene = null
 		await get_tree().process_frame
+	# 暂停菜单"返回主菜单"：老存档直接跳过开场，进入锻造与第一关。
+	RunState.clear_fixture()
+	RunDirector.active = false
+	RunDirector.run_count = 5
+	get_tree().change_scene_to_file(BOOT)
+	await get_tree().scene_changed
+	await get_tree().process_frame
+	check("main-menu return skips the opening on an old save",
+		get_tree().current_scene.get_node_or_null("OpeningSequence") == null)
+	get_tree().paused = false
+	get_tree().current_scene.queue_free()
+	get_tree().current_scene = null
+	await get_tree().process_frame
 	for fixture_id in ["FX-001", "FX-002"]:
 		RunDirector.active = false
 		RunState.start_fixture(RunFixture.by_id(fixture_id))

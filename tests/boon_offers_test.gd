@@ -34,6 +34,12 @@ func _ready() -> void:
 	_check("entry offers gun blade and dash cores", opening.size() == 3 and opening[0].slot == BoonData.Slot.GUN and opening[1].slot == BoonData.Slot.BLADE and opening[2].slot == BoonData.Slot.DASH)
 	var changed := BoonOffers.pick(manager, rng, 3, -1, opening, true)
 	_check("entry reroll produces alternatives", changed.size() == 3 and not changed.any(func(card): return opening.has(card)))
+	# 每系每槽只有唯一一张核心卡，所以重抽必须换领域，否则会抽回同一张。
+	for i in 8:
+		var again_a := BoonOffers.pick(manager, rng, 3, -1, [], true)
+		var again_b := BoonOffers.pick(manager, rng, 3, -1, again_a, true)
+		_check("entry reroll always switches realm",
+			again_a.size() == 3 and again_b.size() == 3 and again_a[0].sin != again_b[0].sin)
 	rng.seed = 124
 	_check("same seed reproduces authored choices", opening == BoonOffers.pick(manager, rng, 3, -1, [], true))
 	seed(99124)

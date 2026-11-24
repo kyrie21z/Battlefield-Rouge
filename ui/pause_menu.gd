@@ -226,6 +226,9 @@ func _build() -> void:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_END
 	buttons.add_theme_constant_override("separation", 14)
+	var main_menu := _button("返回主菜单", 180.0, false)
+	main_menu.pressed.connect(_on_main_menu)
+	buttons.add_child(main_menu)
 	var reset := _button("恢复默认", 180.0, false)
 	reset.pressed.connect(_on_reset)
 	buttons.add_child(reset)
@@ -399,6 +402,18 @@ func _after() -> void:
 func _on_color(index: int) -> void:
 	_settings.crosshair_color = GameSettings.COLOR_PRESETS[index]
 	_after()
+
+
+## 主动结束本局并回到启动流程：先结算已获得的收益，然后开一局新的。
+## 开场动画只在第一局播放，所以回来时会直接进锻造与第一关，不会再演一遍。
+func _on_main_menu() -> void:
+	close()
+	RunDirector.settle_rewards()
+	RunDirector.active = false
+	RunDirector.completed = false
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().change_scene_to_file.call_deferred("res://ui/game_start.tscn")
 
 
 func _on_reset() -> void:

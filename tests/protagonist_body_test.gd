@@ -164,7 +164,7 @@ func _check_hand_meshes_at_grip(player: Player, body: ProtagonistBody, state: St
 			# Within the contact band, the right palm is behind the grip and its
 			# fingertips reach across the front to the side opposite the wrist.
 			if absf(point.y) < 0.027 and absf(distance) < 0.013:
-				var depth := point.z + 0.47 * point.y
+				var depth := point.z + 0.30 * point.y
 				wraps_front = wraps_front or (point.x < -0.008 and depth < -0.025)
 				supports_back = supports_back or (absf(point.x) < 0.023 and depth > 0.025)
 		_check("%s %s hand mesh meets the grip (gap %.1f mm, depth %.1f mm)" % [state, side, nearest * 1000, deepest * 1000],
@@ -183,7 +183,7 @@ func _grip_planes(grip_mesh: MeshInstance3D, pistol_from_grip: Transform3D) -> A
 			continue
 		if plane.distance_to(Vector3.ZERO) > 0.0:
 			plane = -plane
-		# Ignore the gold inlay and interior facets that do not bound the grip.
+		# Ignore interior facets that do not bound the grip.
 		var bounds_grip := true
 		for point in points:
 			if plane.distance_to(point) > 0.001:

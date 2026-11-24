@@ -1,11 +1,10 @@
 class_name ObsidianPistolView
 extends Node3D
 ## Four flat-shaded Blender mineral meshes, each with its own local pivot.
-## Source: 120 authored triangles/quads; imported GLB: 180 rendering triangles.
 ## The weapon supplies the clock, so snap and magazine completion agree.
 
-const SOURCE_POLYGONS := 120
-const BODY_TRIANGLES := 180
+const SOURCE_POLYGONS := 728
+const BODY_TRIANGLES := 1116
 const BLOOM_END := 0.35 / 0.85
 const FLOAT_END := 0.65 / 0.85
 const OFFSETS := [Vector3(0, 0.07, -0.08), Vector3(0.08, 0.04, 0.02),
@@ -38,7 +37,7 @@ func _ready() -> void:
 		var piece := $Model.find_child(piece_name, true, false) as MeshInstance3D
 		piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if piece_name != "core_crystal":
-			piece.material_override = OBSIDIAN_MATERIAL
+			_route_body_surfaces(piece)
 		_pieces.append(piece)
 		_rest.append(piece.transform)
 	var core := $Model.find_child("core_crystal", true, false) as MeshInstance3D
@@ -68,6 +67,13 @@ func _ready() -> void:
 		bit.visible = false
 		add_child(bit)
 		_dust.append(bit)
+
+
+func _route_body_surfaces(piece: MeshInstance3D) -> void:
+	for surface in piece.mesh.get_surface_count():
+		var material := piece.mesh.surface_get_material(surface)
+		if material == null or material.resource_name != "Muzzle_Interior":
+			piece.set_surface_override_material(surface, OBSIDIAN_MATERIAL)
 
 
 func _process(delta: float) -> void:
@@ -147,7 +153,7 @@ func set_reassembly_progress(progress: float) -> void:
 		if i == 3:
 			piece.position.y += sin(p * 160.0) * 0.002 * bloom
 	if _core_material != null:
-		_core_material.emission_energy_multiplier = 1.5 + bloom * (1.5 + 0.4 * sin(p * 160.0))
+		_core_material.emission_energy_multiplier = CORE_BASE_ENERGY + bloom * (1.5 + 0.4 * sin(p * 160.0))
 	for i in _dust.size():
 		var bit := _dust[i]
 		bit.visible = p >= BLOOM_END and p < FLOAT_END

@@ -4,38 +4,38 @@
       "file": "assets/models/weapons/obsidian_pistol.glb",
       "source": "tools/epic1_models/obsidian_pistol.blend",
       "blender_version": "5.2.3 LTS",
-      "source_polygons": 120,
-      "glb_triangles": 180,
+      "source_polygons": 728,
+      "glb_triangles": 1116,
       "objects": {
         "barrel_block": {
-          "polygons": 46,
-          "triangles": 76,
-          "triangles_authored": 16,
-          "quads_authored": 30,
+          "polygons": 430,
+          "triangles": 660,
+          "triangles_authored": 200,
+          "quads_authored": 230,
           "flat_faces": true,
           "pivot_source": [
             0.0,
-            -0.113599993288517,
-            0.06650000065565109
+            -0.06999999284744263,
+            0.05900000035762787
           ]
         },
         "core_crystal": {
-          "polygons": 4,
-          "triangles": 4,
-          "triangles_authored": 4,
+          "polygons": 32,
+          "triangles": 32,
+          "triangles_authored": 32,
           "quads_authored": 0,
           "flat_faces": true,
           "pivot_source": [
             0.0,
-            -0.05849999934434891,
-            0.057500001043081284
+            -0.047850001603364944,
+            0.07099999487400055
           ]
         },
         "grip_block": {
-          "polygons": 36,
-          "triangles": 56,
-          "triangles_authored": 16,
-          "quads_authored": 20,
+          "polygons": 100,
+          "triangles": 140,
+          "triangles_authored": 60,
+          "quads_authored": 40,
           "flat_faces": true,
           "pivot_source": [
             0.0,
@@ -44,53 +44,54 @@
           ]
         },
         "slide_block": {
-          "polygons": 34,
-          "triangles": 44,
-          "triangles_authored": 24,
-          "quads_authored": 10,
+          "polygons": 166,
+          "triangles": 284,
+          "triangles_authored": 48,
+          "quads_authored": 118,
           "flat_faces": true,
           "pivot_source": [
             0.0,
-            -0.00910000130534172,
-            0.06800000369548798
+            -0.013999998569488525,
+            0.07449999451637268
           ]
         }
       },
       "bounds_game": {
         "min": [
-          -0.01599999889731407,
-          -0.05000000074505806,
-          -0.17649999260902405
+          -0.01900000125169754,
+          -0.04800000041723251,
+          -0.16599999368190765
         ],
         "max": [
-          0.016000010073184967,
-          0.08500000834465027,
-          0.04349999874830246
+          0.019000012427568436,
+          0.09399999678134918,
+          0.03400000184774399
         ],
         "size": [
-          0.03200000897049904,
-          0.13500000908970833,
-          0.2199999913573265
+          0.038000013679265976,
+          0.1419999971985817,
+          0.19999999552965164
         ]
       },
       "source_forward": "-Y",
       "export_correction": "180 degrees about Blender Z, baked before Y-up export",
       "game_forward": "-Z",
       "game_up": "+Y",
-      "sha256": "db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401",
+      "sha256": "0f291f224882621985f451ba9456051ac24f2e71b0667e3e2c69080a362490c4",
       "muzzle_game": [
-        -0.0,
-        0.06599999964237213,
-        -0.17650000751018524
+        0.0,
+        0.072,
+        -0.166
       ],
-      "grip_height_m": 0.1,
+      "grip_height_m": 0.096,
+      "grip_slant": 0.3,
       "target_dimensions_m": [
-        0.032,
-        0.135,
-        0.22
+        0.038,
+        0.142,
+        0.2
       ],
-      "muzzle_recess_depth_m": 0.01,
-      "budget_policy": "quality-first; source polygons and render triangles reported separately"
+      "muzzle_recess_depth_m": 0.012,
+      "budget_policy": "500\u2013950 source polygons; 800\u20131600 GLB triangles"
     },
     {
       "file": "assets/models/weapons/mind_blade.glb",

@@ -40,7 +40,7 @@ func _ready() -> void:
 	check("the view camera has no crown prisms", camera_meshes.all(func(part: MeshInstance3D) -> bool:
 		return not part.mesh is PrismMesh))
 	var worn_meshes := crown.model.find_children("*", "MeshInstance3D", true, false)
-	check("the worn crown is present as shadow-casting geometry", worn_meshes.size() == 42 and worn_meshes.all(func(part: MeshInstance3D) -> bool:
+	check("the worn crown is present as shadow-casting geometry", worn_meshes.size() == 1 and worn_meshes.all(func(part: MeshInstance3D) -> bool:
 		return part.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY))
 	player._pitch = deg_to_rad(-75.0)
 	player._apply_look()

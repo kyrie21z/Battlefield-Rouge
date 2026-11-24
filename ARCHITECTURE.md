@@ -15,6 +15,7 @@
 | `buffs/` | 增益，每个增益一个 `.tres`。流派身份是 `School`（图标和方向，不含效果数值） |
 | `ui/` | HUD、三选一增益界面、结算界面 |
 | `maps/` | 战区场景，由 `tools/gen_zones.py` 生成 |
+| `levels/` | 战役组合场景（如 `levels/stasis_hub/` 静滞之门大厅、`levels/climax/` 终局回廊）；可组合 UI 与 autoload，不持有对局状态 |
 | `environments/sloth/` | 整合草稿的纯场景几何、碰撞、掩体点与材质，不控制关卡进度 |
 | `tools/` | 编辑器外的辅助脚本 |
 | `docs/` | 设计文档。游戏方向以 `docs/CREATIVE_VISION.md` 为准；本轮范围和验收看 `docs/Cut-002.md`，它未改动的玩法规则沿用 `docs/Cut-001b.md`、`docs/MVP_Scope.md` |
@@ -31,7 +32,7 @@
 
 ## 一个战区的流程
 
-普通项目入口先到 `ui/game_start.tscn`。`GameStart` 只加载 Pride 开场并监听单次完成信号，再读取 `RunState.zone_scene()` 进入原有战区；它不改种子、增益、战区序号或战斗规则。开场期间不实例化玩家、敌人、战区控制和战斗 HUD。fixture 与 `--skip-opening` 直接进战区；已有 `RunState` 延迟重定向与启动器均检查当前场景，先加载的一方完成交接，避免重复预热导航。死亡重开仍由原 `ZoneDirector` 直接载入战区，不返回开场。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
+项目入口为 `ui/game_start.tscn`。普通启动显示 `TitleScreen`，由玩家选择首次开场、续关或进入静滞之门。开场穿门时，`RunDirector` 将开场完成标记、挑战历史和首房快照一次落盘。锻造入口位于 `StasisHub` 的皇冠锻造台。fixture 沿旧 `RunState` 路径直达战区，`--skip-opening` 直达战役首房。战役死亡后按 R 直接重开，点「返回静滞之门」进入大厅。战区、大厅和结局都能返回标题页，保留最近的房间快照；标题页和大厅的「设置与按键」在没有 `Player` 时也可用。`active_run` 只在进入新房间、`0:0` 选卡完成时写入，死亡、和解或确认放弃时原子清空。见 [ADR 0009](docs/adr/0009-pride-opening-bootstrap.md)。
 
 赐福每清完一个房间领一次（4 领域 × 3 房，最多 12 次），开局另有一次三选一；这对应 AC-04 的后续修订（D-002 于 2026-10-27 改为三次，现为每房一次）。发牌从全部 54 张里抽，不再按房间领域过滤；强化（特性）卡必须先拥有同系核心，双重卡要求两系核心同时在场；一轮最多给一张「会替换现有核心」的卡，其余名额留给特性，三张全是替换时可以直接放弃。九张不同图标的卡对应 AC-08，见 [ADR 0006](docs/adr/0006-nine-buffs-and-entry-choices.md)。占点仍为窗口 ±150ms、普通敲钟 +10%、完美 ×2.0，配置是 `zone/capture_config.tres`。紧凑版两小关入口为 z=14/16、据点 z=-8，恢复旧灰盒 22/24 米目标距离；40×48 米可走战斗核心之外的宏大柱廊/浮岛为纯景观。据点开放后按 `zone/reinforcement_config.tres` 从后方及侧翼刷增援（每批4、间隔10秒、最多8），插旗冲击波让小怪逃向刷怪点后消失，通关增益在旗旁增益台按 F 打开。见 [ADR 0007](docs/adr/0007-reinforcements-shockwave-pedestal.md)、[ADR 0011](docs/adr/0011-sloth-playable-integration.md) 与 [ADR 0012](docs/adr/0012-compact-combat-scenic-surroundings.md)。节拍见 ADR 0003，Boss 见 ADR 0004。Boss 关没有增援、冲击波和增益台。
 
@@ -109,7 +110,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## 第一人称完整身躯（#105）
 
-`Player/ShadowBody` 是唯一的 `ProtagonistBody`，复用 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见。原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。Blender 制作的双手握姿仍绑定在原手骨上。挥刃期间左手跟随 `MeleeWeapon.grip_transform()` 并切到短刃手型，收刀后手型与手腕一起用 0.14 秒回握。单一角色骨架和武器模型同时提供第一人称和投影。
+`Player/ShadowBody` 是战斗玩家的 `ProtagonistBody`，复用 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见。原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。Blender 制作的双手握姿仍绑定在原手骨上。挥刃期间左手跟随 `MeleeWeapon.grip_transform()` 并切到短刃手型，收刀后手型与手腕一起用 0.14 秒回握。单一角色骨架和武器模型同时提供第一人称和投影。标题页以肖像模式复用同一骨架，使用完整待机动画、可见头部和从档案注入的裂痕等级。
 
 眼位来自头骨位置与固定眼睛偏移；低头时采用确定性的上身前倾，跑步动画不驱动逻辑眼位。实际 `Head` 同时带动瞄准相机和渲染子相机，既有受击/开火震动仍仅作用于渲染相机。两相机 near=0.025，保留近处手臂和胸部。
 
@@ -154,7 +155,7 @@ Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；
 `PsycheFragments` 管理独立碎片运行态，BoonManager 管理可替换的赐福；两者不混存。普通击退经 Enemy.apply_impact，独立脉冲经 apply_fragment_impact；普通防御受 Health.unbuffered 关闭，fragment_absorber 仍单独结算实际吸收与 HP 溢出。数值增益通过 Stats，实际位移保留物理碰撞，所有能力暂停冻结。原始黑晶素材及黑接缝保持，终局金缮由后续演出显式启用。状态边界及验证见 [ADR 0018](docs/adr/0018-realms-and-independent-fragments.md)。
 
 
-局外成长由 `MetaProgression` autoload保存，`RunDirector` 组合真实Stage信号与钱包事务：Actor只经Health/Stage上报死亡，不操作货币。`GameStart`在入战前开放Forge，关闭后一次性准备初始赐福/HP/重抽；新Player先注入Meta Stats，再恢复跨房HP和碎片。死亡/结局将收入与历史同次提交，历史再注入CrownVoiceSystem。测试入口在autoload初始化时使用独立档；存档格式、去重与验证见[152证据](docs/proof/issue-152/README.md)。
+局外成长由 `MetaProgression` autoload 保存，`RunDirector` 组合 Stage 信号与钱包事务。Actor 经 Health/Stage 上报死亡。静滞之门用真实 Player 与无战斗配置，锻造台和档案碑分别接入 `CrownForge` 与 `StasisArchiveModal`。门扉发出出征信号，由 `RunDirector` 开启新局、准备初始赐福/HP/重抽并保存房间起点。新 Player 先注入永久属性，再恢复跨房 HP 和碎片。死亡或结局原子结算收入与历史。死亡回大厅时皇冠复盘，出征后首房跳过重复对白，按 R 立即再战时首房照常播报。测试入口在 autoload 初始化时使用独立存档。见 [#152 存档证据](docs/proof/issue-152/README.md)。
 
 ### 领域音频组合（#176 / #179）
 

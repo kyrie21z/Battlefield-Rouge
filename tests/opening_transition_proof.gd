@@ -68,15 +68,14 @@ func _parse_args() -> void:
 
 
 func _run_new() -> void:
-	var path := RunState.zone_scene()
+	RunDirector.randomize_realm_order = false
+	var path := "res://maps/realms/fear_1.tscn"
 	get_tree().change_scene_to_file(BOOT)
 	await get_tree().scene_changed
-	await get_tree().process_frame
 	var boot := get_tree().current_scene
-	if boot == null or not is_instance_valid(boot.opening):
-		push_error("the opening did not start")
-		get_tree().quit(1)
-		return
+	(boot.title_screen.find_child("Primary", true, false) as Button).pressed.emit()
+	while not is_instance_valid(boot.opening):
+		await get_tree().process_frame
 
 	# Watch the opening without starting a background scene/script request.
 	var watch_start := Time.get_ticks_usec()
@@ -86,7 +85,9 @@ func _run_new() -> void:
 
 	_begin_measuring()
 	var t0 := Time.get_ticks_usec()
-	boot._enter_game()
+	boot.opening.skip()
+	boot.opening.player.position.z = -13.2
+	boot.opening.advance(0.1)
 	var deadline := Time.get_ticks_msec() + LIMIT_MSEC
 	while Time.get_ticks_msec() < deadline:
 		var current := get_tree().current_scene

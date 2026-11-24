@@ -3,6 +3,10 @@ extends Control
 ## Esc menu with the look, crosshair and key-binding settings on two tabs.
 ## Styled in Scheme B (Architectural Editorial ivory settings plaque).
 
+signal return_to_title_requested
+signal opened
+signal closed
+
 static var allow_headless := false
 
 var capture_requests := 0
@@ -17,6 +21,7 @@ var _updating := false
 var _preview: Crosshair
 var _style: OptionButton
 var _dynamic: CheckButton
+var _reduced_motion: CheckButton
 var _colors: Array[Button] = []
 var _sliders: Dictionary = {}
 var _labels: Dictionary = {}
@@ -28,6 +33,12 @@ var _tab_bindings: Button
 var _status: Label
 var _bind_buttons: Dictionary = {}
 var _awaiting_action := ""
+var _show_title_exit := false
+var _title_exit_note := ""
+var _title_exit: Button
+var _exit_note: Label
+var _resume: Button
+var _esc_hint: Label
 
 
 func _ready() -> void:
@@ -37,13 +48,32 @@ func _ready() -> void:
 	EditorialStyle.apply_theme(self)
 	visible = false
 	_build()
+	_refresh()
+	_refresh_exit_controls()
 
 
-func setup(settings: GameSettings, player: Player, director: ZoneDirector) -> void:
+func setup(settings: GameSettings, player: Player = null, director: ZoneDirector = null) -> void:
 	_settings = settings
 	_player = player
 	_director = director
 	_refresh()
+	_refresh_exit_controls()
+
+
+func configure_exit_button(show_button: bool, note_text := "") -> void:
+	_show_title_exit = show_button
+	_title_exit_note = note_text
+	_refresh_exit_controls()
+
+
+func _refresh_exit_controls() -> void:
+	if _title_exit == null:
+		return
+	_title_exit.visible = _show_title_exit and RunState.fixture == null
+	_exit_note.text = _title_exit_note
+	_exit_note.visible = _title_exit.visible and not _title_exit_note.is_empty()
+	_resume.text = "继续游戏" if is_instance_valid(_player) else "关闭"
+	_esc_hint.text = "ESC  " + _resume.text
 
 
 func is_open() -> bool:
@@ -60,10 +90,25 @@ func try_open() -> bool:
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_refresh()
+	_refresh_exit_controls()
+	if not is_instance_valid(_player):
+		_tab_settings.grab_focus()
+	opened.emit()
 	return true
 
 
 func close() -> void:
+	_close(false)
+
+
+func _return_to_title() -> void:
+	if not _open or not _title_exit.visible or RunState.fixture != null:
+		return
+	_close(true)
+	return_to_title_requested.emit()
+
+
+func _close(leaving_scene: bool) -> void:
 	if not _open:
 		return
 	_open = false
@@ -72,21 +117,28 @@ func close() -> void:
 		_end_capture()
 	if _settings != null and (DisplayServer.get_name() != "headless" or allow_headless):
 		_settings.save_to(GameSettings.settings_path)
-	if _was_paused:
-		return
-	get_tree().paused = false
-	capture_requests += 1
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	get_tree().paused = _was_paused
+	if leaving_scene:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		# Headless cannot capture the mouse; count the combat resume for the tests.
+		if not _was_paused and (_prev_mouse_mode == Input.MOUSE_MODE_CAPTURED
+				or (DisplayServer.get_name() == "headless" and is_instance_valid(_player))):
+			capture_requests += 1
+		Input.mouse_mode = _prev_mouse_mode
+	closed.emit()
 
 
 func _can_open() -> bool:
+	if _settings == null or not is_node_ready():
+		return false
 	if get_tree().paused and (_director == null or _director.phase != ZoneDirector.Phase.BUFF_SELECT):
 		return false
 	if RunState.fixture != null:
 		return false
 	if DisplayServer.get_name() == "headless" and not allow_headless:
 		return false
-	if _player == null or _player.health.is_dead():
+	if is_instance_valid(_player) and _player.health.is_dead():
 		return false
 	return true
 
@@ -168,9 +220,9 @@ func _build() -> void:
 	var title_lbl := EditorialStyle.make_label("暂停  //  SYSTEM", 26, EditorialStyle.PAPER, 800, false, 2)
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head_row.add_child(title_lbl)
-	var esc_lbl := EditorialStyle.make_label("ESC 继续游戏", 14, EditorialStyle.GOLD_BRIGHT, 700, true, 1)
-	esc_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	head_row.add_child(esc_lbl)
+	_esc_hint = EditorialStyle.make_label("", 14, EditorialStyle.GOLD_BRIGHT, 700, true, 1)
+	_esc_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	head_row.add_child(_esc_hint)
 
 	var margin := MarginContainer.new()
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -226,12 +278,20 @@ func _build() -> void:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_END
 	buttons.add_theme_constant_override("separation", 14)
+	_title_exit = _button("返回标题画面", 180.0, false)
+	_title_exit.pressed.connect(_return_to_title)
+	buttons.add_child(_title_exit)
+	_exit_note = _text("", 14, EditorialStyle.SLATE)
+	_exit_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_exit_note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_exit_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	buttons.add_child(_exit_note)
 	var reset := _button("恢复默认", 180.0, false)
 	reset.pressed.connect(_on_reset)
 	buttons.add_child(reset)
-	var resume := _button("继续游戏", 180.0, true)
-	resume.pressed.connect(close)
-	buttons.add_child(resume)
+	_resume = _button("", 180.0, true)
+	_resume.pressed.connect(close)
+	buttons.add_child(_resume)
 	box.add_child(buttons)
 
 
@@ -285,6 +345,16 @@ func _build_settings(parent: VBoxContainer) -> void:
 			_settings.dynamic_gap = on
 			_after())
 	parent.add_child(_dynamic)
+
+	_reduced_motion = CheckButton.new()
+	_reduced_motion.text = "减少标题与开场动态效果"
+	_reduced_motion.add_theme_font_size_override("font_size", 18)
+	_reduced_motion.add_theme_color_override("font_color", EditorialStyle.INK)
+	_reduced_motion.toggled.connect(func(on: bool) -> void:
+		if not _updating:
+			_settings.reduced_motion = on
+			_after())
+	parent.add_child(_reduced_motion)
 
 	var preview_row := HBoxContainer.new()
 	preview_row.add_theme_constant_override("separation", 16)
@@ -386,6 +456,8 @@ func _slider(parent: VBoxContainer, key: String, text: String, min_value: float,
 			return
 		_settings.set(field, v)
 		value.text = _format(key, v)
+		if field == "music_volume":
+			_apply_music_volume()
 		_after())
 
 
@@ -403,9 +475,17 @@ func _on_color(index: int) -> void:
 
 func _on_reset() -> void:
 	_settings.reset_defaults()
+	_apply_music_volume()
 	KeyBindings.apply(_settings.bindings)
 	_set_status("", EditorialStyle.GOLD)
 	_refresh()
+
+
+func _apply_music_volume() -> void:
+	var bus := AudioServer.get_bus_index(&"Music")
+	if bus >= 0:
+		AudioServer.set_bus_mute(bus, _settings.music_volume <= 0.001)
+		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(_settings.music_volume, 0.001)))
 
 
 func _on_bind_pressed(action: String) -> void:
@@ -472,6 +552,7 @@ func _refresh() -> void:
 		(_labels[key] as Label).text = _format(key, value)
 	_style.selected = _settings.crosshair_style
 	_dynamic.button_pressed = _settings.dynamic_gap
+	_reduced_motion.set_pressed_no_signal(_settings.reduced_motion)
 	_update_colors()
 	_update_preview()
 	_refresh_bindings()

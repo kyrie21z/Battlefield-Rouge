@@ -29,19 +29,24 @@ func check(label: String, passed: bool) -> void:
 	if not passed: failures += 1
 	print("%s %s" % ["PASS" if passed else "FAIL", label])
 func _run() -> void:
+	RunDirector.randomize_realm_order = false
 	var routes := ["confirm", "skip"] if route_filter.is_empty() else [route_filter]
 	for route in routes:
 		RunState.clear_fixture()
 		RunState.start_new_run()
-		RunDirector.run_count = 0
-		RunDirector.begin_run(50897)
-		var seed_before := RunDirector.run_seed
-		var target := RunDirector.scene_path()
+		check(route + ": reset isolated campaign", RunDirector.reset_campaign())
+		var target := "res://maps/realms/fear_1.tscn"
 		check(route + ": target realm starts cold", not ResourceLoader.has_cached(target) if route == routes[0] else true)
 		get_tree().change_scene_to_file(BOOT)
 		await get_tree().scene_changed
-		await get_tree().process_frame
-		var opening: OpeningSequence = get_tree().current_scene.opening
+		var boot := get_tree().current_scene
+		var title := boot.title_screen as TitleScreen
+		check("ordinary boot only mounts title", title != null and RunDirector.run_count == 0
+			and not MetaProgression.has_profile() and get_tree().get_nodes_in_group("player").is_empty())
+		(title.find_child("Primary", true, false) as Button).pressed.emit()
+		while boot.opening == null:
+			await get_tree().process_frame
+		var opening := boot.opening as OpeningSequence
 		opening.set_process(false)
 		check("first normal entry starts reality blackout", opening.phase == OpeningSequence.Phase.FALL)
 		check("only the cinematic Player exists before battle", get_tree().get_nodes_in_group("player").size() == 1 and get_tree().get_nodes_in_group("enemy").is_empty())
@@ -51,11 +56,19 @@ func _run() -> void:
 			opening.skip_button.pressed.emit()
 		check(route + ": sequence returns control at an open physical gate", opening.control_released and opening.entry_count == 0)
 		await capture(route + "-opening.png")
+		var previous_save := FileAccess.get_sha256(MetaProgression.save_path())
 		opening.player.position.z = -13.2
 		opening.advance(0.1)
+		var checkpoint := MetaProgression.active_run
+		var seed_before := RunDirector.run_seed
+		var saved := MetaProgression._read_payload(MetaProgression.save_path())
+		check("physical gate atomically saves opening, history and initial checkpoint",
+			opening.entry_count == 1 and RunDirector.run_count == 1 and MetaProgression.opening_completed
+			and saved.get("opening_completed") == true and saved.get("history", {}).get("run_count") == 1
+			and saved.get("active_run", {}).get("run_seed") == seed_before
+			and FileAccess.get_sha256(MetaProgression.save_path() + ".bak") == previous_save
+			and checkpoint.get("floor_index") == 0 and checkpoint.get("room_index") == 0)
 		while get_tree().current_scene.scene_file_path != target:
-			var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
-			if is_instance_valid(forge): forge.close()
 			await get_tree().process_frame
 		for frame in 4: await get_tree().process_frame
 		var stage := get_tree().current_scene
@@ -75,10 +88,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		check("real death records historical depth and cause", RunDirector._dead and RunDirector.last_death_depth == 1)
 		RunDirector.restart()
-		await get_tree().scene_changed
 		while not is_instance_valid(RunDirector.current_stage) or RunDirector.current_stage.get_instance_id() == stage_id:
-			var forge := get_tree().current_scene.get_node_or_null("CrownForge") as CrownForge
-			if is_instance_valid(forge): forge.close()
 			await get_tree().process_frame
 		check("death re-entry bypasses the fixed cinematic for dynamic Crown voice", RunDirector.run_count == 2 and get_tree().current_scene.get_node_or_null("OpeningSequence") == null and get_tree().current_scene.get_instance_id() != stage_id)
 		get_tree().paused = false

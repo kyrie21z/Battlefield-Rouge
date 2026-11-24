@@ -31,6 +31,12 @@ var introduced_realms: Array[int] = []
 var reconciled := false
 var codex_save_pending := false
 var isolated_profile := false
+## True once the one-shot opening cinematic has been completed. Older v1 saves
+## do not carry it; there any recorded progress implies the opening already ran.
+var opening_completed := false
+## Room-start snapshot of the unfinished campaign, empty when nothing is pending.
+## Only the run composition root writes it, and only at safe room boundaries.
+var active_run: Dictionary = {}
 var _cleanup_profile := false
 
 func _init() -> void:
@@ -127,6 +133,124 @@ func begin_run(run_id: String) -> void:
 	defiance_consumed = false
 	_bound_player = null
 
+## A profile exists as soon as anything about the journey is remembered. A
+## blank isolated test save must not count, or the title screen would offer
+## "continue" on a brand new install.
+func has_profile() -> bool:
+	if opening_completed or not active_run.is_empty():
+		return true
+	if int(history.get("run_count",0)) > 0 or not settled_runs.is_empty():
+		return true
+	if will_shards > 0 or reality_anchors > 0 or not discovered_boons.is_empty():
+		return true
+	if not visited_realms.is_empty() or not defeated_realms.is_empty() or not introduced_realms.is_empty() or reconciled:
+		return true
+	for id in IDS:
+		if level(id) > 0:
+			return true
+	return false
+
+func has_active_run() -> bool:
+	return not active_run.is_empty()
+
+func has_affordable_upgrade() -> bool:
+	for id in IDS:
+		if purchase_blocker(id).is_empty():
+			return true
+	return false
+
+func mark_opening_completed(first_room: Dictionary = {}, run_history: Dictionary = {}) -> bool:
+	if not first_room.is_empty():
+		return _save_active_run(first_room, true, run_history)
+	if opening_completed:
+		return true
+	var old := _payload()
+	opening_completed = true
+	if not save():
+		_restore(old)
+		return false
+	changed.emit()
+	return true
+
+## Persists one room-start snapshot. Rejecting a malformed snapshot keeps the
+## previous valid checkpoint so a broken caller can never destroy the run.
+func save_active_run(snapshot: Dictionary) -> bool:
+	return _save_active_run(snapshot, false, {})
+
+func _save_active_run(snapshot: Dictionary, completes_opening: bool, run_history: Dictionary) -> bool:
+	if _read_only:
+		return false
+	var settled := {}
+	for id in settled_runs:
+		settled[id] = true
+	if not _valid_active_run(snapshot,settled):
+		last_error = "残局快照无效"
+		return false
+	var old := _payload()
+	var was_defiance := defiance_consumed
+	var prior_run_id := active_run_id
+	opening_completed = opening_completed or completes_opening
+	if not run_history.is_empty():
+		history = run_history.duplicate()
+	active_run = snapshot.duplicate(true)
+	active_run_id = str(active_run.get("run_id",""))
+	defiance_consumed = bool(active_run.get("defiance_consumed",defiance_consumed))
+	if not save():
+		_restore(old)
+		if was_defiance and active_run_id == prior_run_id:
+			defiance_consumed = true
+		return false
+	changed.emit()
+	return true
+
+func clear_active_run() -> bool:
+	if active_run.is_empty() and active_run_id.is_empty():
+		return true
+	var old := _payload()
+	active_run = {}
+	active_run_id = ""
+	if not save():
+		_restore(old)
+		return false
+	changed.emit()
+	return true
+
+## Title-screen "new game". The current valid file is copied to .bak first, so a
+## confirmed reset can never destroy the only copy of the player's journey.
+func reset_profile() -> bool:
+	var path := save_path()
+	var absolute := ProjectSettings.globalize_path(path)
+	if FileAccess.file_exists(path) and not _read_payload(path).is_empty():
+		if DirAccess.copy_absolute(absolute,absolute+".bak") != OK:
+			last_error = "无法备份旧档"
+			return false
+	var old := _payload()
+	var was_read_only := _read_only
+	will_shards = 0
+	reality_anchors = 0
+	for id in IDS:
+		levels[id] = 0
+	settled_runs.clear()
+	history = {"run_count":0,"last_depth":0,"death_cause":""}
+	discovered_boons.clear()
+	visited_realms.clear()
+	defeated_realms.clear()
+	introduced_realms.clear()
+	reconciled = false
+	opening_completed = false
+	active_run = {}
+	active_run_id = ""
+	defiance_consumed = false
+	codex_save_pending = false
+	_bound_player = null
+	_read_only = false
+	if not save():
+		_read_only = was_read_only
+		_restore(old)
+		return false
+	changed.emit()
+	return true
+
 func settle_run(run_id: String,will: int,anchors: int,run_history: Dictionary = {}) -> bool:
 	if run_id.is_empty() or run_id.length()>128 or will<0 or anchors<0 or _read_only:
 		return false
@@ -138,6 +262,9 @@ func settle_run(run_id: String,will: int,anchors: int,run_history: Dictionary = 
 	will_shards += will
 	reality_anchors += anchors
 	settled_runs.append(run_id)
+	if str(active_run.get("run_id","")) == run_id:
+		active_run = {}
+		active_run_id = ""
 	if not run_history.is_empty():
 		history = run_history.duplicate()
 	# Keep the complete ledger: evicting old IDs would make a replay payable again.
@@ -200,7 +327,7 @@ func describe(id: String) -> String:
 	return ""
 
 func _payload() -> Dictionary:
-	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate(),"discovered_boons":discovered_boons.duplicate(),"archive":archive_snapshot()}
+	return {"version":VERSION,"will_shards":will_shards,"reality_anchors":reality_anchors,"levels":levels.duplicate(),"settled_runs":settled_runs.duplicate(),"history":history.duplicate(),"discovered_boons":discovered_boons.duplicate(),"archive":archive_snapshot(),"opening_completed":opening_completed,"active_run":active_run.duplicate(true)}
 
 func _restore(payload: Dictionary) -> void:
 	will_shards = int(payload.will_shards)
@@ -214,6 +341,12 @@ func _restore(payload: Dictionary) -> void:
 	defeated_realms.assign(archive.get("defeated_realms",[]))
 	introduced_realms.assign(archive.get("introduced_realms",[]))
 	reconciled = archive.get("reconciled",false)
+	var inferred_opening := int(history.run_count) > 0 or not settled_runs.is_empty() or not visited_realms.is_empty()
+	opening_completed = bool(payload["opening_completed"]) if payload.has("opening_completed") else inferred_opening
+	active_run = payload.get("active_run",{}).duplicate(true)
+	active_run_id = str(active_run.get("run_id","")) if not active_run.is_empty() else ""
+	if not active_run.is_empty():
+		defiance_consumed = bool(active_run.get("defiance_consumed",defiance_consumed))
 
 func _checksum(payload: Dictionary) -> String:
 	var normalized: Variant = JSON.parse_string(JSON.stringify(payload,"",true))
@@ -283,10 +416,102 @@ func _read_payload(path: String) -> Dictionary:
 		if not id is String or id.is_empty() or id.length()>128 or seen.has(id):
 			return {}
 		seen[id] = true
+	if data.has("opening_completed") and not data.opening_completed is bool:
+		return {}
+	if data.has("active_run"):
+		if not data.active_run is Dictionary:
+			return {}
+		if not data.active_run.is_empty() and not _valid_active_run(data.active_run,seen):
+			return {}
 	return data
 
 func _valid_integer(value: Variant,low: int,high: int) -> bool:
 	return (value is int or value is float) and is_finite(float(value)) and float(value)==floor(float(value)) and value>=low and value<=high
+
+## Strict room-start snapshot schema. A checkpoint is a replayable claim on the
+## wallet, so every field that can pay out or skip a room must be well formed
+## before it is trusted; a settled run id can never be resumed and paid again.
+func _valid_active_run(run: Dictionary,settled: Dictionary) -> bool:
+	var id: Variant = run.get("run_id")
+	if not id is String or id.is_empty() or id.length() > 128 or settled.has(id):
+		return false
+	if run.has("run_seed") and not _valid_integer(run.run_seed,0,9007199254740992):
+		return false
+	var order_value: Variant = run.get("order")
+	if not order_value is Array or order_value.size() != 4:
+		return false
+	var order_seen := {}
+	for realm in order_value:
+		if not _valid_integer(realm,0,3) or order_seen.has(int(realm)):
+			return false
+		order_seen[int(realm)] = true
+	if not _valid_integer(run.get("floor_index"),0,4) or not _valid_integer(run.get("room_index"),0,2):
+		return false
+	var floor_value := int(run.floor_index)
+	var room_value := int(run.room_index)
+	for field in ["defeated","deprivations","shards"]:
+		var values: Variant = run.get(field)
+		if not values is Array or values.size() > 4:
+			return false
+		var realm_seen := {}
+		for realm in values:
+			if not _valid_integer(realm,0,3) or realm_seen.has(int(realm)):
+				return false
+			realm_seen[int(realm)] = true
+	if floor_value == 4:
+		if room_value != 0 or run.defeated.size() != 4 or run.shards.size() != 4:
+			return false
+	if run.defeated.size() > floor_value + (1 if room_value == 2 else 0):
+		return false
+	var boon_ids: Variant = run.get("boon_ids")
+	if not boon_ids is Array or boon_ids.size() > 128:
+		return false
+	var known_boons := {}
+	var core_slots := {}
+	for boon_id in boon_ids:
+		if not boon_id is String or boon_id.is_empty() or known_boons.has(boon_id):
+			return false
+		known_boons[boon_id] = true
+		var card := _boon_by_id(boon_id)
+		if card == null:
+			return false
+		if card.core:
+			if core_slots.has(card.slot):
+				return false
+			core_slots[card.slot] = true
+	var hp_value: Variant = run.get("hp")
+	if not (hp_value is int or hp_value is float) or not is_finite(float(hp_value)) or float(hp_value) <= 0.0:
+		return false
+	if not _valid_integer(run.get("rerolls"),0,10):
+		return false
+	if not _valid_integer(run.get("earned_will"),0,1000000000) or not _valid_integer(run.get("earned_anchors"),0,1000000000):
+		return false
+	if not run.get("entry_reward_claimed") is bool or not run.get("defiance_consumed") is bool:
+		return false
+	if run.has("fragment_state"):
+		if not run.fragment_state is Dictionary or run.fragment_state.size() > 16:
+			return false
+		for key in run.fragment_state:
+			var value: Variant = run.fragment_state[key]
+			if not key is String or key.length() > 32 or not (value is int or value is float) or not is_finite(float(value)):
+				return false
+	if run.has("selections"):
+		if not run.selections is Array or run.selections.size() > 256:
+			return false
+		for entry in run.selections:
+			if not entry is Dictionary:
+				return false
+			if not _valid_integer(entry.get("floor"),0,5) or not _valid_integer(entry.get("room"),0,2):
+				return false
+			if not _valid_integer(entry.get("realm"),0,3) or not entry.get("boon_id") is String:
+				return false
+	return true
+
+func _boon_by_id(id: String) -> BoonData:
+	for card in BoonCatalog.all():
+		if card.id == id:
+			return card
+	return null
 
 func load_save() -> bool:
 	var path := save_path()

@@ -9,6 +9,8 @@ signal reward_selected(stage: RealmStage, card: BoonData)
 signal reroll_spent(stage: RealmStage)
 signal player_fallen(stage: RealmStage, cause: StringName)
 signal retry_requested(stage: RealmStage)
+signal hub_requested(stage: RealmStage)
+signal title_requested(stage: RealmStage)
 signal wave_spawned(stage: RealmStage, wave_index: int, total_waves: int)
 @export_range(0,3) var realm: int = 0
 @export var room_index: int = 0
@@ -63,6 +65,9 @@ var _portal_material: StandardMaterial3D
 var _gate_label: Label3D
 var run_seed := 13800
 var rerolls_remaining := 2
+## Injected by the run director when resuming a run whose opening three-card
+## choice was already taken: the room must not offer the same gift again.
+var skip_entry_reward := false
 var _reward_context := ""
 var _reward_offer: Array[BoonData] = []
 ## True when a stage wired before the vector split only set the legacy scalar
@@ -149,7 +154,7 @@ func _ready() -> void:
 	# Opening three-card choice. Deferred on purpose: the run controller restores
 	# the saved loadout right after add_child, and that restore replaces the whole
 	# card set. Choosing here would be erased by it.
-	if campaign and depth == 0 and room_index == 0:
+	if campaign and depth == 0 and room_index == 0 and not skip_entry_reward:
 		offer_entry_reward.call_deferred()
 
 func _install_audio() -> void:
@@ -816,6 +821,12 @@ func retry() -> void:
 	elif get_tree().current_scene == self:
 		get_tree().paused = false
 		get_tree().reload_current_scene.call_deferred()
+
+func request_hub() -> void:
+	hub_requested.emit(self)
+
+func request_title() -> void:
+	title_requested.emit(self)
 
 func request_exit() -> bool:
 	if not exit_ready or fallen or transitioning or get_tree().paused:

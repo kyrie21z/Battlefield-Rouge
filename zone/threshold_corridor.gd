@@ -2,8 +2,11 @@ extends Node3D
 ## Continuous return corridor; the same player and camera survive the climax.
 signal duel_requested(player: Player)
 signal duel_defeated(crown: Node3D)
+signal title_requested(stage: Node)
 var player: Player
 var reassembly: BodyReassembly
+var pause_menu: PauseMenu
+var _settings: GameSettings
 var reconstituted := false
 var duel_started := false
 var encounter: Node3D
@@ -53,7 +56,21 @@ func _ready()->void:
 	text.position=Vector3(0,2.2,-33.8)
 	text.modulate=Color("756a55")
 	add_child(text)
+	_setup_pause_menu()
 	Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+
+func _setup_pause_menu()->void:
+	_settings=GameSettings.new()
+	if DisplayServer.get_name()!="headless":
+		_settings.load_from(GameSettings.settings_path)
+	var ui_layer:=CanvasLayer.new()
+	ui_layer.layer=30
+	add_child(ui_layer)
+	pause_menu=PauseMenu.new()
+	ui_layer.add_child(pause_menu)
+	pause_menu.setup(_settings,player,null)
+	pause_menu.configure_exit_button(RunDirector.active,"进度已保存至本房间起点")
+	pause_menu.return_to_title_requested.connect(func()->void:title_requested.emit(self))
 
 func _physics_process(_delta:float)->void:
 	if not is_instance_valid(player) or player.health.is_dead():return
@@ -86,6 +103,10 @@ func _duel_defeated(crown:Node3D)->void:
 	if not ResourceLoader.exists(path):return
 	var ending:Node3D=load(path).new()
 	ending_sequence=ending
+	if is_instance_valid(pause_menu):
+		pause_menu.close()
+		pause_menu.configure_exit_button(false)
+		pause_menu.process_mode=Node.PROCESS_MODE_DISABLED
 	ending.setup(player,crown)
 	ending.finished.connect(RunDirector.finish_campaign)
 	add_child(ending)

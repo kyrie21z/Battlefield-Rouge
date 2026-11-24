@@ -48,7 +48,7 @@ func _ready() -> void:
 	box.add_child(EditorialStyle.make_rule(EditorialStyle.PAPER_DIM, 2))
 
 	var start := Button.new()
-	start.text = "开启新的挑战  →"
+	start.text = "返回静滞之门  →"
 	start.custom_minimum_size = Vector2(360, 56)
 	start.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	EditorialStyle.style_button(start, true, true, 20)
@@ -63,6 +63,14 @@ func _ready() -> void:
 	_archive_button.pressed.connect(_open_archive)
 	box.add_child(_archive_button)
 
+	var title_button := Button.new()
+	title_button.text = "返回标题画面"
+	title_button.custom_minimum_size = Vector2(360, 48)
+	title_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	EditorialStyle.style_button(title_button, false, true, 18)
+	title_button.pressed.connect(RunDirector.return_to_title, CONNECT_DEFERRED)
+	box.add_child(title_button)
+
 	var quit_button := Button.new()
 	quit_button.text = "退出"
 	quit_button.custom_minimum_size = Vector2(360, 48)
@@ -75,8 +83,7 @@ func _ready() -> void:
 
 
 func _start_new_challenge() -> void:
-	if RunDirector.begin_run():
-		get_tree().change_scene_to_file("res://ui/game_start.tscn")
+	RunDirector.enter_hub.call_deferred("epilogue")
 
 
 func _open_archive() -> void:

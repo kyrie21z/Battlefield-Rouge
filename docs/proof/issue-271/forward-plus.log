@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.335 - Forward+ - Using Device #0: Unknown - llvmpipe (LLVM 21.1.8, 256 bits)
+
+PASS normal boot is read-only
+PASS menu: 开始游戏 / 设置与按键 / 退出游戏
+PASS fresh white body and low-emission hovering crown
+PASS native screenshot /tmp/bfr-275-native/fresh.png
+PASS title settings work standalone
+PASS standalone settings persist and reduce portrait movement
+PASS existing profile is saved
+PASS menu: 继续游戏 / 新游戏 / 设置与按键 / 退出游戏
+PASS hub summary reflects saved progress
+PASS checkpoint is valid
+PASS menu: 继续当前挑战 / 返回静滞之门 / 新游戏 / 设置与按键 / 退出游戏
+PASS exploring body has visible seated crown, three fractures and three realm pips
+PASS room summary uses checkpoint order and indices
+PASS native screenshot /tmp/bfr-275-native/mid.png
+PASS abandonment requires explicit confirmation
+PASS canceling abandonment keeps the checkpoint
+PASS resume action installs the saved room with its original seed
+PASS returning from combat remounts the active-run title with the same checkpoint
+PASS confirmed abandonment banks only checkpointed income
+PASS reconciled bust restores kintsugi with calm crown and epilogue tagline
+PASS native screenshot /tmp/bfr-275-native/reconciled.png
+PASS new game confirmation explains the backup
+PASS canceling reset preserves progression
+PASS confirmed reset saves original backup and enters opening with a clean director
+TITLE SCREEN: 24 checks, 0 failures

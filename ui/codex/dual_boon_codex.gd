@@ -75,17 +75,22 @@ func refresh() -> void:
 	var held := {}
 	var ready_count := 0
 	var core_lines: Array[String] = []
-	if is_instance_valid(_manager):
+	var has_build := is_instance_valid(_manager)
+	if has_build:
 		for slot in _manager.slots:
 			if slot.data != null:
 				held[slot.data.sin] = true
 				core_lines.append("%s  /  %s" % [BoonIdentity.SIN_NAMES[slot.data.sin], slot.data.name])
 	for card in _duals:
-		available[card.id] = is_instance_valid(_manager) and _manager.can_equip(card)
+		available[card.id] = has_build and _manager.can_equip(card)
 		if available[card.id]:
 			ready_count += 1
-	_summary.text = "48 张心魔赐福  /  6 组双重共鸣  /  %d 组当前可获得" % ready_count
-	_core_summary.text = "当前核心  /  " + (" · ".join(core_lines) if not core_lines.is_empty() else "尚未持有核心 · 从右侧查看构筑路线")
+	_summary.text = "%d 张心魔赐福  /  %d 组双重共鸣" % [_catalog.size() - _duals.size(), _duals.size()]
+	if has_build:
+		_summary.text += "  /  %d 组当前可获得" % ready_count
+		_core_summary.text = "当前核心  /  " + (" · ".join(core_lines) if not core_lines.is_empty() else "尚未持有核心 · 从右侧查看构筑路线")
+	else:
+		_core_summary.text = "档案阅览 · 选择连线查看合成路线"
 	_update_cards()
 	_topology.update_state(_duals, available, held, _selected.id if _selected != null else "")
 	_topology.style_edges()
@@ -340,7 +345,9 @@ func _update_detail() -> void:
 	_detail_meta.text = "%s  /  %s  /  %s" % [identity, BoonIdentity.RARITIES[card.rarity], "核心 · " + BoonIdentity.SLOT_NAMES[card.slot] if card.core else "次级特质"]
 	var owned := is_instance_valid(_manager) and _manager.has(card.id)
 	var eligible := is_instance_valid(_manager) and _manager.can_equip(card)
-	_detail_status.text = ("已发现" if _discovered.has(card.id) else "未发现 · 可预览完整效果") + "  /  " + ("当前已持有" if owned else ("当前可获得" if eligible else "当前不可获得"))
+	_detail_status.text = "已发现" if _discovered.has(card.id) else "未发现 · 可预览完整效果"
+	if is_instance_valid(_manager):
+		_detail_status.text += "  /  " + ("当前已持有" if owned else ("当前可获得" if eligible else "当前不可获得"))
 	_detail_body.text = card.description
 	_requirements.text = "合成 / 获取前置\n" + "\n".join(CodexRequirements.describe(card, _manager, _catalog))
 

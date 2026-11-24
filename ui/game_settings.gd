@@ -40,6 +40,7 @@ var crosshair_thickness := 1.5
 ## Today's crosshair colour alpha.
 var crosshair_alpha := 0.9
 var dynamic_gap := true
+var reduced_motion := false
 ## Linear 0..1 level of the Music bus; 0 mutes it.
 var music_volume := MUSIC_DEFAULT
 ## action → KeyBindings code, only for actions moved off their default.
@@ -67,6 +68,7 @@ func reset_defaults() -> void:
 	crosshair_thickness = 1.5
 	crosshair_alpha = 0.9
 	dynamic_gap = true
+	reduced_motion = false
 	music_volume = MUSIC_DEFAULT
 	bindings = {}
 	changed.emit()
@@ -87,6 +89,7 @@ func load_from(path: String) -> bool:
 	crosshair_thickness = float(config.get_value("crosshair", "thickness", crosshair_thickness))
 	crosshair_alpha = float(config.get_value("crosshair", "alpha", crosshair_alpha))
 	dynamic_gap = bool(config.get_value("crosshair", "dynamic_gap", dynamic_gap))
+	reduced_motion = bool(config.get_value("accessibility", "reduced_motion", reduced_motion))
 	music_volume = float(config.get_value("audio", "music_volume", music_volume))
 	bindings = {}
 	if config.has_section("bindings"):
@@ -108,6 +111,7 @@ func save_to(path: String) -> Error:
 	config.set_value("crosshair", "thickness", crosshair_thickness)
 	config.set_value("crosshair", "alpha", crosshair_alpha)
 	config.set_value("crosshair", "dynamic_gap", dynamic_gap)
+	config.set_value("accessibility", "reduced_motion", reduced_motion)
 	config.set_value("audio", "music_volume", music_volume)
 	for action in bindings:
 		config.set_value("bindings", action, bindings[action])

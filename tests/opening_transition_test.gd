@@ -4,7 +4,7 @@ extends Node
 
 const BOOT := preload("res://ui/game_start.tscn")
 const FADE := preload("res://ui/scene_fade.gd")
-const FAILING_BOOT := preload("res://tests/support/failing_game_start.gd")
+const FIRST_ROOM := "res://maps/realms/fear_1.tscn"
 
 var _checks := 0
 var _failures := 0
@@ -64,36 +64,49 @@ func _test_fade() -> void:
 	await _frames(2)
 
 
-func _start_campaign() -> void:
+func _start_campaign() -> Node:
 	RunState.clear_fixture()
 	RunState.start_new_run()
-	# Each route exercises the first-run cinematic in this process-local test profile.
-	# Real later runs still skip it and are covered by opening_boot/meta_campaign.
-	RunDirector.run_count = 0
-	RunDirector.begin_run(146001)
-	get_tree().paused = false
+	RunDirector.reset_campaign()
+	RunDirector.randomize_realm_order = false
+	var boot := BOOT.instantiate()
+	get_tree().root.add_child(boot)
+	get_tree().current_scene = boot
+	(boot.title_screen.find_child("Primary", true, false) as Button).pressed.emit()
+	var opened := await _wait_for(func() -> bool: return is_instance_valid(boot.opening))
+	_check("real title action starts the opening", opened)
+	await _wait_for(func() -> bool: return _fade_nodes().is_empty())
+	return boot
+
+
+func _cross_gate(boot: Node) -> void:
+	var opening := boot.opening as OpeningSequence
+	opening.skip()
+	opening.player.position.z = -13.2
+	opening.advance(0.1)
 
 
 func _test_opening_entry() -> void:
 	print("== opening path")
-	_start_campaign()
-	var path := RunDirector.scene_path()
-	var boot := BOOT.instantiate()
-	get_tree().root.add_child(boot)
-	get_tree().current_scene = boot
-	_check("the opening records its destination without loading the zone",
-		boot._zone_path == path and boot._packed == null)
+	var boot := await _start_campaign()
+	var path := FIRST_ROOM
+	_check("the opening does not start a run or load the first room",
+		not RunDirector.active and RunDirector.run_count == 0 and not ResourceLoader.has_cached(path))
 	_check("the opening starts no background request for the zone",
 		ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
 	_check("only the opening owns the screen before departure",
 		is_instance_valid(boot.opening) and get_tree().current_scene == boot)
 	await _frames(5)
-	_check("reading the opening leaves the zone unloaded and starts no threaded work",
-		boot._packed == null
+	_check("watching the opening leaves the zone unloaded and starts no threaded work",
+		not ResourceLoader.has_cached(path)
 		and ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE)
 
-	boot.opening.combat_entry_requested.emit()
-	await _close_starting_forge(boot)
+	_cross_gate(boot)
+	var opening := boot.opening as OpeningSequence
+	opening.advance(0.1)
+	_check("repeated gate traversal starts one checkpoint and no Forge",
+		opening.entry_count == 1 and RunDirector.run_count == 1 and MetaProgression.has_active_run()
+		and boot.find_child("CrownForge", true, false) == null)
 	var black := false
 	var deadline := Time.get_ticks_msec() + 30000
 	while Time.get_ticks_msec() < deadline:
@@ -131,29 +144,23 @@ func _test_opening_entry() -> void:
 
 
 func _test_loading_failure_retry(empty_scene: bool) -> void:
-	print("== loading %s failure and retry" % ["empty scene" if empty_scene else "missing resource"])
-	_start_campaign()
-	var path := RunDirector.scene_path()
+	print("== loading %s failure and retry" % ["empty scene" if empty_scene else "wrong resource type"])
+	var boot := await _start_campaign()
+	var path := FIRST_ROOM
+	var valid_scene := load(path) as PackedScene
+	# Substitute a wrong resource type or an uninstantiable scene without editing maps.
+	var broken_scene: Resource = PackedScene.new() if empty_scene else Resource.new()
+	broken_scene.take_over_path(path)
+	_cross_gate(boot)
 	var original_seed := RunDirector.run_seed
-	# Run the actual error/retry flow for both a missing resource and a resource
-	# that loads but cannot instantiate. Avoid preloading a combat class.
-	var observations := {"attempts": 0, "loading_visible": [], "empty_scene": empty_scene}
-	var boot := FAILING_BOOT.new()
-	boot.observations = observations
-	get_tree().root.add_child(boot)
-	get_tree().current_scene = boot
-	boot.opening.combat_entry_requested.emit()
-	boot._enter_game()
-	await _close_starting_forge(boot)
+	var original_checkpoint := MetaProgression.active_run.duplicate(true)
+	var loading_presented := await _wait_for(func() -> bool:
+		return _fade_nodes().size() == 1 and _fade_nodes()[0].is_loading())
 	var failed := await _wait_for(func() -> bool:
-		return observations["attempts"] == 1 and not boot._load_requested, 5000)
-	_check("the failed read finishes and duplicate entry does not start another load", failed)
-	if not failed:
-		await _close_current_scene()
-		for overlay in _fade_nodes():
-			overlay.discard()
-		await _frames(2)
-		return
+		return _fade_nodes().size() == 1 and _fade_nodes()[0]._retry_button.is_visible_in_tree())
+	valid_scene.take_over_path(path)
+	_check("the first read follows the loading hint and reaches the retry screen",
+		loading_presented and failed)
 	var overlays := _fade_nodes()
 	_check("failure keeps a single black overlay over the opening", overlays.size() == 1
 		and overlays[0].is_black() and get_tree().current_scene == boot)
@@ -168,45 +175,28 @@ func _test_loading_failure_retry(empty_scene: bool) -> void:
 		fade._quit_button.is_visible_in_tree() and not fade._quit_button.disabled)
 	if not empty_scene:
 		await _capture_loading_error()
-	_check("the actual resource read follows the loading hint", observations["loading_visible"] == [true])
-	_check("failed entry leaves run state intact and releases its guard",
+	_check("failed entry keeps the original run and checkpoint",
 		RunDirector.run_seed == original_seed and RunDirector.boons.is_empty()
-		and RunDirector.selections.is_empty() and not boot._load_requested)
+		and RunDirector.selections.is_empty() and MetaProgression.active_run == original_checkpoint)
 	await _frames(3)
-	_check("failure waits for the player without automatically retrying", observations["attempts"] == 1)
-	# Use the real error button, not a second call to the private entry path.
+	_check("failure waits for the player without automatically retrying",
+		get_tree().current_scene == boot and _fade_nodes() == [fade])
+	# Use the real error button twice. Its one-shot route must install one room.
 	fade._retry_button.pressed.emit()
 	fade._retry_button.pressed.emit()
 	var switched := await _wait_for(func() -> bool:
 		var current := get_tree().current_scene
 		return current != null and current.scene_file_path == path, 30000)
 	_check("the retry button successfully enters the intended zone", switched)
-	_check("repeated retry input starts just one further read", observations["attempts"] == 2)
-	_check("every read presents the loading hint first", observations["loading_visible"] == [true, true])
+	_check("duplicate retry keeps a single transition and does not create a new run",
+		_fade_nodes().size() == 1 and RunDirector.run_count == 1
+		and MetaProgression.active_run == original_checkpoint)
 	var gone := await _wait_for(func() -> bool: return _fade_nodes().is_empty(), 5000)
 	_check("successful retry removes the error and fade overlays", gone)
 	_check("successful retry preserves the seed and initial selection state",
 		RunDirector.run_seed == original_seed and RunDirector.boons.is_empty()
 		and RunDirector.selections.is_empty())
 	await _close_current_scene()
-
-
-func _close_starting_forge(boot: Node) -> void:
-	var offered := await _wait_for(func() -> bool:
-		return is_instance_valid(boot.forge), 5000)
-	_check("departure offers the real Forge before loading the first room", offered)
-	if not offered:
-		return
-	var forge: CrownForge = boot.forge
-	_check("the Forge pauses the opening without starting a resource read or fade",
-		get_tree().paused and boot._packed == null and _fade_nodes().is_empty()
-		and get_tree().current_scene == boot and RunDirector.current_stage == null)
-	boot._enter_game()
-	_check("repeated departure input leaves exactly one Forge awaiting the player",
-		boot.forge == forge and boot.find_children("CrownForge", "", false, false).size() == 1)
-	forge.close()
-	_check("closing the real Forge prepares departure exactly once",
-		RunDirector.forge_visited and RunDirector._departure_prepared)
 
 
 func _test_fixture_entry() -> void:
@@ -218,7 +208,7 @@ func _test_fixture_entry() -> void:
 	var boot := BOOT.instantiate()
 	get_tree().root.add_child(boot)
 	get_tree().current_scene = boot
-	_check("the fixture path starts no background load", boot._zone_path.is_empty())
+	_check("the fixture path mounts neither title nor opening", boot.title_screen == null and boot.opening == null)
 	_check("and creates no fade overlay", _fade_nodes().is_empty())
 	var switched := false
 	var overlay_seen := false

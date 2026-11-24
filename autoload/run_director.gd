@@ -9,6 +9,8 @@ const REALMS := ["sloth","fear","wrath","sorrow"]
 const PLAYTEST_ORDER := [1,0,2,3]
 var randomize_realm_order := true
 const THRESHOLD := "res://levels/climax/threshold_corridor.tscn"
+const STASIS_HUB := "res://levels/stasis_hub/stasis_hub.tscn"
+const TITLE_ENTRY := "res://ui/game_start.tscn"
 var active := false
 var completed := false
 var run_count := 0
@@ -45,9 +47,14 @@ const SLOTH_HASTE := 0.12
 var run_id := ""
 var earned_will := 0
 var earned_anchors := 0
-var forge_visited := false
+## True once the first room's opening three-card choice has been taken. A
+## resumed 0:0 run must never offer that choice again.
+var entry_reward_claimed := false
+## Set for a resumed room or a fresh departure after the hub debrief.
+var suppress_entry_history_voice := false
 var _departure_prepared := false
 var _settled := false
+var _pending_checkpoint: Dictionary = {}
 var _rewarded_kills := {}
 var _rewarded_rooms := {}
 var settlement_error := ""
@@ -58,15 +65,20 @@ func _ready() -> void:
 	run_count = int(MetaProgression.history.run_count)
 	last_death_depth = int(MetaProgression.history.last_depth)
 	last_death_cause = StringName(MetaProgression.history.death_cause)
+	if not MetaProgression.revived.is_connected(_revived_for_checkpoint):
+		MetaProgression.revived.connect(_revived_for_checkpoint)
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-func begin_run(value_seed: int = -1) -> bool:
+func begin_run(value_seed: int = -1, persist_history := true) -> bool:
 	# Never discard a failed settlement when the player asks for another run.
 	if not run_id.is_empty() and not _settled and (_dead or completed or earned_will>0 or earned_anchors>0):
 		if not settle_rewards():
 			return false
+	if MetaProgression.has_active_run():
+		MetaProgression.clear_active_run()
+	_pending_checkpoint.clear()
 	active = true
 	completed = false
 	current_stage = null
@@ -76,7 +88,6 @@ func begin_run(value_seed: int = -1) -> bool:
 	_rewarded_kills.clear()
 	_rewarded_rooms.clear()
 	_settled = false
-	forge_visited = false
 	_departure_prepared = false
 	MetaProgression.begin_run(run_id)
 	run_count += 1
@@ -105,13 +116,23 @@ func begin_run(value_seed: int = -1) -> bool:
 	_transitioning = false
 	_dead = false
 	_starter_given = false
+	entry_reward_claimed = false
+	suppress_entry_history_voice = false
 	_epoch += 1
-	MetaProgression.record_history(run_count,last_death_depth,str(last_death_cause))
+	if persist_history:
+		MetaProgression.record_history(run_count,last_death_depth,str(last_death_cause))
 	changed.emit()
 	return true
 
-func prepare_departure() -> void:
-	# Called after the starting Forge closes, before the first Player is spawned.
+func start_opening_run(audio: AudioStreamPlayer) -> bool:
+	if _transitioning or not begin_run(-1, false):
+		return false
+	prepare_departure(true)
+	_transitioning = true
+	_load_current(_epoch, true, true, audio)
+	return true
+
+func prepare_departure(completes_opening := false) -> void:
 	if _departure_prepared or floor_index != 0 or room_index != 0:
 		return
 	_departure_prepared = true
@@ -122,6 +143,227 @@ func prepare_departure() -> void:
 	var starting := MetaProgression.starting_boon(rng)
 	if starting != null:
 		boons.append(starting)
+	entry_reward_claimed = false
+	_checkpoint_active_run(completes_opening)
+
+func _checkpoint_active_run(completes_opening := false) -> bool:
+	if not active or completed or _dead or run_id.is_empty():
+		return false
+	var snapshot := _active_run_snapshot()
+	var ok := MetaProgression.mark_opening_completed(snapshot, _history()) if completes_opening else MetaProgression.save_active_run(snapshot)
+	if ok:
+		_pending_checkpoint.clear()
+		if is_instance_valid(_save_notice):
+			_save_notice.queue_free()
+			_save_notice = null
+			_save_retry = null
+	elif not completes_opening:
+		_pending_checkpoint = snapshot.duplicate(true)
+	return ok
+
+func _active_run_snapshot() -> Dictionary:
+	var boon_ids: Array[String] = []
+	for card in boons:
+		if card is BoonData:
+			boon_ids.append(card.id)
+	return {
+		"run_id":run_id,
+		"run_seed":run_seed,
+		"order":order.duplicate(),
+		"floor_index":floor_index,
+		"room_index":room_index,
+		"defeated":defeated.duplicate(),
+		"deprivations":deprivations.duplicate(),
+		"shards":shards.duplicate(),
+		"hp":float(hp if hp > 0.0 else MetaProgression.maximum_health()),
+		"boon_ids":boon_ids,
+		"fragment_state":fragment_state.duplicate(true),
+		"rerolls":rerolls,
+		"selections":selections.duplicate(true),
+		"entry_reward_claimed":entry_reward_claimed,
+		"earned_will":earned_will,
+		"earned_anchors":earned_anchors,
+		"defiance_consumed":MetaProgression.defiance_consumed,
+	}
+
+func _revived_for_checkpoint(_player: Player) -> void:
+	var base: Dictionary = _pending_checkpoint if not _pending_checkpoint.is_empty() else MetaProgression.active_run
+	if run_id.is_empty() or base.is_empty():
+		return
+	if str(base.get("run_id","")) != run_id:
+		return
+	if bool(base.get("defiance_consumed",false)) and _pending_checkpoint.is_empty():
+		return
+	var updated: Dictionary = base.duplicate(true)
+	updated["defiance_consumed"] = true
+	if MetaProgression.save_active_run(updated):
+		_pending_checkpoint.clear()
+	else:
+		_pending_checkpoint = updated
+
+func _flush_pending_checkpoint() -> bool:
+	if _pending_checkpoint.is_empty():
+		return true
+	if MetaProgression.save_active_run(_pending_checkpoint):
+		_pending_checkpoint.clear()
+		settlement_error = ""
+		if is_instance_valid(_save_notice):
+			_save_notice.queue_free()
+			_save_notice = null
+			_save_retry = null
+		return true
+	settlement_error = MetaProgression.last_error if not MetaProgression.last_error.is_empty() else "无法保存当前进度"
+	_show_checkpoint_save_failure()
+	return false
+
+func _show_checkpoint_save_failure() -> void:
+	if is_instance_valid(_save_notice):
+		return
+	_save_notice = CanvasLayer.new()
+	_save_notice.layer = 90
+	_save_notice.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_save_notice)
+	var panel := PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.offset_left = -360
+	panel.offset_right = 360
+	panel.offset_top = -100
+	panel.offset_bottom = 100
+	_save_notice.add_child(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation",18)
+	panel.add_child(column)
+	var label := Label.new()
+	label.text = "当前房间进度尚未保存\n%s\n请重试保存后再切换场景。" % settlement_error
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size",24)
+	column.add_child(label)
+	_save_retry = Button.new()
+	_save_retry.text = "重试保存"
+	_save_retry.pressed.connect(_flush_pending_checkpoint)
+	column.add_child(_save_retry)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+## Rebuilds the whole campaign from the stored room-start snapshot and installs
+## that room. Callers route here instead of begin_run when a checkpoint exists.
+func resume_run(stage_scene: PackedScene = null) -> bool:
+	var snapshot: Dictionary = MetaProgression.active_run
+	if snapshot.is_empty():
+		return false
+	var restored_boons: Array = []
+	for boon_id in snapshot.get("boon_ids",[]):
+		var card := _boon_by_id(str(boon_id))
+		if card == null:
+			return false
+		restored_boons.append(card)
+	active = true
+	completed = false
+	_dead = false
+	_settled = false
+	_transitioning = false
+	run_id = str(snapshot.get("run_id",""))
+	run_seed = int(snapshot.get("run_seed",0))
+	order.assign(snapshot.get("order",[]))
+	floor_index = int(snapshot.get("floor_index",0))
+	room_index = int(snapshot.get("room_index",0))
+	defeated.assign(snapshot.get("defeated",[]))
+	deprivations.assign(snapshot.get("deprivations",[]))
+	shards.assign(snapshot.get("shards",[]))
+	hp = float(snapshot.get("hp",MetaProgression.maximum_health()))
+	boons = restored_boons
+	fragment_state = snapshot.get("fragment_state",{}).duplicate(true)
+	rerolls = int(snapshot.get("rerolls",0))
+	selections.clear()
+	for entry in snapshot.get("selections",[]):
+		if entry is Dictionary:
+			selections.append(entry.duplicate(true))
+	entry_reward_claimed = bool(snapshot.get("entry_reward_claimed",false))
+	earned_will = int(snapshot.get("earned_will",0))
+	earned_anchors = int(snapshot.get("earned_anchors",0))
+	crown_strength = 0.5 * pow(2.4,defeated.size())
+	_rewarded_kills.clear()
+	_rewarded_rooms.clear()
+	_starter_given = false
+	_departure_prepared = true
+	_pending_checkpoint.clear()
+	suppress_entry_history_voice = true
+	MetaProgression.active_run_id = run_id
+	MetaProgression.defiance_consumed = bool(snapshot.get("defiance_consumed",false))
+	_epoch += 1
+	changed.emit()
+	var packed := stage_scene if stage_scene != null else load(scene_path()) as PackedScene
+	if packed == null:
+		return false
+	return install_stage(packed) == OK
+
+## Title-screen "return to the stasis hub": lock in the currency the player had
+## already earned up to the last room boundary and drop the checkpoint.
+func abandon_active_run() -> bool:
+	var snapshot: Dictionary = MetaProgression.active_run.duplicate(true)
+	if snapshot.is_empty():
+		return false
+	var id := str(snapshot.get("run_id",""))
+	if not id.is_empty() and not MetaProgression.settled_runs.has(id):
+		if not MetaProgression.settle_run(id,int(snapshot.get("earned_will",0)),int(snapshot.get("earned_anchors",0))):
+			settlement_error = MetaProgression.last_error if not MetaProgression.last_error.is_empty() else "无法保存本局结果"
+			return false
+	MetaProgression.clear_active_run()
+	_settled = true
+	_finish_abandoned_run()
+	return true
+
+func _finish_abandoned_run() -> void:
+	active = false
+	completed = false
+	_dead = false
+	_transitioning = false
+	run_id = ""
+	earned_will = 0
+	earned_anchors = 0
+	boons.clear()
+	fragment_state.clear()
+	defeated.clear()
+	deprivations.clear()
+	shards.clear()
+	selections.clear()
+	floor_index = 0
+	room_index = 0
+	hp = -1.0
+	run_seed = 0
+	order.clear()
+	rerolls = RunState.STARTING_REROLLS
+	crown_strength = 0.5
+	_rewarded_kills.clear()
+	_rewarded_rooms.clear()
+	entry_reward_claimed = false
+	suppress_entry_history_voice = false
+	_departure_prepared = false
+	_pending_checkpoint.clear()
+	_starter_given = false
+	current_stage = null
+	_epoch += 1
+	changed.emit()
+
+func reset_campaign() -> bool:
+	if not MetaProgression.reset_profile():
+		return false
+	run_count = 0
+	last_death_depth = 0
+	last_death_cause = &""
+	_settled = false
+	settlement_error = ""
+	if is_instance_valid(_save_notice):
+		_save_notice.queue_free()
+	_save_notice = null
+	_save_retry = null
+	_finish_abandoned_run()
+	return true
+
+func _boon_by_id(id: String) -> BoonData:
+	for card in BoonCatalog.all():
+		if card.id == id:
+			return card
+	return null
 
 func _history() -> Dictionary:
 	return {"run_count":run_count,"last_depth":last_death_depth,"death_cause":str(last_death_cause)}
@@ -292,7 +534,7 @@ func restore_player(player: Player) -> void:
 		body.set_fracture_level(defeated.size())
 	var crown := player.get_node_or_null("CrownVoiceSystem")
 	if crown != null:
-		crown.configure_history(run_count,last_death_depth,str(last_death_cause),room_index == 0)
+		crown.configure_history(run_count,last_death_depth,str(last_death_cause),room_index == 0 and not suppress_entry_history_voice)
 		crown.set_fracture_level(defeated.size())
 		crown.enter_floor(mini(floor_index+1,5))
 	else:
@@ -319,6 +561,8 @@ func install_stage(packed: PackedScene) -> Error:
 		next.set("tempo_includes_sloth_haste",deprivations.has(0))
 		next.set("run_seed",run_seed)
 		next.set("rerolls_remaining",rerolls)
+		if "skip_entry_reward" in next:
+			next.set("skip_entry_reward",floor_index == 0 and room_index == 0 and entry_reward_claimed)
 		next.configure_run(floor_index,deprivations,shards,hp,boons)
 		next.realm_defeated.connect(_realm_defeated)
 		next.enemy_defeated.connect(_enemy_defeated)
@@ -326,8 +570,12 @@ func install_stage(packed: PackedScene) -> Error:
 		next.exit_requested.connect(_stage_exit)
 		next.player_fallen.connect(_stage_fallen)
 		next.retry_requested.connect(_stage_retry)
+		next.hub_requested.connect(_stage_hub, CONNECT_DEFERRED)
+		next.title_requested.connect(_stage_title, CONNECT_DEFERRED)
 		next.reward_selected.connect(_reward_selected)
 		next.reroll_spent.connect(_reroll_spent)
+	elif next.has_signal("title_requested"):
+		next.connect("title_requested", _stage_title, CONNECT_DEFERRED)
 	var previous := get_tree().current_scene
 	get_tree().paused = false
 	get_tree().root.add_child(next)
@@ -337,6 +585,7 @@ func install_stage(packed: PackedScene) -> Error:
 		previous.queue_free()
 	if "player" in next and next.get("player") is Player:
 		restore_player(next.get("player"))
+	suppress_entry_history_voice = false
 	if active and next is RealmStage and current_realm() >= 0:
 		MetaProgression.record_archive(current_realm())
 	if floor_index >= 4:
@@ -361,6 +610,9 @@ func _reward_selected(stage: Node, card: BoonData) -> void:
 		return
 	selections.append({"floor":floor_index+1,"room":room_index,"realm":current_realm(),"boon_id":card.id})
 	capture_player(stage.player)
+	if floor_index == 0 and room_index == 0 and not entry_reward_claimed and stage.get("cleared") != true:
+		entry_reward_claimed = true
+		_checkpoint_active_run()
 	changed.emit()
 
 func _reroll_spent(stage: Node) -> void:
@@ -385,6 +637,10 @@ func _stage_exit(stage: Node) -> void:
 func advance_room() -> bool:
 	if not active or _dead or floor_index >= 4:
 		return false
+	var old_floor := floor_index
+	var old_room := room_index
+	var old_fragment_state := fragment_state.duplicate(true)
+	var old_pending := _pending_checkpoint.duplicate(true)
 	if room_index == 2:
 		if not defeated.has(current_realm()) or not shards.has(current_realm()):
 			return false
@@ -392,30 +648,60 @@ func advance_room() -> bool:
 		room_index = 0
 	else:
 		room_index += 1
-	# A new room restores the rest budget only; fragment cooldowns carry over.
 	if not fragment_state.is_empty():
 		fragment_state["room_healed"] = 0.0
+	if not _checkpoint_active_run():
+		floor_index = old_floor
+		room_index = old_room
+		fragment_state = old_fragment_state
+		_pending_checkpoint = old_pending
+		settlement_error = MetaProgression.last_error if not MetaProgression.last_error.is_empty() else "无法保存当前进度"
+		_show_checkpoint_save_failure()
+		return false
 	changed.emit()
 	return true
 
-func _load_current(epoch: int) -> void:
+func _load_current(epoch: int, require_initial_checkpoint := false, completes_opening := false,
+		opening_audio: AudioStreamPlayer = null) -> void:
 	if epoch != _epoch or _dead or not active:
 		return
 	get_tree().paused = true
 	var fade := SceneFade.new()
 	get_tree().root.add_child(fade)
-	await fade.fade_to_black(0.22)
+	if is_instance_valid(opening_audio):
+		var start_db := opening_audio.volume_db
+		await fade.fade_to_black(0.45, func(progress: float):
+			if is_instance_valid(opening_audio):
+				opening_audio.volume_db = lerpf(start_db, -60.0, progress))
+		if is_instance_valid(opening_audio):
+			opening_audio.stop()
+	else:
+		await fade.fade_to_black(0.22)
 	if epoch != _epoch or _dead or not active:
 		fade.discard()
-		get_tree().paused = false
 		return
+	if require_initial_checkpoint and MetaProgression.active_run.get("run_id", "") != run_id:
+		if not _checkpoint_active_run(completes_opening):
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			fade.show_error("挑战起点尚未保存，请重试。", func():
+				fade.discard()
+				_load_current(epoch, true, completes_opening))
+			return
 	fade.show_loading()
+	# Present the overlay before a synchronous load can stall rendering.
 	await get_tree().process_frame
+	await get_tree().process_frame
+	if epoch != _epoch or _dead or not active:
+		fade.discard()
+		return
 	var packed := load(scene_path()) as PackedScene
 	if install_stage(packed) != OK:
 		_transitioning = false
 		get_tree().paused = false
-		fade.show_error("门扉未能展开，请重试。",func():_load_current(_epoch))
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		fade.show_error("门扉未能展开，请重试。", func():
+			fade.discard()
+			_load_current(epoch, require_initial_checkpoint, completes_opening))
 		push_error("Cannot load campaign stage: " + scene_path())
 		return
 	fade.reveal(3,0.35)
@@ -429,6 +715,63 @@ func _stage_retry(stage: Node) -> void:
 	if stage == current_stage:
 		restart.call_deferred()
 
+func _stage_hub(stage: Node) -> void:
+	if stage == current_stage and _dead:
+		enter_hub("post_death")
+
+func _stage_title(stage: Node) -> void:
+	if stage == current_stage:
+		return_to_title()
+
+func enter_hub(reason := "") -> void:
+	if (_dead or completed) and not settle_rewards():
+		return
+	if MetaProgression.has_active_run() or get_tree().current_scene is StasisHub:
+		return
+	var hub := (load(STASIS_HUB) as PackedScene).instantiate() as StasisHub
+	hub.hub_reason = reason
+	hub.run_count = run_count
+	hub.last_death_depth = last_death_depth
+	hub.last_death_cause = last_death_cause
+	hub.departure_requested.connect(_depart_from_hub.bind(hub), CONNECT_DEFERRED)
+	hub.title_requested.connect(return_to_title, CONNECT_DEFERRED)
+	_install_noncombat_scene(hub)
+
+func _depart_from_hub(hub: StasisHub) -> void:
+	if hub != get_tree().current_scene:
+		return
+	if not begin_run():
+		hub.allow_departure_retry()
+		return
+	suppress_entry_history_voice = hub.hub_reason == "post_death"
+	prepare_departure()
+	_transitioning = true
+	_load_current(_epoch, true)
+
+func return_to_title() -> void:
+	if (_dead or completed) and not settle_rewards():
+		return
+	if active and not _dead and not completed and not _flush_pending_checkpoint():
+		return
+	var title := (load(TITLE_ENTRY) as PackedScene).instantiate()
+	title.set("allow_cli_bypass", false)
+	_install_noncombat_scene(title)
+
+func _install_noncombat_scene(next: Node) -> void:
+	var tree := get_tree()
+	var previous := tree.current_scene
+	active = false
+	_dead = false
+	_transitioning = false
+	current_stage = null
+	_epoch += 1
+	tree.paused = false
+	tree.root.add_child(next)
+	tree.current_scene = next
+	if is_instance_valid(previous):
+		previous.queue_free()
+	changed.emit()
+
 func record_death(cause: StringName) -> void:
 	if not active or _dead or completed:
 		return
@@ -438,7 +781,9 @@ func record_death(cause: StringName) -> void:
 	last_death_cause = cause
 	if current_realm() >= 0:
 		MetaProgression.record_archive(current_realm())
-	settle_rewards()
+	if settle_rewards() and not run_id.is_empty():
+		_pending_checkpoint.clear()
+		MetaProgression.clear_active_run()
 	run_failed.emit(last_death_depth,cause)
 	changed.emit()
 
@@ -452,13 +797,15 @@ func restart() -> void:
 		return
 	if not begin_run():
 		return
-	get_tree().paused = false
-	get_tree().change_scene_to_file("res://ui/game_start.tscn")
+	prepare_departure()
+	_transitioning = true
+	_load_current.call_deferred(_epoch)
 
 func finish_campaign() -> void:
 	if active and not run_id.is_empty():
 		MetaProgression.record_archive(-1,false,true)
-	settle_rewards()
+	if settle_rewards() and not run_id.is_empty():
+		MetaProgression.clear_active_run()
 	completed = true
 	active = false
 	_dead = false

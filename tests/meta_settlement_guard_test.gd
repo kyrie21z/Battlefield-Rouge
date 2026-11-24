@@ -48,6 +48,8 @@ func _run() -> void:
 	var menu:=preload("res://ui/ending_menu.tscn").instantiate()
 	add_child(menu)
 	menu._start_new_challenge()
+	# EndingMenu defers the Hub action. Keep the disk blocked until it has run.
+	await get_tree().process_frame
 	check("ending menu preserves the failed completed run instead of loading a new scene",RunDirector.completed and RunDirector.run_id==id and get_tree().current_scene.get_instance_id()==scene_id)
 	RunDirector.restart()
 	check("R restart remains blocked after terminal completion",RunDirector.completed and RunDirector.run_id==id and not RunDirector.active)

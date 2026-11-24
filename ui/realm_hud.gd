@@ -38,6 +38,7 @@ var _exit_hint_style_orb: StyleBoxFlat
 var _death_backdrop: ColorRect
 var _death_panel: PanelContainer
 var _death_reason: Label
+var _hub_button: Button
 var _fall_notice: Label
 var _fall_notice_left := 0.0
 var _wave_notice: Label
@@ -116,6 +117,8 @@ func _ready() -> void:
 	pause_menu = PauseMenu.new()
 	_root.add_child(pause_menu)
 	pause_menu.setup(settings, stage.player, null)
+	pause_menu.configure_exit_button(stage.campaign, "进度已保存至本房间起点")
+	pause_menu.return_to_title_requested.connect(stage.request_title)
 
 	inspector = preload("res://ui/codex/build_inspector.tscn").instantiate() as BuildInspector
 	inspector.player = stage.player
@@ -420,14 +423,12 @@ func _build_exit_and_death_feedback() -> void:
 	_root.add_child(_death_backdrop)
 	_death_backdrop.hide()
 
-	# Preserve exact child structure expected by tests:
-	# _death_panel.get_child(0) -> VBoxContainer, get_child(1) -> retry Button.
 	_death_panel = PanelContainer.new()
 	_death_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_death_panel.offset_left = -270
 	_death_panel.offset_right = 270
-	_death_panel.offset_top = -125
-	_death_panel.offset_bottom = 125
+	_death_panel.offset_top = -150
+	_death_panel.offset_bottom = 150
 	var death_style := EditorialStyle.plaque(EditorialStyle.PAPER, EditorialStyle.INK, 2, Vector2(8, 8), Color(EditorialStyle.INK, 0.92), 36, 32)
 	death_style.border_width_top = 6
 	death_style.border_color = EditorialStyle.WARNING
@@ -450,11 +451,29 @@ func _build_exit_and_death_feedback() -> void:
 	retry_button.pressed.connect(stage.retry)
 	column.add_child(retry_button)
 
+	_hub_button = Button.new()
+	_hub_button.text = "返回静滞之门"
+	_hub_button.custom_minimum_size = Vector2(280, 48)
+	_hub_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	EditorialStyle.style_button(_hub_button, false, true, 18)
+	_hub_button.pressed.connect(stage.request_hub)
+	column.add_child(_hub_button)
+	MetaProgression.changed.connect(_refresh_hub_exit)
+
 	_root.add_child(_death_panel)
 	_death_panel.hide()
 
 
+func _refresh_hub_exit() -> void:
+	if not stage.fallen:
+		return
+	var affordable := MetaProgression.has_affordable_upgrade()
+	_hub_button.text = "返回静滞之门 · 可锻造" if affordable else "返回静滞之门"
+
+
 func _update_exit_and_death_feedback() -> void:
+	if stage.fallen and not _death_panel.visible:
+		_refresh_hub_exit()
 	_death_backdrop.visible = stage.fallen
 	_death_panel.visible = stage.fallen
 	if stage.fallen:

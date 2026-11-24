@@ -101,7 +101,7 @@ def transform(columns):
 
 def gun_point(point):
     x, y, depth = point
-    return Vector((x, y, depth - 0.47 * y))
+    return Vector((x, y, depth - 0.30 * y))
 
 
 def sweep(stations, axis_hint, convert, sides):

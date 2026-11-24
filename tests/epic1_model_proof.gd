@@ -1,6 +1,8 @@
 extends Node
 ## Native Godot model review: authored GLB silhouettes, facets and the reload pose.
 
+enum Pose { REST, BLOOM, KICK }
+
 const PANEL_SIZE := Vector2i(500, 600)
 const PISTOL := preload("res://weapons/obsidian_pistol/obsidian_pistol_view.tscn")
 const BLADE := preload("res://weapons/mind_blade/mind_blade_view.tscn")
@@ -11,22 +13,39 @@ func _ready() -> void:
 		push_error("Model proof requires native rendering")
 		get_tree().quit(1)
 		return
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/epic1_models/manifest.json"))
+	var pistol: Dictionary = manifest.models[0]
+	var blade: Dictionary = manifest.models[1]
 	var jobs := [
-		[PISTOL, Vector3(2, 0, 0), false, "黑晶手枪 · 侧面", "120 源多边形 / 180 三角面 · 220 mm"],
-		[PISTOL, Vector3(0.9, 0.5, -0.9), false, "黑晶手枪 · 四分之三", "220 × 135 × 32 mm · 内凹六角枪口"],
-		[PISTOL, Vector3(0.9, 0.2, 0.8), true, "黑晶手枪 · 绽放", "四独立块 · 自身中心旋转"],
-		[BLADE, Vector3(2, 0, 0), false, "意志短刃 · 侧面", "45 源多边形 / 70 三角面 · 400 mm"],
-		[BLADE, Vector3(0.8, 0.35, 0.7), false, "意志短刃 · 四分之三", "400 × 40 × 15 mm · Tanto 双坡面"],
+		[PISTOL, Vector3(2, 0, 0), Pose.REST, "黑晶手枪 · 侧面", _dimensions(pistol)],
+		[PISTOL, Vector3(0.96, 0.55, -0.74), Pose.REST, "黑晶手枪 · 四分之三",
+			"%d mm 枪口凹深" % roundi(pistol.muzzle_recess_depth_m * 1000)],
+		[PISTOL, Vector3(0.034, 0.074, 0.30), Pose.REST, "黑晶手枪 · 照门", _counts(pistol), true],
+		[PISTOL, Vector3(-0.86, 0.23, 0.44), Pose.BLOOM, "黑晶手枪 · 绽放", "四块独立枢轴"],
+		[BLADE, Vector3(2, 0, 0), Pose.REST, "意志短刃 · 侧面", _counts(blade)],
+		[PISTOL, Vector3(-0.9, 0.24, -0.28), Pose.KICK, "黑晶手枪 · 退滑", "32 mm 退滑露出晶核"],
 	]
-	var strip := Image.create(PANEL_SIZE.x * jobs.size(), PANEL_SIZE.y, false, Image.FORMAT_RGB8)
+	const COLUMNS := 3
+	var strip := Image.create(PANEL_SIZE.x * COLUMNS, PANEL_SIZE.y * 2, false, Image.FORMAT_RGB8)
 	for i in jobs.size():
 		var panel := await _render(jobs[i])
-		strip.blit_rect(panel, Rect2i(Vector2i.ZERO, PANEL_SIZE), Vector2i(i * PANEL_SIZE.x, 0))
+		var cell := Vector2i(i % COLUMNS, i / COLUMNS)
+		strip.blit_rect(panel, Rect2i(Vector2i.ZERO, PANEL_SIZE), cell * PANEL_SIZE)
 	var folder := "res://docs/proof/epic1"
 	DirAccess.make_dir_recursive_absolute(folder)
 	var result := strip.save_png(folder + "/models.png")
 	print("MODEL PROOF: %s" % error_string(result))
 	get_tree().quit(0 if result == OK else 1)
+
+
+func _counts(model: Dictionary) -> String:
+	return "%d 源多边形 / %d 三角面" % [model.source_polygons, model.glb_triangles]
+
+
+func _dimensions(model: Dictionary) -> String:
+	var xyz: Array = model.bounds_game.size
+	return "%d × %d × %d mm（长 × 高 × 宽）" % [
+		roundi(xyz[2] * 1000), roundi(xyz[1] * 1000), roundi(xyz[0] * 1000)]
 
 
 func _render(job: Array) -> Image:
@@ -41,11 +60,11 @@ func _render(job: Array) -> Image:
 	var environment := WorldEnvironment.new()
 	var settings := Environment.new()
 	settings.background_mode = Environment.BG_COLOR
-	settings.background_color = Color(0.055, 0.065, 0.082)
+	settings.background_color = Color(0.94, 0.96, 0.99)
 	settings.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	settings.ambient_light_color = Color(0.65, 0.72, 0.85)
 	settings.ambient_light_energy = 0.6
-	settings.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	environment.environment = settings
 	world.add_child(environment)
 	var key := DirectionalLight3D.new()
@@ -61,8 +80,12 @@ func _render(job: Array) -> Image:
 	world.add_child(fill)
 	var model: Node3D = (job[0] as PackedScene).instantiate()
 	world.add_child(model)
-	if job[2]:
+	var pose: Pose = job[2]
+	if pose == Pose.BLOOM:
 		model.set_reassembly_progress(0.5)
+	elif pose == Pose.KICK:
+		model.kick_fire()
+		model.set_process(false)
 	var bounds := AABB()
 	var first := true
 	for found in model.find_children("*", "MeshInstance3D", true, false):
@@ -74,10 +97,21 @@ func _render(job: Array) -> Image:
 		first = false
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 0.46 if job[2] else (0.38 if job[0] == PISTOL else 0.56)
+	camera.size = 0.28
+	match pose:
+		Pose.BLOOM:
+			camera.size = 0.47
+		Pose.KICK:
+			camera.size = 0.33
+	if job[0] == BLADE:
+		camera.size = 0.56
 	camera.near = 0.01
 	world.add_child(camera)
-	var target := bounds.get_center() + Vector3.UP * 0.035
+	var target := bounds.get_center() + Vector3.UP * 0.020
+	if job.size() > 5 and job[5]:
+		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+		camera.fov = 45.0
+		target = Vector3(0, 0.052, -0.027)
 	camera.position = target + (job[1] as Vector3)
 	camera.look_at(target, Vector3.UP)
 	camera.make_current()
@@ -87,13 +121,13 @@ func _render(job: Array) -> Image:
 	heading.position = Vector2(24, 22)
 	heading.text = str(job[3])
 	heading.add_theme_font_size_override("font_size", 25)
-	heading.add_theme_color_override("font_color", Color(0.92, 0.94, 0.98))
+	heading.add_theme_color_override("font_color", Color(0.12, 0.14, 0.18))
 	overlay.add_child(heading)
 	var caption := Label.new()
 	caption.position = Vector2(24, 63)
 	caption.text = str(job[4])
 	caption.add_theme_font_size_override("font_size", 17)
-	caption.add_theme_color_override("font_color", Color(0.65, 0.72, 0.83))
+	caption.add_theme_color_override("font_color", Color(0.27, 0.31, 0.39))
 	overlay.add_child(caption)
 	for frame in 6:
 		await get_tree().process_frame

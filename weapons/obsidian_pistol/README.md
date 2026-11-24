@@ -1,15 +1,19 @@
 # 黑晶手枪
 
-Epic 1 / #101–#102，按 `docs/NARRATIVE_FOUNDATION.md` 8.1、转面图和用户后续“面数可以增加，最重要的是质感”的修订实现。正文尺寸优先于参考图内冲突标注。开火逻辑集中在 `weapons/weapon.gd`，视图实例化 `assets/models/weapons/obsidian_pistol.glb`。
+Epic 1 / #101–#102，当前模型采用 S2 的黑曜石三角切面，握把后移并向后倾斜约 16.7°。开火逻辑集中在 `weapons/weapon.gd`，视图实例化 `assets/models/weapons/obsidian_pistol.glb`。
 
-- 原创 SUPERHOT 风格黑曜石矿物轮廓：六角收腰截面、阶梯滑套、斜握把、10mm 深矿物枪口和 0.7mm 暗金缝，使用真实 Blender Shade Flat 网格。四个独立对象为 `barrel_block`、`slide_block`、`grip_block`、`core_crystal`。
-- Blender 源为 **120 个三角/四边多边形**，GLB 为 **180 个渲染三角形**。全长 **220mm**，总高 **135mm**，宽度/握把厚度 **32mm**。采用质量优先预算，如实分别报告源面和渲染三角形；无机械螺栓或扳机护圈。根原点在握把中心，每块局部原点位于自身包围盒中心；不额外缩放模型。
+- 上枪身和下护罩沿直线收边，侧面为平面三角切面。八角枪口内有 12 mm 深的消光凹腔。护圈、扳机、准星和双柱照门均为黑曜石。
+- Blender 源模型有 797 个三角形或平面四边形，GLB 有 1,254 个渲染三角形。全长 200 mm，总高 142 mm，宽 38 mm，握把宽 32 mm。各块以自身包围盒中心为枢轴，握把中心为根原点。
+- Godot 为外壳应用黑曜石着色器，枪口内壁保留导入的消光材质。32 面琥珀晶核在合拢时藏在滑套内，开火退滑 32 mm 和重组绽放时露出。
+- 装备枪械核心赐福时，两侧灯带、滑套尾条和晶核使用 `BoonPalette.COLORS` 的对应世系色。灯带随开火和重组起伏。移除赐福、清空配装或死亡后，灯带恢复外壳的黑曜石着色器，晶核恢复琥珀色。
 - 可再生源码、两份 `.blend` 与面数/尺寸/SHA-256 收据放在 `tools/epic1_models/`，以 `.gdignore` 隔离作者文件。源文件枪口指向 Blender -Y、Z 向上；导出时显式烘焙轴转换，Godot 中枪口为 -Z、+Y 向上。
-- 基础 8 发、35 伤、0.18 秒半自动；30 米开始衰减，90 米到 50%。材质粗糙度 0.25，ADS 为 58°。
+- 基础 8 发、35 伤、0.18 秒半自动；30 米开始衰减，90 米到 50%。ADS 为 58°。
 - 重组基础时长 0.85 秒：0.35 秒绽放、0.30 秒悬浮、0.20 秒磁吸合拢。四块围绕各自中心展开，视图和添弹使用同一计时器。合拢帧同时触发清脆声、枪口 0.06 秒短闪与 `ammo_refilled`。
 - 既有赐福的 `Stats.RELOAD_SPEED` 按比例缩放全部重组阶段；`MAGAZINE_SIZE` 仍生效。`reserve = -1` 表示无限能量重组，HUD 展示当前弹数/容量。打空自动重组，R 可主动重组，满匣与重组中 R 不重新启动。
 - 冲刺和挥刃期间平滑继续重组。挥刃让枪身右偏，枪仍可射击；死亡调用 `deactivate()` 停止重组且不给弹。
 - 命中敌方 Hitbox 时喷出 8 枚实体三棱晶屑（0.45 秒消失，最多 24 组），不生成手枪血雾；墙面命中效果沿用原实现。
 - 音频复用项目自生成 PCM。模型、枪口光与晶屑均为原创，未使用外部下载资产；表现随机数不消耗战区模拟随机序列。
 
-运行 `tests/obsidian_pistol_test.tscn` 核验导出收据、实际 GLB 网格、尺寸、pivot、真实 Hitbox 伤害、冷却、重组时间边界、晶屑、输入防重与死亡取消。`tests/weapons_test.tscn` 是同一验收入口；枪感和阴影回归分别在 `gun_feel_test` 与 `protagonist_body_test`。
+运行 `tests/obsidian_pistol_test.tscn` 核验导出收据、实际 GLB 网格、尺寸、pivot、真实 Hitbox 伤害、冷却、重组时间边界、晶屑、输入防重与死亡取消。`tests/weapons_test.tscn` 是同一验收入口；枪感和阴影回归分别在 `obsidian_pistol_feel_test` 与 `protagonist_body_test`。
+
+`tests/pistol_boon_strip_test.tscn` 用生产 Player 和卡册验证灯带的配装与表现。截图展示生产角色的四分之三、腰射和 ADS 视角。[灯带对照图](../../docs/proof/epic1/pistol-remodel/boon-strips.png)

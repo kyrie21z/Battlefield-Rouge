@@ -65,12 +65,18 @@ func _run() -> void:
 	var triangles := _body_triangles(view)
 	_check("actual imported GLB triangle count matches Blender receipt (%d)" % triangles, triangles == int(model.glb_triangles) and triangles == ObsidianPistolView.BODY_TRIANGLES)
 	var bounds := _model_bounds(view)
-	_check("pistol measures 220 x 135 x 32mm", bounds.size.is_equal_approx(Vector3(.032, .135, .220)))
+	_check("pistol measures 200 x 142 x 38 mm around the grip origin",
+		bounds.position.is_equal_approx(Vector3(-.019, -.048, -.166))
+		and bounds.end.is_equal_approx(Vector3(.019, .094, .034)))
 	var grip := view.get_node("Model").find_child("grip_block", true, false) as MeshInstance3D
 	_check("32mm slanted grip is centred on root origin", absf(grip.mesh.get_aabb().size.x - .032) < .0001 and view.to_local(grip.global_position).length() < 0.001)
 	_check("GLB preserves flat face normals", _flat_normals(view.get_node("Model")))
+	_check("exterior is obsidian with a matte black bore and a separate amber core", _body_materials(view))
 	var muzzle := view.get_node("Muzzle") as Node3D
-	_check("muzzle marker matches barrel opening", muzzle.position.is_equal_approx(Vector3(model.muzzle_game[0], model.muzzle_game[1], model.muzzle_game[2])) and is_equal_approx(model.muzzle_recess_depth_m, .01))
+	_check("muzzle marker matches the opening of a 12 mm bore",
+		muzzle.position.is_equal_approx(Vector3(model.muzzle_game[0], model.muzzle_game[1], model.muzzle_game[2]))
+		and is_equal_approx(model.muzzle_recess_depth_m, .012)
+		and is_equal_approx(_muzzle_recess(view, muzzle.position.z), .012))
 	_check("all four pieces pivot around their own geometry centres", view._pieces.all(
 		func(part: Node3D) -> bool: return (part as MeshInstance3D).mesh.get_aabb().get_center().length() < 0.001))
 	_check("gun stays right of centre and moves inward for ADS", weapon.data.hip_position.x > weapon.data.ads_position.x and weapon.data.ads_position.x > 0.04)
@@ -175,6 +181,50 @@ func _body_triangles(view: Node3D) -> int:
 	for part in view.get_node("Model").find_children("*", "MeshInstance3D", true, false):
 		triangles += (part as MeshInstance3D).mesh.get_faces().size() / 3
 	return triangles
+
+
+func _body_materials(view: ObsidianPistolView) -> bool:
+	for part_name in ["barrel_block", "slide_block", "grip_block"]:
+		var piece := view.find_child(part_name, true, false) as MeshInstance3D
+		var seen := {}
+		for surface in piece.mesh.get_surface_count():
+			var imported := piece.mesh.surface_get_material(surface)
+			var active := piece.get_active_material(surface)
+			seen[imported.resource_name] = true
+			match imported.resource_name:
+				"Obsidian_Mineral", "Boon_Strip":
+					if active != ObsidianPistolView.OBSIDIAN_MATERIAL:
+						return false
+				"Muzzle_Interior":
+					var matte := active as StandardMaterial3D
+					if part_name != "barrel_block" or matte == null or active != imported:
+						return false
+					if matte.emission_enabled or matte.roughness < .95 or matte.albedo_color.get_luminance() > .01:
+						return false
+				_:
+					return false
+		if not seen.has("Obsidian_Mineral"):
+			return false
+		if seen.has("Boon_Strip") != (part_name != "grip_block"):
+			return false
+		if part_name == "barrel_block" and not seen.has("Muzzle_Interior"):
+			return false
+	var core := view.find_child("core_crystal", true, false) as MeshInstance3D
+	var material := core.get_active_material(0) as StandardMaterial3D
+	return core.mesh.surface_get_material(0).resource_name == "Amber_Core" and material.emission_enabled
+
+
+func _muzzle_recess(view: ObsidianPistolView, muzzle_z: float) -> float:
+	var barrel := view.find_child("barrel_block", true, false) as MeshInstance3D
+	var from_barrel := view.global_transform.affine_inverse() * barrel.global_transform
+	var deepest := muzzle_z
+	for surface in barrel.mesh.get_surface_count():
+		if barrel.mesh.surface_get_material(surface).resource_name != "Muzzle_Interior":
+			continue
+		var points: PackedVector3Array = barrel.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]
+		for point in points:
+			deepest = maxf(deepest, (from_barrel * point).z)
+	return deepest - muzzle_z
 
 
 func _model_bounds(view: Node3D) -> AABB:

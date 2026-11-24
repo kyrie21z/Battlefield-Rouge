@@ -19,7 +19,7 @@ script = ExtResource("1")
 [node name="Model" parent="." instance=ExtResource("2")]
 
 [node name="Muzzle" type="Marker3D" parent="."]
-position = Vector3(-0.000000, 0.066000, -0.176500)
+position = Vector3(0, 0.072, -0.166)
 
 [node name="Flash" type="MeshInstance3D" parent="Muzzle"]
 visible = false

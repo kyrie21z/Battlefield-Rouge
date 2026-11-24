@@ -30,7 +30,7 @@ func _ready() -> void:
 func _on_phase_damage(_context: Dictionary) -> void:
 	if boss_phase != 1 or health.is_dead():
 		return
-	if health.health > health.max_health * 0.50 + 0.001:
+	if health.health > health.max_health * 0.50:
 		return
 	boss_phase = 2
 	boss_phase_tempo_scale = 1.20

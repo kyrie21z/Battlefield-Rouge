@@ -505,6 +505,13 @@ func _label(text_value: String, font_size: int) -> Label:
 	return label
 
 
+func _physics_process(delta: float) -> void:
+	if not is_instance_valid(stage) or get_tree().paused:
+		return
+	if _wave_notice_left > 0.0:
+		_wave_notice_left = maxf(0.0, _wave_notice_left - delta)
+
+
 func _process(delta: float) -> void:
 	if not is_instance_valid(stage) or not is_instance_valid(stage.player):
 		return
@@ -518,7 +525,6 @@ func _process(delta: float) -> void:
 
 	_fall_notice_left = maxf(0.0, _fall_notice_left - delta)
 	_fall_notice.visible = _fall_notice_left > 0 and not stage.fallen and not selecting
-	_wave_notice_left = maxf(0.0, _wave_notice_left - delta)
 	_wave_notice.visible = _wave_notice_left > 0 and not stage.fallen and not selecting
 	_update_exit_and_death_feedback()
 

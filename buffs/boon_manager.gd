@@ -385,7 +385,7 @@ func set_status(enemy: Node, source: StringName, duration: float, move_scale: fl
 		time_scale: float = 1.0, stun: bool = false, windup_scale: float = 1.0, block_shield_regen: bool = false, attack_scale: float = 1.0) -> void:
 	if not is_instance_valid(enemy) or not "boon_time_scale" in enemy:
 		return
-	if (stun or time_scale <= 0.05) and duration > 0.0 and bool(enemy.get("is_boss")):
+	if (stun or time_scale <= 0.05) and duration > 0.0 and _is_boss(enemy):
 		var stage := boss_cc_stage(enemy)
 		var factor: float = BOSS_HARD_CC_FACTORS[mini(stage, BOSS_HARD_CC_FACTORS.size() - 1)]
 		var effective := minf(duration, BOSS_HARD_CC_CAP) * factor
@@ -458,7 +458,7 @@ func boss_cc_immune(enemy: Node) -> bool:
 	return boss_cc_stage(enemy) >= BOSS_HARD_CC_FACTORS.size() - 1
 
 func _is_boss(enemy: Node) -> bool:
-	return is_instance_valid(enemy) and bool(enemy.get("is_boss"))
+	return is_instance_valid(enemy) and "is_boss" in enemy and bool(enemy.get("is_boss"))
 
 func _boss_cc_entry(enemy: Node) -> Dictionary:
 	var id := enemy.get_instance_id()
@@ -491,7 +491,7 @@ func freeze_world(duration: float, source: StringName = &"boon_freeze") -> void:
 		return
 	_freezes[source] = maxf(float(_freezes.get(source, 0.0)), duration)
 	for enemy in enemies():
-		set_status(enemy, source, _freezes[source], 1.0, 0.0)
+		set_status(enemy, source, duration if _is_boss(enemy) else _freezes[source], 1.0, 0.0)
 	for projectile in projectiles():
 		if is_enemy(projectile.get("source")):
 			set_projectile_scale(projectile, source, 0.0, _freezes[source])

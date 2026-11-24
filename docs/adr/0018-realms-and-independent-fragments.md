@@ -50,7 +50,7 @@ Boss 死亡先累计对应剥夺、发一次 `Events.sin_defeated(count)`；真�
 
 Phase B 只扩正式战役的遭遇结构，不触碰旧 `ZoneDirector`、旧三图与 `fixtures/*.tres`。`RealmEncounter` 以 `depth`、`room_index` 与领域名确定性查表，`RealmStage` 仅在 `campaign == true`、非 Boss 房且已注入深度向量时启用多波；`campaign == false` 的单房继续按旧规则一次性生成既有数量与零精英。如此既保留 `fear_realm_test` 等单房验收的原始意图，也让 AC-07 的 fixture 哈希保持零漂移。
 
-多波刷新不消费全局随机数：波次表是常量数据，增援点按“距离玩家 `>= 10m`、`ENEMIES` 胶囊查询未占用、同波不重复”的几何筛选确定，全部计时跟随物理步长并随暂停冻结。清房门禁统一为 `living_enemies() == 0 and not has_pending_waves()`，因此门扉与天赋球不会在增援未清完时提前解锁。
+多波刷新不消费全局随机数：波次表是常量数据，增援点按“距离玩家 `>= 10m`、`ENEMIES` 胶囊查询未占用、同波不重复”的几何筛选确定，`SorrowVisual` 滴水表现采用无随机的确定性下落动画，全部计时（含 HUD 波次提示）跟随物理步长并随暂停冻结。清房门禁统一为 `living_enemies() == 0 and not has_pending_waves()`，因此门扉与天赋球不会在增援未清完时提前解锁。
 
 节奏层保持正交：`Enemy.elite_tempo_scale` 与 `boss_phase_tempo_scale` 只参与 `effective_attack_scale()` / `effective_windup_scale()` 的乘除，不与 `realm_tempo_scale` 或 `boon_*_scale` 相互覆写；`apply_realm_scaling()`、剥夺刷新和赐福清除只更新各自那一层。精英生命加成折叠进 `_base_max_health`，护盾始终按缩放后的 `max_health` 重算，重复晋升或重新缩放都不会二次叠加。
 

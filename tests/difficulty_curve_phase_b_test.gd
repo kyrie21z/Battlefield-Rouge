@@ -36,6 +36,7 @@ func _ready() -> void:
 	await _run_legacy_single_room()
 	await _run_boss_phases()
 	await _run_boss_cc_dr()
+	await _run_codex_regressions()
 	await _finish()
 
 
@@ -139,7 +140,8 @@ func _run_elite_contract(stage: RealmStage) -> void:
 ## A pure shield hit never emits `damaged`, so the HUD reveal must ride the
 ## shield signal instead.
 func _check_elite_shield_bar(stage: RealmStage, elite: Enemy, sibling: Enemy) -> void:
-	elite.apply_elite()
+	elite.health.health = elite.health.max_health
+	elite.health.shield_points = elite.health.max_shield
 	elite.global_position = CAMERA_ORIGIN + Vector3(4, -1.5, -24)
 	sibling.global_position = CAMERA_ORIGIN + Vector3(-4, -1.5, -24)
 	stage.player.global_position = CAMERA_ORIGIN - Vector3(0, 1.5, 0)
@@ -597,11 +599,93 @@ func _clear_all_waves(stage: RealmStage) -> void:
 
 func _reinforcements_safe(stage: RealmStage, from_index: int) -> bool:
 	var origin := stage.player.global_position
+	var space := stage.get_world_3d().direct_space_state
+	var nav_map := stage._region.get_navigation_map()
+	var player_nav := NavigationServer3D.map_get_closest_point(nav_map, origin)
+	var query := PhysicsShapeQueryParameters3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.45
+	capsule.height = 1.6
+	query.shape = capsule
+	query.collision_mask = CollisionLayers.WORLD
 	for index in range(from_index, stage.enemies.size()):
 		var point := stage.enemies[index].global_position
 		if Vector2(point.x - origin.x, point.z - origin.z).length() < 10.0:
 			return false
+		query.transform = Transform3D(Basis.IDENTITY, point + Vector3.UP * 1.05)
+		if not space.intersect_shape(query, 1).is_empty():
+			return false
+		var path := NavigationServer3D.map_get_path(nav_map, point, player_nav, true)
+		if path.is_empty() or path[-1].distance_to(player_nav) > 2.5:
+			return false
 	return true
+
+
+func _run_codex_regressions() -> void:
+	# 1. Sorrow wave spawn preserves global RNG and avoids DrowningPlatform overlap.
+	var sorrow_stage := await _install_campaign_room(3, 1)
+	if sorrow_stage != null:
+		var before_count := sorrow_stage.enemies.size()
+		for idx in range(before_count - 2):
+			_kill(sorrow_stage, sorrow_stage.enemies[idx])
+		seed(987654)
+		var expected_rng := randi()
+		seed(987654)
+		await _frames(4)
+		var after_wave_rng := randi()
+		check("sorrow reinforcement wave preserves global RNG", after_wave_rng == expected_rng)
+		check("sorrow wave spawns clear of world geometry and on reachable navmesh",
+			sorrow_stage.enemies.size() > before_count and _reinforcements_safe(sorrow_stage, before_count))
+		# HUD wave banner countdown freezes across zero physics ticks.
+		var left_before := sorrow_stage.hud._wave_notice_left
+		sorrow_stage.hud._process(0.5)
+		check("HUD wave banner timer does not drain in _process without physics ticks",
+			is_equal_approx(sorrow_stage.hud._wave_notice_left, left_before))
+		sorrow_stage.hud._physics_process(0.25)
+		check("HUD wave banner timer advances in _physics_process",
+			is_equal_approx(sorrow_stage.hud._wave_notice_left, maxf(0.0, left_before - 0.25)))
+		await _drop_campaign_stage()
+
+	# 2. Pre-ready elite on subclass snapshots authored HP, preserves damaged shield on repeat, and scales $Model.
+	var arena := Node3D.new()
+	add_child(arena)
+	_build_floor(arena)
+	var reaper := preload("res://actors/enemy/fear/fear_reaper.tscn").instantiate() as FearReaper
+	reaper.apply_elite()
+	arena.add_child(reaper)
+	reaper.set_physics_process(false)
+	reaper.apply_realm_scaling(1.2, 1.0, 1.0)
+	check("pre-ready elite on FearReaper uses authored 140 base HP -> 210/137",
+		is_equal_approx(reaper.health.max_health, 210.0) and is_equal_approx(reaper.health.max_shield, 137.0))
+	var model := reaper.get_node("Model") as Node3D
+	check("elite promotion applies subtle 1.12x visual scale on Model only",
+		model != null and is_equal_approx(model.scale.x, Enemy.ELITE_MODEL_SCALE) and reaper.scale == Vector3.ONE)
+	reaper.health.apply_damage(50.0, Hitbox.BodyPart.BODY, null)
+	var damaged_shield := reaper.health.shield_points
+	reaper.apply_elite()
+	check("repeated apply_elite preserves damaged shield without refilling",
+		is_equal_approx(reaper.health.shield_points, damaged_shield) and damaged_shield < reaper.health.max_shield)
+
+	# 3. Same-source freeze_world respects the newly requested boss DR duration and exact 50% threshold.
+	var player := PLAYER_SCENE.instantiate() as Player
+	arena.add_child(player)
+	player.set_physics_process(false)
+	var colossus := COLOSSUS_SCENE.instantiate() as SlothColossus
+	arena.add_child(colossus)
+	colossus.set_physics_process(false)
+	colossus.setup(player, [])
+	colossus.health.apply_damage(colossus.health.max_health * 0.5 - 0.0005, Hitbox.BodyPart.BODY, player, {"true_damage": true})
+	check("boss stays Phase 1 at half + 0.0005 HP", colossus.boss_phase == 1 and colossus.health.shield_points == 0.0)
+	colossus.health.apply_damage(0.0005, Hitbox.BodyPart.BODY, player, {"true_damage": true})
+	check("boss enters Phase 2 at exact 50% HP", colossus.boss_phase == 2 and colossus.health.shield_points > 0.0)
+	player.boons.register_enemy(colossus)
+	player.boons.freeze_world(2.0, &"same_freeze")
+	player.boons.freeze_world(0.2, &"same_freeze")
+	var status_left: float = player.boons._statuses[colossus.get_instance_id()].sources[&"same_freeze"].left
+	check("same-source freeze_world uses new request duration for boss DR (0.10 s)",
+		is_equal_approx(status_left, 0.10))
+	arena.queue_free()
+	await _frames(2)
 
 
 func _reinforcements_distinct(stage: RealmStage, from_index: int) -> bool:

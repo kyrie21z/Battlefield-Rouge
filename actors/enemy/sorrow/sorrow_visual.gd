@@ -2,7 +2,9 @@ class_name SorrowVisual
 extends SlothVisual
 var submerged := false
 var immersion := 0.0
-var drops: CPUParticles3D
+var drops: Node3D
+var _drop_nodes: Array[MeshInstance3D] = []
+var _drop_lifetime := 1.5
 
 func _build() -> void:
 	if _built:
@@ -127,23 +129,31 @@ func _pose_kneeling() -> void:
 		_plate(hands,head+Vector3(side*0.065,-0.035,-0.17),Vector3(0.14,0.23,0.12),_metal)
 
 func _drops() -> void:
-	drops = CPUParticles3D.new()
-	drops.amount = 20
-	drops.lifetime = 1.5
+	drops = Node3D.new()
 	drops.position = Vector3(0,1.86,-0.22)
-	drops.direction = Vector3.DOWN
-	drops.spread = 6
-	drops.initial_velocity_min = 0.2
-	drops.initial_velocity_max = 0.4
-	drops.gravity = Vector3(0,-1.4,0)
+	add_child(drops)
+	configure_drops(8, 1.5)
+
+func configure_drops(count: int, lifetime: float) -> void:
+	if drops == null:
+		return
+	_drop_lifetime = maxf(lifetime, 0.2)
+	for child in _drop_nodes:
+		if is_instance_valid(child):
+			child.queue_free()
+	_drop_nodes.clear()
 	var mesh := SphereMesh.new()
 	mesh.radius = 0.025
 	mesh.height = 0.07
 	mesh.radial_segments = 5
 	mesh.rings = 3
-	drops.mesh = mesh
-	drops.material_override = _light
-	add_child(drops)
+	for i in maxi(count, 1):
+		var bead := MeshInstance3D.new()
+		bead.mesh = mesh
+		bead.material_override = _light
+		bead.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		drops.add_child(bead)
+		_drop_nodes.append(bead)
 
 func _process(delta: float) -> void:
 	if _dead:
@@ -164,6 +174,11 @@ func _process(delta: float) -> void:
 		_outfit.transform = model.transform
 		if drops != null:
 			drops.position = model.transform*skeleton.get_bone_global_pose(skeleton.find_bone("Head")).origin+Vector3(0,-0.05,-0.08)
+			for i in _drop_nodes.size():
+				var cycle := fposmod(_time + float(i) * (_drop_lifetime / float(_drop_nodes.size())), _drop_lifetime)
+				var angle := float(i) * 1.618 * TAU
+				var spread := 0.06 + 0.08 * (cycle / _drop_lifetime)
+				_drop_nodes[i].position = Vector3(cos(angle) * spread, -0.3 * cycle - 0.7 * cycle * cycle, sin(angle) * spread)
 	_light.emission_energy_multiplier = 0.5+_cast*2.0
 	_crystal.set_shader_parameter("emission_strength",0.10+_cast*0.4)
 	_update_bones()
@@ -187,4 +202,4 @@ func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	model.hide()
 	_outfit.hide()
 	if drops != null:
-		drops.emitting = false
+		drops.hide()

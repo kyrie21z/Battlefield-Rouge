@@ -77,7 +77,7 @@ func _check_spawn_pools() -> void:
 	var sorrow := SorrowRealm.new()
 	var sorrow_points := sorrow.spawn_points()
 	check("sorrow exposes nine spawn points",sorrow_points.size() == 9)
-	check("sorrow keeps the five legacy points first",sorrow_points.slice(0,5) == [Vector3(-8,0.1,3),Vector3(8,0.1,-4),Vector3(0,0.1,-12),Vector3(-11,0.1,-12),Vector3(11,0.1,-14)])
+	check("sorrow keeps clear basin anchor points first",sorrow_points.slice(0,5) == [Vector3(-8,0.1,3),Vector3(11.5,0.1,-4),Vector3(0,0.1,-12),Vector3(-11,0.1,-12),Vector3(11,0.1,-14)])
 	sorrow.free()
 	var sloth := SlothRealm.new()
 	check("sloth wave pool covers nine court and terrace points",sloth.wave_spawn_points().size() == 9)

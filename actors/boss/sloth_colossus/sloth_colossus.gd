@@ -65,18 +65,14 @@ func start_attack(kind: int) -> bool:
 
 func attack_finished() -> void:
 	active_attack = null
-	if boss_phase >= 2:
-		recovery_left = 1.0
-		cooldown_left = 0.9
-	else:
-		recovery_left = 1.4
-		cooldown_left = 1.8 if health.health>health.max_health*0.5 else 1.2
+	recovery_left = 1.0 if boss_phase >= 2 else 1.4
+	cooldown_left = 0.9 if boss_phase >= 2 else 1.8
 	visual.set_cast(0)
 
 func _on_phase_damage(_context: Dictionary) -> void:
 	if boss_phase != 1 or health.is_dead():
 		return
-	if health.health > health.max_health*0.50+0.001:
+	if health.health > health.max_health*0.50:
 		return
 	boss_phase = 2
 	boss_phase_tempo_scale = 1.20

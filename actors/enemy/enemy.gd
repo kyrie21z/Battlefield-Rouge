@@ -168,19 +168,25 @@ var is_elite := false
 var elite_tempo_scale := 1.0
 var boss_phase_tempo_scale := 1.0
 var _elite_shield_ratio := 0.65
+var _elite_hp_bonus := 1.25
+var _elite_tempo_bonus := 1.10
+var _elite_pending := false
+var _elite_visual_scaled := false
 var _elite_halo: MeshInstance3D
 
 const ELITE_SHIELD_REGEN_DELAY := 5.5
 const ELITE_SHIELD_REGEN_FRACTION := 0.10
 const ELITE_HALO_SPIN := 1.6
+const ELITE_MODEL_SCALE := 1.12
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_READY:
 		ensure_hit_reaction()
 		if not is_equal_approx(realm_tempo_scale, 1.0):
 			set_realm_tempo(realm_tempo_scale)
-		if is_elite:
-			apply_elite()
+		if _elite_pending:
+			_elite_pending = false
+			_finalize_elite()
 
 
 ## Every actor that has not authored its own HitReaction gets the shared one, so
@@ -719,22 +725,37 @@ func apply_realm_scaling(hp_scale: float, damage_scale: float, tempo_scale: floa
 ## max_health == _base_max_health * realm_hp_scale, and the crystal shield
 ## always tracks that scaled maximum.
 func apply_elite(shield_ratio := 0.65, hp_bonus := 1.25, tempo_bonus := 1.10) -> void:
+	if is_elite:
+		if is_node_ready() and not _elite_pending:
+			_ensure_elite_halo()
+		return
+	_elite_shield_ratio = clampf(shield_ratio,0.0,1.0)
+	_elite_hp_bonus = maxf(hp_bonus,1.0)
+	_elite_tempo_bonus = maxf(tempo_bonus,1.0)
+	elite_tempo_scale = _elite_tempo_bonus
+	is_elite = true
+	if not is_node_ready():
+		_elite_pending = true
+		return
+	_finalize_elite()
+
+func _finalize_elite() -> void:
 	var hp := health if health != null else get_node_or_null("Health") as Health
 	if hp == null:
 		return
-	if not is_elite:
-		if _base_max_health < 0.0:
-			_base_max_health = hp.max_health
-		_base_max_health *= maxf(hp_bonus,1.0)
-		_elite_shield_ratio = clampf(shield_ratio,0.0,1.0)
-		elite_tempo_scale = maxf(tempo_bonus,1.0)
-		is_elite = true
+	var ratio := clampf(hp.health / maxf(hp.max_health,0.001),0.0,1.0)
+	if _base_max_health < 0.0:
+		_base_max_health = hp.max_health
+	_base_max_health *= _elite_hp_bonus
 	hp.max_health = _base_max_health * realm_hp_scale
-	hp.health = hp.max_health
+	hp.health = clampf(hp.max_health * ratio,0.0,hp.max_health)
 	_sync_elite_shield(hp, 1.0)
-	if is_node_ready():
-		_refresh_tempo_speed()
+	_refresh_tempo_speed()
 	_ensure_elite_halo()
+	var model := get_node_or_null("Model") as Node3D
+	if model != null and not _elite_visual_scaled:
+		_elite_visual_scaled = true
+		model.scale *= ELITE_MODEL_SCALE
 
 func _sync_elite_shield(hp: Health, fill_fraction: float) -> void:
 	hp.max_shield = roundf(hp.max_health * _elite_shield_ratio)

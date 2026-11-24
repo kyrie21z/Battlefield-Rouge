@@ -5,7 +5,12 @@ extends CharacterBody3D
 ## are taken from origin/sheji/characters/player/player.gd.
 
 @export var jog_speed := 4.4
-@export var jump_velocity := 4.8
+## Jump apex is v² / (2g). The old 4.8 gave 0.64 m, which is *below* the 0.7 m
+## height test on WrathShockwave (offset.y < 0.7): the player saw a ground wave
+## coming, jumped, and still got hit every single time — the move read as
+## impossible rather than demanding. 5.8 gives ~0.93 m, so the apex stays above
+## the wave for roughly 0.32 s (0.16–0.48 s after take-off).
+@export var jump_velocity := 5.8
 @export var ground_accel := 14.0
 @export var air_accel := 4.0
 @export var gravity := 18.0

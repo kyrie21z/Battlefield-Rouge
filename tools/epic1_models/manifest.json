@@ -4,14 +4,14 @@
       "file": "assets/models/weapons/obsidian_pistol.glb",
       "source": "tools/epic1_models/obsidian_pistol.blend",
       "blender_version": "5.2.3 LTS",
-      "source_polygons": 728,
-      "glb_triangles": 1116,
+      "source_polygons": 797,
+      "glb_triangles": 1254,
       "objects": {
         "barrel_block": {
-          "polygons": 430,
-          "triangles": 660,
+          "polygons": 462,
+          "triangles": 724,
           "triangles_authored": 200,
-          "quads_authored": 230,
+          "quads_authored": 262,
           "flat_faces": true,
           "pivot_source": [
             0.0,
@@ -44,10 +44,10 @@
           ]
         },
         "slide_block": {
-          "polygons": 166,
-          "triangles": 284,
+          "polygons": 203,
+          "triangles": 358,
           "triangles_authored": 48,
-          "quads_authored": 118,
+          "quads_authored": 155,
           "flat_faces": true,
           "pivot_source": [
             0.0,
@@ -77,7 +77,7 @@
       "export_correction": "180 degrees about Blender Z, baked before Y-up export",
       "game_forward": "-Z",
       "game_up": "+Y",
-      "sha256": "0f291f224882621985f451ba9456051ac24f2e71b0667e3e2c69080a362490c4",
+      "sha256": "6b9786b3bfa30837b8b021f31d41e49a4b832db308db0303a35868a1195a9cb8",
       "muzzle_game": [
         0.0,
         0.072,

@@ -13,6 +13,8 @@ godot --headless --import --path .
 godot --path . res://tests/combat_bench.tscn
 godot --path . --rendering-method forward_plus res://tests/epic1_model_proof.tscn
 godot --path . --rendering-method forward_plus res://tests/protagonist_body_proof.tscn -- --pistol-only --out=res://docs/proof/epic1/pistol-remodel
+godot --path . --rendering-method forward_plus res://tests/protagonist_body_proof.tscn -- --boon-strips --out=res://docs/proof/epic1/pistol-remodel
+godot --headless --path . res://tests/pistol_boon_strip_test.tscn
 godot --path . res://tests/combat_bench_proof.tscn
 godot --path . res://tests/protagonist_body_proof.tscn
 godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn
@@ -28,8 +30,10 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn
 
 | 模型 | 文字规格尺寸 | 源多边形 | 渲染三角形 |
 | --- | --- | --- | --- |
-| 黑晶手枪 | 长 200 × 高 142 × 宽 38 mm | 728 | 1116 |
+| 黑晶手枪 | 长 200 × 高 142 × 宽 38 mm | 797 | 1254 |
 | 意志短刃 | 长 400 × 刃宽 40 × 厚 15mm | 45 | 70 |
+
+灯带对照图由 Linux Godot 4.7.2 Forward+ 渲染。三行依次为四分之三、腰射和 ADS，五列依次为空槽、怠惰、恐惧、暴怒和悲伤。腰射和 ADS 使用生产相机，取证时关闭景深并裁切到枪身附近。[boon-strips.png](pistol-remodel/boon-strips.png)
 
 改模后用生产角色复拍了[腰射](pistol-remodel/hip.png)、[ADS](pistol-remodel/ads.png)、[左侧握持](pistol-remodel/grip-left.png)和[右侧握持](pistol-remodel/grip-right.png)。取证时关闭 ADS 景深，使枪身和手指清晰。腰射和 ADS 的双手接触断言通过。两种姿势下逐点采样手部顶点及三角面中心，前枪身和滑套内均未发现采样点。Linux Godot 4.7.2 的六套回归均报告零失败。入口为 `obsidian_pistol_test`、`obsidian_pistol_feel_test`、`protagonist_body_test`、`weapons_test`、`mind_blade_test` 和 `gun_feel_test`。
 

@@ -123,6 +123,8 @@ func _ready() -> void:
 	boons.name = "BoonManager"
 	add_child(boons)
 	boons.bind(self, stats, health, weapon, melee, dash)
+	boons.loadout_changed.connect(_on_boon_loadout_changed)
+	_sync_weapon_boon_accent()
 	DualBoonManager.install(boons)
 	realm_effects = RealmPlayerEffects.new()
 	realm_effects.name = "RealmEffects"
@@ -147,6 +149,21 @@ func _ready() -> void:
 		melee.hide()
 		shield.set_process(false)
 		combat_traits.set_process(false)
+
+
+func _on_boon_loadout_changed(_cards: Array[BoonData]) -> void:
+	_sync_weapon_boon_accent()
+
+
+func _sync_weapon_boon_accent() -> void:
+	if weapon == null or boons == null:
+		return
+	var gun_card: BoonData = boons.slots[BoonData.Slot.GUN].data
+	var active := gun_card != null
+	var color := BoonIdentity.accent(gun_card) if active else Color.BLACK
+	for child in weapon.get_children():
+		if child is ObsidianPistolView:
+			child.set_boon_accent(color, active)
 
 
 ## Read-only dash state for the HUD.

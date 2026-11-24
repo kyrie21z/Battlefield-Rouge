@@ -318,7 +318,7 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | --- | --- | --- |
 | `weapons/obsidian_pistol/pistol_icon.svg` | 本项目原创 | `e1f55a3c0332ce86b5bffd610152fd05bf4676d4425ad6ac07b3311b2058720e` |
 | `weapons/mind_blade/mind_blade.svg` | 本项目原创 | `5d4a027b1a5afcae43408ff33eb6afd18222d76839e777fe3700b010b2dac684` |
-| `assets/models/weapons/obsidian_pistol.glb` | 本项目原创；`tools/epic1_models/obsidian_pistol.blend` 导出，项目许可 | `0f291f224882621985f451ba9456051ac24f2e71b0667e3e2c69080a362490c4` |
+| `assets/models/weapons/obsidian_pistol.glb` | 本项目原创，含 `Boon_Strip` 灯带。由 `tools/epic1_models/obsidian_pistol.blend` 导出，采用项目许可 | `6b9786b3bfa30837b8b021f31d41e49a4b832db308db0303a35868a1195a9cb8` |
 | `assets/models/weapons/mind_blade.glb` | 本项目原创；`tools/epic1_models/mind_blade.blend` 导出，项目许可 | `dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f` |
 | `assets/models/characters/protagonist_hands.glb` | 本项目原创。由 `tools/protagonist_hands/author.py` 生成 S2 双手握姿和短刃左手握姿 | `df874c1f31e5513dea3e9c1c38cb7ed1081c41fcae2a8e35124a26fbec6fbbc3` |
 

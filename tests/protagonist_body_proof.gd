@@ -1,7 +1,8 @@
 extends Node3D
 ## Native, production-player evidence: horizontal, torso/legs, gait and shadow.
-## godot --path . res://tests/protagonist_body_proof.tscn -- [--pistol-only] --out=<directory>
+## godot --path . res://tests/protagonist_body_proof.tscn -- [--pistol-only|--boon-strips] --out=<directory>
 var _pistol_only := false
+var _boon_strips := false
 var _out_dir := "res://docs/proof/epic1"
 var _player: Player
 var _body: Node3D
@@ -12,6 +13,9 @@ func _ready() -> void:
 			_out_dir = arg.trim_prefix("--out=")
 		elif arg == "--pistol-only":
 			_pistol_only = true
+		elif arg == "--boon-strips":
+			_pistol_only = true
+			_boon_strips = true
 	_out_dir = ProjectSettings.globalize_path(_out_dir)
 	if DisplayServer.get_name() == "headless":
 		push_error("Body awareness proof requires a renderer")
@@ -19,6 +23,8 @@ func _ready() -> void:
 		return
 	DirAccess.make_dir_recursive_absolute(_out_dir)
 	DisplayServer.window_set_size(Vector2i(1280, 900))
+	if _boon_strips:
+		get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	_environment()
 	_player = preload("res://actors/player/player.tscn").instantiate() as Player
 	add_child(_player)
@@ -28,6 +34,10 @@ func _ready() -> void:
 	_body = _player.get_node("ShadowBody")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	await _frames(8)
+	if _boon_strips:
+		var result := await _boon_strip_proof()
+		get_tree().quit(0 if result == OK else 1)
+		return
 	if _pistol_only:
 		await _pistol_proof()
 		get_tree().quit()
@@ -160,6 +170,49 @@ func _pistol_proof() -> void:
 	await _frames(5)
 	await _shot("grip-right.png")
 	print("PISTOL HAND PROOF: complete")
+
+
+func _boon_strip_proof() -> Error:
+	const CELL := Vector2i(360, 276)
+	const GUN_IDS := ["sloth_gun_pulse", "fear_gaze_pierce", "wrath_gun_cannon", "sorrow_gun_needles"]
+	const NAMES := ["Unbuffed", "Sloth", "Fear", "Wrath", "Sorrow"]
+	const ANGLES := ["Three-quarter", "Hip-fire", "ADS"]
+	get_viewport().msaa_3d = Viewport.MSAA_4X
+	_player.view_camera.attributes = null
+	var cards := {}
+	for card in BoonCatalog.all():
+		cards[card.id] = card
+	var exterior := Camera3D.new()
+	exterior.fov = 47.0
+	add_child(exterior)
+	var overlay := CanvasLayer.new()
+	add_child(overlay)
+	var label := Label.new()
+	label.add_theme_font_size_override("font_size", 21)
+	label.add_theme_color_override("font_color", Color(0.12, 0.14, 0.18))
+	overlay.add_child(label)
+	var sheet := Image.create(CELL.x * NAMES.size(), CELL.y * ANGLES.size(), false, Image.FORMAT_RGB8)
+	for row in ANGLES.size():
+		_player.weapon.aiming = row == 2
+		_advance_combat(1.0)
+		var pistol := _player.weapon.grip_transform()
+		var focus := pistol * Vector3(0.0, 0.061, -0.053)
+		exterior.look_at_from_position(pistol * Vector3(-0.49, 0.15, 0.23), focus)
+		var camera := exterior if row == 0 else _player.view_camera
+		camera.make_current()
+		var origin := Vector2i(camera.unproject_position(focus)) - CELL / 2
+		label.position = Vector2(origin + Vector2i(14, 10))
+		for column in NAMES.size():
+			_player.boons.restore([] if column == 0 else [cards[GUN_IDS[column - 1]]])
+			label.text = "%s  ·  %s" % [NAMES[column], ANGLES[row]]
+			await _frames(2)
+			await RenderingServer.frame_post_draw
+			var frame := get_viewport().get_texture().get_image()
+			frame.convert(Image.FORMAT_RGB8)
+			sheet.blit_rect(frame, Rect2i(origin, CELL), Vector2i(column, row) * CELL)
+	var result := sheet.save_png(_out_dir.path_join("boon-strips.png"))
+	print("PISTOL BOON STRIP PROOF: %s" % error_string(result))
+	return result
 
 
 func _advance_combat(seconds: float) -> void:

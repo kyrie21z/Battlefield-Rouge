@@ -187,6 +187,30 @@ PISTOL_SPEC = {
 }
 
 
+BOON_STRIP_SLOT = 2
+BOON_STRIP_HEIGHT = 2.4
+
+
+def split_patch(vertices, face, distance):
+    """Tile the two sides of a planar face cut, reusing exact edge points."""
+    negative, positive = [], []
+    for a, b in zip(face, (*face[1:], face[0])):
+        da, db = distance(vertices[a]), distance(vertices[b])
+        if da <= 0:
+            negative.append(a)
+        if da >= 0:
+            positive.append(a)
+        if da * db < 0:
+            # Traverse the same shared edge in the same order from either face.
+            lo, hi = sorted((a, b))
+            t = da / (da - db) if lo == a else db / (db - da)
+            edge = len(vertices)
+            vertices.append(tuple(Vector(vertices[lo]).lerp(Vector(vertices[hi]), t)))
+            negative.append(edge)
+            positive.append(edge)
+    return negative, positive
+
+
 class Facets:
     """Build flat shells from millimetre sections and weld shared patch edges."""
 
@@ -199,10 +223,12 @@ class Facets:
         append_geometry(self.vertices, self.faces, vertices, faces)
         self.materials.extend([material] * len(faces))
 
-    def skin(self, rings, *, start=True, end=True, closed=False, material=0, flanks=False):
+    def skin(self, rings, *, start=True, end=True, closed=False, material=0, flanks=False,
+             strip_from=None, strip_wrap=False):
         vertices = [point for ring in rings for point in ring]
         n = len(rings[0])
         faces = cap_faces([0, *range(n - 1, 0, -1)]) if start else []
+        strip_faces = []
         for row in range(len(rings) if closed else len(rings) - 1):
             next_row = (row + 1) % len(rings)
             for column in range(n):
@@ -220,16 +246,39 @@ class Facets:
                     cut.x -= math.copysign(1.1 + .1 * ((row + column) % 4), cut.x)
                     center = len(vertices)
                     vertices.append(tuple(cut))
-                    faces.extend([(a, b, center), (b, c, center),
-                                  (c, d, center), (d, a, center)])
+                    facets = [(a, b, center), (b, c, center), (c, d, center), (d, a, center)]
+                    if strip_from is None or pd.z <= strip_from:
+                        faces.extend(facets)
+                        continue
+                    low, high = min(pa.y, pb.y), min(pc.y, pd.y)
+                    slope = (high - low) / (pd.z - pa.z)
+                    for facet in facets:
+                        band, body = split_patch(vertices, facet, lambda v:
+                                                 v[1] - low - (v[2] - pa.z) * slope - BOON_STRIP_HEIGHT)
+                        faces.extend(cap_faces(body))
+                        if pa.z < strip_from and len(band) >= 3:
+                            front, band = split_patch(vertices, band, lambda v: v[2] - strip_from)
+                            faces.extend(cap_faces(front))
+                        strip_faces.extend(cap_faces(band))
                 elif abs((pb - pa).cross(pc - pa).normalized().dot(pd - pa)) > .000001:
                     faces.extend([(a, b, d), (b, c, d)] if alternate else [(a, b, c), (a, c, d)])
                 else:
                     faces.append((a, b, c, d))
         if end:
             # Added interior points are never part of a cap.
-            faces.extend(cap_faces(list(range((len(rings) - 1) * n, len(rings) * n))))
+            cap = list(range((len(rings) - 1) * n, len(rings) * n))
+            if strip_wrap:
+                base = vertices[cap[2]][1]
+                lower, upper = split_patch(vertices, cap, lambda v: v[1] - base)
+                band, upper = split_patch(vertices, upper, lambda v: v[1] - base - BOON_STRIP_HEIGHT)
+                faces.extend(cap_faces(lower))
+                faces.extend(cap_faces(upper))
+                strip_faces.extend(cap_faces(band))
+            else:
+                faces.extend(cap_faces(cap))
         self.add(vertices, faces, material)
+        if strip_faces:
+            self.add(vertices, strip_faces, BOON_STRIP_SLOT)
 
     def mesh(self, name, root, slots):
         indices = {}
@@ -256,7 +305,7 @@ def sight(mesh, stations, center=0):
 
 def build_barrel_chassis(root, slots, spec, shroud):
     mesh = Facets()
-    mesh.skin(shroud, start=False, flanks=True)
+    mesh.skin(shroud, start=False, flanks=True, strip_from=-158)
     _, bore_y, muzzle_z = spec["muzzle"]
     rim = octagon(muzzle_z, 9, bore_y - 10, bore_y + 10, 4.5)
     throat = octagon(muzzle_z + 2.5, 7.1, bore_y - 8, bore_y + 8, 3.7)
@@ -282,7 +331,7 @@ def build_barrel_chassis(root, slots, spec, shroud):
 
 def build_slide(root, slots, spec, rings):
     mesh = Facets()
-    mesh.skin(rings, start=False, flanks=True)
+    mesh.skin(rings, start=False, flanks=True, strip_from=spec["slide_split"], strip_wrap=True)
     # A blind pocket opens at the split. The shroud closes it at rest.
     pocket = [octagon(z, 12, 57, 85, 3.8)
               for z in (spec["slide_split"], spec["slide_pocket_end"])]
@@ -321,6 +370,8 @@ def build_core_crystal(root, slots, spec):
 def pistol():
     root = scene("ObsidianPistol")
     black = material("Obsidian_Mineral", (0.007, 0.009, 0.014))
+    strip = black.copy()
+    strip.name = "Boon_Strip"
     gold = material("Amber_Core", (0.19, 0.074, 0.012), (0.32, 0.082, 0.009))
     dark = material("Muzzle_Interior", (0.0003, 0.0004, 0.0005))
     dark_node = dark.node_tree.nodes.get("Principled BSDF")
@@ -329,8 +380,9 @@ def pistol():
     spec = PISTOL_SPEC
     split = next(i for i, station in enumerate(spec["crown"]) if station[0] == spec["slide_split"])
     crown = [octagon(z, w, low, high, 5) for z, w, low, high in spec["crown"]]
-    build_barrel_chassis(root, (black, dark), spec, crown[:split + 1])
-    build_slide(root, (black,), spec, crown[split:])
+    slots = (black, dark, strip)
+    build_barrel_chassis(root, slots, spec, crown[:split + 1])
+    build_slide(root, slots, spec, crown[split:])
     grip = build_grip(root, (black,), spec)
     build_core_crystal(root, (gold,), spec)
     assert grip.location.length < .00001, tuple(grip.location)

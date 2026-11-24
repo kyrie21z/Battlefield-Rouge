@@ -192,7 +192,7 @@ func _body_materials(view: ObsidianPistolView) -> bool:
 			var active := piece.get_active_material(surface)
 			seen[imported.resource_name] = true
 			match imported.resource_name:
-				"Obsidian_Mineral":
+				"Obsidian_Mineral", "Boon_Strip":
 					if active != ObsidianPistolView.OBSIDIAN_MATERIAL:
 						return false
 				"Muzzle_Interior":
@@ -204,6 +204,8 @@ func _body_materials(view: ObsidianPistolView) -> bool:
 				_:
 					return false
 		if not seen.has("Obsidian_Mineral"):
+			return false
+		if seen.has("Boon_Strip") != (part_name != "grip_block"):
 			return false
 		if part_name == "barrel_block" and not seen.has("Muzzle_Interior"):
 			return false

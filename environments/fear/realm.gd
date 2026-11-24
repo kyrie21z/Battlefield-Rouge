@@ -131,7 +131,13 @@ func set_deprivation(active: bool) -> void:
 		tile.set_warnings_enabled(warnings_enabled)
 
 func spawn_points() -> Array[Vector3]:
-	return [Vector3(-7, 0, 8), Vector3(7, 0, 8), Vector3(-7, 0, -8), Vector3(7, 0, -8)]
+	# Islands first (legacy single-room layout), then side bridges and the two
+	# stable rear bridge segments. Never on a gap or a FearFlipTile.
+	return [
+		Vector3(-7, 0, 8), Vector3(7, 0, 8), Vector3(-7, 0, -8), Vector3(7, 0, -8),
+		Vector3(-6.5, 0, 0), Vector3(6.5, 0, 0),
+		Vector3(0, 0, -11.5), Vector3(0, 0, -15.5),
+	]
 
 func player_spawn() -> Vector3:
 	return Vector3(0, 0, 16)

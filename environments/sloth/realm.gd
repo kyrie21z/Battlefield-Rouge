@@ -147,6 +147,18 @@ func guard_positions() -> Array[Vector3]:
 	points.append(Vector3(-9,0.08,-8))
 	return points
 
+## Wave reinforcement pool: sunken court plus both terraces. Guard positions
+## keep their authored layout; this pool only feeds multi-wave scheduling.
+func wave_spawn_points() -> Array[Vector3]:
+	var points: Array[Vector3] = [
+		Vector3(-7.8,0.08,3), Vector3(7.7,0.08,-6), Vector3(0,0.08,-12),
+		Vector3(12.4,TERRACE_HEIGHT + 0.08,_terrace_z(1.0)),
+		Vector3(-12.4,TERRACE_HEIGHT + 0.08,_terrace_z(-1.0)),
+		Vector3(-12,0.08,-13), Vector3(-9,0.08,-8),
+		Vector3(9,0.08,8), Vector3(0,0.08,-18),
+	]
+	return points
+
 func _build_rest(pos: Vector3,dark: Material) -> void:
 	var area := Node3D.new()
 	area.name = "RestZone%d" % rest_zones.size()

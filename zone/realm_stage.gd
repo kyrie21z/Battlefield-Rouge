@@ -9,6 +9,7 @@ signal reward_selected(stage: RealmStage, card: BoonData)
 signal reroll_spent(stage: RealmStage)
 signal player_fallen(stage: RealmStage, cause: StringName)
 signal retry_requested(stage: RealmStage)
+signal wave_spawned(stage: RealmStage, wave_index: int, total_waves: int)
 @export_range(0,3) var realm: int = 0
 @export var room_index: int = 0
 @export var boss_room := false
@@ -67,6 +68,8 @@ var _reward_offer: Array[BoonData] = []
 ## True when a stage wired before the vector split only set the legacy scalar
 ## and never injected health or tempo. Those stages scaled health with it.
 var _legacy_scalar_scaling := false
+var _encounter: RealmEncounter
+var _waves_spawned := 0
 ## The reclaimed-talent orb that appears in front of the exit gate once the room
 ## is clear. The player walks up and presses interact to open the reward offer.
 var talent_orb: TalentOrb
@@ -205,9 +208,23 @@ func _apply_actor_deprivation(actor: Enemy) -> void:
 	elif "ordinary_impacts_enabled" in actor:
 		actor.set("ordinary_impacts_enabled",not deprivations.has(2))
 
+## Production run wiring always injects the depth vector; deeper floors carry
+## a health or damage scale. Tempo is excluded because the Sloth haste fold
+## mutates it before encounters spawn. Unwired campaign stages keep the
+## authored single wave.
+func _multi_wave_enabled() -> bool:
+	if not campaign or boss_room or _legacy_scalar_scaling:
+		return false
+	return depth == 0 or not is_equal_approx(hp_multiplier,1.0) \
+		or not is_equal_approx(difficulty_multiplier,1.0)
+
 func _spawn_encounter() -> void:
 	if boss_room:
 		_spawn_boss()
+		return
+	if _multi_wave_enabled():
+		_encounter = RealmEncounter.new(depth,room_index,StringName(REALMS[realm]))
+		_spawn_wave(0)
 		return
 	if geometry is SlothRealm:
 		_spawn_sloth_encounter(geometry as SlothRealm)
@@ -219,6 +236,8 @@ func _spawn_encounter() -> void:
 	var points: Array = [Vector3(-8,0.1,3),Vector3(8,0.1,-4),Vector3(0,0.1,-12),Vector3(-11,0.1,-12),Vector3(11,0.1,-14)]
 	if geometry.has_method("spawn_points"):
 		points = geometry.call("spawn_points")
+	if geometry is FearRealm:
+		points = points.slice(0,4)
 	var count := mini(points.size(),3 if room_index == 0 else 5)
 	for i in count:
 		var actor := (load(path) as PackedScene).instantiate() as Enemy
@@ -256,6 +275,112 @@ func _spawn_sloth_encounter(court: SlothRealm) -> void:
 	mire.position = positions[-1]
 	add_child(mire)
 	_register_actor(mire)
+
+func current_wave() -> int:
+	return maxi(1,_waves_spawned)
+
+func total_waves() -> int:
+	return _encounter.wave_count() if _encounter != null else 1
+
+func has_pending_waves() -> bool:
+	return _encounter != null and _waves_spawned < _encounter.wave_count()
+
+func remaining_encounter_enemies() -> int:
+	var total := living_enemies()
+	if _encounter != null:
+		for index in range(_waves_spawned,_encounter.wave_count()):
+			total += _encounter.wave_size(index)
+	return total
+
+func _spawn_wave(wave_index: int) -> void:
+	var slots := _encounter.wave_slots(wave_index)
+	var points := _wave_points(wave_index,slots.size())
+	for i in slots.size():
+		var actor := _instantiate_slot(slots[i])
+		actor.position = points[i]
+		if actor is SlothEnemy:
+			(actor as SlothEnemy).opening_delay = (0.75 + i*0.22) if wave_index == 0 else (0.35 + i*0.12)
+		elif "opening_delay" in actor:
+			actor.set("opening_delay",(1.0 + i*0.2) if wave_index == 0 else (0.5 + i*0.15))
+		if "arena" in actor:
+			actor.set("arena",geometry)
+		add_child(actor)
+		_register_actor(actor)
+		if slots[i].elite:
+			actor.apply_elite()
+		if wave_index > 0:
+			CrystalBurst.spawn(self,points[i] + Vector3.UP*1.1,realm,&"spawn")
+	_waves_spawned = wave_index + 1
+	wave_spawned.emit(self,_waves_spawned,total_waves())
+
+func _instantiate_slot(slot: Dictionary) -> Enemy:
+	match slot.type:
+		&"fear_reaper":
+			return preload("res://actors/enemy/fear/fear_reaper.tscn").instantiate() as FearReaper
+		&"sloth_mire":
+			return preload("res://actors/enemy/sloth/sloth_mire.tscn").instantiate() as SlothMire
+	if realm == 0:
+		var guardian := preload("res://actors/enemy/sloth/sloth_enemy.tscn").instantiate() as SlothEnemy
+		guardian.kind = slot.variant as int
+		guardian.realm_encounter = true
+		return guardian
+	var path := "res://actors/enemy/%s/%s_realm_enemy.tscn" % [REALMS[realm],REALMS[realm]]
+	var actor := (load(path) as PackedScene).instantiate() as Enemy
+	actor.set("variant",slot.variant)
+	return actor
+
+func _wave_pool() -> Array[Vector3]:
+	if geometry is SlothRealm:
+		return (geometry as SlothRealm).wave_spawn_points()
+	return geometry.call("spawn_points")
+
+func _wave_points(wave_index: int, count: int) -> Array[Vector3]:
+	if wave_index == 0:
+		return _wave_pool().slice(0,count)
+	return _pick_reinforcement_points(count)
+
+## Deterministic selection: far unoccupied points first, then nearer free
+## points, then occupied ones. Consumes no global RNG.
+func _pick_reinforcement_points(count: int) -> Array[Vector3]:
+	var origin := player.global_position
+	var far: Array[Vector3] = []
+	var near: Array[Vector3] = []
+	var occupied: Array[Vector3] = []
+	for point in _wave_pool():
+		if _point_occupied(point):
+			occupied.append(point)
+		elif _flat_distance(point,origin) >= 10.0:
+			far.append(point)
+		else:
+			near.append(point)
+	var chosen: Array[Vector3] = []
+	for group in [far,near,occupied]:
+		group.sort_custom(func(a: Vector3,b: Vector3) -> bool:
+			var da := _flat_distance(a,origin)
+			var db := _flat_distance(b,origin)
+			if is_equal_approx(da,db):
+				return a.x < b.x if not is_equal_approx(a.x,b.x) else a.z < b.z
+			return da > db)
+		for point in group:
+			if chosen.size() >= count:
+				return chosen
+			chosen.append(point)
+	return chosen
+
+func _flat_distance(a: Vector3,b: Vector3) -> float:
+	return Vector2(a.x-b.x,a.z-b.z).length()
+
+func _point_occupied(point: Vector3) -> bool:
+	var query := PhysicsShapeQueryParameters3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.6
+	capsule.height = 2.0
+	query.shape = capsule
+	query.transform = Transform3D(Basis.IDENTITY,point + Vector3.UP*1.0)
+	query.collision_mask = CollisionLayers.ENEMIES
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+	return not get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
 
 func _spawn_boss() -> void:
 	var path := "res://actors/boss/%s/%s.tscn" % [BOSSES[realm],BOSSES[realm]]
@@ -348,6 +473,10 @@ func _check_clear() -> void:
 	if boss_room:
 		if not is_instance_valid(boss) or boss.health.is_dead():
 			_finish_boss_defeat()
+		return
+	if has_pending_waves():
+		if living_enemies() <= 2:
+			_spawn_wave(_waves_spawned)
 		return
 	if living_enemies() > 0:
 		return

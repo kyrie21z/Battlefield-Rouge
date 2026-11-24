@@ -40,6 +40,8 @@ var _death_panel: PanelContainer
 var _death_reason: Label
 var _fall_notice: Label
 var _fall_notice_left := 0.0
+var _wave_notice: Label
+var _wave_notice_left := 0.0
 var hurt_feedback: RealmHurtFeedback
 var combat_feedback: CombatFeedbackLayer
 
@@ -122,6 +124,7 @@ func _ready() -> void:
 	stage.player.boons.changed.connect(_refresh_boons)
 	_refresh_boons()
 	_build_exit_and_death_feedback()
+	stage.wave_spawned.connect(_on_wave_spawned)
 
 
 func _build_top_left_plaque() -> void:
@@ -381,6 +384,20 @@ func _build_exit_and_death_feedback() -> void:
 	_root.add_child(_fall_notice)
 	_fall_notice.hide()
 
+	_wave_notice = EditorialStyle.make_label("", 18, EditorialStyle.PAPER, 700, false, 1)
+	_wave_notice.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_wave_notice.offset_left = -220
+	_wave_notice.offset_right = 220
+	_wave_notice.offset_top = 96
+	_wave_notice.offset_bottom = 136
+	_wave_notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_wave_notice.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var wave_style := EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.realm_accent(stage.realm), 2, Vector2(4, 4), Color(EditorialStyle.INK, 0.8), 16, 8)
+	wave_style.border_width_left = 6
+	_wave_notice.add_theme_stylebox_override("normal", wave_style)
+	_root.add_child(_wave_notice)
+	_wave_notice.hide()
+
 	_exit_hint_style_gate = EditorialStyle.plaque(EditorialStyle.INK, EditorialStyle.INK, 2, Vector2(4, 4), Color(EditorialStyle.PAPER, 0.85), 18, 10)
 	_exit_hint_style_gate.border_width_left = 5
 	_exit_hint_style_gate.border_color = EditorialStyle.GOLD
@@ -501,11 +518,16 @@ func _process(delta: float) -> void:
 
 	_fall_notice_left = maxf(0.0, _fall_notice_left - delta)
 	_fall_notice.visible = _fall_notice_left > 0 and not stage.fallen and not selecting
+	_wave_notice_left = maxf(0.0, _wave_notice_left - delta)
+	_wave_notice.visible = _wave_notice_left > 0 and not stage.fallen and not selecting
 	_update_exit_and_death_feedback()
 
 	_resonance.visible = show_chrome and player.fragments.has_shard(PsycheFragments.SLOTH)
 	_resonance.text = "[ %s ]  沉睡共鸣  ·  %s" % [KeyHint.of("psyche_resonance"), "就绪" if player.fragments.resonance_cooldown <= 0 else "%.1f s" % player.fragments.resonance_cooldown]
 	_objective.text = stage.objective_text()
+	if not stage.boss_room and stage.total_waves() > 1 and not stage.fallen \
+		and not stage.transitioning and not stage.exit_ready and not stage.cleared:
+		_objective.text = "第 %d/%d 波 · 剩余 %d" % [stage.current_wave(), stage.total_waves(), stage.remaining_encounter_enemies()]
 	_update_boss_readout()
 	_ammo.text = "%d / %d\n%s" % [player.weapon.ammo, player.weapon.magazine_capacity(), "晶体重组…" if player.weapon.is_reloading() else "黑晶手枪"]
 
@@ -537,6 +559,13 @@ func _damaged(amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
 		_fall_notice_left = 2.5
 	if source is Node3D and stage.player.realm_effects.warnings_enabled:
 		damage_indicator.add_hit(source, amount)
+
+
+func _on_wave_spawned(_stage: RealmStage, wave_index: int, total_waves: int) -> void:
+	if wave_index <= 1:
+		return
+	_wave_notice.text = "增援抵达 · 第 %d/%d 波" % [wave_index, total_waves]
+	_wave_notice_left = 2.2
 
 
 func _apply_settings() -> void:

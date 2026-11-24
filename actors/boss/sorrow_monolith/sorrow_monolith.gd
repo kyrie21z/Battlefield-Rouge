@@ -1,6 +1,7 @@
 class_name SorrowMonolith
 extends SorrowRealmEnemy
 signal realm_defeated(realm_id: int)
+signal phase_changed(new_phase: int)
 enum Move { RAIN, TIDE, SLAP }
 var move_kind := Move.RAIN
 var locked_point := Vector3.ZERO
@@ -10,6 +11,8 @@ var tears_released := 0
 var tides_released := 0
 var slaps := 0
 var tell: MeshInstance3D
+var boss_phase := 1
+var _second_tide_left := -1.0
 
 func _enter_tree() -> void:
 	variant = 2
@@ -22,10 +25,29 @@ func _ready() -> void:
 	health.headshot_multiplier = 1.25
 	action_left = 1.4
 	(get_node("HeadHitbox") as Hitbox).position = to_local(visual.model.to_global(visual.skeleton.get_bone_global_pose(visual.skeleton.find_bone("Head")).origin))
+	health.after_damage.connect(_on_phase_damage)
+
+func _on_phase_damage(_context: Dictionary) -> void:
+	if boss_phase != 1 or health.is_dead():
+		return
+	if health.health > health.max_health * 0.50:
+		return
+	boss_phase = 2
+	boss_phase_tempo_scale = 1.20
+	health.max_shield = roundf(health.max_health * 0.15)
+	health.shield_points = health.max_shield
+	health.shield_regeneration_rate = 0.0
+	health.shield_changed.emit(health.shield_points)
+	phase_changed.emit(2)
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD or boon_stunned or boon_time_scale <= 0:
 		return
 	delta *= boon_time_scale
+	if _second_tide_left > 0.0:
+		_second_tide_left -= delta
+		if _second_tide_left <= 0.0:
+			_second_tide_left = -1.0
+			_spawn_tide()
 	battle_elapsed += delta
 	if is_instance_valid(arena):
 		raised_water = maxf(raised_water,0.14+(1-health.health/health.max_health)*1.45+battle_elapsed*0.004)
@@ -56,7 +78,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		if action_left <= 0:
 			action = 3
-			action_left = 1.6
+			action_left = 1.15 if boss_phase >= 2 else 1.6
 			move_kind = (move_kind+1)%3
 	_boon_move_and_slide()
 func begin_move(kind: int) -> void:
@@ -92,16 +114,18 @@ func _release() -> void:
 				bullet.max_distance = 13
 				_owned.append(weakref(bullet))
 				tears_released += 1
+		if boss_phase >= 2:
+			for index in 12:
+				var angle := TAU*index/12.0
+				var from := locked_point+Vector3(cos(angle)*4.5,9,sin(angle)*4.5)
+				var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Color(0.1,0.65,0.88))
+				bullet.max_distance = 13
+				_owned.append(weakref(bullet))
+				tears_released += 1
 	elif move_kind == Move.TIDE:
-		var wave := SorrowTide.new()
-		wave.source = self
-		wave.target = target as Player
-		wave.water_level = raised_water
-		wave.damage *= realm_damage_scale
-		get_parent().add_child(wave)
-		wave.global_position = global_position
-		_owned.append(weakref(wave))
-		tides_released += 1
+		_spawn_tide()
+		if boss_phase >= 2:
+			_second_tide_left = 0.55
 	else:
 		slaps += 1
 		var offset := target.global_position-locked_point
@@ -112,9 +136,21 @@ func _release() -> void:
 				target.call("apply_external_impulse",target.global_position-global_position,12.0,0.25)
 		if is_instance_valid(arena):
 			arena.add_ripple(locked_point)
+func _spawn_tide() -> void:
+	var wave := SorrowTide.new()
+	wave.source = self
+	wave.target = target as Player
+	wave.water_level = raised_water
+	wave.damage *= realm_damage_scale
+	get_parent().add_child(wave)
+	wave.global_position = global_position
+	_owned.append(weakref(wave))
+	tides_released += 1
+
 func _on_died(source: Node) -> void:
 	if state == State.DEAD:
 		return
+	_second_tide_left = -1.0
 	_clear_tell()
 	super._on_died(source)
 	if is_instance_valid(arena):

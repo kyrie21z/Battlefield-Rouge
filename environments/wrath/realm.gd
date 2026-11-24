@@ -141,6 +141,17 @@ func player_spawn() -> Vector3:
 	return Vector3(0, 0, 16)
 
 
+## Legacy five first, then flat kiln floor clear of lava beds, pillars, covers
+## and the tilted outer walls in both chamber styles.
+func spawn_points() -> Array[Vector3]:
+	return [
+		Vector3(-8, 0.1, 3), Vector3(8, 0.1, -4), Vector3(0, 0.1, -12),
+		Vector3(-11, 0.1, -12), Vector3(11, 0.1, -14),
+		Vector3(-13, 0.1, 6), Vector3(13, 0.1, 12),
+		Vector3(-13, 0.1, -17), Vector3(3, 0.1, -18),
+	]
+
+
 func exit_position() -> Vector3:
 	return Vector3(0, 0, -20)
 

@@ -2,6 +2,7 @@ class_name WrathSpire
 extends WrathRealmEnemy
 ## Each attack has a locked telegraph, active period and a gun/blade punish window.
 signal realm_defeated(realm_id: int)
+signal phase_changed(new_phase: int)
 enum Move { VORTEX, FISSURE, SHRAPNEL, VOLLEY, ERUPTION }
 const MOVE_ORDER := [Move.VOLLEY,Move.FISSURE,Move.SHRAPNEL,Move.ERUPTION,Move.VORTEX]
 var arena: Node3D
@@ -17,6 +18,7 @@ var spawned_eruptions := 0
 var _volley_count := 0
 var _locked_aim := Vector3.FORWARD
 var _aim_tell: MeshInstance3D
+var boss_phase := 1
 
 func _enter_tree() -> void:
 	variant = Variant.AGGRESSOR
@@ -31,6 +33,20 @@ func _ready() -> void:
 	attack_phase = Attack.APPROACH
 	attack_left = 1.4
 	run_speed = 3.0
+	health.after_damage.connect(_on_phase_damage)
+
+func _on_phase_damage(_context: Dictionary) -> void:
+	if boss_phase != 1 or health.is_dead():
+		return
+	if health.health > health.max_health * 0.50:
+		return
+	boss_phase = 2
+	boss_phase_tempo_scale = 1.20
+	health.max_shield = roundf(health.max_health * 0.15)
+	health.shield_points = health.max_shield
+	health.shield_regeneration_rate = 0.0
+	health.shield_changed.emit(health.shield_points)
+	phase_changed.emit(2)
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD or boon_time_scale <= 0 or boon_stunned:
@@ -73,7 +89,8 @@ func _physics_process(delta: float) -> void:
 			_burst_done = false
 			_clear_aim_tell()
 			if move_kind == Move.FISSURE:
-				for offset in [-0.42, 0.0, 0.42]:
+				var offsets := [-0.64,-0.32,0.0,0.32,0.64] if boss_phase >= 2 else [-0.42,0.0,0.42]
+				for offset in offsets:
 					var wave := WrathShockwave.new()
 					wave.source = self
 					wave.target = target
@@ -109,7 +126,7 @@ func _physics_process(delta: float) -> void:
 				_fire_radial(PI / 12.0)
 		if attack_left <= 0:
 			attack_phase = Attack.RECOVER
-			attack_left = 1.5
+			attack_left = 1.15 if boss_phase >= 2 else 1.5
 	else:
 		_stop()
 		if attack_left <= 0:
@@ -154,7 +171,8 @@ func _spawn_eruptions() -> void:
 	if center.distance_to(global_position) > 40.0:
 		return
 	var side := locked_direction.cross(Vector3.UP).normalized()
-	for offset in [-4.5,0.0,4.5]:
+	var offsets := [-6.0,-3.0,0.0,3.0,6.0] if boss_phase >= 2 else [-4.5,0.0,4.5]
+	for offset in offsets:
 		var point: Vector3 = center+side*offset
 		if not _line_clear(point+Vector3.UP):
 			continue

@@ -7,6 +7,13 @@ signal loadout_changed(cards: Array[BoonData])
 signal replacement_requested(previous: BoonData, replacement: BoonData)
 signal event_dispatched(event: StringName, context: Dictionary)
 
+const BOSS_HARD_CC_WINDOW := 12.0
+const BOSS_HARD_CC_CAP := 2.0
+const BOSS_HARD_CC_FACTORS: Array[float] = [1.0, 0.5, 0.25, 0.0]
+const BOSS_MIN_TIME_SCALE := 0.45
+const BOSS_MIN_ATTACK_SCALE := 0.50
+const BOSS_MAX_WINDUP_SCALE := 1.65
+
 var player: CharacterBody3D
 var stats: Stats
 var health: Health
@@ -25,6 +32,7 @@ var _statuses: Dictionary = {}
 var _projectile_statuses: Dictionary = {}
 var _modifiers: Dictionary = {}
 var _freezes: Dictionary = {}
+var _boss_cc: Dictionary = {}
 var _shield_left := 0.0
 var _feedback: Array[Node3D] = []
 var _active := true
@@ -377,6 +385,23 @@ func set_status(enemy: Node, source: StringName, duration: float, move_scale: fl
 		time_scale: float = 1.0, stun: bool = false, windup_scale: float = 1.0, block_shield_regen: bool = false, attack_scale: float = 1.0) -> void:
 	if not is_instance_valid(enemy) or not "boon_time_scale" in enemy:
 		return
+	if (stun or time_scale <= 0.05) and duration > 0.0 and bool(enemy.get("is_boss")):
+		var stage := boss_cc_stage(enemy)
+		var factor: float = BOSS_HARD_CC_FACTORS[mini(stage, BOSS_HARD_CC_FACTORS.size() - 1)]
+		var effective := minf(duration, BOSS_HARD_CC_CAP) * factor
+		if effective <= 0.0:
+			stun = false
+			if time_scale <= 0.05:
+				time_scale = 1.0
+			if not block_shield_regen and is_equal_approx(move_scale, 1.0) \
+					and is_equal_approx(time_scale, 1.0) and is_equal_approx(windup_scale, 1.0) \
+					and is_equal_approx(attack_scale, 1.0):
+				return
+		else:
+			duration = effective
+			var entry := _boss_cc_entry(enemy)
+			entry.stage = stage + 1
+			entry.left = BOSS_HARD_CC_WINDOW
 	var id := enemy.get_instance_id()
 	if not _statuses.has(id):
 		_statuses[id] = {"node": weakref(enemy), "sources": {}}
@@ -414,8 +439,32 @@ func _refresh_status(entry: Dictionary) -> void:
 	var target_health := health_of(enemy)
 	if target_health != null:
 		target_health.set_shield_regeneration_blocked(StringName("boon_status_%s" % get_instance_id()), block_regen)
+	if _is_boss(enemy) and not enemy.boon_stunned and enemy.boon_time_scale > 0.05:
+		enemy.boon_time_scale = maxf(enemy.boon_time_scale, BOSS_MIN_TIME_SCALE)
+		if "boon_attack_scale" in enemy:
+			enemy.boon_attack_scale = maxf(enemy.boon_attack_scale, BOSS_MIN_ATTACK_SCALE)
+		if "boon_windup_scale" in enemy:
+			enemy.boon_windup_scale = minf(enemy.boon_windup_scale, BOSS_MAX_WINDUP_SCALE)
 	if enemy.has_method("set_boon_animation_scale"):
 		enemy.set_boon_animation_scale(0.0 if enemy.boon_stunned else enemy.boon_time_scale)
+
+func boss_cc_stage(enemy: Node) -> int:
+	if not is_instance_valid(enemy):
+		return 0
+	var entry: Dictionary = _boss_cc.get(enemy.get_instance_id(), {})
+	return int(entry.get("stage", 0))
+
+func boss_cc_immune(enemy: Node) -> bool:
+	return boss_cc_stage(enemy) >= BOSS_HARD_CC_FACTORS.size() - 1
+
+func _is_boss(enemy: Node) -> bool:
+	return is_instance_valid(enemy) and bool(enemy.get("is_boss"))
+
+func _boss_cc_entry(enemy: Node) -> Dictionary:
+	var id := enemy.get_instance_id()
+	if not _boss_cc.has(id):
+		_boss_cc[id] = {"node": weakref(enemy), "stage": 0, "left": 0.0}
+	return _boss_cc[id]
 
 func set_projectile_scale(projectile: Node, source: StringName, scale_value: float, duration: float = 0.0) -> void:
 	if not is_instance_valid(projectile) or not "boon_time_scale" in projectile:
@@ -490,6 +539,7 @@ func _physics_process(delta: float) -> void:
 			_freezes.erase(source)
 	_tick_statuses(_statuses, delta, false)
 	_tick_statuses(_projectile_statuses, delta, true)
+	_tick_boss_cc(delta)
 	if _shield_left > 0.0:
 		_shield_left -= delta
 		if _shield_left <= 0.0:
@@ -517,6 +567,17 @@ func _tick_statuses(registry: Dictionary, delta: float, projectile: bool) -> voi
 		if entry.sources.is_empty():
 			registry.erase(id)
 
+func _tick_boss_cc(delta: float) -> void:
+	for id in _boss_cc.keys():
+		var entry: Dictionary = _boss_cc[id]
+		var enemy = entry.node.get_ref()
+		if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
+			_boss_cc.erase(id)
+			continue
+		entry.left -= delta
+		if entry.left <= 0.0:
+			_boss_cc.erase(id)
+
 func clear(notify: bool = true) -> void:
 	for effect: BoonEffect in _effects.values():
 		effect.cleanup()
@@ -539,6 +600,7 @@ func clear(notify: bool = true) -> void:
 		_refresh_projectile(entry)
 	_statuses.clear()
 	_projectile_statuses.clear()
+	_boss_cc.clear()
 	for node in _feedback:
 		if is_instance_valid(node):
 			node.queue_free()

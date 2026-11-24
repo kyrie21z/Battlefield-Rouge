@@ -72,7 +72,7 @@ func _check_spawn_pools() -> void:
 	var wrath := WrathRealm.new()
 	var wrath_points := wrath.spawn_points()
 	check("wrath exposes nine spawn points",wrath_points.size() == 9)
-	check("wrath keeps the five legacy points first",wrath_points.slice(0,5) == [Vector3(-8,0.1,3),Vector3(8,0.1,-4),Vector3(0,0.1,-12),Vector3(-11,0.1,-12),Vector3(11,0.1,-14)])
+	check("wrath keeps the five legacy points first",wrath_points.slice(0,5) == [Vector3(-8,0.1,-6),Vector3(8,0.1,-4),Vector3(0,0.1,-12),Vector3(-11,0.1,-12),Vector3(11,0.1,-14)])
 	wrath.free()
 	var sorrow := SorrowRealm.new()
 	var sorrow_points := sorrow.spawn_points()

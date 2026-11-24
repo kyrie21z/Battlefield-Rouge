@@ -53,7 +53,9 @@ func _ready()->void:
 	fallen_crown.angular_damp=3
 	var collision:=CollisionShape3D.new()
 	var box:=BoxShape3D.new()
-	box.size=Vector3(0.24,0.15,0.28)
+	box.size=Vector3(0.16,0.10,0.19)
+	# A3's lowest edge is 12 mm below the wear origin.
+	collision.position.y=0.038
 	collision.shape=box
 	fallen_crown.add_child(collision)
 	add_child(fallen_crown)

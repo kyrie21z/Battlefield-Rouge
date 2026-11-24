@@ -357,7 +357,13 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 
 ## #147 原创皇冠与中文开场语音（2026-11-10）
 
-`actors/crown/crown_model.gd` 是本项目原创参数化 3D 几何：普通中空六尖象牙白冠与克制的暗金边，遵循最新用户纠偏移除眼睛、手与拟人装饰，未提取旧图集或第三方模型。原始白晶人体和手枪仍使用既有登记资源，未修改原件。
+Pride 的 A3 皇冠是项目原创的中空六尖金晶模型，由 Blender 生成 144 个平面着色三角面。金晶材质复用主角的水晶光学着色器。
+生成脚本、可编辑 Blender 源文件、尺寸与导出哈希见 [皇冠建模目录](../tools/crown/model/)。
+
+| 资源 | SHA-256 |
+| --- | --- |
+| `assets/models/crown/pride_crown.glb` | `392abac47aaa385e86e5c58b0dda4660fc5d6dff10089413669e74dd00e43283` |
+| `assets/materials/crown_crystal_material.tres` | `723872b808584029ff5fb1f571468fbf82aa4fb489876dcadb9d5bdf151a523a` |
 
 六段原创项目台词使用官方 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh) 固定版本 `01e7505bd6a7a2ac4975463114c3a7650a9f7218` 离线生成；模型与推理代码均为 Apache-2.0。官方模型卡声明中文专业数据由 LongMaoData 获许可提供。皇冠使用标准女声 `zf_001`，面试声使用标准男声 `zm_010`，不克隆他人身份。只分发24kHz单声道PCM16输出，不分发模型/引擎，不标为CC0。原Windows SAPI输出已替换，旧脚本显式阻止再次生成。
 

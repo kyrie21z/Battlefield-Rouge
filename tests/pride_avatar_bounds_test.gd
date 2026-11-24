@@ -1,5 +1,5 @@
 extends SceneTree
-## Check the corrected ordinary crown, including every physical mesh corner.
+## Check the A3 crown in the camera and in the worn, shadow-only state.
 var checks := 0
 var failures := 0
 func _initialize() -> void:
@@ -24,9 +24,14 @@ func _run() -> void:
 	for mesh in meshes:
 		for corner in 8:bounds=bounds.expand(mesh.global_transform*mesh.get_aabb().get_endpoint(corner))
 	print("PHYSICAL CROWN AABB: %.4f x %.4f x %.4f m; inner %.5f x %.4f m" % [bounds.size.x,bounds.size.y,bounds.size.z,CrownModel.INNER_WIDTH,CrownModel.INNER_DEPTH])
-	check("physical crown fits authored human head dimensions",bounds.size.x>0.20 and bounds.size.x<0.24 and bounds.size.y<0.15 and bounds.size.z>0.24 and bounds.size.z<0.28)
-	check("ordinary crown contains only band, rims and six points",meshes.size()==42)
-	check("crown has no face or appendage nodes",crown.get("face")==null and crown.get("gloves")==null and crown.get("pupils")==null)
+	check("physical crown fits authored human head dimensions",
+		bounds.size.x > 0.13 and bounds.size.x < 0.18 and bounds.size.y < 0.12
+		and bounds.size.z > 0.16 and bounds.size.z < 0.21)
+	check("A3 crown is one crystal mesh", meshes.size() == 1)
+	check("crown has no face or appendage nodes",
+		crown.find_children("*Face*", "", true, false).is_empty()
+		and crown.find_children("*Glove*", "", true, false).is_empty()
+		and crown.find_children("*Pupil*", "", true, false).is_empty())
 	for state in 20:
 		crown.rotation.y = state * TAU / 20.0
 		var fits := true
@@ -42,6 +47,14 @@ func _run() -> void:
 	crown.set_worn(false)
 	check("the crown renders before it is worn",meshes.all(func(mesh):
 		return mesh.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON))
+	var second_crown := CrownModel.new()
+	second_crown.set_emission_strength(3.0)
+	world.add_child(second_crown)
+	crown.set_emission_strength(-1.0)
+	check("each crown keeps its own nonnegative emission on the visible mesh",
+		meshes.size() == 1 and meshes[0].material_override == crown.crystal_material
+		and is_zero_approx(float(crown.crystal_material.get_shader_parameter("emission_strength")))
+		and is_equal_approx(float(second_crown.crystal_material.get_shader_parameter("emission_strength")), 3.0))
 	world.queue_free()
 	await process_frame
 	print("CROWN BOUNDS: %s (%d checks)" % ["ALL PASSED" if failures == 0 else "FAIL", checks])

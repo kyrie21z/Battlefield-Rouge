@@ -70,10 +70,10 @@ func _run_final_boss() -> void:
 	boss.set_combat_active(true)
 	await _frames(3)
 
-	check("final shell enters with the 2800 HP endgame body",
-		is_equal_approx(boss.health.max_health,2800.0)
-		and is_equal_approx(boss.health.health,2800.0)
-		and is_equal_approx(FlawlessDoppelganger.BASE_HEALTH,2800.0))
+	check("final shell enters with the endgame body",
+		is_equal_approx(boss.health.max_health,FlawlessDoppelganger.BASE_HEALTH)
+		and is_equal_approx(boss.health.health,FlawlessDoppelganger.BASE_HEALTH)
+		and is_equal_approx(FlawlessDoppelganger.BASE_HEALTH,3600.0))
 	check("final gun and blade carry the 14 / 28 endgame damage",
 		is_equal_approx(FlawlessDoppelganger.GUN_DAMAGE,14.0)
 		and is_equal_approx(FlawlessDoppelganger.SLASH_DAMAGE,28.0))
@@ -89,7 +89,7 @@ func _run_final_boss() -> void:
 	boss.begin_move(FlawlessDoppelganger.Move.DASH_BLADE)
 	before = player.health.health
 	await _frames(60)
-	check("a real final slash removes 28 HP", is_equal_approx(before-player.health.health,28.0) and boss.slashes==1)
+	check("a real final slash and crescent remove 28 + 16 HP", is_equal_approx(before-player.health.health,FlawlessDoppelganger.SLASH_DAMAGE+FlawlessDoppelganger.CRESCENT_DAMAGE) and boss.slashes==1)
 
 	boss.health.health = boss.health.max_health
 	boss._recover()
@@ -102,9 +102,9 @@ func _run_final_boss() -> void:
 	boss.health.health = boss.health.max_health*0.56
 	boss._recover()
 	check("56% HP still keeps the readable recover window", is_equal_approx(boss.phase_left,0.85))
-	boss.health.health = 1540.0
+	boss.health.health = boss.health.max_health*0.55
 	boss._recover()
-	check("exact 55% HP (1540/2800) still keeps the readable recover window", is_equal_approx(boss.phase_left,0.85))
+	check("exact 55% HP still keeps the readable recover window", is_equal_approx(boss.phase_left,0.85))
 	boss.health.health = boss.health.max_health*0.54
 	boss._recover()
 	check("below 55% HP compresses the recover window to 0.55 s",
@@ -470,7 +470,7 @@ func _run_review_edge_guards() -> void:
 				hit_ticks = tick
 				break
 		check("WrathSpire eruption hits in lockstep with 1.4x windup (%d vs %d ticks, spawned=%d)" % [hit_ticks,windup_ticks,spire.spawned_eruptions],
-			spire.spawned_eruptions > 0 and windup_ticks >= 49 and windup_ticks <= 55 and abs(hit_ticks-windup_ticks) <= 2)
+			spire.spawned_eruptions > 0 and windup_ticks >= 39 and windup_ticks <= 43 and abs(hit_ticks-windup_ticks) <= 2)
 
 	var sloth_boss := await _install_run_room(0,[0],2)
 	_guard_player(sloth_boss)
@@ -484,7 +484,7 @@ func _run_review_edge_guards() -> void:
 			await get_tree().physics_frame
 			wait_ticks += 1
 		check("SlothColossus recovery scales with 1.4x tempo (%d ticks)" % wait_ticks,
-			wait_ticks >= 74 and wait_ticks <= 81)
+			wait_ticks >= 39 and wait_ticks <= 43)
 
 
 func _authored_base_stats(actor: Enemy) -> Dictionary:

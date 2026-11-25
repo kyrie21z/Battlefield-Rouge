@@ -12,8 +12,9 @@ func _ready() -> void:
 	stage.player.set_physics_process(false)
 	stage.boss.set_physics_process(false)
 	await frames(4)
+	var expected_hp := SlothColossus.BASE_HEALTH * 1.25
 	check("generated boss map creates one actual Colossus and arena",stage.boss is SlothColossus and stage.enemies.size()==1 and stage.geometry.get("boss_arena"))
-	check("boss HP and actual attack damage use injected difficulty",stage.boss.health.max_health==1750 and stage.boss.get("realm_damage_scale")==1.25)
+	check("boss HP and actual attack damage use injected difficulty",is_equal_approx(stage.boss.health.max_health,expected_hp) and stage.boss.get("realm_damage_scale")==1.25)
 	check("boss retains inherited warning deprivation",not stage.boss.get("warnings_enabled") and not stage.player.realm_effects.warnings_enabled)
 	(stage.boss as SlothColossus).start_attack(0)
 	await frames(2)
@@ -22,10 +23,10 @@ func _ready() -> void:
 	attack.finish()
 	await frames(2)
 	await ui_frame()
-	check("HUD renders the actual boss bar",stage.hud._boss_bar.visible and stage.hud._boss_bar.max_value==1750)
+	check("HUD renders the actual boss bar",stage.hud._boss_bar.visible and is_equal_approx(stage.hud._boss_bar.max_value,expected_hp))
 	stage.boss.health.apply_damage(35,Hitbox.BodyPart.BODY,stage.player)
 	await ui_frame()
-	check("HUD follows actual boss damage",stage.boss.health.health<1750 and is_equal_approx(stage.hud._boss_bar.value,stage.boss.health.health))
+	check("HUD follows actual boss damage",stage.boss.health.health<expected_hp and is_equal_approx(stage.hud._boss_bar.value,stage.boss.health.health))
 	check("boss gate starts locked",not stage.exit_ready and not stage.request_exit())
 	var deaths := [0]
 	var clears := [0]

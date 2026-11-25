@@ -99,6 +99,12 @@ func test_models() -> void:
 	var shell := _bounds(orb._shell_meshes)
 	check("shell silhouette is a faceted ball of radius 0.50-0.56",
 		_reach(shell) >= 0.50 and _reach(shell) <= 0.56)
+	var min_band_thick := 1.0
+	for mi in orb._shell_meshes:
+		if mi.name.begins_with("SHELL_band_"):
+			var s := mi.get_aabb().size
+			min_band_thick = minf(min_band_thick, minf(s.x, minf(s.y, s.z)))
+	check("every SHELL_band_ piece has solid extruded thickness (>= 0.03 m)", min_band_thick >= 0.03)
 	check("shell closes behind the core (rear reach >= 0.50 m)", shell.end.z >= 0.50)
 	check("shell opens at the mouth instead of wrapping it (front z <= -0.15)", shell.position.z <= -0.15)
 	check("shell is wider than it is deep, so the aperture reads from the front",
@@ -247,9 +253,9 @@ func test_scatter_schedule() -> void:
 		is_equal_approx(reveal, float(orb._shell_meshes.size() - 1) * TalentOrb.PIECE_STEP + 0.5))
 
 	orb.assemble(0.12, 0.0)
-	# the last piece only starts 1.36 s in (one PIECE_STEP slot each), so the
-	# whole formation needs the full staggered window before it is whole again
-	await physics_frames(110)
+	# the last piece starts at 68 * 0.02 = 1.36 s and finishes its 0.50 s reveal
+	# at 1.86 s (~112 ticks), so step 120 ticks to cover both schedules
+	await physics_frames(120)
 	var home := true
 	var cooled := true
 	for index in orb._shell_meshes.size():
@@ -260,6 +266,17 @@ func test_scatter_schedule() -> void:
 	check("assembly flies every shard back to its authored pose", home)
 	check("assembly drains the scatter heat to zero", cooled)
 	check("assembly stops stepping pieces once it lands", orb._pieces.is_empty())
+
+	# Custom reveal longer than assemble must not be truncated or pull assembled pieces back.
+	orb.scatter(1.2)
+	orb.reveal_pieces(4.0)
+	orb.assemble(0.10, 0.0)
+	await physics_frames(100)
+	var last_idx := orb._shell_meshes.size() - 1
+	var last_piece := orb._shell_meshes[last_idx]
+	check("longer custom reveal keeps fading without snapping assembled pieces back",
+		orb._anim_reveal and not orb._anim_assemble and last_piece.transparency > 0.5
+		and last_piece.transform.origin.is_equal_approx(_shell_targets[last_idx].origin))
 	orb.queue_free()
 	await frames(1)
 
@@ -342,6 +359,25 @@ func test_collision_teardown() -> void:
 		and is_equal_approx(float(orb._shell_materials[0].get_shader_parameter("energy_scale")), 0.4)
 		and is_equal_approx(aura.light_energy, 1.05 * 0.4))
 	orb.queue_free()
+	await frames(1)
+
+	# Pre-tree settings must survive prepare() / _ready().
+	var pre := TalentOrb.new()
+	pre.set_collision_enabled(false)
+	pre.set_core_visible(false)
+	pre.set_energy(0.4)
+	add_child(pre)
+	await frames(1)
+	var pre_body := pre.get_node_or_null("Body") as StaticBody3D
+	var pre_halo := pre.get_node_or_null("GroundHalo") as MeshInstance3D
+	var pre_aura := pre.get_node_or_null("AuraLight") as OmniLight3D
+	check("pre-tree collision, core visibility and energy survive prepare()",
+		pre_body != null and pre_body.collision_layer == CollisionLayers.NONE
+		and not pre._core.visible and not pre._mote_pivot.visible
+		and not pre_halo.visible and not pre_aura.visible
+		and is_equal_approx(pre._shell_meshes[0].transparency, 0.6)
+		and is_equal_approx(float(pre._shell_materials[0].get_shader_parameter("energy_scale")), 0.4))
+	pre.queue_free()
 	await frames(1)
 
 

@@ -47,9 +47,23 @@ def bearing(phi, radius, z):
 	return Vector((math.cos(phi) * radius, math.sin(phi) * radius, z))
 
 
+def quad_normal(quad, hint):
+	"""Outward unit normal of a planar quad, aligned with `hint`."""
+	normal = (quad[1] - quad[0]).cross(quad[3] - quad[0])
+	assert normal.length > 1e-6, quad
+	normal.normalize()
+	if normal.dot(hint) < 0.0:
+		normal = -normal
+	return normal
+
+
 def beveled_plate(girdle, normal, thickness, inset=0.74):
 	"""Closed chamfered slab: widest girdle ring, inset table above and below."""
 	count = len(girdle)
+	if count >= 3:
+		plane = (girdle[1] - girdle[0]).cross(girdle[-1] - girdle[0])
+		if plane.length > 1e-6:
+			assert abs(normal.normalized().dot(plane.normalized())) >= 0.85, (normal, plane)
 	center = sum(girdle, Vector()) / count
 	table = [center + (p - center) * inset + normal * (thickness * 0.5) for p in girdle]
 	under = [center + (p - center) * inset - normal * (thickness * 0.5) for p in girdle]
@@ -213,7 +227,8 @@ def shell():
 		phi = k * TAU / 8 + 0.19
 		quad = [bearing(phi, 0.344, 0.062), bearing(phi + TAU / 8, 0.344, 0.062),
 			bearing(phi + TAU / 8, 0.366, -0.092), bearing(phi, 0.366, -0.092)]
-		normal = (quad[0] + quad[2] - quad[1] - quad[3]).normalized() * -1.0
+		hint = Vector((quad[0].x + quad[2].x, quad[0].y + quad[2].y, 0.0))
+		normal = quad_normal(quad, hint)
 		add_piece("SHELL_band_%d" % k, *beveled_plate(quad, normal, 0.044, 0.80), obsidian)
 
 	# Iris lip: eight beak plates around the aperture, staggered forward so the
@@ -224,9 +239,9 @@ def shell():
 		z_in = LIP_FRONT_Z - (0.014 if k % 2 else 0.0)
 		quad = [bearing(a, APERTURE_INNER, z_in), bearing(b, APERTURE_INNER, z_in),
 			bearing(b, APERTURE_OUTER, LIP_OUTER_Z), bearing(a, APERTURE_OUTER, LIP_OUTER_Z)]
-		normal = Vector((quad[0].x + quad[1].x + quad[2].x + quad[3].x, 0.0,
-			quad[0].z + quad[1].z + quad[2].z + quad[3].z))
-		add_piece("SHELL_lip_%d" % k, *beveled_plate(quad, normal.normalized(), 0.056, 0.76), obsidian)
+		hint = sum(quad, Vector())
+		normal = quad_normal(quad, hint)
+		add_piece("SHELL_lip_%d" % k, *beveled_plate(quad, normal, 0.056, 0.76), obsidian)
 
 	# Eight shroud crests bridging the lip rim to the plate field.
 	for k in range(8):
@@ -256,11 +271,11 @@ def shell():
 		quad = [bearing(phi - 0.020, APERTURE_INNER - 0.016, LIP_FRONT_Z - 0.004),
 			bearing(phi + 0.020, APERTURE_INNER - 0.016, LIP_FRONT_Z - 0.004),
 			bearing(phi + 0.020, 0.404, -0.126), bearing(phi - 0.020, 0.404, -0.126)]
-		normal = Vector((quad[0].x + quad[2].x, 0.0, quad[0].z + quad[2].z + 0.5))
-		add_piece("INSET_%02d" % k, *beveled_plate(quad, normal.normalized(), 0.030, 0.66), inlay)
+		normal = quad_normal(quad, sum(quad, Vector()) + Vector((0.0, 0.0, -0.5)))
+		add_piece("INSET_%02d" % k, *beveled_plate(quad, normal, 0.030, 0.66), inlay)
 		rod = [polar(phi - 0.016, 1.250, 0.474), polar(phi + 0.016, 1.250, 0.474),
 			polar(phi + 0.016, 2.820, 0.474), polar(phi - 0.016, 2.820, 0.474)]
-		rod_normal = sum(rod, Vector()).normalized()
+		rod_normal = quad_normal(rod, sum(rod, Vector()))
 		add_piece("SHROUD_lamp_%d" % k, *beveled_plate(rod, rod_normal, 0.030, 0.72), inlay)
 	return export("orb_shell")
 

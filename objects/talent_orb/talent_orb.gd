@@ -107,6 +107,9 @@ func _ready() -> void:
 func prepare() -> void:
 	_build_models()
 	_build_collision()
+	set_collision_enabled(_collision_on)
+	set_core_visible(_core_visible)
+	set_energy(_energy)
 
 
 ## Floor height under the orb, in the parent's space. base_height stays the
@@ -505,11 +508,12 @@ func _step_pieces(t: float) -> void:
 			continue
 		var index: int = entry["index"]
 		var slot: float = entry["slot"]
-		var assembling_this := false
+		var assembly_claimed := bool(entry.get("assembled", false))
 		if _anim_assemble:
 			var dt := t - (_assemble_start + slot)
 			if dt >= 0.0:
-				assembling_this = true
+				assembly_claimed = true
+				entry["assembled"] = true
 				var v := clampf(dt / _assemble_duration, 0.0, 1.0)
 				var home_xf: Transform3D = entry["home"]
 				var target_xf: Transform3D = entry["target"]
@@ -532,7 +536,7 @@ func _step_pieces(t: float) -> void:
 		if _anim_reveal:
 			var u := clampf((t - (_reveal_start + slot)) / _reveal_fade, 0.0, 1.0)
 			mi.transparency = 1.0 - (0.5 - 0.5 * cos(PI * u))
-			if not assembling_this:
+			if not assembly_claimed:
 				var far_xf: Transform3D = entry["far"]
 				var home_xf: Transform3D = entry["home"]
 				mi.transform = far_xf.interpolate_with(home_xf, sin(u * PI * 0.5))
@@ -542,13 +546,9 @@ func _step_pieces(t: float) -> void:
 		_anim_reveal = false
 	if _anim_assemble and assemble_done:
 		_anim_assemble = false
-		_anim_reveal = false
-		var fade := 1.0 - _energy
 		for entry in _pieces:
-			var piece := entry["node"] as MeshInstance3D
-			if piece != null and is_instance_valid(piece):
-				piece.transparency = fade
 			_set_heat(entry["index"], 0.0)
+	if not _anim_reveal and not _anim_assemble and not _pieces.is_empty():
 		_pieces.clear()
 
 

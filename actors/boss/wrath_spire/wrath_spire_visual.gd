@@ -2,6 +2,7 @@ class_name WrathSpireVisual
 extends WrathVisual
 var storm_rings: Array[Node3D] = []
 var speed_factor := 1.0
+var molten := 0.0
 
 func _build() -> void:
 	if _built:
@@ -66,6 +67,9 @@ func _process(delta: float) -> void:
 			return
 	for i in storm_rings.size():
 		storm_rings[i].rotation.y += delta * speed_factor * (0.8 + i * 0.45) * (-1.0 if i % 2 else 1.0)
+	_light.emission_energy_multiplier += molten * 2.8
+	_crystal.set_shader_parameter("emission_strength", 0.10 + pressure * 0.6 + molten * 1.5)
+	_crystal.set_shader_parameter("inner_glow", 0.06 + molten * 0.7)
 
 func die(point := Vector3.INF, direction := Vector3.FORWARD) -> void:
 	super.die(point, direction)

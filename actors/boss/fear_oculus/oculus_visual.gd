@@ -8,6 +8,8 @@ var material: ShaderMaterial
 var elapsed := 0.0
 var charge := 0.0
 var dead := false
+var ghost_count := 0
+var ghosts: Array[Node3D] = []
 
 func _ready() -> void:
 	FearShatter.prepare_templates()
@@ -137,3 +139,53 @@ func shatter() -> void:
 		piece.angular_velocity = Vector3(1, cos(angle), sin(angle)) * 4
 	burst.release(material,false)
 	hide()
+
+## A frozen violet echo of the current ring pose, left behind by a blink.
+func spawn_ghost() -> void:
+	if dead:
+		return
+	ghost_count += 1
+	var ghost_material := StandardMaterial3D.new()
+	ghost_material.albedo_color = Color(0.58, 0.28, 0.98, 0.32)
+	ghost_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ghost_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ghost_material.emission_enabled = true
+	ghost_material.emission = Color(0.5, 0.2, 0.95)
+	ghost_material.emission_energy_multiplier = 1.4
+	var ghost := Node3D.new()
+	ghost.name = "OculusAfterimage"
+	for ring in rings:
+		var ring_copy := Node3D.new()
+		ring_copy.transform = ring.transform
+		ghost.add_child(ring_copy)
+		for fold in ring.get_children():
+			var fold_copy := Node3D.new()
+			fold_copy.transform = (fold as Node3D).transform
+			ring_copy.add_child(fold_copy)
+			for child in fold.get_children():
+				if child is MeshInstance3D:
+					var part := MeshInstance3D.new()
+					part.mesh = (child as MeshInstance3D).mesh
+					part.transform = (child as MeshInstance3D).transform
+					part.material_override = ghost_material
+					part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+					fold_copy.add_child(part)
+	if is_instance_valid(iris):
+		var iris_copy := MeshInstance3D.new()
+		iris_copy.mesh = iris.mesh
+		iris_copy.transform = iris.transform
+		iris_copy.material_override = ghost_material
+		iris_copy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ghost.add_child(iris_copy)
+	get_parent().get_parent().add_child(ghost)
+	ghost.global_transform = global_transform
+	ghosts.append(ghost)
+	var tween := ghost.create_tween()
+	tween.tween_property(ghost_material, "albedo_color:a", 0.0, 0.5)
+	tween.tween_callback(ghost.queue_free)
+
+func clear_ghosts() -> void:
+	for ghost in ghosts:
+		if is_instance_valid(ghost):
+			ghost.queue_free()
+	ghosts.clear()

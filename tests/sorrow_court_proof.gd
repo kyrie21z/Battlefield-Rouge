@@ -27,7 +27,7 @@ func _ready() -> void:
 		_check("the Monolith room still owns its original basin and boss",
 			boss.geometry is SorrowRealm and boss.geometry.boss_arena
 			and not boss.geometry.has_node("FloodedCourt") and boss.living_enemies() == 1
-			and not boss.player.realm_effects.ground_current.is_valid())
+			and boss.player.realm_effects.ground_current.is_valid())
 		boss.queue_free()
 		await _frames(4)
 	print("SORROW COURT: %d checks, %d failed" % [_checks, _failures])

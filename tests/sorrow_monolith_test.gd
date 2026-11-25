@@ -86,11 +86,119 @@ func _run() -> void:
 	var drift := player.global_position.distance_to(boss.locked_point)
 	await _frames(80)
 	_check("rain release drags the wading player back toward the mark",player.global_position.distance_to(boss.locked_point) < drift-0.2)
+	# --- Move.VORTEX: the #286 core trap, now cast by the monolith ---
+	realm.clear_whirlpools()
+	boss._vortex_cooldown = 20.0
+	player.recover_from_fall(Vector3(0,0.05,10))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(12)
+	_check("phase 1 vortex holds a swirling telegraph through its windup",boss.action == 1 and boss.vortices_released == 0 and is_instance_valid(boss.tell))
+	var spin_before: float = boss.tell.rotation.y
+	await _frames(3)
+	_check("the vortex telegraph actually rotates as the water gathers",not is_equal_approx(boss.tell.rotation.y,spin_before))
+	await _frames(75)
+	_check("phase 1 vortex release opens exactly one real whirlpool",boss.vortices_released == 1 and realm.active_whirlpool_count() == 1 and boss.tell == null)
+	realm.clear_whirlpools()
+	var dry_platforms_clear := true
+	for probe in [Vector3(8,1.3,14), Vector3(11.3,0.05,14)]:
+		player.recover_from_fall(probe)
+		boss.begin_move(SorrowMonolith.Move.VORTEX)
+		await _frames(2)
+		var platform_spot: Vector3 = boss._vortex_points[0]
+		if absf(platform_spot.x) > 16.5 or absf(platform_spot.z) > 20.5:
+			dry_platforms_clear = false
+		for platform in realm.platforms:
+			var dx := maxf(absf(platform_spot.x-platform.global_position.x)-2.0,0.0)
+			var dz := maxf(absf(platform_spot.z-platform.global_position.z)-2.0,0.0)
+			if dx*dx+dz*dz < SorrowMonolith.VORTEX_RADIUS*SorrowMonolith.VORTEX_RADIUS-0.01:
+				dry_platforms_clear = false
+		boss._clear_tell()
+	_check("vortex radius stays clear of every dry platform box",dry_platforms_clear)
+	realm.clear_whirlpools()
+	player.recover_from_fall(Vector3(0,0.05,10))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(80)
+	var funnel: Vector4 = realm._whirlpools[0]
+	player.recover_from_fall(realm.to_global(Vector3(funnel.x,0.05,funnel.y))+Vector3(1.2,0,0))
+	await _frames(25)
+	_check("a boss-cast funnel pulls the player into its core",player.current_trapped)
+	var escaped := player.dash.try_dash()
+	await _frames(20)
+	_check("one real Shift dash escapes a boss-cast funnel",escaped and not player.current_trapped)
+	var vortex_casts: int = boss.vortices_released
+	boss._vortex_cooldown = 3.0
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(5)
+	boss.boon_time_scale = 0
+	var vortex_cooldown_before: float = boss._vortex_cooldown
+	var vortex_windup_before: float = boss.action_left
+	await _frames(12)
+	_check("local time stop freezes vortex cooldown and windup",boss._vortex_cooldown == vortex_cooldown_before and boss.action_left == vortex_windup_before and boss.action == 1)
+	boss.boon_time_scale = 1
+	boss.action = 0
+	boss.action_left = 100.0
+	boss._clear_tell()
+	realm.clear_whirlpools()
+	boss.warnings_enabled = false
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(10)
+	_check("fear deprivation hides the vortex telegraph",boss.tell == null and boss._extra_tells.is_empty() and boss.action == 1)
+	await _frames(75)
+	_check("a deprived vortex still opens its funnel",boss.vortices_released == vortex_casts+1 and realm.active_whirlpool_count() == 1)
+	boss.warnings_enabled = true
+	boss._cry_cooldown = 5.0
+	boss._vortex_cooldown = 0.0
+	realm.clear_whirlpools()
+	_check("an expired vortex cooldown makes the next move a vortex",boss._next_move() == SorrowMonolith.Move.VORTEX and is_equal_approx(boss._vortex_cooldown,SorrowMonolith.VORTEX_COOLDOWN))
+	_check("the monolith never casts vortex twice in a row",boss._next_move() != SorrowMonolith.Move.VORTEX)
+	realm.clear_whirlpools()
+	player.recover_from_fall(Vector3(0,0.05,10))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(80)
+	var expiring: Vector4 = realm._whirlpools[0]
+	player.recover_from_fall(realm.to_global(Vector3(expiring.x,0.05,expiring.y))+Vector3(0.9,0,0))
+	await _frames(22)
+	var held_by_vortex := player.current_trapped
+	realm.clock += SorrowMonolith.VORTEX_DURATION
+	await _frames(3)
+	_check("a vortex that outlives its nine seconds releases the player",held_by_vortex and not player.current_trapped and realm.active_whirlpool_count() == 0)
 	boss.health.apply_damage(boss.health.health-boss.health.max_health*0.5,Hitbox.BodyPart.BODY,player,{"true_damage":true})
 	await _frames(2)
 	_check("half health opens phase 2 with a 15 percent non-regenerating shield",boss.boss_phase == 2 and is_equal_approx(boss.health.max_shield,roundf(SorrowMonolith.BASE_HEALTH*0.15)) and boss.health.shield_regeneration_rate == 0.0)
 	_check("battle progression raises actual shader water plane",realm.water_level > 0.8 and is_equal_approx(realm.water.position.y,realm.water_level))
 	_check("low platform is actually submerged while high platform remains usable",realm.water_level > 0.6 and realm.water_level < 1.2)
+	realm.clear_whirlpools()
+	player.recover_from_fall(Vector3(0,0.05,10))
+	var phase_two_casts: int = boss.vortices_released
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(6)
+	var twin_count: int = boss._vortex_points.size()
+	var twin_separation: float = boss._vortex_points[0].distance_to(boss._vortex_points[1]) if twin_count >= 2 else 0.0
+	_check("phase 2 vortex telegraphs two funnels at once",twin_count == 2 and boss.action == 1 and is_instance_valid(boss.tell) and boss._extra_tells.size() == 1)
+	await _frames(100)
+	_check("phase 2 releases two distinct non-overlapping funnels",boss.vortices_released == phase_two_casts+2 and realm.active_whirlpool_count() == 2 and twin_separation >= SorrowMonolith.VORTEX_RADIUS*2.0-0.01)
+	boss._cry_cooldown = 5.0
+	boss._vortex_cooldown = 0.0
+	_check("phase 2 does not queue a twin vortex when only one slot remains",boss._next_move() != SorrowMonolith.Move.VORTEX)
+	var before_full: Array[Vector4] = realm._whirlpools.duplicate()
+	var third_spot := realm.spawn_whirlpool(Vector3(-12,0.05,-4),SorrowMonolith.VORTEX_RADIUS,SorrowMonolith.VORTEX_DURATION)
+	var fourth_spot := realm.spawn_whirlpool(Vector3(12,0.05,4),SorrowMonolith.VORTEX_RADIUS,SorrowMonolith.VORTEX_DURATION)
+	_check("a full arena refuses new funnels instead of evicting live ones",third_spot != Vector3.INF and fourth_spot == Vector3.INF and realm.active_whirlpool_count() == SorrowRealm.WHIRLPOOL_LIMIT and realm._whirlpools[0] == before_full[0])
+	realm.clear_whirlpools()
+	var saved_boss_pos := boss.global_position
+	boss.global_position = Vector3(-6,0,16)
+	player.recover_from_fall(Vector3(0,0.05,16))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(6)
+	var edge_ok := boss._vortex_points.size() == 1 or (boss._vortex_points.size() == 2 and Vector2(boss._vortex_points[0].x-boss._vortex_points[1].x,boss._vortex_points[0].z-boss._vortex_points[1].z).length() >= SorrowMonolith.VORTEX_RADIUS*2.0-0.01)
+	_check("basin-edge phase 2 cast never overlaps two funnel radii",edge_ok)
+	boss.global_position = saved_boss_pos
+	boss._clear_tell()
+	realm.clear_whirlpools()
+	boss._cry_cooldown = 5.0
+	boss._vortex_cooldown = 0.0
+	_check("phase 2 shortens the vortex cooldown to 7.5s",boss._next_move() == SorrowMonolith.Move.VORTEX and is_equal_approx(boss._vortex_cooldown,SorrowMonolith.VORTEX_COOLDOWN_PHASE_TWO))
+	boss._cry_cooldown = 0.0
 	boss.start_submerge()
 	await _frames(6)
 	_check("submerge leaves the mirror with no hitbox to shoot",boss.submerged and boss.visual.submerged and (boss.get_node("TorsoHitbox") as Hitbox).collision_layer == CollisionLayers.NONE)
@@ -110,7 +218,20 @@ func _run() -> void:
 	boss._resurface()
 	boss.begin_move(SorrowMonolith.Move.RAIN)
 	await _frames(70)
+	# The finale casts once more, so the earlier rain must not leave the player
+	# at zero and stall the boss on a dead target.
+	player.health.health = player.health.max_health
+	realm.clear_whirlpools()
+	player.recover_from_fall(Vector3(0,0.05,10))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(80)
+	var lethal_funnel: Vector4 = realm._whirlpools[0]
+	player.recover_from_fall(realm.to_global(Vector3(lethal_funnel.x,0.05,lethal_funnel.y))+Vector3(1.0,0,0))
+	await _frames(22)
+	_check("the last vortex still holds the player before the kill",player.current_trapped)
 	boss.health.apply_damage(5000,Hitbox.BodyPart.BODY,player,{"true_damage":true})
+	await _frames(3)
+	_check("boss death clears every whirlpool and frees the trapped player",realm.active_whirlpool_count() == 0 and not player.current_trapped)
 	_check("real giant death emits one Sorrow realm event",defeats == 1)
 	_check("defeat dries mirror water and shuts off rain",realm.deprived and not realm.water.visible and not realm.rain.emitting)
 	await _frames(2)

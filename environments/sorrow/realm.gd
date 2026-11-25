@@ -216,8 +216,10 @@ func _prune_whirlpools() -> void:
 	_sync_whirlpools()
 
 ## Picks the nearest open-water spot for a funnel: inside the basin, clear of
-## the four dry platforms and of every other funnel.
+## the four dry platforms and of every other funnel. Returns Vector3.INF when
+## no non-overlapping spot exists.
 func resolve_whirlpool_point(world_point: Vector3, radius := WHIRLPOOL_RADIUS, extra_avoid: Array[Vector3] = []) -> Vector3:
+	_prune_whirlpools()
 	var local := to_local(world_point)
 	var seed_point := Vector2(clampf(local.x,-16.5,16.5),clampf(local.z,-20.5,20.5))
 	if _whirlpool_site_clear(seed_point,radius,extra_avoid):
@@ -230,32 +232,33 @@ func resolve_whirlpool_point(world_point: Vector3, radius := WHIRLPOOL_RADIUS, e
 				continue
 			if _whirlpool_site_clear(candidate,radius,extra_avoid):
 				return to_global(Vector3(candidate.x,water_level,candidate.y))
-	return to_global(Vector3(seed_point.x,water_level,seed_point.y))
+	return Vector3.INF
 
 func _whirlpool_site_clear(candidate: Vector2, radius: float, extra_avoid: Array[Vector3]) -> bool:
 	for platform in platforms:
 		if absf(candidate.x-platform.position.x) < 3.2 and absf(candidate.y-platform.position.z) < 3.2:
 			return false
 	for funnel in _whirlpools:
-		if candidate.distance_to(Vector2(funnel.x,funnel.y)) < radius*1.6:
+		if candidate.distance_to(Vector2(funnel.x,funnel.y)) < radius+funnel.z:
 			return false
 	for point in extra_avoid:
 		var avoid := to_local(point)
-		if candidate.distance_to(Vector2(avoid.x,avoid.z)) < radius*1.6:
+		if candidate.distance_to(Vector2(avoid.x,avoid.z)) < radius*2.0:
 			return false
 	return true
 
 func spawn_whirlpool(world_point: Vector3, radius := WHIRLPOOL_RADIUS, duration := WHIRLPOOL_DURATION) -> Vector3:
-	if deprived or not is_inside_tree():
+	_prune_whirlpools()
+	if deprived or not is_inside_tree() or _whirlpools.size() >= WHIRLPOOL_LIMIT:
 		return Vector3.INF
 	var spot := resolve_whirlpool_point(world_point,radius)
+	if spot == Vector3.INF:
+		return Vector3.INF
 	var local := to_local(spot)
 	_whirlpool_duration = duration
 	if water_material != null:
 		water_material.set_shader_parameter("whirlpool_lifetime",_whirlpool_duration)
 		water_material.set_shader_parameter("whirlpool_depth",WHIRLPOOL_DEPTH)
-	if _whirlpools.size() >= WHIRLPOOL_LIMIT:
-		_whirlpools.pop_front()
 	_whirlpools.append(Vector4(local.x,local.z,radius,clock))
 	_sync_whirlpools()
 	add_ripple(spot,1.8)
@@ -266,6 +269,7 @@ func clear_whirlpools() -> void:
 	_sync_whirlpools()
 
 func active_whirlpool_count() -> int:
+	_prune_whirlpools()
 	return _whirlpools.size()
 
 

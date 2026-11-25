@@ -170,7 +170,24 @@ func _run() -> void:
 	var twin_separation: float = boss._vortex_points[0].distance_to(boss._vortex_points[1]) if twin_count >= 2 else 0.0
 	_check("phase 2 vortex telegraphs two funnels at once",twin_count == 2 and boss.action == 1 and is_instance_valid(boss.tell) and boss._extra_tells.size() == 1)
 	await _frames(100)
-	_check("phase 2 releases two distinct non-overlapping funnels",boss.vortices_released == phase_two_casts+2 and realm.active_whirlpool_count() == 2 and twin_separation >= SorrowMonolith.VORTEX_RADIUS)
+	_check("phase 2 releases two distinct non-overlapping funnels",boss.vortices_released == phase_two_casts+2 and realm.active_whirlpool_count() == 2 and twin_separation >= SorrowMonolith.VORTEX_RADIUS*2.0-0.01)
+	boss._cry_cooldown = 5.0
+	boss._vortex_cooldown = 0.0
+	_check("phase 2 does not queue a twin vortex when only one slot remains",boss._next_move() != SorrowMonolith.Move.VORTEX)
+	var before_full: Array[Vector4] = realm._whirlpools.duplicate()
+	var third_spot := realm.spawn_whirlpool(Vector3(-12,0.05,-4),SorrowMonolith.VORTEX_RADIUS,SorrowMonolith.VORTEX_DURATION)
+	var fourth_spot := realm.spawn_whirlpool(Vector3(12,0.05,4),SorrowMonolith.VORTEX_RADIUS,SorrowMonolith.VORTEX_DURATION)
+	_check("a full arena refuses new funnels instead of evicting live ones",third_spot != Vector3.INF and fourth_spot == Vector3.INF and realm.active_whirlpool_count() == SorrowRealm.WHIRLPOOL_LIMIT and realm._whirlpools[0] == before_full[0])
+	realm.clear_whirlpools()
+	var saved_boss_pos := boss.global_position
+	boss.global_position = Vector3(-6,0,16)
+	player.recover_from_fall(Vector3(0,0.05,16))
+	boss.begin_move(SorrowMonolith.Move.VORTEX)
+	await _frames(6)
+	var edge_ok := boss._vortex_points.size() == 1 or (boss._vortex_points.size() == 2 and Vector2(boss._vortex_points[0].x-boss._vortex_points[1].x,boss._vortex_points[0].z-boss._vortex_points[1].z).length() >= SorrowMonolith.VORTEX_RADIUS*2.0-0.01)
+	_check("basin-edge phase 2 cast never overlaps two funnel radii",edge_ok)
+	boss.global_position = saved_boss_pos
+	boss._clear_tell()
 	realm.clear_whirlpools()
 	boss._cry_cooldown = 5.0
 	boss._vortex_cooldown = 0.0

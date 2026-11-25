@@ -198,11 +198,14 @@ func begin_move(kind: int) -> void:
 		var center := global_position if kind == Move.CRY else locked_point
 		tell.global_position = Vector3(center.x,raised_water+0.06,center.z)
 
+func _vortex_slots_needed() -> int:
+	return 2 if boss_phase >= 2 else 1
+
 func _next_move() -> int:
 	if _cry_cooldown <= 0.0 and (move_kind == Move.RAIN or move_kind == Move.SLAP):
 		_cry_cooldown = CRY_COOLDOWN
 		return Move.CRY
-	if _vortex_cooldown <= 0.0 and is_instance_valid(arena) and arena.active_whirlpool_count() < SorrowRealm.WHIRLPOOL_LIMIT:
+	if _vortex_cooldown <= 0.0 and is_instance_valid(arena) and arena.active_whirlpool_count()+_vortex_slots_needed() <= SorrowRealm.WHIRLPOOL_LIMIT:
 		_vortex_cooldown = VORTEX_COOLDOWN_PHASE_TWO if boss_phase >= 2 else VORTEX_COOLDOWN
 		return Move.VORTEX
 	var cycle: Array[int] = [Move.TIDE, Move.SLAP, Move.RAIN]
@@ -214,12 +217,19 @@ func _next_move() -> int:
 ## with a second funnel on the flank nearer the basin middle.
 func _arm_vortex() -> void:
 	_vortex_points.clear()
+	var available := SorrowRealm.WHIRLPOOL_LIMIT-arena.active_whirlpool_count() if is_instance_valid(arena) else _vortex_slots_needed()
+	if available <= 0:
+		return
 	var primary := locked_point
 	if is_instance_valid(arena):
 		primary = arena.resolve_whirlpool_point(locked_point,VORTEX_RADIUS)
+	if primary == Vector3.INF:
+		return
 	_vortex_points.append(primary)
-	if boss_phase >= 2:
-		_vortex_points.append(_flank_vortex_point(primary))
+	if boss_phase >= 2 and available >= 2:
+		var flank := _flank_vortex_point(primary)
+		if flank != Vector3.INF:
+			_vortex_points.append(flank)
 	if not warnings_enabled:
 		return
 	for point in _vortex_points:

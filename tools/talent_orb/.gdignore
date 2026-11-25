@@ -1,0 +1,2 @@
+# Blender generator for the talent orb GLBs, deliberately outside Godot's
+# import pipeline: the exported .glb files in objects/talent_orb are the assets.

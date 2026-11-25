@@ -37,6 +37,7 @@ var _core: Node3D
 var _body: StaticBody3D
 var _player_ref: WeakRef
 var _accent := Color(1.0, 0.62, 0.18)
+var _ground_height := 0.0
 var _bob_enabled := true
 var _bob_phase := 0.0
 var _bob_clock := 0.0
@@ -60,6 +61,17 @@ func _ready() -> void:
 func prepare() -> void:
 	_build_models()
 	_build_collision()
+
+
+## Floor height under the orb, in the parent's space. base_height stays the
+## hover offset above it, so a raised landing lifts the whole rig instead of
+## burying it in the masonry below the door.
+func set_ground_height(height: float) -> void:
+	_ground_height = height
+
+
+func hover_height() -> float:
+	return _ground_height + base_height
 
 
 func _build_models() -> void:
@@ -247,7 +259,7 @@ func fade_core_in(duration: float = 0.55) -> void:
 ## sideways step visible at the end of the animation).
 func set_idle_enabled(value: bool) -> void:
 	if value and not _bob_enabled:
-		var offset := (position.y - base_height) / maxf(bob_height, 0.0001)
+		var offset := (position.y - hover_height()) / maxf(bob_height, 0.0001)
 		_bob_phase = asin(clampf(offset, -1.0, 1.0))
 		_bob_clock = SimClock.now()
 	_bob_enabled = value
@@ -287,7 +299,7 @@ func _process(_delta: float) -> void:
 	if _bob_enabled:
 		# phase-locked so switching idle motion back on never snaps the height:
 		# at the moment it resumes, sin() evaluates to wherever the orb already is
-		position.y = base_height + sin((t - _bob_clock) * bob_speed + _bob_phase) * bob_height
+		position.y = hover_height() + sin((t - _bob_clock) * bob_speed + _bob_phase) * bob_height
 	_turn_toward_player()
 
 	if _core != null:

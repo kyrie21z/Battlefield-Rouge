@@ -529,6 +529,28 @@ func offer_entry_reward() -> void:
 		_offer_reward(true)
 
 
+## Where the orb stands, in stage-local space: between the door and the player,
+## on the walkable floor below. Raised exits put the door on stairs or a landing,
+## so the height comes from a downward probe instead of assuming y=0.
+func _orb_spawn_position() -> Dictionary:
+	var anchor := gate.position if is_instance_valid(gate) else Vector3.ZERO
+	var away := to_local(player.global_position) - anchor
+	away.y = 0.0
+	if away.length() < 0.1:
+		away = Vector3(0.0, 0.0, 1.0)
+	away = away.normalized()
+	for candidate in [anchor + away * 1.95, anchor + Vector3(0.0, 0.0, 1.95)]:
+		var from := to_global(Vector3(candidate.x, anchor.y + 3.0, candidate.z))
+		var to := to_global(Vector3(candidate.x, anchor.y - 3.0, candidate.z))
+		var ray := PhysicsRayQueryParameters3D.create(from, to, CollisionLayers.WORLD)
+		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+		if hit.is_empty() or (hit["normal"] as Vector3).y < 0.7:
+			continue
+		var floor_point := to_local(hit["position"] as Vector3)
+		return {"position": Vector3(candidate.x, floor_point.y, candidate.z), "ground_y": floor_point.y}
+	return {"position": anchor + Vector3(0.0, 0.0, 1.95), "ground_y": anchor.y}
+
+
 ## The talent orb arrives in front of the exit gate the moment the room is clear.
 ## It is deliberately NOT a paused UI: the player walks over and presses interact,
 ## which is what opens the three-card offer.
@@ -543,17 +565,10 @@ func _spawn_talent_orb() -> void:
 		talent_orb = TalentOrb.new()
 	talent_orb.name = "TalentOrb"
 	talent_orb.set_player(player)
-	# stand it between the gate and the player, so it reads as "the door's reward"
-	var away := Vector3.ZERO
-	if is_instance_valid(gate):
-		away = player.global_position - gate.global_position
-	away.y = 0.0
-	if away.length() < 0.1:
-		away = Vector3(0.0, 0.0, 1.0)
-	away = away.normalized()
-	var anchor := gate.global_position if is_instance_valid(gate) else global_position
-	talent_orb.position = anchor + away * 1.95
-	talent_orb.position.y = talent_orb.base_height
+	var spawn := _orb_spawn_position()
+	var spot: Vector3 = spawn["position"]
+	talent_orb.set_ground_height(spawn["ground_y"])
+	talent_orb.position = Vector3(spot.x, talent_orb.hover_height(), spot.z)
 	talent_orb.set_idle_enabled(false)
 	add_child(talent_orb)
 	# shatter the shell into its own armour pieces, then fly them back together

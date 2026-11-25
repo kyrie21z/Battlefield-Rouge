@@ -375,3 +375,4 @@
 | 敌人头顶血条 | `EnemyHealthBars` | HUD 2D 屏幕空间投影层，为活跃非 Boss 敌人绘制细长血条、`HealthTrail` 白色扣血拖尾与护盾细条；自动排除 Boss、未激活、潜水、背面、超距与被墙遮挡目标。 |
 | 领域 Boss 血条 | `RealmBossBar` | `RealmHUD` 顶部自定义 Boss 血条，接入 `HealthTrail` 白色延迟拖尾与 0.12 秒受击横抖，暂停冻结。 |
 | 晶体刀光拖尾 | `BladeSlashTrail` | 意志短刃生效窗口的世界空间三角带刀光，0.14 秒淡出、暂停冻结，配合爆发挥砍曲线与晶体斩裂反馈。 |
+| 战斗伤害数字 | `DamageNumbers` | 挂在 `CombatFeedbackLayer` 内的 2D 屏幕投影伤害数字层，覆盖普通/爆头/暴击/恐惧破绽/护盾/击杀分级弹出与抛物线动效，暂停冻结、不消费全局随机，活跃时自动抑制重复的 3D 恐惧暴击文字。 |

@@ -107,7 +107,7 @@ func _ready() -> void:
 
 	combat_feedback = CombatFeedbackLayer.new()
 	combat_feedback.name = "CombatFeedbackLayer"
-	combat_root.add_child(combat_feedback)
+	add_child(combat_feedback)
 	combat_feedback.setup(player)
 
 	settings = GameSettings.new()
@@ -331,9 +331,14 @@ func _update_boss_readout() -> void:
 
 
 func set_combat_visible(value: bool) -> void:
+	var was_visible := combat_root.visible
 	combat_visible = value and not _finished
 	combat_root.visible = combat_visible and not player.health.is_dead()
-	combat_feedback.set_enabled(combat_root.visible)
+	if not combat_root.visible and was_visible and not _finished and not player.health.is_dead() \
+			and is_instance_valid(boss) and boss.health.is_dead():
+		combat_feedback.finish_with_kill_numbers()
+	else:
+		combat_feedback.set_enabled(combat_root.visible)
 
 
 func _process(_delta: float) -> void:

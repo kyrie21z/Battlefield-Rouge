@@ -5,7 +5,16 @@ extends Node3D
 var _elapsed := 0.0
 var _label: Label3D
 static var _sound: AudioStreamWAV
+static var _overlay_2d_count := 0
 var play_sound := true
+
+
+static func register_2d_overlay() -> void:
+	_overlay_2d_count += 1
+
+
+static func unregister_2d_overlay() -> void:
+	_overlay_2d_count = maxi(_overlay_2d_count - 1, 0)
 
 
 static func spawn(parent: Node, point: Vector3, damage: float, with_sound := true) -> FearCriticalFeedback:
@@ -26,6 +35,7 @@ func _ready() -> void:
 	_label.outline_size = 14
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.no_depth_test = false
+	_label.visible = _overlay_2d_count <= 0
 	add_child(_label)
 	if not play_sound:
 		return

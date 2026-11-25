@@ -78,7 +78,7 @@ func _ready() -> void:
 	RunDirector.begin_run(19140)
 	check("explicit Fear diagnostic route keeps its focused order",RunDirector.order == [1,0,2,3] and RunDirector.scene_path().ends_with("fear_1.tscn"))
 	check("actual first Fear stage installs",RunDirector.install_stage(load(RunDirector.scene_path())) == OK)
-	for room in 3:
+	for room in 4:
 		await frames(8)
 		var stage := RunDirector.current_stage as RealmStage
 		if stage == null:
@@ -87,26 +87,32 @@ func _ready() -> void:
 		stop_attacks(stage)
 		await choose(stage)
 		check("Fear room %d retains intended progression" % room,stage.realm == 1 and stage.room_index == room and not stage.request_exit())
-		for enemy in stage.enemies:
-			enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
-		await frames(4)
-		if not stage.boss_room:
-			if stage.orb_pending():
-				stage.claim_talent()
-				for _f in 4:
-					await get_tree().physics_frame
-			check("clear offers reward before gate unlock",stage.cleared and is_instance_valid(stage.selection) and not stage.exit_ready)
-			await choose(stage)
-			check("all convex fragment shapes were prepared before combat",FearShatter._collision_shapes.size() == 56)
-			var bursts: Array[FearShatter] = []
-			for child in stage.get_children():
-				if child is FearShatter: bursts.append(child)
-			check("deaths share immutable collision shapes with independent bodies",bursts.size() >= 2 and bursts[0].pieces[0] != bursts[1].pieces[0] and bursts[0].pieces[0].get_child(1).shape == bursts[1].pieces[0].get_child(1).shape)
+		if stage.rest_room:
+			check("Fear sanctuary arrives empty with its altar waiting",stage.enemies.is_empty() and stage.rest_altar_pending())
+			stage.player.health.health = stage.player.health.max_health * 0.5
+			stage.player.position = stage.geometry.call("rest_position")
+			check("Fear sanctuary restores the Player to full",stage.request_rest() and is_equal_approx(stage.player.health.health,stage.player.health.max_health))
 		else:
-			check("Fear boss requires real shard before next realm",is_instance_valid(stage.shard) and not stage.exit_ready)
-			if is_instance_valid(stage.shard): stage.player.position = stage.shard.position
-			await frames(5)
-		check("reward or shard reveals explicit next-room portal",stage.exit_ready and stage._gate_label.text.contains("下一关"))
+			for enemy in stage.enemies:
+				enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
+			await frames(4)
+			if not stage.boss_room:
+				if stage.orb_pending():
+					stage.claim_talent()
+					for _f in 4:
+						await get_tree().physics_frame
+				check("clear offers reward before gate unlock",stage.cleared and is_instance_valid(stage.selection) and not stage.exit_ready)
+				await choose(stage)
+				check("all convex fragment shapes were prepared before combat",FearShatter._collision_shapes.size() == 56)
+				var bursts: Array[FearShatter] = []
+				for child in stage.get_children():
+					if child is FearShatter: bursts.append(child)
+				check("deaths share immutable collision shapes with independent bodies",bursts.size() >= 2 and bursts[0].pieces[0] != bursts[1].pieces[0] and bursts[0].pieces[0].get_child(1).shape == bursts[1].pieces[0].get_child(1).shape)
+			else:
+				check("Fear boss requires real shard before next realm",is_instance_valid(stage.shard) and not stage.exit_ready)
+				if is_instance_valid(stage.shard): stage.player.position = stage.shard.position
+				await frames(5)
+		check("reward, shard or sanctuary reveals explicit next-room portal",stage.exit_ready and stage._gate_label.text.contains("进入"))
 		if room == 0: await capture("exit-guide")
 		await walk_to_gate(stage)
 		await capture("gate-room-%d" % room)
@@ -116,7 +122,7 @@ func _ready() -> void:
 		check("real interaction advances room without teleporting to gate",RunDirector.current_stage != stage)
 	await frames(8)
 	var next := RunDirector.current_stage as RealmStage
-	check("third Fear exit loads Sloth next with Fear shard retained",is_instance_valid(next) and next.realm == 0 and next.player.fragments.has_shard(1))
+	check("final Fear exit loads Sloth next with Fear shard retained",is_instance_valid(next) and next.realm == 0 and next.player.fragments.has_shard(1))
 	await capture("next-realm")
 	# Fall outside the finite Area: actual gravity must still kill through shields.
 	RunDirector.begin_run(19141)

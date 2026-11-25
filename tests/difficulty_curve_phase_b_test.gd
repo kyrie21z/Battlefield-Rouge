@@ -266,7 +266,7 @@ func _run_legacy_single_room() -> void:
 
 func _run_boss_phases() -> void:
 	for realm in 4:
-		var stage := await _install_campaign_room(realm, 2)
+		var stage := await _install_campaign_room(realm, RunDirector.ROOM_BOSS)
 		if stage == null:
 			continue
 		var boss := stage.boss

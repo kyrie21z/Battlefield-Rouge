@@ -9,7 +9,7 @@ static func launch(parent: Node3D, from: Vector3, direction: Vector3, owner_node
 	bullet.damage = amount
 	bullet.speed = speed_value
 	bullet.max_distance = 50.0
-	bullet.tint = Color(1.0, 0.12, 0.035)
+	bullet.tint = Projectile.realm_tint(&"wrath")
 	if owner_node is CollisionObject3D:
 		bullet.exclude.append(owner_node.get_rid())
 	for box in owner_node.find_children("*", "Hitbox", true, false):

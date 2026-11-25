@@ -1,4 +1,4 @@
-class_name SorrowMonolith
+﻿class_name SorrowMonolith
 extends SorrowRealmEnemy
 signal realm_defeated(realm_id: int)
 signal phase_changed(new_phase: int)
@@ -110,7 +110,7 @@ func _release() -> void:
 		for x in range(-2,3):
 			for z in range(-2,3):
 				var from := locked_point+Vector3(x*1.65,9,z*1.65)
-				var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Color(0.1,0.65,0.88))
+				var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Projectile.realm_tint(&"sorrow"))
 				bullet.max_distance = 13
 				_owned.append(weakref(bullet))
 				tears_released += 1
@@ -118,7 +118,7 @@ func _release() -> void:
 			for index in 12:
 				var angle := TAU*index/12.0
 				var from := locked_point+Vector3(cos(angle)*4.5,9,sin(angle)*4.5)
-				var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Color(0.1,0.65,0.88))
+				var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Projectile.realm_tint(&"sorrow"))
 				bullet.max_distance = 13
 				_owned.append(weakref(bullet))
 				tears_released += 1

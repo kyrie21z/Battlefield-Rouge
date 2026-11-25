@@ -50,6 +50,8 @@ func bind(owner_player: CharacterBody3D, owner_stats: Stats, owner_health: Healt
 	weapon = owner_weapon
 	blade = owner_blade
 	dash = owner_dash
+	# The weapon needs the manager back to read the equipped GUN core for tinting.
+	weapon.boons = self
 	weapon.boon_hook = dispatch
 	blade.boon_hook = dispatch
 	dash.boon_hook = dispatch

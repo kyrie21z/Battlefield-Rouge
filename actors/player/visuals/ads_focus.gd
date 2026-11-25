@@ -35,10 +35,13 @@ func _process(delta: float) -> void:
 			_ray_left = 0.05
 			target_distance = measure_distance()
 	focus_distance = lerpf(focus_distance,target_distance,1.0-exp(-delta*12.0))
-	amount = move_toward(amount,0.05 if aiming else 0.0,delta*0.8)
+	# Aiming no longer blurs the sight picture: the depth-of-field stayed subtle on
+	# paper but read as "the scope goes soft", so the blur amount is pinned to zero
+	# while the focus distance keeps being measured for anything that wants it.
+	amount = move_toward(amount,0.0,delta*0.8)
 	attributes.dof_blur_amount = amount
-	attributes.dof_blur_near_enabled = amount > 0.0001
-	attributes.dof_blur_far_enabled = amount > 0.0001
+	attributes.dof_blur_near_enabled = false
+	attributes.dof_blur_far_enabled = false
 	attributes.dof_blur_near_distance = maxf(0.4,focus_distance-1.25)
 	attributes.dof_blur_far_distance = focus_distance+2.0
 

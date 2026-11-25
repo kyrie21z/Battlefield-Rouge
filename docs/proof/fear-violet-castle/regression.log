@@ -1,0 +1,8 @@
+Godot 4.7.2 headless regression with the final Fear castle
+
+fear_playtest_test  FEAR PLAYTEST: ALL PASSED (30 checks, 0 failures)
+campaign_realms_test  ALL PASSED (165 checks)
+fear_realm_test  FEAR REALM: ALL PASSED (33 checks, 0 failures)
+fear_reaper_test  FEAR REAPER: 27 checks, 0 failed
+fear_oculus_test  FEAR OCULUS: ALL PASSED (29 checks, 0 failures)
+fear_morph_crawler_test  FEAR MORPH CRAWLER: 18 checks, 0 failed

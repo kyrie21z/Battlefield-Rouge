@@ -56,6 +56,7 @@ func run_checks() -> void:
 	hp = player.health.health
 	boss.scan_damage(direction)
 	check("gaze cone applies real HP damage inside the cone", player.health.health < hp)
+	check("staring into the open pupil slows the player", boss.gaze_punishments == 1 and is_equal_approx(player.realm_effects.move_multiplier, 0.62))
 	hp = player.health.health
 	boss.scan_damage(-direction)
 	check("outside gaze cone is safe", player.health.health == hp)
@@ -79,6 +80,8 @@ func run_checks() -> void:
 	boss.start_attack(2)
 	boss.advance_attack(boss.windup() + 0.01)
 	check("iris contraction releases twenty-four actual swept projectiles", boss._projectiles.size() == 24)
+	check("ring contraction drops the bridge tile under the player", realm.tiles.any(func(tile: FearFlipTile) -> bool: return tile.elapsed >= 0.0))
+	check("ring contraction releases two living pursuit wisps", boss.living_wisps().size() == 2)
 	await frames(80)
 	check("ground-height ring reaches and damages the standing player", player.health.health < hp)
 	boss.start_attack(1)
@@ -90,6 +93,26 @@ func run_checks() -> void:
 	check("actual damaging beam stays visible after warning deprivation", boss._beam.visible and boss.phase == 1)
 	boss.advance_attack(1.5)
 	check("attack ends in a readable exposed recovery", boss.phase == 2 and not boss._beam.visible)
+	var ghost_before := boss.visual.ghost_count
+	var blink_from := boss.global_position
+	var blinked := boss.try_blink()
+	var anchored := false
+	for anchor: Vector3 in FearOculus.BLINK_ANCHORS:
+		if anchor.distance_to(boss.global_position) < 0.75:
+			anchored = true
+	check("abyssal blink folds the oculus onto a distant anchor island", blinked and anchored
+		and boss.global_position.distance_to(blink_from) >= 6.0
+		and boss.global_position.distance_to(player.global_position) >= 6.0
+		and boss.blink_count == 1)
+	check("blink leaves one violet afterimage at the abandoned position", boss.visual.ghost_count == ghost_before + 1
+		and boss.visual.ghosts.size() == 1
+		and boss.visual.ghosts[0].global_position.distance_to(blink_from) < 0.5)
+	var first_anchor := boss.global_position
+	var blinked_again := boss.try_blink()
+	check("a second blink crosses to a different distant anchor", blinked_again
+		and boss.global_position.distance_to(first_anchor) >= 6.0
+		and boss.blink_count == 2
+		and boss.visual.ghost_count == ghost_before + 2)
 	var indicator := DamageIndicator.new()
 	add_child(indicator)
 	indicator.setup(player)
@@ -102,6 +125,8 @@ func run_checks() -> void:
 	check("boss death emits one completion and disables body hitboxes", victories == 1 and boss.state == Enemy.State.DEAD and boss.get_node("EyeHitbox").collision_layer == 0)
 	check("local realm warning deprivation activates immediately on defeat", realm.deprivation and realm.tiles.all(func(t: FearFlipTile) -> bool: return not t.warnings_enabled))
 	check("defeat cancels beam and every owned ring projectile", not boss._beam.visible and boss._projectiles.is_empty())
+	check("defeat dismisses summoned wisps and the dormant stock", boss.living_wisps().is_empty() and boss._stock.is_empty())
+	check("defeat clears the blink afterimage", boss.visual.ghosts.is_empty())
 	await frames(3)
 	check("real boss defeat clears HUD warnings and future enemy tells", indicator.entry_count() == 0 and not player.realm_effects.warnings_enabled and not boss.warnings_enabled)
 	var pickup := bench.shard as PsycheShardPickup

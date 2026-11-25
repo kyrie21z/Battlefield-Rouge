@@ -23,6 +23,7 @@ const LOW_HP_EXIT := 0.35
 
 var hitmarker: Label
 var kill_text: Label
+var damage_numbers: DamageNumbers
 var hit_audio: AudioStreamPlayer
 var kill_audio: AudioStreamPlayer
 var kill_head_audio: AudioStreamPlayer
@@ -67,6 +68,10 @@ func setup(player: Player, options := {}) -> void:
 		kill_text = _centered_label("KillText", Rect2(-300, 54, 600, 50), 34)
 		kill_text.add_theme_color_override("font_outline_color", Color.BLACK)
 		kill_text.add_theme_constant_override("outline_size", 8)
+	damage_numbers = DamageNumbers.new()
+	add_child(damage_numbers)
+	move_child(damage_numbers, 0)
+	damage_numbers.setup(player, options.get("room", player.get_parent()))
 	hit_audio = options.get("hit_audio")
 	if hit_audio == null:
 		hit_audio = _voice("HitAudio", HIT_BODY)
@@ -126,6 +131,8 @@ func _voice(node_name: String, stream: AudioStream, volume := 0.0) -> AudioStrea
 func set_enabled(value: bool) -> void:
 	_enabled = value
 	set_process(value)
+	if is_instance_valid(damage_numbers):
+		damage_numbers.set_enabled(value)
 	if not value:
 		_clear_feedback()
 
@@ -285,6 +292,8 @@ func _clear_feedback() -> void:
 		voice.stop()
 	if _marker_tween != null:
 		_marker_tween.kill()
+	if is_instance_valid(damage_numbers):
+		damage_numbers.clear()
 	hitmarker.modulate.a = 0.0
 	hitmarker.scale = Vector2.ONE
 	kill_text.modulate.a = 0.0

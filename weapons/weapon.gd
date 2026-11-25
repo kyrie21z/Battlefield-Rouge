@@ -43,6 +43,8 @@ const SHOT_VOICE_DUCK_DB := -2.0
 @export var data: WeaponData = preload("res://weapons/obsidian_pistol/obsidian_pistol.tres")
 @export var stats: Stats
 @export var camera: Camera3D
+## Set by BoonManager.bind(); the tracer tint follows the equipped GUN core.
+var boons: BoonManager
 ## The shooter's body, excluded from the ray. Its `team` filters friendly fire.
 @export var shooter: CollisionObject3D
 
@@ -324,7 +326,8 @@ func _shoot_ray(origin: Vector3, direction: Vector3) -> void:
 	if _tracers_left > 0:
 		_tracers_left -= 1
 		Tracer.spawn(effects_parent, _muzzle_position(origin),
-			hit.position if not hit.is_empty() else origin + direction * data.max_range)
+			hit.position if not hit.is_empty() else origin + direction * data.max_range,
+			_realm_tracer_tint())
 	if hit.is_empty():
 		return
 	var collider: Object = hit.collider
@@ -385,6 +388,27 @@ func _stat(stat: StringName) -> float:
 ## Where a tracer starts: the model's muzzle, or the eye when the model has none.
 func _muzzle_position(fallback: Vector3) -> Vector3:
 	return (_flash.get_parent() as Node3D).global_position if _flash != null else fallback
+
+
+## Player fire takes the colour of the realm whose GUN core is equipped, so the
+## tracer only turns purple after taking the Fear gun core, gold with the Sloth
+## one, blue with Sorrow and red with Wrath. No gun core keeps the stock tint.
+func _realm_tracer_tint() -> Color:
+	var core := equipped_gun_core()
+	if core == null:
+		return Tracer.DEFAULT_TINT
+	var tint := Projectile.realm_tint(StringName(RunDirector.REALMS[core.sin]))
+	return Color(tint.r, tint.g, tint.b, Tracer.DEFAULT_TINT.a)
+
+
+func equipped_gun_core() -> BoonData:
+	if boons == null:
+		return null
+	for slot in boons.slots:
+		var data: BoonData = slot.data
+		if data != null and data.slot == BoonData.Slot.GUN and data.core:
+			return data
+	return null
 
 
 func _play_shot(stream: AudioStream) -> void:

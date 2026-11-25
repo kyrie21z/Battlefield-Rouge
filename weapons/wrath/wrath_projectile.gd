@@ -17,11 +17,20 @@ static func launch(owner_manager: BoonManager, shot: Dictionary) -> WrathProject
 	bullet.damage = bullet.weapon.data.damage * owner_manager.stats.get_value(Stats.DAMAGE) * float(shot.get("damage_multiplier", 1.0))
 	bullet._base_damage = bullet.damage
 	bullet.max_distance = bullet.weapon.data.max_range
-	bullet.tint = Color(0.95, 0.16, 0.1)
+	bullet.tint = Projectile.realm_tint(&"wrath")
 	bullet._collect_exclusions(owner_manager.player)
 	owner_manager.player.get_parent().add_child(bullet)
-	bullet.global_position = shot.origin
-	var direction: Vector3 = bullet.weapon._spread_direction(shot.direction, bullet.weapon.spread_degrees())
+	# shot.origin is the camera (eye) position for a real shot, so the visible
+	# round must leave the model muzzle — but still converge on what the crosshair
+	# aims at. Synthetic shot dictionaries (fixtures, dual-boon replays) carry their
+	# own origin that is unrelated to the camera, so those are used verbatim.
+	var muzzle: Vector3 = shot.origin
+	var shot_camera: Camera3D = bullet.weapon.camera
+	if is_instance_valid(shot_camera) and shot.origin.distance_to(shot_camera.global_position) < 1.5:
+		muzzle = bullet.weapon._muzzle_position(shot.origin)
+	var aim_point: Vector3 = shot.origin + (shot.direction as Vector3).normalized() * bullet.max_distance
+	bullet.global_position = muzzle
+	var direction := (aim_point - muzzle).normalized()
 	bullet.look_at(bullet.global_position + direction, Vector3.UP if absf(direction.y) < 0.99 else Vector3.FORWARD)
 	Events.projectile_registered.emit(bullet)
 	return bullet

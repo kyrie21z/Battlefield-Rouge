@@ -194,7 +194,7 @@ func _fire(damage: float, speed: float) -> void:
 	if not has_line_of_sight():
 		return
 	shots_fired += 1
-	Projectile.spawn(get_parent(), _eye(), locked_direction, self, damage * realm_damage_scale, speed, _hitbox_rids, Color(0.66, 0.28, 0.96))
+	Projectile.spawn(get_parent(), _eye(), locked_direction, self, damage * realm_damage_scale, speed, _hitbox_rids, Projectile.realm_tint(&"fear"))
 
 func _update_lock_line() -> void:
 	var a := _eye()

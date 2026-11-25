@@ -28,7 +28,7 @@ func _ready() -> void:
 	check("physics ray focuses actual world wall",is_equal_approx(focus.measure_distance(),expected_distance))
 	player.weapon.aiming = true
 	for i in 30: focus._process(1.0/60)
-	check("ADS gently enables near and far DOF",focus.amount>0.045 and focus.attributes.dof_blur_near_enabled and focus.attributes.dof_blur_far_enabled)
+	check("ADS keeps the sight picture sharp (no depth of field)",focus.amount==0 and not focus.attributes.dof_blur_near_enabled and not focus.attributes.dof_blur_far_enabled)
 	check("focus converges on true target depth",absf(focus.focus_distance-expected_distance)<0.03)
 	check("rays are rate limited",focus.ray_count<=12)
 	check("target stays between unblurred focus distances",focus.attributes.dof_blur_near_distance<9.5 and focus.attributes.dof_blur_far_distance>9.5)

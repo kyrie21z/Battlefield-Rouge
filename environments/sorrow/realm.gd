@@ -48,6 +48,8 @@ var _basin_floor_visual: MeshInstance3D
 var _whirlpool_rng: RandomNumberGenerator
 var _whirlpools: Array[Vector4] = [] # x/z center, radius, birth time
 var _next_whirlpool_at := 0.0
+## Lifetime the shader and the current share. Boss skills shorten it per spawn.
+var _whirlpool_duration := WHIRLPOOL_DURATION
 var mirror_environment: Environment
 var void_fall: RealmVoid
 
@@ -68,19 +70,21 @@ func _ready() -> void:
 		_court.name = "FloodedCourt"
 		add_child(_court)
 		_court.dress_basin(floor_body, banks, platforms)
-		_basin_floor_visual = floor_body.get_child(1) as MeshInstance3D
-		# The opaque water can dip below its walking collision without the dry-floor mesh clipping it.
-		_basin_floor_visual.position.y = -WHIRLPOOL_DEPTH
 		_build_basin_ruins()
 	else:
 		for side in [-1.0,1.0]:
 			for i in 4:
 				_column(Vector3(side*15,0,-18+i*11))
+	if is_instance_valid(_court) or boss_arena:
+		# Boss arenas get the funnel substrate without the court dressing: the
+		# opaque water may dip below its walking collision.
+		_basin_floor_visual = floor_body.get_child(1) as MeshInstance3D
+		_basin_floor_visual.position.y = -WHIRLPOOL_DEPTH
 	water = MeshInstance3D.new()
 	water.name = "MirrorWater"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(39.6,47.6)
-	if is_instance_valid(_court):
+	if is_instance_valid(_court) or boss_arena:
 		plane.subdivide_width = 95
 		plane.subdivide_depth = 115
 		water.extra_cull_margin = WHIRLPOOL_DEPTH
@@ -190,9 +194,79 @@ func _tick_whirlpools() -> void:
 		_whirlpools.pop_front()
 	_whirlpools.append(Vector4(center.x, center.y, WHIRLPOOL_RADIUS, _next_whirlpool_at))
 	_next_whirlpool_at += WHIRLPOOL_INTERVAL
+	_sync_whirlpools()
+
+func _sync_whirlpools() -> void:
+	if water_material == null:
+		return
 	var shader_funnels := PackedVector4Array(_whirlpools)
 	shader_funnels.resize(WHIRLPOOL_LIMIT)
-	water_material.set_shader_parameter("whirlpools", shader_funnels)
+	water_material.set_shader_parameter("whirlpools",shader_funnels)
+
+## Boss funnels carry their own lifetime, so the ambient cadence never expires
+## them early while a nine-second funnel still clears on schedule.
+func _prune_whirlpools() -> void:
+	var live: Array[Vector4] = []
+	for funnel in _whirlpools:
+		if clock - funnel.w < _whirlpool_duration:
+			live.append(funnel)
+	if live.size() == _whirlpools.size():
+		return
+	_whirlpools = live
+	_sync_whirlpools()
+
+## Picks the nearest open-water spot for a funnel: inside the basin, clear of
+## the four dry platforms and of every other funnel.
+func resolve_whirlpool_point(world_point: Vector3, radius := WHIRLPOOL_RADIUS, extra_avoid: Array[Vector3] = []) -> Vector3:
+	var local := to_local(world_point)
+	var seed_point := Vector2(clampf(local.x,-16.5,16.5),clampf(local.z,-20.5,20.5))
+	if _whirlpool_site_clear(seed_point,radius,extra_avoid):
+		return to_global(Vector3(seed_point.x,water_level,seed_point.y))
+	for ring: float in [1.0, 2.0, 3.0, 4.0]:
+		for index in 8:
+			var angle := TAU*index/8.0
+			var candidate: Vector2 = seed_point+Vector2(cos(angle),sin(angle))*radius*ring
+			if absf(candidate.x) > 16.5 or absf(candidate.y) > 20.5:
+				continue
+			if _whirlpool_site_clear(candidate,radius,extra_avoid):
+				return to_global(Vector3(candidate.x,water_level,candidate.y))
+	return to_global(Vector3(seed_point.x,water_level,seed_point.y))
+
+func _whirlpool_site_clear(candidate: Vector2, radius: float, extra_avoid: Array[Vector3]) -> bool:
+	for platform in platforms:
+		if absf(candidate.x-platform.position.x) < 3.2 and absf(candidate.y-platform.position.z) < 3.2:
+			return false
+	for funnel in _whirlpools:
+		if candidate.distance_to(Vector2(funnel.x,funnel.y)) < radius*1.6:
+			return false
+	for point in extra_avoid:
+		var avoid := to_local(point)
+		if candidate.distance_to(Vector2(avoid.x,avoid.z)) < radius*1.6:
+			return false
+	return true
+
+func spawn_whirlpool(world_point: Vector3, radius := WHIRLPOOL_RADIUS, duration := WHIRLPOOL_DURATION) -> Vector3:
+	if deprived or not is_inside_tree():
+		return Vector3.INF
+	var spot := resolve_whirlpool_point(world_point,radius)
+	var local := to_local(spot)
+	_whirlpool_duration = duration
+	if water_material != null:
+		water_material.set_shader_parameter("whirlpool_lifetime",_whirlpool_duration)
+		water_material.set_shader_parameter("whirlpool_depth",WHIRLPOOL_DEPTH)
+	if _whirlpools.size() >= WHIRLPOOL_LIMIT:
+		_whirlpools.pop_front()
+	_whirlpools.append(Vector4(local.x,local.z,radius,clock))
+	_sync_whirlpools()
+	add_ripple(spot,1.8)
+	return spot
+
+func clear_whirlpools() -> void:
+	_whirlpools.clear()
+	_sync_whirlpools()
+
+func active_whirlpool_count() -> int:
+	return _whirlpools.size()
 
 
 func _ground_current(point: Vector3) -> Vector4:
@@ -205,8 +279,8 @@ func _ground_current(point: Vector3) -> Vector4:
 		if distance >= funnel.z:
 			continue
 		var age := clock - funnel.w
-		var strength := smoothstep(0.0, 0.55, age) * smoothstep(0.0, 0.55, WHIRLPOOL_DURATION - age)
-		var in_core := distance <= WHIRLPOOL_CORE_RADIUS and age >= 0.15 and age < WHIRLPOOL_DURATION
+		var strength := smoothstep(0.0, 0.55, age) * smoothstep(0.0, 0.55, _whirlpool_duration - age)
+		var in_core := distance <= WHIRLPOOL_CORE_RADIUS and age >= 0.15 and age < _whirlpool_duration
 		# Slow down at the center so the current settles the player without oscillating.
 		var falloff := minf(distance / WHIRLPOOL_CORE_RADIUS, 1.0) * (1.0 - smoothstep(0.70, 1.0, distance / funnel.z))
 		var flow := toward.normalized() * WHIRLPOOL_PULL_SPEED * falloff * strength
@@ -249,7 +323,7 @@ func set_audio_managed(active: bool) -> void:
 
 func set_player(value: Player) -> void:
 	player = value
-	if is_instance_valid(_court):
+	if is_instance_valid(_court) or boss_arena:
 		player.realm_effects.ground_current = _ground_current
 	_register_walker(value)
 	# RealmStage also owns a generic WorldEnvironment; use an explicit camera
@@ -285,8 +359,11 @@ func set_deprivation(active: bool) -> void:
 		splash.stop()
 	if _white != null:
 		_white.albedo_color = Color(0.72,0.69,0.66) if active else Color(0.75,0.82,0.84)
-	if is_instance_valid(_court):
+	if active:
+		clear_whirlpools()
+	if is_instance_valid(_basin_floor_visual):
 		_basin_floor_visual.position.y = 0.0 if active else -WHIRLPOOL_DEPTH
+	if is_instance_valid(_court):
 		_court.set_deprivation(active)
 
 ## Presentation only. Existing dive/resurface callers and splash audio keep
@@ -397,6 +474,7 @@ func _physics_process(delta: float) -> void:
 		return
 	clock += delta
 	_tick_whirlpools()
+	_prune_whirlpools()
 	if is_instance_valid(_court):
 		_court.set_clock(clock)
 	water_material.set_shader_parameter("clock",clock)

@@ -13,6 +13,17 @@ PASS its minute hand approaches the last notch but does not cross it
 PASS the pendulum swings through only a few degrees
 PASS pausing holds the minute hand in place
 PASS the hand slips back toward its original mark
+PASS the broken gear actually blocks gun-height WORLD rays
+PASS the lifting cradle is real waist-high cover
+PASS the middle lane still faces the exit without a WORLD blocker
+PASS enemy navigation reaches the far side of the gear
+PASS the bridge ends at the existing court and the far remnant remains scenic
+PASS the actual fixtures leave all guard and reinforcement spawns clear
+PASS sloth-repair-court image captured
+PASS sloth-broken-bridge image captured
+PASS the real player dashes through the raised end of the stone beam
+PASS the real player dashes around the outer side of the broken gear
+PASS the accessible side steps connect smoothly to the terrace
 PASS the opening spawn starts outside the Anchor's casting range
 PASS the Anchor walks into range and casts from its authored spawn
 PASS the real east terrace plinth blocks the opening sight ray
@@ -62,7 +73,17 @@ PASS the footprint conforms to the ramp and does not affect the floor below
 PASS second room has three staff bearers and seven total opponents
 PASS second room shifts both terraces
 PASS sloth-belfry-side image captured
+PASS the broken gear actually blocks gun-height WORLD rays
+PASS the lifting cradle is real waist-high cover
+PASS the middle lane still faces the exit without a WORLD blocker
+PASS enemy navigation reaches the far side of the gear
+PASS the bridge ends at the existing court and the far remnant remains scenic
+PASS the actual fixtures leave all guard and reinforcement spawns clear
+PASS the real player dashes through the raised end of the stone beam
+PASS the real player dashes around the outer side of the broken gear
+PASS the accessible side steps connect smoothly to the terrace
 PASS Boss keeps its solo encounter and receives the overhead clock
 PASS sloth-colossus-clock image captured
+PASS the Boss court retains its original collision layout beneath the clock
 PASS deprivation sends the same physical-looking mechanism spinning
-SLOTH SANCTUM COMBAT: 64 checks, 0 failed
+SLOTH SANCTUM COMBAT: 85 checks, 0 failed

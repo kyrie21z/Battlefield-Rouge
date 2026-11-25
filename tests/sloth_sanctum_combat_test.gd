@@ -61,6 +61,7 @@ func _ready() -> void:
 	player.aim_at(Vector3(0,12,-26))
 	await capture("sloth-clockwork")
 	await verify_clockwork(scenery as SlothClockwork)
+	await verify_worksite(room.geometry as SlothRealm, true)
 	await verify_anchor_navigation(anchor)
 	await verify_ramp()
 	for index in room.enemies.size():
@@ -79,6 +80,7 @@ func _ready() -> void:
 	player.position = Vector3(10.2, 1.33, -3.8)
 	player.aim_at(Vector3(0, 8.8, -30))
 	await capture("sloth-belfry-side")
+	await verify_worksite(room.geometry as SlothRealm, false)
 	room.queue_free()
 	await frames(4)
 	load_room("res://maps/realms/sloth_boss.tscn")
@@ -86,6 +88,9 @@ func _ready() -> void:
 	check("Boss keeps its solo encounter and receives the overhead clock",room.living_enemies() == 1 and room.boss is SlothColossus and room.geometry.has_node("SuspendedClockwork"))
 	player.aim_at(Vector3(0,13,-29))
 	await capture("sloth-colossus-clock")
+	var boss_yard := room.geometry.get_node("ClockRepairYard") as SlothWorksite
+	check("the Boss court retains its original collision layout beneath the clock",
+		boss_yard.find_children("*","CollisionObject3D",true,false).is_empty())
 	var clockwork := room.geometry.get_node("SuspendedClockwork") as SlothClockwork
 	var angle := clockwork.minute_hand.rotation.z
 	(room.geometry as SlothRealm).set_deprivation(true)
@@ -118,6 +123,78 @@ func verify_clockwork(clockwork: SlothClockwork) -> void:
 	get_tree().paused = false
 	await frames(115)
 	check("the hand slips back toward its original mark", absf(clockwork.minute_hand.rotation.z - resting_angle) < 0.045)
+
+
+func verify_worksite(realm: SlothRealm, capture_details: bool) -> void:
+	var yard := realm.get_node("ClockRepairYard") as SlothWorksite
+	var physics := realm.get_world_3d().direct_space_state
+	var front := yard.gear.to_global(Vector3(0.55, 1.81, 2.4))
+	var back := yard.gear.to_global(Vector3(0.55, 1.81, -2.4))
+	var impact := physics.intersect_ray(PhysicsRayQueryParameters3D.create(front, back, CollisionLayers.WORLD))
+	check("the broken gear actually blocks gun-height WORLD rays", impact.get("collider") == yard.gear)
+	var center := yard.beam.position.z
+	var low_ray := PhysicsRayQueryParameters3D.create(Vector3(4.31, 0.67, center + 2.4),
+		Vector3(4.31, 0.67, center - 2.1), CollisionLayers.WORLD)
+	check("the lifting cradle is real waist-high cover",
+		physics.intersect_ray(low_ray).get("collider") == yard.get_node("BeamRest"))
+	var gate_ray := PhysicsRayQueryParameters3D.create(Vector3(0, 1.58, 16), Vector3(0, 1.58, -20), CollisionLayers.WORLD)
+	check("the middle lane still faces the exit without a WORLD blocker", physics.intersect_ray(gate_ray).is_empty())
+	var nav := room._region.get_navigation_map()
+	var path := NavigationServer3D.map_get_path(nav, Vector3(-8.0, 0, 2.1), Vector3(-8.0, 0, -5.5), true)
+	check("enemy navigation reaches the far side of the gear", path.size() > 1 and path[-1].z < -5.0)
+	var outside_ray := PhysicsRayQueryParameters3D.create(yard.broken_span.position + Vector3.UP * 4,
+		yard.broken_span.position + Vector3.DOWN * 6, CollisionLayers.WORLD)
+	check("the bridge ends at the existing court and the far remnant remains scenic",
+		physics.intersect_ray(outside_ray).is_empty() and SlothWorksite.BRIDGE_END > -20.0)
+	var guard_shape := CapsuleShape3D.new()
+	guard_shape.radius = 0.50
+	guard_shape.height = 1.85
+	var guard_query := PhysicsShapeQueryParameters3D.new()
+	guard_query.shape = guard_shape
+	guard_query.collision_mask = CollisionLayers.WORLD
+	var guards_clear := true
+	for spawn in realm.wave_spawn_points():
+		guard_query.transform = Transform3D(Basis.IDENTITY, spawn + Vector3.UP)
+		for overlap in physics.intersect_shape(guard_query, 16):
+			var body := overlap.collider as Node
+			if yard.is_ancestor_of(body):
+				guards_clear = false
+	check("the actual fixtures leave all guard and reinforcement spawns clear", guards_clear)
+
+	if capture_details:
+		player.position = Vector3(0.3, 0.08, 8.55)
+		player.aim_at(Vector3(0, 3.9, -12.8))
+		await capture("sloth-repair-court")
+		player.position = Vector3(-13.1, 1.33, yard.bridge_z + 0.48)
+		player.aim_at(Vector3(-22.9, 2.18, yard.bridge_z))
+		await capture("sloth-broken-bridge")
+	player.set_physics_process(true)
+	await _dash_past(Vector3(8.46, 0.08, center + 2.75), center - 1.7,
+		"the real player dashes through the raised end of the stone beam")
+	await _dash_past(Vector3(-8.31, 0.08, 0.93), -3.35,
+		"the real player dashes around the outer side of the broken gear")
+	player.recover_from_fall(Vector3(-14.33, 1.34, yard.bridge_z))
+	player.aim_at(Vector3(-21.5, player.eye_position().y, yard.bridge_z))
+	await frames(5)
+	Input.action_press("move_forward")
+	for tick in 106:
+		await frames(1)
+		if player.position.x < -18.58:
+			break
+	Input.action_release("move_forward")
+	check("the accessible side steps connect smoothly to the terrace",
+		player.position.x < -18.58 and player.position.y > 1.87)
+	player.set_physics_process(false)
+	player.recover_from_fall(realm.player_spawn() + Vector3.UP * 0.1)
+
+
+func _dash_past(start: Vector3, target_z: float, label: String) -> void:
+	player.recover_from_fall(start)
+	await frames(6)
+	player.aim_at(Vector3(start.x, player.eye_position().y, target_z - 3.0))
+	var did_dash := player.dash.try_dash()
+	await frames(15)
+	check(label, did_dash and player.position.z < target_z and player.position.y >= -0.04)
 
 
 func verify_ramp() -> void:

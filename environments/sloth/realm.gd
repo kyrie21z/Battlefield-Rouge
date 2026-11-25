@@ -17,6 +17,7 @@ var _clock_audio: AudioStreamPlayer3D
 var _industrial_audio: AudioStreamPlayer3D
 var _stone: Material
 var _clockwork: SlothClockwork
+var _worksite: SlothWorksite
 var _rest_materials: Array[StandardMaterial3D] = []
 var player: Player
 var void_fall: RealmVoid
@@ -33,6 +34,7 @@ func _ready() -> void:
 	paving.set_shader_parameter("stone_color",Color("e2dbcc"))
 	paving.set_shader_parameter("radial_mode",boss_arena)
 	paving.set_shader_parameter("carved_court", true)
+	paving.set_shader_parameter("repair_tracks", not boss_arena)
 	box(self,Vector3(0,-0.6,0),Vector3(40,1.2,48),paving,true)
 	# Physical edges define the walkable floor. Scenery never enters navigation.
 	for side in [-1.0,1.0]:
@@ -49,6 +51,10 @@ func _ready() -> void:
 			box(self,Vector3(side*10,0.65,-8),Vector3(3.5,1.3,3.5),_stone,true)
 	for side in [-1.0,1.0]:
 		_build_rest(Vector3(side*13,0,12), dark)
+	_worksite = SlothWorksite.new()
+	_worksite.name = "ClockRepairYard"
+	add_child(_worksite)
+	_worksite.build(chamber_style, boss_arena, _stone)
 	_clockwork = SlothClockwork.new()
 	_clockwork.name = "SuspendedClockwork"
 	add_child(_clockwork)

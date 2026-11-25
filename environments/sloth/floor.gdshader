@@ -3,6 +3,7 @@ render_mode diffuse_burley, specular_disabled;
 uniform vec4 stone_color : source_color = vec4(0.51,0.56,0.58,1.0);
 uniform bool radial_mode = true;
 uniform bool carved_court = false;
+uniform bool repair_tracks = false;
 varying vec3 world_pos;
 varying vec3 world_normal;
 
@@ -53,6 +54,16 @@ void fragment(){
             * step(0.82, cos(atan(local.x, local.y + 0.00001) * 24.0));
         base *= 1.0 + top * (grain - course * 0.23 + path * 0.064);
         base = mix(base, vec3(0.36, 0.28, 0.17), clamp(warm_thread + plate + ticks, 0.0, 1.0) * top * fade * 0.39);
+    }
+    if (repair_tracks) {
+        vec2 p = world_pos.xz;
+        float track_center = -4.81 + smoothstep(-2.0, 12.0, p.y) * 1.23;
+        float ends = smoothstep(-3.0, -2.1, p.y) * (1.0 - smoothstep(10.8, 12.2, p.y));
+        float gap = smoothstep(0.14, 0.20, fract((p.y + 0.39) / 2.52));
+        float rails = filtered_line(abs(p.x - track_center) - 0.62, 0.075) * gap;
+        float ties = filtered_line(fract((p.y + 0.12) / 1.26) - 0.5, 0.055)
+            * (1.0 - smoothstep(0.70, 0.95, abs(p.x - track_center)));
+        base = mix(base, vec3(0.28, 0.22, 0.15), clamp(rails + ties * 0.68, 0.0, 1.0) * ends * top * fade * 0.48);
     }
     ALBEDO=base;
     ROUGHNESS=0.92;

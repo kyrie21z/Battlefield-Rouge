@@ -1,4 +1,4 @@
-Godot 4.7.2, final scene regression
+Godot 4.7.2, final Sloth clock and repair yard regression
 
 sloth_realm_test    SLOTH REALM: ALL PASSED (25 checks, 0 failed)
 sloth_enemy_test    SLOTH ENEMIES: ALL PASSED (65 checks, 0 failed)

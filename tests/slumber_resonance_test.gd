@@ -22,7 +22,12 @@ func _ready()->void:
 	await frames(190)
 	check("temporary slow expires on real actor",is_equal_approx(enemy.boon_time_scale,1.0))
 	check("rest deprivation remains active",player.fragments.deprivations.has(0))
-	await frames(420)
+	# 冷却现在是 RESONANCE_COOLDOWN（15 秒），等它真正归零再测遮挡，
+	# 不要写死帧数——数值一改这里就会误报。
+	for i in 1400:
+		if player.fragments.resonance_cooldown <= 0.0:
+			break
+		await frames(1)
 	block(Vector3(0,1,-3),Vector3(5,3,0.5))
 	await frames(3)
 	check("WORLD occlusion prevents resonance without spending cooldown",not player.fragments.try_slumber_resonance() and player.fragments.resonance_cooldown==0)

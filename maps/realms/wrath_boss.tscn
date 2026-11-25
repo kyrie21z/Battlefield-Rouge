@@ -4,10 +4,11 @@
 [ext_resource type="Script" path="res://environments/wrath/realm.gd" id="2"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="3"]
 
-[node name="WrathRealm3" type="Node3D"]
+[node name="WrathRealm4" type="Node3D"]
 script = ExtResource("1")
 realm = 2
-room_index = 2
+room_index = 3
+rest_room = false
 boss_room = true
 
 [node name="Geometry" type="Node3D" parent="."]

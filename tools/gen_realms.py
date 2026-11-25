@@ -2,6 +2,7 @@
 from pathlib import Path
 REALMS = ("sloth", "fear", "wrath", "sorrow")
 BOSSES = ("sloth_colossus", "fear_oculus", "wrath_spire", "sorrow_monolith")
+ROOMS = (("1", 0, "combat"), ("2", 1, "combat"), ("rest", 2, "rest"), ("boss", 3, "boss"))
 
 
 def generate(root: Path) -> list[Path]:
@@ -11,34 +12,48 @@ def generate(root: Path) -> list[Path]:
             continue
         if not (root / f"actors/enemy/{name}/{name}_realm_enemy.tscn").exists():
             continue
-        rooms = [0, 1]
-        if (root / f"actors/boss/{BOSSES[realm]}/{BOSSES[realm]}.tscn").exists():
-            rooms.append(2)
-        for room in rooms:
-            boss = room == 2
-            suffix = "boss" if boss else str(room + 1)
+        if not (root / "environments/rest_sanctuary.gd").exists():
+            continue
+        has_boss = (root / f"actors/boss/{BOSSES[realm]}/{BOSSES[realm]}.tscn").exists()
+        for suffix, room, kind in ROOMS:
+            if kind == "boss" and not has_boss:
+                continue
+            boss = kind == "boss"
+            rest = kind == "rest"
             path = root / f"maps/realms/{name}_{suffix}.tscn"
             path.parent.mkdir(parents=True, exist_ok=True)
-            use_chamber = not boss and (name in ("wrath", "sorrow") or (name in ("fear", "sloth") and room == 1))
-            geometry_options = "chamber_style = 1\n" if use_chamber else ""
+            if rest:
+                geometry_script = "res://environments/rest_sanctuary.gd"
+                node_name = f"{name.title()}RealmRest"
+                spawn = "Vector3(0, 0.1, 11)"
+                realm_option = f"realm = {realm}\n"
+                geometry_options = ""
+            else:
+                geometry_script = f"res://environments/{name}/realm.gd"
+                node_name = f"{name.title()}Realm{room + 1}"
+                spawn = "Vector3(0, 0.1, 16)"
+                realm_option = ""
+                use_chamber = not boss and (name in ("wrath", "sorrow") or (name in ("fear", "sloth") and room == 1))
+                geometry_options = "chamber_style = 1\n" if use_chamber else ""
             path.write_text(f'''[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://zone/realm_stage.gd" id="1"]
-[ext_resource type="Script" path="res://environments/{name}/realm.gd" id="2"]
+[ext_resource type="Script" path="{geometry_script}" id="2"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="3"]
 
-[node name="{name.title()}Realm{room + 1}" type="Node3D"]
+[node name="{node_name}" type="Node3D"]
 script = ExtResource("1")
 realm = {realm}
 room_index = {room}
+rest_room = {str(rest).lower()}
 boss_room = {str(boss).lower()}
 
 [node name="Geometry" type="Node3D" parent="."]
 script = ExtResource("2")
-boss_arena = {str(boss).lower()}
+{realm_option}boss_arena = {str(boss).lower()}
 {geometry_options}
 [node name="Player" parent="." instance=ExtResource("3")]
-position = Vector3(0, 0.1, 16)
+position = {spawn}
 ''', encoding="utf-8", newline="\n")
             paths.append(path)
     return paths

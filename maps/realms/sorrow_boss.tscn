@@ -4,10 +4,11 @@
 [ext_resource type="Script" path="res://environments/sorrow/realm.gd" id="2"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="3"]
 
-[node name="SorrowRealm3" type="Node3D"]
+[node name="SorrowRealm4" type="Node3D"]
 script = ExtResource("1")
 realm = 3
-room_index = 2
+room_index = 3
+rest_room = false
 boss_room = true
 
 [node name="Geometry" type="Node3D" parent="."]

@@ -4,10 +4,11 @@
 [ext_resource type="Script" path="res://environments/sloth/realm.gd" id="2"]
 [ext_resource type="PackedScene" path="res://actors/player/player.tscn" id="3"]
 
-[node name="SlothRealm3" type="Node3D"]
+[node name="SlothRealm4" type="Node3D"]
 script = ExtResource("1")
 realm = 0
-room_index = 2
+room_index = 3
+rest_room = false
 boss_room = true
 
 [node name="Geometry" type="Node3D" parent="."]

@@ -210,6 +210,17 @@ func _run() -> void:
 	player.health.health = player.health.max_health
 	var riposte_hp := player.health.health
 	var guarded_hp := boss.health.health
+	boss.boon_stunned = true
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	await frames(6)
+	check("stunned doppelganger cannot guard-riposte gunfire",boss.ripostes==0 and is_equal_approx(player.health.health,riposte_hp))
+	boss.boon_stunned = false
+	boss.health.health = guarded_hp
+	boss.phase = FlawlessDoppelganger.Phase.GUARD
+	boss.phase_left = 10
+	boss.guard_hits_taken = 0
+	boss.guard_blocks = 0
 	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
 	check("first blocked round keeps the perfect guard",boss.health.health==guarded_hp and boss.guard_hits_taken==1 and boss.ripostes==0)
 	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)

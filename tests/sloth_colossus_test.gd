@@ -79,6 +79,12 @@ func _ready() -> void:
 	check("resin mortar marks the player's ground plus one flank",pools.size()==2 and pools.all(func(p):return p.landed))
 	await frames(40)
 	check("standing in landed resin actually costs Health",player.health.health<100)
+	var frozen_hp := player.health.health
+	var frozen_age: float = pools[0].age
+	boss.boon_time_scale = 0.0
+	await frames(20)
+	check("world time stop pauses landed resin age and damage",is_equal_approx(pools[0].age,frozen_age) and is_equal_approx(player.health.health,frozen_hp))
+	boss.boon_time_scale = 1.0
 	for pool in pools:
 		pool.queue_free()
 	await frames(4)
@@ -90,8 +96,18 @@ func _ready() -> void:
 	await frames(45)
 	check("amber hibernation pulls in and projects a 9m stasis dial",boss.hibernating and is_instance_valid(boss.active_attack) and is_equal_approx(boss.active_attack._field.reach,9.0))
 	check("the dial blocks dash and drags movement to 65%",player.realm_effects.dash_blocked and is_equal_approx(player.realm_effects.move_multiplier,0.65))
+	player.position = Vector3(0,0,15)
+	await frames(2)
+	check("stepping outside the 9m stasis dial restores dash and speed",not player.realm_effects.dash_blocked and is_equal_approx(player.realm_effects.move_multiplier,1.0))
+	player.position = Vector3(0,0,8)
+	await frames(2)
 	await frames(60)
 	check("the shell trickles a 45/s shield back",boss.health.shield_points>20.0 and boss.health.shield_points<=boss.hibernation_shield_cap())
+	boss.health.set_shield_regeneration_blocked(&"sorrow_suffocation",true)
+	var blocked_shield := boss.health.shield_points
+	await frames(15)
+	check("anti-regen boon blocks hibernation shield trickle",is_equal_approx(boss.health.shield_points,blocked_shield))
+	boss.health.set_shield_regeneration_blocked(&"sorrow_suffocation",false)
 	boss.health.shield_points = 0
 	var before_shell := boss.health.health
 	boss.health.apply_damage(100,Hitbox.BodyPart.BODY,player)

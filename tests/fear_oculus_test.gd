@@ -113,6 +113,19 @@ func run_checks() -> void:
 		and boss.global_position.distance_to(first_anchor) >= 6.0
 		and boss.blink_count == 2
 		and boss.visual.ghost_count == ghost_before + 2)
+	await frames(36)
+	check("faded blink afterimages prune cleanly from the ghost list", boss.visual.ghosts.is_empty())
+	boss.boss_phase = 2
+	player.position = Vector3(12, 0, 12)
+	boss.start_attack(1)
+	boss.advance_attack(boss.windup() + 0.01)
+	var before_sniper_count := boss._projectiles.size()
+	boss.advance_attack(boss.active_duration() + 0.01)
+	var sniper := boss._projectiles.back().get_ref() as Projectile if boss._projectiles.size() > before_sniper_count else null
+	var to_player := (player.global_position + Vector3.UP * 1.1 - boss.eye_position()).normalized()
+	var sniper_dir := -sniper.global_transform.basis.z.normalized() if sniper != null else Vector3.ZERO
+	check("phase 2 sniper follow-up aims directly at the standing player", sniper != null and sniper_dir.dot(to_player) > 0.96)
+	player.position = Vector3(0, 0, 16)
 	var indicator := DamageIndicator.new()
 	add_child(indicator)
 	indicator.setup(player)

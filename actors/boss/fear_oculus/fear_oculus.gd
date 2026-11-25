@@ -264,7 +264,12 @@ func _release_offset_ring() -> void:
 			direction, self, RING_DAMAGE * realm_damage_scale, RING_SPEED, _hitbox_rids, Color(0.6, 0.2, 0.95))
 		_projectiles.append(weakref(bullet))
 
-func _fire_sniper(direction: Vector3) -> void:
+func _fire_sniper(fallback_direction: Vector3) -> void:
+	var direction := fallback_direction
+	if is_instance_valid(target):
+		var hp := target.get_node_or_null("Health") as Health
+		if hp == null or not hp.is_dead():
+			direction = (target.global_position + Vector3.UP * 1.1 - eye_position()).normalized()
 	var bullet := Projectile.spawn(get_parent(), eye_position() + direction * 1.0, direction, self,
 		SNIPER_DAMAGE * realm_damage_scale, SNIPER_SPEED, _hitbox_rids, Color(0.66, 0.32, 1.0))
 	_projectiles.append(weakref(bullet))

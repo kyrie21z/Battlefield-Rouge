@@ -19,6 +19,7 @@ const RAGE_WAVE_RADIUS := 22.0
 const RAGE_WAVE_SPEED := 18.0
 const RAGE_WAVE_DAMAGE := 14.0
 const RAGE_SHARDS := 8
+const RAGE_WINDUP := 0.65
 const VORTEX_RANGE := 16.0
 const VORTEX_SPEED := 14.0
 const VORTEX_SPEED_PHASE2 := 16.5
@@ -42,6 +43,8 @@ var spawned_eruptions := 0
 var _volley_count := 0
 var _locked_aim := Vector3.FORWARD
 var _aim_tell: MeshInstance3D
+var _rage_tell: MeshInstance3D
+var _rage_primed := false
 var boss_phase := 1
 var rage := 0.0
 var rage_bursts := 0
@@ -121,10 +124,12 @@ func _physics_process(delta: float) -> void:
 	model.telegraph = 1.0 if warnings_enabled and attack_phase == Attack.WINDUP else 0.0
 	if is_instance_valid(_aim_tell):
 		_aim_tell.visible = warnings_enabled and attack_phase == Attack.WINDUP
+	if is_instance_valid(_rage_tell):
+		_rage_tell.visible = warnings_enabled and _rage_primed and attack_phase == Attack.WINDUP
 	if attack_phase == Attack.APPROACH:
 		_pursue_target(delta, flat)
 		if rage >= RAGE_MAX:
-			_release_rage_burst()
+			_prime_rage_burst()
 		elif attack_left <= 0:
 			begin_move(move_kind)
 	elif attack_phase == Attack.WINDUP:
@@ -134,6 +139,9 @@ func _physics_process(delta: float) -> void:
 			phase_elapsed = 0
 			_burst_done = false
 			_clear_aim_tell()
+			if _rage_primed:
+				_rage_primed = false
+				_release_rage_burst()
 			if move_kind == Move.VORTEX:
 				_dashes_left = VORTEX_PHASE2_DASHES if boss_phase >= 2 else 1
 				_start_vortex_dash(false)
@@ -191,7 +199,7 @@ func _physics_process(delta: float) -> void:
 		if attack_left <= 0:
 			cycle_count += 1
 			if rage >= RAGE_MAX:
-				_release_rage_burst()
+				_prime_rage_burst()
 			else:
 				move_kind = _select_move(flat.length())
 				attack_phase = Attack.APPROACH
@@ -313,6 +321,37 @@ func _show_aim_tell() -> void:
 func _clear_aim_tell() -> void:
 	if is_instance_valid(_aim_tell): _aim_tell.queue_free()
 	_aim_tell = null
+	if is_instance_valid(_rage_tell): _rage_tell.queue_free()
+	_rage_tell = null
+
+func _show_rage_tell() -> void:
+	if is_instance_valid(_rage_tell):
+		_rage_tell.queue_free()
+	_rage_tell = MeshInstance3D.new()
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = 2.6
+	mesh.outer_radius = 3.1
+	mesh.rings = 32
+	mesh.ring_segments = 4
+	_rage_tell.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.22, 0.04, 0.85)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_rage_tell.material_override = material
+	add_child(_rage_tell)
+	_rage_tell.position = Vector3(0, 0.22, 0)
+	_rage_tell.visible = warnings_enabled
+
+func _prime_rage_burst() -> void:
+	if not _has_live_target() or state == State.DEAD:
+		return
+	rage = 0.0
+	_rage_primed = true
+	begin_move(Move.VORTEX)
+	attack_left = RAGE_WINDUP * boon_windup_scale
+	if warnings_enabled:
+		_show_rage_tell()
 
 func _fire_radial(offset: float) -> void:
 	for i in 12:
@@ -344,7 +383,6 @@ func _release_rage_burst() -> void:
 	wave.global_position = global_position
 	spawned_waves += 1
 	_fire_rage_radial()
-	begin_move(Move.VORTEX)
 
 func _check_wall_slam() -> void:
 	if not _wall_burst_ready:
@@ -378,6 +416,7 @@ func _on_died(source: Node) -> void:
 	super._on_died(source)
 	_clear_bullets()
 	rage = 0.0
+	_rage_primed = false
 	_dashes_left = 0
 	_wall_burst_ready = false
 	if is_instance_valid(arena) and arena.has_method("set_deprivation"):

@@ -166,10 +166,8 @@ func regen_hibernation_shield(delta: float) -> void:
 	var cap := hibernation_shield_cap()
 	if health.shield_points >= cap:
 		return
-	var before := health.shield_points
-	health.shield_points = minf(health.shield_points+HIBERNATION_SHIELD_RATE*delta,cap)
-	if not is_equal_approx(before,health.shield_points):
-		health.shield_changed.emit(health.shield_points)
+	health.max_shield = maxf(health.max_shield,cap)
+	health.regenerate_shield(minf(HIBERNATION_SHIELD_RATE*delta,cap-health.shield_points))
 
 ## A cracked shell leaves the titan slumped open, with no attack of its own.
 func break_shell() -> void:

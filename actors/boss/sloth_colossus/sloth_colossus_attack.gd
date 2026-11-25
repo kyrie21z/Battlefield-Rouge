@@ -256,8 +256,17 @@ func _begin_hibernation() -> void:
 	_field.position = _center
 	add_child(_field)
 	_field.visible = caster.warnings_enabled
-	if target.has_method("set_realm_effect"):
-		target.call("set_realm_effect",_effect_source,{"dash_blocked":true,"move_multiplier":HIBERNATION_MOVE})
+	_sync_hibernation_field()
+
+func _sync_hibernation_field() -> void:
+	if not is_instance_valid(target):
+		return
+	var inside := is_instance_valid(caster) and caster.global_position.distance_to(target.global_position)<=HIBERNATION_FIELD_RADIUS
+	if inside:
+		if target.has_method("set_realm_effect"):
+			target.call("set_realm_effect",_effect_source,{"dash_blocked":true,"move_multiplier":HIBERNATION_MOVE})
+	elif target.has_method("clear_realm_effect") and _effect_source!=StringName():
+		target.call("clear_realm_effect",_effect_source)
 
 func _update_hibernation(delta: float) -> void:
 	if not caster.hibernating:
@@ -265,6 +274,7 @@ func _update_hibernation(delta: float) -> void:
 		return
 	_channel_left = maxf(0.0,_channel_left-delta)
 	caster.regen_hibernation_shield(delta)
+	_sync_hibernation_field()
 	if is_instance_valid(_field):
 		_field.show_charge(1.0-_channel_left/HIBERNATION_TIME)
 	if caster.hibernation_damage>=SlothColossus.HIBERNATION_BREAK_DAMAGE:

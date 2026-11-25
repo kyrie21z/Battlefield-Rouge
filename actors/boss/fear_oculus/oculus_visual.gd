@@ -179,10 +179,15 @@ func spawn_ghost() -> void:
 		ghost.add_child(iris_copy)
 	get_parent().get_parent().add_child(ghost)
 	ghost.global_transform = global_transform
+	ghosts = ghosts.filter(func(item: Node3D) -> bool: return is_instance_valid(item))
 	ghosts.append(ghost)
 	var tween := ghost.create_tween()
 	tween.tween_property(ghost_material, "albedo_color:a", 0.0, 0.5)
-	tween.tween_callback(ghost.queue_free)
+	tween.tween_callback(func() -> void:
+		ghosts.erase(ghost)
+		if is_instance_valid(ghost):
+			ghost.queue_free()
+	)
 
 func clear_ghosts() -> void:
 	for ghost in ghosts:

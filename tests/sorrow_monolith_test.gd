@@ -99,6 +99,15 @@ func _run() -> void:
 	var flat := Vector2(boss.global_position.x-surfacing.x,boss.global_position.z-surfacing.z).length()
 	_check("hidden monolith resurfaces 5.5-7.5m from the player",not boss.submerged and flat >= SorrowMonolith.AMBUSH_NEAR-0.05 and flat <= SorrowMonolith.AMBUSH_FAR+0.05)
 	_check("resurfaced monolith restores hitboxes and strikes at once",(boss.get_node("TorsoHitbox") as Hitbox).collision_layer == CollisionLayers.HITBOXES and not boss.visual.submerged and boss.action == 1 and (boss.move_kind == SorrowMonolith.Move.SLAP or boss.move_kind == SorrowMonolith.Move.CRY))
+	var next_a := boss._next_move()
+	var next_b := boss._next_move()
+	_check("phase 2 ground cycle still includes tides and slaps after surfacing",next_a != next_b and ([next_a,next_b].has(SorrowMonolith.Move.TIDE) or [next_a,next_b].has(SorrowMonolith.Move.SLAP)))
+	var ripples_before := realm.ripple_count
+	boss.warnings_enabled = false
+	boss.start_submerge()
+	_check("fear deprivation hides dive ripple tell",realm.ripple_count == ripples_before)
+	boss.warnings_enabled = true
+	boss._resurface()
 	boss.begin_move(SorrowMonolith.Move.RAIN)
 	await _frames(70)
 	boss.health.apply_damage(5000,Hitbox.BodyPart.BODY,player,{"true_damage":true})

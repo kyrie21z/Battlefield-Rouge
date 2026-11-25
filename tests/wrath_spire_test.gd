@@ -93,14 +93,16 @@ func _run() -> void:
 	boss.health.apply_damage(100.0, Hitbox.BodyPart.BODY, player)
 	boss.health.apply_damage(100.0, Hitbox.BodyPart.BODY, player)
 	await _frames(1)
+	_check("full rage primes telegraphed windup before releasing shockwave", boss.rage_bursts == burst_start and boss.rage == 0.0 and boss.attack_phase == WrathRealmEnemy.Attack.WINDUP and boss.move_kind == WrathSpire.Move.VORTEX)
+	await _frames(45)
 	var rage_wave: WrathShockwave
 	for node in get_children():
 		if node is WrathShockwave and is_equal_approx((node as WrathShockwave).max_radius, WrathSpire.RAGE_WAVE_RADIUS):
 			rage_wave = node
-	_check("full rage unleashes one 360-degree rage shockwave", boss.rage_bursts == burst_start + 1 and boss.rage == 0.0 and rage_wave != null and rage_wave.half_angle >= PI)
+	_check("full rage unleashes one 360-degree rage shockwave after telegraph", boss.rage_bursts == burst_start + 1 and rage_wave != null and rage_wave.half_angle >= PI)
 	_check("rage shockwave uses jumpable radius and speed", rage_wave != null and is_equal_approx(rage_wave.speed, 18.0) and is_equal_approx(rage_wave.damage, 14.0 * boss.realm_damage_scale))
 	_check("rage burst fires eight radial ricochets", boss.spawned_bullets - burst_bullets == 8 and boss.spawned_waves - burst_waves == 1)
-	_check("rage burst chains straight into a vortex", boss.attack_phase == WrathRealmEnemy.Attack.WINDUP and boss.move_kind == WrathSpire.Move.VORTEX)
+	_check("rage burst launches straight into a vortex dash", boss.attack_phase == WrathRealmEnemy.Attack.RUSH and boss.move_kind == WrathSpire.Move.VORTEX)
 	var wall := StaticBody3D.new()
 	wall.collision_layer = CollisionLayers.WORLD
 	var wall_shape := CollisionShape3D.new()
@@ -159,7 +161,7 @@ func _run() -> void:
 	boss.health.apply_damage(100.0, Hitbox.BodyPart.BODY, player)
 	boss.health.apply_damage(100.0, Hitbox.BodyPart.BODY, player)
 	boss.health.apply_damage(100.0, Hitbox.BodyPart.BODY, player)
-	await _frames(1)
+	await _frames(45)
 	_check("a live rage wave and its shrapnel exist before death", boss._owned_bullets.size() >= 8 and get_children().any(func(node: Node): return node is WrathShockwave))
 	boss.health.apply_damage(5000, Hitbox.BodyPart.BODY, player, {"true_damage": true})
 	_check("actual boss death emits one Wrath clear event", defeats == 1)

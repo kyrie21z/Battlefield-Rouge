@@ -73,7 +73,11 @@ func land() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	delta = minf(delta, LIFETIME - age)
+	var time_scale := attacker.boon_time_scale if is_instance_valid(attacker) else 1.0
+	if time_scale <= 0.0:
+		_clear_slow()
+		return
+	delta = minf(delta * time_scale, LIFETIME - age)
 	age += delta
 	_gel.set_shader_parameter("gel_age", age)
 	var spread := lerpf(0.40, 1.0, smoothstep(0.0, 0.18, age))

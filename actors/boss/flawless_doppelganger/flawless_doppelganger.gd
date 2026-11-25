@@ -274,6 +274,8 @@ func _fire_pair() -> void:
 		_spawn_round(aim.rotated(Vector3.UP,angle),GUN_DAMAGE,42,40,GUN_TINT)
 		shots += 1
 func _riposte() -> void:
+	if not combat_active or state == State.DEAD or boon_stunned or not _has_live_target():
+		return
 	_spawn_round(((target.global_position+Vector3.UP)-_muzzle()).normalized(),RIPOSTE_DAMAGE,RIPOSTE_SPEED,RIPOSTE_RANGE,PLATINUM)
 	ripostes += 1
 	guard_hits_taken = 0
@@ -282,6 +284,11 @@ func _riposte() -> void:
 	phase = Phase.WAIT
 	phase_left = HIGH_PRESSURE_WAIT if _high_pressure() else WAIT_GAP
 	visual.set_guard(false)
+func _has_live_target() -> bool:
+	if not is_instance_valid(target):
+		return false
+	var hp := target.get_node_or_null("Health") as Health
+	return hp == null or not hp.is_dead()
 func _spawn_round(direction: Vector3,damage: float,speed: float,range_limit: float,tint: Color,crescent := false) -> FlawlessBullet:
 	var bullet := FlawlessBullet.new()
 	bullet.source = self
@@ -333,11 +340,13 @@ func _before_damage(ctx: Dictionary) -> void:
 	if not combat_active:
 		ctx.cancelled = true
 	elif phase == Phase.GUARD:
+		if boon_stunned or state == State.DEAD:
+			return
 		ctx.cancelled = true
 		guard_blocks += 1
 		if ctx.get("tag") == &"gun":
 			guard_hits_taken += 1
-			if guard_hits_taken >= 2:
+			if guard_hits_taken >= 2 and _has_live_target():
 				_riposte()
 	elif phase in [Phase.EXPOSED,Phase.RECOVER] and bool(ctx.get("critical",false)):
 		ctx.damage *= 1.5

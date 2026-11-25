@@ -48,6 +48,7 @@ var submerge_left := 0.0
 var _second_tide_left := -1.0
 var _cry_cooldown := 0.0
 var _moves_since_dive := 0
+var _cycle_step := 0
 var _lunge_left := 0.0
 var _undertow_key: StringName
 
@@ -79,10 +80,22 @@ func _on_phase_damage(_context: Dictionary) -> void:
 	health.shield_regeneration_rate = 0.0
 	health.shield_changed.emit(health.shield_points)
 	phase_changed.emit(2)
+func _has_live_target() -> bool:
+	if not is_instance_valid(target):
+		return false
+	var hp := target.get_node_or_null("Health") as Health
+	return hp == null or not hp.is_dead()
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD or boon_stunned or boon_time_scale <= 0:
 		return
 	delta *= boon_time_scale
+	if not _has_live_target():
+		_stop()
+		_clear_tell()
+		_clear_undertow()
+		_second_tide_left = -1.0
+		return
 	if _second_tide_left > 0.0:
 		_second_tide_left -= delta
 		if _second_tide_left <= 0.0:
@@ -93,8 +106,6 @@ func _physics_process(delta: float) -> void:
 	_cry_cooldown = maxf(0.0,_cry_cooldown-delta)
 	if submerged:
 		_tick_ambush(delta)
-		return
-	if not is_instance_valid(target):
 		return
 	if not is_on_floor():
 		velocity.y -= gravity*delta
@@ -134,7 +145,7 @@ func _physics_process(delta: float) -> void:
 ## Nothing here divides out the tempo twice: the shared action clock already
 ## runs on effective_attack_scale(), so the windup only carries the boon layer.
 func begin_move(kind: int) -> void:
-	if state == State.DEAD or submerged or not is_instance_valid(target):
+	if state == State.DEAD or submerged or not _has_live_target():
 		return
 	move_kind = kind
 	_moves_since_dive += 1
@@ -172,13 +183,10 @@ func _next_move() -> int:
 	if _cry_cooldown <= 0.0 and (move_kind == Move.RAIN or move_kind == Move.SLAP):
 		_cry_cooldown = CRY_COOLDOWN
 		return Move.CRY
-	match move_kind:
-		Move.RAIN:
-			return Move.TIDE
-		Move.TIDE:
-			return Move.SLAP
-		_:
-			return Move.RAIN
+	var cycle: Array[int] = [Move.TIDE, Move.SLAP, Move.RAIN]
+	var choice := cycle[_cycle_step % cycle.size()]
+	_cycle_step = (_cycle_step + 1) % cycle.size()
+	return choice
 
 func _release() -> void:
 	_clear_tell()
@@ -307,7 +315,7 @@ func _spawn_tide() -> void:
 ## Sinks under the mirror. The body and hitboxes leave the fight; the ripple
 ## is the only tell that the water is about to break somewhere else.
 func start_submerge() -> void:
-	if state == State.DEAD or submerged:
+	if state == State.DEAD or submerged or not _has_live_target():
 		return
 	submerged = true
 	submerge_left = SUBMERGE_TIME
@@ -320,7 +328,7 @@ func start_submerge() -> void:
 	visual.set_cast(0.0)
 	visual.set_submerged(true)
 	_set_hitboxes_layer(CollisionLayers.NONE)
-	if is_instance_valid(arena):
+	if warnings_enabled and is_instance_valid(arena):
 		arena.add_ripple(global_position,1.8)
 
 func _tick_ambush(delta: float) -> void:
@@ -339,14 +347,21 @@ func _resurface() -> void:
 		global_position = spot
 	visual.set_submerged(false)
 	_set_hitboxes_layer(CollisionLayers.HITBOXES)
-	if is_instance_valid(arena):
+	if warnings_enabled and is_instance_valid(arena):
 		arena.add_ripple(global_position,1.8)
-	begin_move(Move.SLAP if boss_phase < 2 else Move.CRY)
+	if not _has_live_target():
+		return
+	var opener := Move.SLAP
+	if boss_phase >= 2 and _cry_cooldown <= 0.0:
+		opener = Move.CRY
+		_cry_cooldown = CRY_COOLDOWN
+	begin_move(opener)
+	_moves_since_dive = 0
 
 ## Flanks from the side the monolith already sits on, so the reappearance
 ## reads as a circle through the mirror rather than a teleport.
 func _ambush_spot() -> Vector3:
-	if not is_instance_valid(target):
+	if not _has_live_target():
 		return Vector3.INF
 	var goal := target.global_position
 	var heading := (global_position-goal)*Vector3(1,0,1)
@@ -388,7 +403,7 @@ func _capsule_blocked(spot: Vector3) -> bool:
 	return not get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
 
 func _ambush_due() -> bool:
-	if not is_instance_valid(target):
+	if not _has_live_target():
 		return false
 	var flat := (target.global_position-global_position)*Vector3(1,0,1)
 	return flat.length() > AMBUSH_PROWL or _moves_since_dive >= 2
@@ -397,7 +412,7 @@ func _ambush_due() -> bool:
 ## in the shallows costs movement speed for as long as the wave is coming.
 func _undertow() -> void:
 	var active := (action == 1 and (move_kind == Move.RAIN or move_kind == Move.TIDE)) or (action == 2 and move_kind == Move.TIDE)
-	var player: Player = target as Player if is_instance_valid(target) else null
+	var player: Player = target as Player if _has_live_target() else null
 	if player == null or not active or not _is_wet():
 		_clear_undertow()
 		return
@@ -409,7 +424,7 @@ func _clear_undertow() -> void:
 		player.clear_realm_effect(_undertow_key)
 
 func _is_wet() -> bool:
-	return is_instance_valid(target) and target.global_position.y <= raised_water+0.25
+	return _has_live_target() and target.global_position.y <= raised_water+0.25
 
 ## Closes up to 3.5m on the marked square while the arm is coming down, so a
 ## dodge has to be a real step and not a wiggle.

@@ -25,17 +25,21 @@
 
 门的开启时机没变，仍然是**选完卡之后**（`_finish_reward` 里改 `_gate_material` 颜色）。
 
-## 出场演出：碎片组装
+## 出场演出：碎片组装（2026-11-25 黑曜石切面与水晶内芯重做）
 
-**不是**整体弹出，而是**球壳自己的装甲块从四周飞回来拼成**。
+**不是**整体弹出，而是**球壳自己的黑曜石切面甲片与领域镶嵌条从四周飞回来拼成**。
 
-`TalentOrb.scatter(1.9)` 把外壳拆开：
+`orb_shell.glb` 与 `orb_core.glb` 由 `tools/talent_orb/generate.py`（Blender 5.2 CLI，确定性无随机）生成：
 
-- **全部 113 个 mesh 都参与**，包括底层球壳、深色内环、开口唇和封底
-- 散开距离按 `AABB 尺寸` 反比缩放：`weight = clamp(1.15 - extent × 0.55, 0.22, 1.0)`
-  大球壳只飘 `×0.22`（几乎原地），小装甲块飘到满 `1.9 m`
-- 每块沿**黄金角**（`i × 2.399963`）方向飞出，自转，按 `lerp(1.0, 0.78, weight)` 缩小
-- 全程用索引推导，**不调 `randf()`** —— fixture 回放每次拼成一模一样的姿态（AC-07）
+- **外壳（69 个闭合平直切面 mesh）**：深黑内碗凹腔（`SHELL_backcap` / `SHELL_under_*` / `SHELL_band_*`）、八角开口唇瓣与护翼（`SHELL_lip_*` / `SHROUD_*`）、三层阶梯外甲（`PLATE_*`）以及领域发光镶嵌条（`INSET_*` / `SHROUD_lamp_*`）。
+- **材质与场内辨识度**：外壳接入 `assets/materials/talent_orb_shell.gdshader`（基于 `crystal_optics.gdshaderinc` 黑曜石光学，含逐片 `scatter_glow` 聚拢冷却与 `seam_glow` 脉动）；内芯接入 `psyche_shard_crystal.gdshader` 并按 `set_accent()` 驱动 4 领域切面水晶配色；底部叠加贴地 `GroundHalo`（`psyche_shard_halo.gdshader`，动态对齐 `_ground_height + 0.03`）、开口内 8 片 `SimClock` 驱动悬浮晶屑（`Motes`）与 `AuraLight`。
+- **散开与归位**：`TalentOrb.scatter(1.9)` 按 `AABB` 反比权重与黄金角（`i × 2.399963`）确定性展开全部 69 片（不调 `randf()`，兼容 AC-07）；总组装时长 `69 × 0.020 + 0.70 + 1.60 ≈ 3.68 秒`。
+
+### 原生渲染取证（`tests/talent_orb_proof.tscn`）
+
+- `01-four-realms-lineup.png`：四领域（怠惰金 / 恐惧紫 / 暴怒绯红 / 悲伤湛蓝）并列，核查黑曜石外壳、切面晶核与地面八角光环配色区分度。
+- `02-closeup-and-back.png`：前 3/4 开口特写与背面黑曜石多面体甲片特写。
+- `03-sloth-arena-ingame.png`：`SlothRealm` 明亮白石竞技场内实机可读性。
 
 ### 从虚空浮现
 
@@ -52,9 +56,9 @@
 于是画面是：一块、两块……从黑暗里慢慢飘出来亮起，而不是齐刷刷弹出来。
 
 `TalentOrb.assemble(1.60, 0.70)`：每块从自己的 `i × 0.020` 起算再等 `0.70 秒` 开始飞回，
-单块 `1.60 秒`，`TRANS_BACK / EASE_OUT` 带回弹，同时 `emission` 在 `1.60 × 1.2 秒` 内褪到 0。
+单块 `1.60 秒`，`TRANS_BACK / EASE_OUT` 带回弹，同时 `scatter_glow` 在 `1.60 × 1.2 秒` 内褪到 0。
 
-**总时长约 4.6 秒**（113 × 0.020 + 0.70 + 1.60），全程没有静止段—— 站在远处也能看清整个过程，
+**总时长约 3.68 秒**（69 × 0.020 + 0.70 + 1.60），全程没有静止段—— 站在远处也能看清整个过程，
 来得及走过去。
 
 同时并行的四层：
@@ -62,12 +66,12 @@
 | 元素 | 动作 |
 |---|---|
 | 碎片浮现 | 逐块从远处淡入，与归位共用时间线 |
-| 碎片归位 | 浮现后 0.70 秒立刻起飞，总时长约 4.6 秒 |
+| 碎片归位 | 浮现后 0.70 秒立刻起飞，总时长约 3.68 秒 |
 | 地面光环 | `TorusMesh` 半径 ×0.25 → ×3.4，`EXPO/OUT` 扩散 **2.6 秒**，alpha 同步归零 |
 | 光柱 | `CylinderMesh`（r 0.42→0.78，高 4.5），ADD 混合，0.30 秒闪光后 **3.4 秒**淡出 |
 | 点光 | `OmniLight3D` 0 → 7 → 0，range 9 米 |
 
-立方体 `set_core_visible(false)` 一开始是隐藏的，**外壳拼完之后才点亮**，所以出场过程是
+切面水晶内芯 `set_core_visible(false)` 一开始是隐藏的，**外壳拼完之后才点亮**，所以出场过程是
 「黑壳成形 → 中心亮起」。
 
 演出期间 `set_idle_enabled(false)` 让 tween 独占 transform，结束后交还给 `_process` 的浮动。
@@ -112,9 +116,14 @@ if event.is_action_pressed("interact"):
 
 ```
 objects/talent_orb/
-├── orb_shell.glb    1.07 MB
-├── orb_core.glb     153 KB
-└── talent_orb.gd    朝向 / 浮动 / 立方体自转 / 主题色 / INTERACT_RANGE
+├── orb_shell.glb    ~138 KB（69 件黑曜石切面甲片/凹腔/镶嵌条）
+├── orb_core.glb     ~18 KB（8 件 SUPERHOT 切面水晶核与环绕晶刃）
+└── talent_orb.gd    朝向 / 浮动 / 晶核自转 / 地面光环 / 悬浮晶屑 / 主题色 / INTERACT_RANGE
+
+assets/materials/talent_orb_shell.gdshader   黑曜石切面光学 + scatter_glow + seam_glow
+tools/talent_orb/generate.py                 Blender 5.2 CLI 确定性生成器
+tests/talent_orb_visual_test.tscn            无头几何/材质/4 领域/AC-07/暂停单测
+tests/talent_orb_proof.tscn                  原生 4 领域并列/特写/实机竞技场截图取证
 
 zone/realm_stage.gd       + talent_orb, _orb_ready, _spawn_talent_orb(),
                             _play_orb_arrival(), claim_talent(), orb_pending()

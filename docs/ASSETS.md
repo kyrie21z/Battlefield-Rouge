@@ -1,5 +1,9 @@
 # 素材登记
 
+## 怠惰悬钟庭院机械与石材（2026-11-25）
+
+钟壳、齿轮、链节、配重、钟楼和浮廊由 `environments/sloth/sloth_clockwork.gd` 构造。地面断齿轮、吊装石梁和断桥由 `environments/sloth/sloth_worksite.gd` 构造。旧金纹样、石材拼缝和铺地刻纹使用项目自身的材质及着色器，云海沿用项目既有程序着色器。取证为 Godot 原生画面，素材沿用仓库许可。[原生画面与验证](proof/sloth-last-tick/README.md)
+
 ## 恐惧紫色城堡内殿（2026-11-25）
 
 拱顶、桥下地窖、石阶、彩窗与其他建筑构件均由 `environments/fear/sanctum.gd` 和原创石材、彩窗着色器生成。用户图片用作室内光影和布局参考。取证使用 Godot 4.7.2 正式场景的玩家相机，沿用仓库许可。[实机画面与验证](proof/fear-violet-castle/README.md)

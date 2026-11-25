@@ -7,7 +7,8 @@ const WHIRLPOOL_DEPTH := 0.60
 const WHIRLPOOL_INTERVAL := 5.0
 const WHIRLPOOL_DURATION := 15.0
 const WHIRLPOOL_LIMIT := int(WHIRLPOOL_DURATION / WHIRLPOOL_INTERVAL)
-const WHIRLPOOL_PULL_SPEED := 1.25
+const WHIRLPOOL_PULL_SPEED := 11.0
+const WHIRLPOOL_CORE_RADIUS := 0.80
 const WHIRLPOOL_JITTER := 0.35
 ## Clear patches of water with enough room to form a full funnel.
 const WHIRLPOOL_SITES := [
@@ -194,21 +195,24 @@ func _tick_whirlpools() -> void:
 	water_material.set_shader_parameter("whirlpools", shader_funnels)
 
 
-func _ground_current(point: Vector3) -> Vector3:
+func _ground_current(point: Vector3) -> Vector4:
 	if deprived or not is_inside_tree() or not _over_water(point):
-		return Vector3.ZERO
+		return Vector4.ZERO
 	var local := to_local(point)
 	for funnel in _whirlpools:
 		var toward := Vector2(funnel.x - local.x, funnel.y - local.z)
-		var fraction := toward.length() / funnel.z
-		if fraction >= 1.0:
+		var distance := toward.length()
+		if distance >= funnel.z:
 			continue
-		var falloff := smoothstep(0.0, 0.16, fraction) * (1.0 - smoothstep(0.30, 1.0, fraction))
 		var age := clock - funnel.w
 		var strength := smoothstep(0.0, 0.55, age) * smoothstep(0.0, 0.55, WHIRLPOOL_DURATION - age)
+		var in_core := distance <= WHIRLPOOL_CORE_RADIUS and age >= 0.15 and age < WHIRLPOOL_DURATION
+		# Slow down at the center so the current settles the player without oscillating.
+		var falloff := minf(distance / WHIRLPOOL_CORE_RADIUS, 1.0) * (1.0 - smoothstep(0.70, 1.0, distance / funnel.z))
 		var flow := toward.normalized() * WHIRLPOOL_PULL_SPEED * falloff * strength
-		return global_basis * Vector3(flow.x, 0.0, flow.y)
-	return Vector3.ZERO
+		var world_flow := global_basis * Vector3(flow.x, 0.0, flow.y)
+		return Vector4(world_flow.x, world_flow.y, world_flow.z, 1.0 if in_core else 0.0)
+	return Vector4.ZERO
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func player_spawn() -> Vector3:

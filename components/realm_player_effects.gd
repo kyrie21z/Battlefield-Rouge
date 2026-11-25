@@ -5,6 +5,7 @@ signal changed
 
 var player: Player
 var effects: Dictionary = {}
+## Samples shallow-water motion at the player's feet. XYZ is velocity, W marks a trap core.
 var ground_current: Callable
 var move_multiplier := 1.0
 var jump_multiplier := 1.0

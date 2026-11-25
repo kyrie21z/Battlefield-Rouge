@@ -155,6 +155,11 @@ func cancel() -> void:
 ## pitch; A/D stay horizontal because the camera's x axis is not tilted by it.
 func _direction() -> Vector3:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	if _player is Player and (_player as Player).current_trapped:
+		# Looking down into a whirlpool should not drive the escape dash into the floor.
+		if input.length_squared() <= 0.0001:
+			return -_player.global_basis.z
+		return (_player.global_basis * Vector3(input.x, 0.0, input.y)).normalized()
 	if input.length_squared() <= 0.0001:
 		return -_camera.global_basis.z
 	return (_camera.global_basis * Vector3(input.x, 0.0, input.y)).normalized()

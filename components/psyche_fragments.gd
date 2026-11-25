@@ -22,8 +22,9 @@ var spite_charge := 0
 var _counter_left := 0.0
 const TENDERNESS_CAPACITY := 40.0
 const TENDERNESS_RECOVERY_DELAY := 6.5
-## 沉睡共鸣的默认作用半径；测试台会把它放大到覆盖全场，正式流程保持 18 米。
-const RESONANCE_RADIUS := 18.0
+## 沉睡共鸣的作用半径。原来是写死的 18 米，实战里经常一整片场地都够不到，
+## 技能按下去没反应；现在默认覆盖整个战斗平台（40x48 的对角约 62 米）。
+const RESONANCE_RADIUS := 120.0
 var resonance_radius := RESONANCE_RADIUS
 var barrier := 0.0
 var absorption_total := 0.0

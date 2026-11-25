@@ -1,6 +1,11 @@
 class_name SorrowMonolithVisual
 extends SorrowVisual
+## The slab does not vanish when it dives; 3.4m of black crystal actually
+## drops under the mirror, which is what sells the reappearance elsewhere.
+const SINK_DEPTH := 3.4
+const SINK_SPEED := 4.2
 var slam := 0.0
+var _sink := 0.0
 func _build() -> void:
 	kind = 2
 	super._build()
@@ -28,8 +33,16 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if _dead:
 		return
-	model.position.y = -0.9
+	var actor := get_parent() as Enemy
+	var step := delta
+	if actor != null:
+		step *= actor.boon_time_scale
+		if actor.boon_stunned:
+			step = 0.0
+	_sink = move_toward(_sink,1.0 if submerged else 0.0,step*SINK_SPEED)
+	model.position.y = -0.9-_sink*SINK_DEPTH
 	model.rotation.x = slam*0.16
+	model.visible = _sink < 0.92
 	_outfit.transform = model.transform
 	if drops != null:
 		drops.position = model.transform*skeleton.get_bone_global_pose(skeleton.find_bone("Head")).origin+Vector3(0,-0.1,-0.18)

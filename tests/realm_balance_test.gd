@@ -52,7 +52,7 @@ func _wrath() -> void:
 	get_tree().paused = false
 	await frames(65)
 	await capture("wrath-volley")
-	await frames(90)
+	await frames(65)
 	check("three aimed fans launch fifteen actual ricochets",boss.spawned_bullets-bullets == 15)
 	check("ranged fan deals real damage to a distant player",player.health.health < hp)
 	check("ranged attack retains a full punish recovery",boss.attack_phase == WrathRealmEnemy.Attack.RECOVER)
@@ -96,7 +96,7 @@ func _wrath() -> void:
 	boss.warnings_enabled = true
 	hp = player.health.health
 	player.set_physics_process(true)
-	await frames(45)
+	await frames(30)
 	var grounded := player.is_on_floor()
 	Input.action_press("jump")
 	await frames(1)

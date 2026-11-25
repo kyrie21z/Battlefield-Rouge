@@ -10,6 +10,7 @@ var elapsed := 0.0
 var released := false
 var hit_player := false
 var marker: MeshInstance3D
+var marker_material: StandardMaterial3D
 var spikes: Node3D
 
 func _ready() -> void:
@@ -27,6 +28,7 @@ func _ready() -> void:
 	material.emission_enabled = true
 	material.emission = material.albedo_color
 	material.emission_energy_multiplier = 0.6
+	marker_material = material
 	marker.material_override = material
 	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(marker)
@@ -52,8 +54,14 @@ func _physics_process(delta: float) -> void:
 		return
 	elapsed += delta*source.boon_time_scale*source.effective_attack_scale()
 	marker.visible = source.warnings_enabled and not released
+	if not released:
+		var progress := clampf(elapsed/maxf(warning_seconds,0.001),0.0,1.0)
+		var pulse := 0.5+0.5*sin(elapsed*(12.0+28.0*progress))
+		marker_material.emission_energy_multiplier = 0.8+progress*2.4+pulse*(0.6+progress)
+		marker.scale = Vector3.ONE*(1.0+0.06*pulse)
 	if not released and elapsed >= warning_seconds:
 		released = true
+		marker_material.emission_energy_multiplier = 3.0
 		marker.hide()
 		spikes.show()
 		try_hit()

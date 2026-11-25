@@ -5,7 +5,7 @@ extends SorrowRealmEnemy
 ## keeps flooding, and wails until your hands forget how to reload.
 signal realm_defeated(realm_id: int)
 signal phase_changed(new_phase: int)
-enum Move { RAIN, TIDE, SLAP, CRY }
+enum Move { RAIN, TIDE, SLAP, CRY, VORTEX }
 
 const BASE_HEALTH := 1650.0
 ## The flood reads the fight: a 0.14m film at full health, a 0.3m shelf under
@@ -23,6 +23,13 @@ const SLAP_REACH := 3.3
 const SLAP_LUNGE := 3.5
 const LUNGE_SPEED := 7.0
 const CRY_COOLDOWN := 5.0
+const VORTEX_WINDUP := 1.25
+const VORTEX_COOLDOWN := 10.0
+const VORTEX_COOLDOWN_PHASE_TWO := 7.5
+const VORTEX_INITIAL_COOLDOWN := 4.5
+const VORTEX_DURATION := 9.0
+const VORTEX_RADIUS := SorrowRealm.WHIRLPOOL_RADIUS
+const VORTEX_FLANK_DISTANCE := 6.5
 const SUBMERGE_TIME := 0.85
 const AMBUSH_NEAR := 5.5
 const AMBUSH_FAR := 7.5
@@ -41,12 +48,16 @@ var tears_released := 0
 var tides_released := 0
 var slaps := 0
 var globs_fired := 0
+var vortices_released := 0
 var tell: MeshInstance3D
 var boss_phase := 1
 var submerged := false
 var submerge_left := 0.0
 var _second_tide_left := -1.0
 var _cry_cooldown := 0.0
+var _vortex_cooldown := 0.0
+var _vortex_points: Array[Vector3] = []
+var _extra_tells: Array[MeshInstance3D] = []
 var _moves_since_dive := 0
 var _cycle_step := 0
 var _lunge_left := 0.0
@@ -64,6 +75,7 @@ func _ready() -> void:
 	action_left = 1.4
 	# The first wail waits: an opening choke would steal the room's opening beat.
 	_cry_cooldown = CRY_COOLDOWN
+	_vortex_cooldown = VORTEX_INITIAL_COOLDOWN
 	_undertow_key = StringName("%s_undertow" % effect_key)
 	(get_node("HeadHitbox") as Hitbox).position = to_local(visual.model.to_global(visual.skeleton.get_bone_global_pose(visual.skeleton.find_bone("Head")).origin))
 	health.after_damage.connect(_on_phase_damage)
@@ -75,6 +87,7 @@ func _on_phase_damage(_context: Dictionary) -> void:
 		return
 	boss_phase = 2
 	boss_phase_tempo_scale = 1.20
+	_vortex_cooldown = minf(_vortex_cooldown,2.0)
 	health.max_shield = roundf(health.max_health * 0.15)
 	health.shield_points = health.max_shield
 	health.shield_regeneration_rate = 0.0
@@ -104,6 +117,9 @@ func _physics_process(delta: float) -> void:
 	battle_elapsed += delta
 	_rise_water()
 	_cry_cooldown = maxf(0.0,_cry_cooldown-delta)
+	_vortex_cooldown = maxf(0.0,_vortex_cooldown-delta)
+	if action == 1 and move_kind == Move.VORTEX:
+		_spin_vortex_tells(delta)
 	if submerged:
 		_tick_ambush(delta)
 		return
@@ -151,9 +167,12 @@ func begin_move(kind: int) -> void:
 	_moves_since_dive += 1
 	locked_point = target.global_position
 	action = 1
-	action_left = WINDUP*boon_windup_scale
+	action_left = (VORTEX_WINDUP if kind == Move.VORTEX else WINDUP)*boon_windup_scale
 	_lunge_left = SLAP_LUNGE if kind == Move.SLAP else 0.0
 	_clear_tell()
+	if kind == Move.VORTEX:
+		_arm_vortex()
+		return
 	if warnings_enabled:
 		var radius := 4.1
 		match kind:
@@ -183,10 +202,98 @@ func _next_move() -> int:
 	if _cry_cooldown <= 0.0 and (move_kind == Move.RAIN or move_kind == Move.SLAP):
 		_cry_cooldown = CRY_COOLDOWN
 		return Move.CRY
+	if _vortex_cooldown <= 0.0 and is_instance_valid(arena) and arena.active_whirlpool_count() < SorrowRealm.WHIRLPOOL_LIMIT:
+		_vortex_cooldown = VORTEX_COOLDOWN_PHASE_TWO if boss_phase >= 2 else VORTEX_COOLDOWN
+		return Move.VORTEX
 	var cycle: Array[int] = [Move.TIDE, Move.SLAP, Move.RAIN]
 	var choice := cycle[_cycle_step % cycle.size()]
 	_cycle_step = (_cycle_step + 1) % cycle.size()
 	return choice
+
+## Marks the funnel centres before they open. Phase two brackets the player
+## with a second funnel on the flank nearer the basin middle.
+func _arm_vortex() -> void:
+	_vortex_points.clear()
+	var primary := locked_point
+	if is_instance_valid(arena):
+		primary = arena.resolve_whirlpool_point(locked_point,VORTEX_RADIUS)
+	_vortex_points.append(primary)
+	if boss_phase >= 2:
+		_vortex_points.append(_flank_vortex_point(primary))
+	if not warnings_enabled:
+		return
+	for point in _vortex_points:
+		var mark := _vortex_tell()
+		get_parent().add_child(mark)
+		mark.global_position = Vector3(point.x,raised_water+0.07,point.z)
+		if tell == null:
+			tell = mark
+		else:
+			_extra_tells.append(mark)
+		if is_instance_valid(arena):
+			arena.add_ripple(point,1.3)
+
+func _flank_vortex_point(primary: Vector3) -> Vector3:
+	var axis := (locked_point-global_position)*Vector3(1,0,1)
+	if axis.length_squared() < 0.0001:
+		axis = Vector3.FORWARD
+	var side := Vector3(-axis.z,0.0,axis.x).normalized()*VORTEX_FLANK_DISTANCE
+	var flank := primary+side
+	if absf((primary-side).x) < absf(flank.x):
+		flank = primary-side
+	if not is_instance_valid(arena):
+		return flank
+	return arena.resolve_whirlpool_point(flank,VORTEX_RADIUS,[primary])
+
+## A spinning ring plus three spokes: the torus alone reads as a static circle,
+## the spokes are what make the rotation visible while the water gathers.
+func _vortex_tell() -> MeshInstance3D:
+	var mark := MeshInstance3D.new()
+	var ring := TorusMesh.new()
+	ring.inner_radius = VORTEX_RADIUS-0.16
+	ring.outer_radius = VORTEX_RADIUS
+	ring.rings = 32
+	mark.mesh = ring
+	mark.material_override = _tell_material(Color(0.18,0.92,0.86,0.85))
+	var core := MeshInstance3D.new()
+	var disc := CylinderMesh.new()
+	disc.top_radius = SorrowRealm.WHIRLPOOL_CORE_RADIUS
+	disc.bottom_radius = SorrowRealm.WHIRLPOOL_CORE_RADIUS
+	disc.height = 0.03
+	disc.radial_segments = 24
+	core.mesh = disc
+	core.material_override = _tell_material(Color(0.16,0.13,0.42,0.7))
+	mark.add_child(core)
+	for index in 3:
+		var spoke := MeshInstance3D.new()
+		var bar := BoxMesh.new()
+		bar.size = Vector3(VORTEX_RADIUS*1.55,0.03,0.10)
+		spoke.mesh = bar
+		spoke.material_override = _tell_material(Color(0.22,0.95,0.90,0.8))
+		spoke.rotation.y = TAU*index/3.0
+		mark.add_child(spoke)
+	return mark
+
+func _tell_material(color: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	return mat
+
+func _spin_vortex_tells(delta: float) -> void:
+	if is_instance_valid(tell):
+		tell.rotate_y(delta*3.2)
+	for mark in _extra_tells:
+		if is_instance_valid(mark):
+			mark.rotate_y(delta*3.2)
+
+func _release_vortex() -> void:
+	if is_instance_valid(arena):
+		for point in _vortex_points:
+			arena.spawn_whirlpool(point,VORTEX_RADIUS,VORTEX_DURATION)
+			vortices_released += 1
+	_vortex_points.clear()
 
 func _release() -> void:
 	_clear_tell()
@@ -199,6 +306,8 @@ func _release() -> void:
 			_second_tide_left = 0.55
 	elif move_kind == Move.SLAP:
 		_release_slap()
+	elif move_kind == Move.VORTEX:
+		_release_vortex()
 	else:
 		_release_cry()
 
@@ -456,12 +565,17 @@ func _on_died(source: Node) -> void:
 	visual.set_submerged(false)
 	super._on_died(source)
 	if is_instance_valid(arena):
+		arena.clear_whirlpools()
 		arena.set_deprivation(true)
 	realm_defeated.emit(3)
 func _clear_tell() -> void:
 	if is_instance_valid(tell):
 		tell.queue_free()
 	tell = null
+	for mark in _extra_tells:
+		if is_instance_valid(mark):
+			mark.queue_free()
+	_extra_tells.clear()
 func _clear_owned() -> void:
 	_clear_undertow()
 	super._clear_owned()

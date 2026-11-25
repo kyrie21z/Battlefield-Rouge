@@ -120,8 +120,8 @@ func _verify(stage: RealmStage, realm: SorrowRealm, index: int) -> void:
 	var spawn := realm.player_spawn() + Vector3.UP * 0.06
 	player.position = spawn
 	player.velocity = Vector3.ZERO
-	var walked := await _walk(player, [Vector3(1.7,0,9), Vector3(1.7,0,-15), Vector3(0,0,-17.6)])
-	_check(room + "player walks the central approach", walked)
+	var walked := await _walk(player, [Vector3(1.7,0,7), Vector3(1.7,0,-14), Vector3(0,0,-18.5)])
+	_check(room + "player traverses the central approach, dashing out of any trap", walked)
 	player.position = spawn
 	player.velocity = Vector3.ZERO
 	walked = await _walk(player, [Vector3(4,0,10.4), Vector3(14.6,0,9.8), Vector3(15.5,0,-16.6), Vector3(2.6,0,-18.2)])
@@ -163,22 +163,53 @@ func _verify_whirlpools(stage: RealmStage, realm: SorrowRealm, room: String) -> 
 		and is_zero_approx((realm.get_node("BasinFloor") as StaticBody3D).position.y + 0.5))
 
 	var player := stage.player
-	var edge := Vector3(first.x + 1.40, 0.09, first.y)
-	player.position = edge
-	player.velocity = Vector3.ZERO
-	player.set_physics_process(true)
-	await _frames(85)
-	_check(room + "a stationary grounded player is pulled toward the center",
-		edge.x - player.position.x > 0.35 and player.position.x >= first.x)
+	var center := Vector3(first.x, 0.08, first.y)
+	await _until(realm, first.w + 0.60)
+	var pull := realm._ground_current(center + Vector3.RIGHT * 1.4)
+	_check(room + "the active inward flow is more than twice the base walking speed",
+		pull.x < -2.0 * player.jog_speed and is_zero_approx(pull.w))
 	_check(room + "the current only exists in shallow water inside the rim",
 		realm._ground_current(Vector3(first.x + 0.8, 1.2, first.y)).is_zero_approx()
 		and realm._ground_current(Vector3(first.x + 2.65, 0.0, first.y)).is_zero_approx())
-	player.aim_at(Vector3(first.x + 6.0, player.eye_position().y, first.y))
+
+	player.recover_from_fall(center + Vector3.RIGHT * 1.4)
+	player.aim_at(center + Vector3.RIGHT * 8 + Vector3.UP * 1.6)
+	var standing_eye := player.eye_position().y - player.global_position.y
+	player.set_physics_process(true)
 	Input.action_press("move_forward")
-	await _frames(60)
+	await _frames(22)
+	_check(room + "walking outward still gets the player caught by the current",
+		player.current_trapped and absf(player.position.x - center.x) < SorrowRealm.WHIRLPOOL_CORE_RADIUS)
+	var first_eye := player.eye_position().y - player.global_position.y
+	var hp := player.health.health
+	Input.action_press("jump")
+	await _frames(2)
+	Input.action_release("jump")
+	await _frames(55)
 	Input.action_release("move_forward")
-	_check(room + "walking against the current carries the player out of the funnel",
-		player.position.x > first.x + SorrowRealm.WHIRLPOOL_RADIUS)
+	var sunk_eye := player.eye_position().y - player.global_position.y
+	_check(room + "the camera keeps sinking without moving the body below the floor or taking health",
+		first_eye - sunk_eye > 0.25 and standing_eye - sunk_eye > 0.40
+		and player.position.y > -0.03 and is_equal_approx(player.health.health, hp))
+	_check(room + "walking and jumping cannot free a captured player",
+		player.current_trapped and absf(player.position.x - center.x) < 0.15 and player.is_on_floor())
+	_check(room + "the HUD shows the remappable dash key while trapped",
+		stage.hud._exit_hint.visible and stage.hud._exit_hint.text.contains("冲刺脱离漩涡"))
+	if room.begins_with("Sorrow 2:"):
+		await _capture("room-2-whirlpool-trapped")
+	player.aim_at(player.eye_position() + Vector3(0.10, -8.0, 0.0))
+	var charges := player.dash.charges()
+	Input.action_press("dash")
+	await _frames(2)
+	Input.action_release("dash")
+	await _frames(12)
+	_check(room + "one actual Shift input escapes even when looking down",
+		player.dash.charges() == charges - 1 and not player.current_trapped
+		and Vector2(player.position.x - center.x, player.position.z - center.z).length() > SorrowRealm.WHIRLPOOL_RADIUS)
+	await _frames(40)
+	_check(room + "the eye returns to normal height once outside",
+		absf((player.eye_position().y - player.global_position.y) - standing_eye) < 0.11
+		and (not stage.hud._exit_hint.visible or not stage.hud._exit_hint.text.contains("冲刺脱离漩涡")))
 	player.set_physics_process(false)
 
 	await _until(realm, first.w + 4.90)
@@ -189,6 +220,11 @@ func _verify_whirlpools(stage: RealmStage, realm: SorrowRealm, room: String) -> 
 		and Vector2(realm._whirlpools[1].x - first.x, realm._whirlpools[1].y - first.y).length() > 5.2)
 	await _until(realm, first.w + 10.06)
 	_check(room + "ten seconds after opening there are three distinct active funnels", realm._whirlpools.size() == 3)
+	await _until(realm, first.w + 14.67)
+	player.recover_from_fall(center)
+	player.set_physics_process(true)
+	await _frames(8)
+	_check(room + "the core still holds the player shortly before expiry", player.current_trapped)
 	await _until(realm, first.w + 14.94)
 	_check(room + "the opening funnel lasts until the fifteen second boundary",
 		realm._whirlpools.size() == 3 and realm._whirlpools[0] == first)
@@ -196,6 +232,8 @@ func _verify_whirlpools(stage: RealmStage, realm: SorrowRealm, room: String) -> 
 	_check(room + "at fifteen seconds the first expires and its replacement keeps the active count at three",
 		realm._whirlpools.size() == 3 and not realm._whirlpools.has(first)
 		and is_equal_approx(realm._whirlpools.back().w, first.w + 15.0))
+	_check(room + "an expired whirlpool releases the player even without Shift", not player.current_trapped)
+	player.set_physics_process(false)
 
 
 func _until(realm: SorrowRealm, target_time: float) -> void:
@@ -236,6 +274,10 @@ func _walk(player: Player, targets: Array[Vector3]) -> bool:
 				break
 			player.aim_at(Vector3(goal.x, player.eye_position().y, goal.z))
 			Input.action_press("move_forward")
+			if player.current_trapped and player.dash.charges() > 0:
+				Input.action_press("dash")
+				await _frames(2)
+				Input.action_release("dash")
 			await get_tree().physics_frame
 		Input.action_release("move_forward")
 		if Vector2(player.position.x - goal.x, player.position.z - goal.z).length() >= 0.60:

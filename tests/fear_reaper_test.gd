@@ -100,7 +100,8 @@ func _combat() -> void:
 	await frames(25)
 	flying.set_physics_process(false)
 	check("spirit flies across the abyss at faster than player jogging speed",flying.position.distance_to(before) > 2.0 and flying.SPEED > player.jog_speed)
-	# Start close, then prove that the paused tell cannot deliver contact damage.
+	# Start this close-range fixture on the entry deck, independent of campaign spawn.
+	player.position = Vector3(0, 0.10, 16)
 	flying.position = Vector3(0,1.4,14.4)
 	flying.attack_elapsed = -1
 	flying.set_physics_process(true)

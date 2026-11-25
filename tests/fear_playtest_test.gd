@@ -39,14 +39,15 @@ func walk_to_gate(stage: RealmStage) -> void:
 	stage.player._pitch = 0
 	stage.player._visual_kick = Vector2.ZERO
 	stage.player._apply_look()
+	var approach_z := stage.gate.position.z + 1.9
 	Input.action_press("move_forward")
-	for tick in 650:
-		if stage.player.position.z <= -18.1 or stage.fallen: break
+	for tick in 780:
+		if stage.player.position.z <= approach_z or stage.fallen: break
 		await get_tree().physics_frame
 	Input.action_release("move_forward")
 	await frames(2)
-	check("real Player walks across Fear bridges to reachable gate",not stage.fallen and stage.player.position.z < -18 and stage.player.position.y > -1)
-	if stage.player.position.z >= -18: print("WALK STOP: ",stage.player.position)
+	check("real Player walks across Fear bridges to reachable gate",not stage.fallen and stage.player.position.z < approach_z + 0.1 and stage.player.position.y > -1)
+	if stage.player.position.z >= approach_z + 0.1: print("WALK STOP: ",stage.player.position)
 
 func interact() -> void:
 	var event := InputEventAction.new()

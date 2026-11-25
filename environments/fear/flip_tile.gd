@@ -9,6 +9,7 @@ var open_time := 2.4
 var warning: MeshInstance3D
 var alarm: AudioStreamPlayer3D
 var size := Vector3(4.0, 0.45, 3.8)
+var stone_material: Material
 
 func _ready() -> void:
 	collision_layer = CollisionLayers.WORLD
@@ -23,10 +24,12 @@ func _ready() -> void:
 	var mesh := BoxMesh.new()
 	mesh.size = size
 	slab.mesh = mesh
-	var stone := StandardMaterial3D.new()
-	stone.albedo_color = Color(0.84, 0.82, 0.9)
-	stone.roughness = 0.8
-	slab.material_override = stone
+	if stone_material == null:
+		var stone := StandardMaterial3D.new()
+		stone.albedo_color = Color(0.84, 0.82, 0.9)
+		stone.roughness = 0.8
+		stone_material = stone
+	slab.material_override = stone_material
 	add_child(slab)
 	warning = MeshInstance3D.new()
 	var edge := BoxMesh.new()

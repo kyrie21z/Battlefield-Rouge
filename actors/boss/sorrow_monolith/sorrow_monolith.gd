@@ -283,16 +283,18 @@ func _tell_material(color: Color) -> StandardMaterial3D:
 
 func _spin_vortex_tells(delta: float) -> void:
 	if is_instance_valid(tell):
+		tell.global_position.y = raised_water+0.07
 		tell.rotate_y(delta*3.2)
 	for mark in _extra_tells:
 		if is_instance_valid(mark):
+			mark.global_position.y = raised_water+0.07
 			mark.rotate_y(delta*3.2)
 
 func _release_vortex() -> void:
 	if is_instance_valid(arena):
 		for point in _vortex_points:
-			arena.spawn_whirlpool(point,VORTEX_RADIUS,VORTEX_DURATION)
-			vortices_released += 1
+			if arena.spawn_whirlpool(point,VORTEX_RADIUS,VORTEX_DURATION) != Vector3.INF:
+				vortices_released += 1
 	_vortex_points.clear()
 
 func _release() -> void:

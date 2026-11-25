@@ -11,6 +11,7 @@ var _ok := 0
 const SCENES: Array[String] = [
 	"res://maps/realms/sloth_1.tscn",
 	"res://maps/realms/fear_1.tscn",
+	"res://maps/realms/fear_2.tscn",
 	"res://maps/realms/wrath_1.tscn",
 	"res://maps/realms/sorrow_1.tscn",
 ]
@@ -36,6 +37,11 @@ func _check(ok: bool, label: String) -> void:
 	else:
 		_fail += 1
 		print("  [FAIL] ", label)
+
+
+func _cast_down(stage: RealmStage, from: Vector3, length: float) -> Dictionary:
+	var ray := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * length, CollisionLayers.WORLD)
+	return stage.get_world_3d().direct_space_state.intersect_ray(ray)
 
 
 func _check_scene(path: String) -> void:
@@ -93,6 +99,55 @@ func _check_scene(path: String) -> void:
 			_check(sphere.radius < TalentOrb.INTERACT_RANGE,
 				"body radius (%.2f) is smaller than the interact range (%.2f)"
 				% [sphere.radius, TalentOrb.INTERACT_RANGE])
+
+		# Raised exit landings put the gate above the room floor. The orb has to
+		# hover over the floor below it, never sink into stairs or masonry.
+		var down := PhysicsRayQueryParameters3D.create(orb.global_position,
+			orb.global_position + Vector3.DOWN * 9.0, CollisionLayers.WORLD)
+		if body != null:
+			down.exclude = [body.get_rid()]
+		var floor_hit := stage.get_world_3d().direct_space_state.intersect_ray(down)
+		_check(not floor_hit.is_empty() and (floor_hit["normal"] as Vector3).y >= 0.7,
+			"walkable floor sits below the orb")
+		if not floor_hit.is_empty():
+			var floor_y: float = (floor_hit["position"] as Vector3).y
+			var hover: float = orb.global_position.y - floor_y
+			print("     orb hovers %.2f m over the floor (orb y=%.2f, floor y=%.2f)"
+				% [hover, orb.global_position.y, floor_y])
+			_check(absf(hover - orb.base_height) <= 0.35,
+				"orb keeps its base height over the real floor (%.2f m)" % hover)
+
+			# Stand the player on the floor in front of the orb, the way a real
+			# clear leaves them, and make sure the stairs do not hide it.
+			var toward_player: Vector3 = stage.player.global_position - orb.global_position
+			toward_player.y = 0.0
+			if toward_player.length() < 0.1:
+				toward_player = Vector3(0.0, 0.0, 1.0)
+			var approach := orb.global_position + toward_player.normalized() * 1.8
+			var stand_hit := _cast_down(stage, approach + Vector3.UP * 1.5, 9.0)
+			_check(not stand_hit.is_empty(), "walkable ground in front of the orb")
+			if not stand_hit.is_empty():
+				stage.player.global_position = (stand_hit["position"] as Vector3) + Vector3.UP * 0.1
+				stage.player.velocity = Vector3.ZERO
+				await get_tree().physics_frame
+				await get_tree().physics_frame
+				_check(orb.player_in_range(stage.player), "player standing in front can claim the orb")
+				if body != null:
+					var sight := PhysicsRayQueryParameters3D.create(stage.player.eye_position(),
+						orb.global_position, CollisionLayers.WORLD)
+					var blocker := stage.get_world_3d().direct_space_state.intersect_ray(sight)
+					_check(blocker.is_empty() or blocker["collider"] == body,
+						"stairs or walls do not hide the orb from the player")
+
+			# Idle bobbing must keep the orb over its floor instead of snapping
+			# back to a hard-coded height when the assembly finishes.
+			orb.set_idle_enabled(true)
+			for _i in 8:
+				await get_tree().physics_frame
+			var drift: float = absf(orb.global_position.y - (floor_y + orb.base_height))
+			print("     idle bob drift %.2f m (bob %.2f m)" % [drift, orb.bob_height])
+			_check(drift <= orb.bob_height + 0.05,
+				"idle bobbing keeps the floor-relative hover")
 
 		# claiming opens the normal three-card offer
 		stage.claim_talent()

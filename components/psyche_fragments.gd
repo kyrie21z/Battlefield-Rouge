@@ -22,6 +22,9 @@ var spite_charge := 0
 var _counter_left := 0.0
 const TENDERNESS_CAPACITY := 40.0
 const TENDERNESS_RECOVERY_DELAY := 6.5
+## 沉睡共鸣的默认作用半径；测试台会把它放大到覆盖全场，正式流程保持 18 米。
+const RESONANCE_RADIUS := 18.0
+var resonance_radius := RESONANCE_RADIUS
 var barrier := 0.0
 var absorption_total := 0.0
 var brittle_hits := 0
@@ -37,7 +40,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func try_slumber_resonance() -> bool:
 	if not is_instance_valid(player) or player.health.is_dead() or get_tree().paused or not shards.has(SLOTH) or resonance_cooldown > 0.0:
 		return false
-	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,18.0)
+	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,resonance_radius)
 	if targets.is_empty():
 		return false
 	for enemy in targets:

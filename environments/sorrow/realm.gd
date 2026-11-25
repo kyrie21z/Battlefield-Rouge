@@ -236,7 +236,9 @@ func resolve_whirlpool_point(world_point: Vector3, radius := WHIRLPOOL_RADIUS, e
 
 func _whirlpool_site_clear(candidate: Vector2, radius: float, extra_avoid: Array[Vector3]) -> bool:
 	for platform in platforms:
-		if absf(candidate.x-platform.position.x) < 3.2 and absf(candidate.y-platform.position.z) < 3.2:
+		var dx := maxf(absf(candidate.x-platform.position.x)-2.0,0.0)
+		var dz := maxf(absf(candidate.y-platform.position.z)-2.0,0.0)
+		if dx*dx+dz*dz < radius*radius:
 			return false
 	for funnel in _whirlpools:
 		if candidate.distance_to(Vector2(funnel.x,funnel.y)) < radius+funnel.z:

@@ -99,15 +99,21 @@ func _run() -> void:
 	await _frames(75)
 	_check("phase 1 vortex release opens exactly one real whirlpool",boss.vortices_released == 1 and realm.active_whirlpool_count() == 1 and boss.tell == null)
 	realm.clear_whirlpools()
-	player.recover_from_fall(Vector3(8,1.3,14))
-	boss.begin_move(SorrowMonolith.Move.VORTEX)
-	await _frames(2)
-	var platform_spot: Vector3 = boss._vortex_points[0]
-	var dry_platforms_clear := absf(platform_spot.x) <= 16.5 and absf(platform_spot.z) <= 20.5
-	for platform in realm.platforms:
-		if absf(platform_spot.x-platform.global_position.x) < 3.2 and absf(platform_spot.z-platform.global_position.z) < 3.2:
+	var dry_platforms_clear := true
+	for probe in [Vector3(8,1.3,14), Vector3(11.3,0.05,14)]:
+		player.recover_from_fall(probe)
+		boss.begin_move(SorrowMonolith.Move.VORTEX)
+		await _frames(2)
+		var platform_spot: Vector3 = boss._vortex_points[0]
+		if absf(platform_spot.x) > 16.5 or absf(platform_spot.z) > 20.5:
 			dry_platforms_clear = false
-	_check("vortex avoids every dry platform a player can stand on",dry_platforms_clear)
+		for platform in realm.platforms:
+			var dx := maxf(absf(platform_spot.x-platform.global_position.x)-2.0,0.0)
+			var dz := maxf(absf(platform_spot.z-platform.global_position.z)-2.0,0.0)
+			if dx*dx+dz*dz < SorrowMonolith.VORTEX_RADIUS*SorrowMonolith.VORTEX_RADIUS-0.01:
+				dry_platforms_clear = false
+		boss._clear_tell()
+	_check("vortex radius stays clear of every dry platform box",dry_platforms_clear)
 	realm.clear_whirlpools()
 	player.recover_from_fall(Vector3(0,0.05,10))
 	boss.begin_move(SorrowMonolith.Move.VORTEX)

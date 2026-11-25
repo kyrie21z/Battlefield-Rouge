@@ -277,6 +277,31 @@ func test_scatter_schedule() -> void:
 	check("longer custom reveal keeps fading without snapping assembled pieces back",
 		orb._anim_reveal and not orb._anim_assemble and last_piece.transparency > 0.5
 		and last_piece.transform.origin.is_equal_approx(_shell_targets[last_idx].origin))
+
+	# Sequential reveal -> then assemble after reveal finishes must still assemble every piece.
+	orb.set_energy(0.4)
+	orb.scatter(1.0)
+	orb.reveal_pieces(0.05)
+	await physics_frames(95)
+	check("finishing reveal alone preserves pieces and respects energy=0.4",
+		not orb._anim_reveal and orb._pieces.size() == orb._shell_meshes.size()
+		and is_equal_approx(orb._shell_meshes[last_idx].transparency, 0.6))
+	orb.assemble(0.08, 0.0)
+	await physics_frames(95)
+	check("sequential assemble() lands home, respects energy=0.4 and clears pieces",
+		orb._pieces.is_empty()
+		and orb._shell_meshes[last_idx].transform.origin.is_equal_approx(_shell_targets[last_idx].origin)
+		and is_equal_approx(orb._shell_meshes[last_idx].transparency, 0.6))
+
+	# Assemble without reveal_pieces() must restore shell visibility at current energy.
+	orb.set_energy(0.4)
+	orb.scatter(1.0)
+	orb.assemble(0.08, 0.0)
+	await physics_frames(95)
+	check("assemble() without reveal restores visibility matching current energy",
+		orb._pieces.is_empty()
+		and is_equal_approx(orb._shell_meshes[0].transparency, 0.6)
+		and is_equal_approx(orb._shell_meshes[last_idx].transparency, 0.6))
 	orb.queue_free()
 	await frames(1)
 

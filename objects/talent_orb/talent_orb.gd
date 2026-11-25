@@ -94,6 +94,7 @@ var _anim_reveal := false
 var _reveal_start := 0.0
 var _reveal_fade := 0.85
 var _anim_assemble := false
+var _assemble_completed := false
 var _assemble_start := 0.0
 var _assemble_duration := ASSEMBLE_TIME
 
@@ -291,6 +292,7 @@ func scatter(radius: float = 1.9) -> void:
 	_pieces.clear()
 	_anim_reveal = false
 	_anim_assemble = false
+	_assemble_completed = false
 	if _shell == null:
 		return
 	var count := _shell_meshes.size()
@@ -535,7 +537,7 @@ func _step_pieces(t: float) -> void:
 				assemble_done = false
 		if _anim_reveal:
 			var u := clampf((t - (_reveal_start + slot)) / _reveal_fade, 0.0, 1.0)
-			mi.transparency = 1.0 - (0.5 - 0.5 * cos(PI * u))
+			mi.transparency = 1.0 - (0.5 - 0.5 * cos(PI * u)) * _energy
 			if not assembly_claimed:
 				var far_xf: Transform3D = entry["far"]
 				var home_xf: Transform3D = entry["home"]
@@ -546,9 +548,15 @@ func _step_pieces(t: float) -> void:
 		_anim_reveal = false
 	if _anim_assemble and assemble_done:
 		_anim_assemble = false
+		_assemble_completed = true
+		var fade := 1.0 - _energy
 		for entry in _pieces:
+			if not _anim_reveal:
+				var piece := entry["node"] as MeshInstance3D
+				if piece != null and is_instance_valid(piece):
+					piece.transparency = fade
 			_set_heat(entry["index"], 0.0)
-	if not _anim_reveal and not _anim_assemble and not _pieces.is_empty():
+	if _assemble_completed and not _anim_reveal and not _pieces.is_empty():
 		_pieces.clear()
 
 

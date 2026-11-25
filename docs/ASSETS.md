@@ -1,5 +1,9 @@
 # 素材登记
 
+## 天赋球黑曜石切面壳与切面水晶内芯（2026-11-25）
+
+`objects/talent_orb/orb_shell.glb`（69 件闭合平直切面黑曜石甲片/凹腔/镶嵌条）与 `objects/talent_orb/orb_core.glb`（8 件切面晶核与环绕晶刃）由本项目原创 Blender 5.2 确定性脚本 `tools/talent_orb/generate.py` 生成；`assets/materials/talent_orb_shell.gdshader` 复用 `crystal_optics.gdshaderinc`，内芯、地面八角光环与悬浮晶屑复用项目既有 `psyche_shard_crystal.gdshader`、`psyche_shard_halo.gdshader` 与 `PsycheShardMesh.splinter_mesh()`。取证为 Godot 4.7.2 原生画面，沿用仓库许可。[原生画面与验证](proof/talent-orb/README.md)
+
 ## 怠惰悬钟庭院机械与石材（2026-11-25）
 
 钟壳、齿轮、链节、配重、钟楼和浮廊由 `environments/sloth/sloth_clockwork.gd` 构造。地面断齿轮、吊装石梁和断桥由 `environments/sloth/sloth_worksite.gd` 构造。旧金纹样、石材拼缝和铺地刻纹使用项目自身的材质及着色器，云海沿用项目既有程序着色器。取证为 Godot 原生画面，素材沿用仓库许可。[原生画面与验证](proof/sloth-last-tick/README.md)

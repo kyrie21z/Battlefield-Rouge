@@ -751,12 +751,35 @@ func _prepare_room_rewards() -> void:
 			orb_mi.transparency = 0.99
 			orb_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			orb_mi.extra_cull_margin = 16384.0
-			var base_mat := _prepared_orb._shell_materials[0]
-			if base_mat != null:
-				var warm_mat := base_mat.duplicate() as StandardMaterial3D
-				warm_mat.emission_enabled = true
-				orb_mi.material_override = warm_mat
+			# the shell is a ShaderMaterial now: warm the scatter-heat path, which
+			# is the branch that first appears when the orb shatters into pieces
+			var warm_shell := ShaderMaterial.new()
+			warm_shell.shader = TalentOrb.SHELL_SHADER
+			warm_shell.set_shader_parameter("scatter_glow", 1.0)
+			warm_shell.set_shader_parameter("seam_glow", 1.0)
+			orb_mi.material_override = warm_shell
 			warmup.add_child(orb_mi)
+		if not _prepared_orb._core_meshes.is_empty():
+			var core_mi := MeshInstance3D.new()
+			core_mi.mesh = _prepared_orb._core_meshes[0].mesh
+			core_mi.scale = Vector3.ONE * 0.001
+			core_mi.transparency = 0.99
+			core_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			core_mi.extra_cull_margin = 16384.0
+			core_mi.material_override = _prepared_orb._core_material
+			warmup.add_child(core_mi)
+		var halo_quad := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2(TalentOrb.HALO_SIZE, TalentOrb.HALO_SIZE)
+		halo_quad.mesh = quad
+		halo_quad.rotation.x = -PI * 0.5
+		halo_quad.scale = Vector3.ONE * 0.001
+		halo_quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		halo_quad.extra_cull_margin = 16384.0
+		var warm_halo := ShaderMaterial.new()
+		warm_halo.shader = TalentOrb.HALO_SHADER
+		halo_quad.material_override = warm_halo
+		warmup.add_child(halo_quad)
 		add_child(warmup)
 
 

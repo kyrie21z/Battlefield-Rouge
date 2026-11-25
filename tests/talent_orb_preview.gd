@@ -13,11 +13,14 @@ var _fake_player: Node3D
 var _camera: Camera3D
 var _angle := 0.0
 var _frame := 0
+var _headless := false
 var _shot := 0
 
 
 func _ready() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
+	_headless = DisplayServer.get_name() == "headless"
+	if not _headless:
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
 	_build_room()
 
 
@@ -91,6 +94,12 @@ func _process(delta: float) -> void:
 	_frame += 1
 	_angle += delta * 0.28
 	_look(_angle)
+
+	if _headless:
+		if _frame >= 10:
+			print("TALENT ORB PREVIEW: headless smoke passed (%d frames)" % _frame)
+			get_tree().quit(0)
+		return
 
 	if _shot < SHOT_FRAMES.size() and _frame >= SHOT_FRAMES[_shot]:
 		_shot += 1

@@ -30,8 +30,8 @@ func run_checks() -> void:
 	check("the four legacy island spawn points stay first",
 		realm.spawn_points().slice(0,4) == [Vector3(-7,0,8),Vector3(7,0,8),Vector3(-7,0,-8),Vector3(7,0,-8)])
 	var connected := true
-	for z in range(-20, 19):
-		connected = connected and ground_at(Vector3(0.7, 0, z))
+	for z in range(floori(realm.exit_position().z), 19):
+		connected = connected and ground_at(Vector3(0.7, realm._stair_height(float(z)), z))
 	for x in range(-7, 8):
 		connected = connected and ground_at(Vector3(x, 0, 8)) and ground_at(Vector3(x, 0, -8))
 	check("sampled main and side routes have continuous physical support", connected)
@@ -134,7 +134,9 @@ func run_checks() -> void:
 	await frames(2)
 	player.position = Vector3(130,-14,0)
 	await frames(3)
-	check("an obstructed old landing safely falls back to the entry platform",Vector2(player.position.x,player.position.z-16).length() < 0.5 and is_equal_approx(player.health.health,fatal_hp-60))
+	var fallback := player.position - realm.player_spawn()
+	check("an obstructed old landing safely falls back to the entry platform",
+		Vector2(fallback.x, fallback.z).length() < 0.5 and is_equal_approx(player.health.health, fatal_hp - 60))
 	wall.queue_free()
 	await frames(30)
 	player.health.health = 20

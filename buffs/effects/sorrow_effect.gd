@@ -39,7 +39,10 @@ func on_event(event: StringName, ctx: Dictionary) -> void:
 				return
 			if ctx.get("kind") == &"gun" and manager.has(GUN):
 				add_erosion(ctx.get("target"), 1, ctx)
-				_visuals.append(SorrowWaterFx.streak(manager.player.get_parent(), manager.weapon.global_position, ctx.position))
+				# Start the corrosion streak at the model muzzle; the weapon node
+				# itself sits at the camera, which read as "blue from the screen centre".
+				_visuals.append(SorrowWaterFx.streak(manager.player.get_parent(),
+					manager.weapon._muzzle_position(manager.weapon.global_position), ctx.position))
 		&"enemy_damage_before":
 			var layers := erosion_layers(ctx.get("target"))
 			if layers > 0:

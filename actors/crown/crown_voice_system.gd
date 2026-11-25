@@ -5,7 +5,6 @@ signal line_started(key: String, text: String)
 signal line_finished(key: String)
 signal radiance_changed(level: int, strength: float)
 const DATABASE: CrownDialogueDatabase = preload("res://actors/crown/crown_dialogue_database.tres")
-const EMISSION := preload("res://actors/crown/crown_emission.gdshader")
 const GLARE := preload("res://ui/shaders/blinding_glare.gdshader")
 var player: Player
 var model: CrownModel
@@ -35,11 +34,7 @@ func _ready() -> void:
 	model = CrownModel.new()
 	model.set_worn(true)
 	add_child(model)
-	material = ShaderMaterial.new()
-	material.shader = EMISSION
-	for child in model.find_children("*", "MeshInstance3D", true, false):
-		if child.material_override == model.gold:
-			child.material_override = material
+	material = model.crystal_material
 	glow = OmniLight3D.new()
 	glow.omni_range = 2.2
 	glow.light_color = Color(1.0, 0.87, 0.55)
@@ -131,8 +126,8 @@ func _on_audio_finished() -> void:
 func set_fracture_level(count: int) -> void:
 	fracture_level = clampi(count, 0, 4)
 	strength = 0.5 * pow(2.4, fracture_level)
-	if material != null:
-		material.set_shader_parameter("emission_strength", strength)
+	if model != null:
+		model.set_emission_strength(strength)
 	if glare != null:
 		glare.set_shader_parameter("intensity", strength / 16.5888)
 		glare.set_shader_parameter("fracture_level", fracture_level)

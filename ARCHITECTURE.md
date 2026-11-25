@@ -66,7 +66,7 @@
 当前武器系统以 `docs/NARRATIVE_FOUNDATION.md` 第 8 节及 issues #101–#106 为范围，以黑晶手枪和意志短刃替换了早期三枪三刀一锤原型。
 
 - `Weapon` 仅持有一份 `WeaponData`，默认 `weapons/obsidian_pistol/obsidian_pistol.tres`：8 发、35 伤、半自动 0.18 秒、30 米后衰减。无槽位、切枪或狙击倍率状态；右键从 75° 平滑聚焦至 58°，灵敏度按实际 FOV 比例缩放，HUD 显示菱形准星。
-- 手枪由 Blender 制作的四个独立 Mesh 对象构成，GLB 保留各部件中心枢轴与握把根原点；手枪尺寸为 220×135×32mm，短刃全长 400mm、刃宽 40mm、厚 15mm。面数按质感需要配置，源多边形与导出三角形分别记录于 `tools/epic1_models/manifest.json`。二者采用参考 SUPERHOT 的不规则矿物切面与 Shade Flat，Godot 只加载模型、赋材质和驱动动画。空匣自动或 R 主动重组，满匣无效；基础 0.85 秒（0.35 绽放、0.30 悬浮、0.20 合拢）。既有 `Stats.RELOAD_SPEED` 仍作用于整体时间，动画从同一进度驱动；冲刺平滑继续重组。合拢帧先归位，再补弹并发 `ammo_refilled`，无限能量重组，HUD 显示当前/容量。
+- 手枪由 Blender 制作的四个独立 Mesh 对象构成，GLB 保留各部件中心枢轴与握把根原点；手枪尺寸为 200 × 142 × 38 mm，32 mm 宽的握把向后倾斜约 16.7°，短刃全长 400mm、刃宽 40mm、厚 15mm。面数按质感需要配置，源多边形与导出三角形分别记录于 `tools/epic1_models/manifest.json`。二者在 Blender 中制作平面切面。Godot 将手枪外壳赋为黑曜石材质并保留消光枪口内壁。滑套退滑或四块绽放时露出琥珀色晶核。空匣自动或 R 主动重组，满匣无效；基础 0.85 秒（0.35 绽放、0.30 悬浮、0.20 合拢）。既有 `Stats.RELOAD_SPEED` 仍作用于整体时间，动画从同一进度驱动；冲刺平滑继续重组。合拢帧先归位，再补弹并发 `ammo_refilled`，无限能量重组，HUD 显示当前/容量。
 - `MeleeWeapon` 仅持有 `blade_data`，默认意志短刃：55 伤、0.08/0.12/0.15 秒三段、4.5 米 ±40° 磁吸、0.45 米前冲。挥刃只让手枪右偏，保留持枪与射击。旧多刀循环已移除。
 - 短刃生效期启用自有 `BladeParryArea`。敌方 `Projectile` 扫掠 `PARRY` 层，成功时原子移交 source/exclude 与方向，阻止高速弹穿过检测区；`Events.blade_parried` 由 HUD 请求 0.05 秒 hitstop。fixture 不执行影响回放的 hitstop。
 - `CapturePoint` 在玩家进入/离开时连接/断开 `melee.struck`，只在生效帧、面向据点且无遮挡时结算。普通 10%、完美 20%、±150ms 保留；Boss 核心仍为一击 100%。噪音信号改为 `Events.clock_struck`，流程阶段为 `CLOCK_POINT`。
@@ -136,7 +136,7 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 ## Epic 3：领域约束接口（#138）
 
-Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。悲伤浅水的吸力以地面水流回调注入同一组件，由 Player 叠加到步行速度并使用现有碰撞移动。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责。恐惧玩家坠落使用 Health 的 `environmental_penalty` 分支扣30点实际生命，绕过战斗护盾、无敌与复活拦截，扣至0生命时才发正常死亡信号；敌人和其他明确致死边界继续使用 `environmental_fatal`。
+Epic 3 的领域临时约束通过玩家持有的 `RealmPlayerEffects` 注入；施法者持有玩家引用，用稳定来源键设置或清除效果，不查询世界控制器。移动、跳跃、冲刺距离由 Player 读取组件聚合值，换弹/冷却通过 Stats 来源层实现。悲伤浅水通过地面水流回调向同一组件注入速度和核心吸附状态。Player 负责碰撞移动和视角下沉，PlayerDash 在核心内按水平输入决定脱困方向。约束在真实冲刺消耗充能前生效，强制位移仍由 Player 的物理碰撞负责。恐惧玩家坠落使用 Health 的 `environmental_penalty` 分支扣30点实际生命，绕过战斗护盾、无敌与复活拦截，扣至0生命时才发正常死亡信号；敌人和其他明确致死边界继续使用 `environmental_fatal`。
 
 `FearRealm` 通过注入的Player弱引用每0.15秒保存稳定静态地面落点，检查脚下及四侧支撑，排除翻转板。深渊Area与高度-12米判定汇入同一个延迟恢复回调及0.3秒防重；恢复前检查支撑与角色胶囊占位，受阻时查入口九个候选。Player取消冲刺、吸附和外部冲量、清零速度并重置物理插值后才扣生命；HUD只消费真实伤害信号显示扣血/返回提示。
 

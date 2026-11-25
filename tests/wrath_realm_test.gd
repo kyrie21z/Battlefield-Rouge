@@ -23,14 +23,33 @@ func _run() -> void:
 	player.health.health = 10000
 	player.set_process_input(false)
 	await _frames(4)
+	# 量化参考：打印各变体在 35 伤躯干 / 87.5 伤爆头下的枪数。
+	# 这里只做记录，不当作通过条件——血量是设计数值，不是测试约束。
+	for kind_id in [0, 1, 2, 3]:
+		var probe := _enemy(kind_id, Vector3(0, 0, 30))
+		print("  [shots] variant %d body=%d head=%d" % [kind_id,
+			ceili(probe.health.max_health / 35.0),
+			ceili(probe.health.max_health / (35.0 * 2.5))])
+		probe.queue_free()
+	await _frames(2)
 	var shield := _enemy(1, Vector3.ZERO)
 	shield.rotation.y = 0
 	await _frames(2)
 	_check("actual shared crystalline body has 24 bones", shield.visual.skeleton.get_bone_count() == 24)
 	var original := shield.health.health
+	var pressure_start := shield.pressure
 	player.weapon._shoot_ray(Vector3(0, 1.1, -6), Vector3.BACK)
 	_check("real frontal gun ray is blocked", is_equal_approx(shield.health.health, original) and shield.blocked_shots == 1)
-	_check("blocked gun pressure is actual requested damage", shield.pressure > 30.0 and shield.pressure < 40.0)
+	_check("blocked gun pressure is actual requested damage",
+		shield.pressure - pressure_start > 30.0 and shield.pressure - pressure_start < 40.0)
+	# 盾板只护胸腹：正面打头必须能打进去，但那一枪也会喂它的压力条。
+	var before_head := shield.health.health
+	var before_pressure := shield.pressure
+	shield.health.apply_damage(40.0, Hitbox.BodyPart.HEAD, player,
+		{"kind": &"gun", "tag": &"gun", "direction": Vector3.BACK})
+	_check("frontal headshot passes through the shield", shield.health.health < before_head)
+	_check("head hits also build pressure", shield.pressure > before_pressure)
+	_check("head hits are not counted as shield blocks", shield.blocked_shots == 1)
 	player.weapon._shoot_ray(Vector3(6, 1.1, 0), Vector3.LEFT)
 	_check("real side gun ray penetrates shield", shield.health.health < original)
 	var after_side := shield.health.health
@@ -71,6 +90,17 @@ func _run() -> void:
 	await _frames(2)
 	await _test_reader()
 
+	# 蓄压者：即使完全没人打它，压力也会随时间上涨，到 100 自己放波。
+	var charger := _enemy(1, Vector3(20, 0, 20))
+	charger.setup(player, [])
+	await _frames(2)
+	var idle_pressure := charger.pressure
+	await _frames(45)
+	_check("accumulator builds pressure over time without being hit",
+		charger.pressure > idle_pressure + 2.0)
+	charger.queue_free()
+	await _frames(2)
+
 	var wall := _wall(Vector3(0, 2, -5), Vector3(12, 4, 0.4))
 	player.position = Vector3(0, 0, -3)
 	var piercer := _enemy(0, Vector3(0, 0, 3))
@@ -79,9 +109,14 @@ func _run() -> void:
 	_check("piercer commits to visible target with windup", piercer.attack_phase == WrathRealmEnemy.Attack.WINDUP)
 	player.position = Vector3(7, 0, -2)
 	await _frames(80)
-	_check("real WORLD wall contact detonates once", piercer.wall_detonations == 1 and piercer.health.is_dead())
+	_check("real WORLD wall contact no longer self-destructs",
+		piercer.wall_detonations >= 1 and not piercer.health.is_dead())
+	_check("wall contact stacks one frenzy layer", piercer.frenzy >= 1)
 	_check("wall detonation launches eight actual ricochets", piercer.emitted_shards == 8)
 	_check("swept piercer body never crosses wall", piercer.global_position.z > -4.9)
+	# 撞墙不再致死：手动打死它，继续验证原有的死亡表现。
+	piercer.health.apply_damage(9999, Hitbox.BodyPart.BODY, player)
+	await _frames(2)
 	_check("death emits all 56 original rigid crystal fragments", piercer.visual.shatter.fragments.size() == 56 and (piercer.visual.shatter.fragments[0].node is RigidBody3D))
 	var fragment_material := ((piercer.visual.shatter.fragments[0].node as RigidBody3D).get_child(0) as MeshInstance3D).material_override as ShaderMaterial
 	_check("fragments retain crimson instance material", (fragment_material.get_shader_parameter("base_color") as Color).r > 0.3)

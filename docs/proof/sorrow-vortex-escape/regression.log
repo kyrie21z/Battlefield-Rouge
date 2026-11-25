@@ -1,0 +1,14 @@
+Godot 4.7.2, headless fixed 60 FPS. Comparison main 1e3d56b.
+
+Feature and relevant regressions:
+sorrow_court_proof            65 headless and 72 native checks passed
+sorrow_water_test             33 checks passed
+dash_test                     49 checks passed
+realm_player_effects_test     15 checks passed
+sloth_enemy_test              65 checks passed
+campaign_realms_test          165 checks passed
+body_awareness_test           154 checks passed
+
+Additional diagnostics reproduced on both main and this branch:
+hurt_feedback_test            1 failure: the sample at 0.10 s reads 0.29 for the red edge, threshold 0.30.
+gun_feel_test                 2 failures: first and second overlapping shot voice-count assertions.

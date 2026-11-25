@@ -500,7 +500,7 @@ func _authored_base_stats(actor: Enemy) -> Dictionary:
 		return {"hp":[65.0,85.0,115.0][v],"speed":[0.0,3.4,5.0][v]}
 	if actor is WrathRealmEnemy:
 		var v := (actor as WrathRealmEnemy).variant
-		return {"hp":[110.0,220.0,160.0,90.0][v],"speed":[3.6,1.6,5.0,WrathRealmEnemy.READER_WALK_SPEED][v]}
+		return {"hp":[90.0,220.0,160.0,90.0][v],"speed":[3.2,1.6,5.0,WrathRealmEnemy.READER_WALK_SPEED][v]}
 	if actor is SorrowRealmEnemy:
 		var v := (actor as SorrowRealmEnemy).variant
 		return {"hp":[110.0,230.0,130.0][v],"speed":[2.7,1.6,0.7][v]}

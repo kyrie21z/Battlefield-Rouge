@@ -5,7 +5,7 @@ var effect_key: StringName
 var caster_ref: WeakRef
 
 func _ready() -> void:
-	tint = Color(0.06,0.55,0.8)
+	tint = Projectile.realm_tint(&"sorrow")
 	super._ready()
 	impacted.connect(_on_hit)
 

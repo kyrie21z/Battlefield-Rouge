@@ -145,7 +145,9 @@ func player_spawn() -> Vector3:
 ## and the tilted outer walls in both chamber styles.
 func spawn_points() -> Array[Vector3]:
 	return [
-		Vector3(-8, 0.1, 3), Vector3(8, 0.1, -4), Vector3(0, 0.1, -12),
+		# 第一点固定分给穿刺者（variant = i % 3 落在 i=0）：后移到约 23 米外，
+		# 避免玩家一进场就被冲锋。其余点保持上游的多波次布局。
+		Vector3(-8, 0.1, -6), Vector3(8, 0.1, -4), Vector3(0, 0.1, -12),
 		Vector3(-11, 0.1, -12), Vector3(11, 0.1, -14),
 		Vector3(-13, 0.1, 6), Vector3(13, 0.1, 12),
 		Vector3(-13, 0.1, -17), Vector3(3, 0.1, -18),

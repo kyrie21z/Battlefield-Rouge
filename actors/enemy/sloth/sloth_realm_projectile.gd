@@ -16,7 +16,7 @@ static func launch(parent: Node, origin: Vector3, direction: Vector3, shooter: E
 	p.exclude = shooter._hitbox_rids.duplicate()
 	p.damage = amount
 	p.speed = 18.0 if homing == null else 13.0
-	p.tint = Color(1.0,0.58,0.13)
+	p.tint = Projectile.realm_tint(&"sloth")
 	p.delay = waiting
 	p.homing_target = homing
 	p.warning_visible = shooter.warnings_enabled if "warnings_enabled" in shooter else true

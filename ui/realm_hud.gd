@@ -483,15 +483,24 @@ func _update_exit_and_death_feedback() -> void:
 	var orb := stage.talent_orb
 	var orb_pending: bool = is_instance_valid(orb) and stage.orb_pending()
 	var selecting: bool = is_instance_valid(stage.selection)
-	_exit_hint.visible = (orb_pending or stage.exit_ready) and not stage.fallen and not stage.transitioning and not selecting
+	var trapped: bool = stage.player.current_trapped
+	_exit_hint.visible = (orb_pending or stage.exit_ready or trapped) and not stage.fallen and not stage.transitioning and not selecting
 	if not _exit_hint.visible:
+		return
+	var viewport_size := get_viewport().get_visible_rect().size
+	if trapped:
+		_exit_hint.size = Vector2(320, 58)
+		_exit_hint.position = Vector2(viewport_size.x * 0.5 - 160.0, viewport_size.y * 0.72)
+		_exit_hint.add_theme_stylebox_override("normal", _exit_hint_style_gate)
+		_exit_hint.add_theme_font_size_override("font_size", 20)
+		_exit_hint.add_theme_color_override("font_color", EditorialStyle.PAPER)
+		_exit_hint.text = "[ %s ]  冲刺脱离漩涡" % KeyHint.of("dash")
 		return
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
 	var focus: Vector3 = orb.global_position + Vector3.UP * 1.85 if orb_pending else stage.gate.global_position + Vector3.UP * 2.0
 	var target := focus
-	var viewport_size := get_viewport().get_visible_rect().size
 	if orb_pending:
 		_exit_hint.size = Vector2(460, 92)
 		_exit_hint.position = Vector2(viewport_size.x * 0.5 - 230.0, viewport_size.y * 0.72)

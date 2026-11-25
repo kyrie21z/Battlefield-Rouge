@@ -33,6 +33,9 @@ const HURT_SHAKE_BASE := 0.5
 const HURT_SHAKE_PER_HP := 8.0
 const HURT_SHAKE_MAX := 2.2
 const HURT_SHAKE_DURATION := 0.2
+const CURRENT_SINK_DEPTH := 1.18
+const CURRENT_SINK_SPEED := 0.64
+const CURRENT_RISE_SPEED := 2.9
 
 ## Read by Health to ignore friendly fire.
 var team := 0
@@ -41,6 +44,8 @@ var realm_effects: RealmPlayerEffects
 var fragments: PsycheFragments
 var _external_impulse := Vector3.ZERO
 var _external_impulse_left := 0.0
+var current_trapped := false
+var _current_sink := 0.0
 
 ## Independent sources take the strongest field, never multiply. Weak handles
 ## also restore walking speed if a caster disappears during a scene change.
@@ -96,6 +101,7 @@ var _feel_rng := RandomNumberGenerator.new()
 @onready var melee: MeleeWeapon = $Head/Camera3D/Melee
 @onready var shield: PlayerShield = $Shield
 @onready var combat_traits: CombatTraits = $CombatTraits
+@onready var _shadow_body: Node3D = $ShadowBody
 @onready var _head: Node3D = $Head
 @onready var _camera: Camera3D = $Head/Camera3D
 ## The camera that actually renders. `_camera` stays exactly where the player
@@ -123,6 +129,8 @@ func _ready() -> void:
 	boons.name = "BoonManager"
 	add_child(boons)
 	boons.bind(self, stats, health, weapon, melee, dash)
+	boons.loadout_changed.connect(_on_boon_loadout_changed)
+	_sync_weapon_boon_accent()
 	DualBoonManager.install(boons)
 	realm_effects = RealmPlayerEffects.new()
 	realm_effects.name = "RealmEffects"
@@ -147,6 +155,21 @@ func _ready() -> void:
 		melee.hide()
 		shield.set_process(false)
 		combat_traits.set_process(false)
+
+
+func _on_boon_loadout_changed(_cards: Array[BoonData]) -> void:
+	_sync_weapon_boon_accent()
+
+
+func _sync_weapon_boon_accent() -> void:
+	if weapon == null or boons == null:
+		return
+	var gun_card: BoonData = boons.slots[BoonData.Slot.GUN].data
+	var active := gun_card != null
+	var color := BoonIdentity.accent(gun_card) if active else Color.BLACK
+	for child in weapon.get_children():
+		if child is ObsidianPistolView:
+			child.set_boon_accent(color, active)
 
 
 ## Read-only dash state for the HUD.
@@ -221,6 +244,13 @@ func _physics_process(delta: float) -> void:
 	# frame short nor leaves a 27 m/s slide behind. The vertical is zeroed on the
 	# hand-back so a rising dash does not fling the player past its end point.
 	var dashing := _dash_left > 0.0
+	var water_motion := Vector4.ZERO
+	if not dashing and (is_on_floor() or current_trapped) and realm_effects.ground_current.is_valid():
+		water_motion = realm_effects.ground_current.call(global_position)
+	current_trapped = water_motion.w > 0.0
+	if current_trapped:
+		_lunge_left = 0.0
+		_external_impulse_left = 0.0
 	var lunging := not dashing and _lunge_left > 0.0
 	if dashing:
 		_dash_left = maxf(_dash_left - delta, 0.0)
@@ -228,7 +258,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		if not is_on_floor():
 			velocity.y -= gravity * delta
-		elif Input.is_action_just_pressed("jump"):
+		elif not current_trapped and Input.is_action_just_pressed("jump"):
 			velocity.y = jump_velocity * realm_effects.jump_multiplier
 
 	# A dash drops the sights for its duration: holding aim through it does not
@@ -242,12 +272,13 @@ func _physics_process(delta: float) -> void:
 		speed *= weapon.data.ads_move_scale
 	var accel := ground_accel if is_on_floor() else air_accel
 	if not dashing:
-		var target_velocity := direction * speed
-		if not lunging and is_on_floor() and velocity.y <= 0.0 and realm_effects.ground_current.is_valid():
-			var current: Vector3 = realm_effects.ground_current.call(global_position)
-			target_velocity += current.limit_length(speed * 0.48)
-		velocity.x = move_toward(velocity.x, target_velocity.x, accel * speed * delta)
-		velocity.z = move_toward(velocity.z, target_velocity.z, accel * speed * delta)
+		var current := Vector3(water_motion.x, 0.0, water_motion.z)
+		var target_velocity := Vector3.ZERO if current_trapped else direction * speed
+		if not lunging and velocity.y <= 0.0:
+			target_velocity += current
+		var acceleration := accel * maxf(speed, current.length()) * delta
+		velocity.x = move_toward(velocity.x, target_velocity.x, acceleration)
+		velocity.z = move_toward(velocity.z, target_velocity.z, acceleration)
 		# A melee swing carries the player: the step overrides the walked velocity
 		# for its short duration, so the distance is exactly `speed * duration`
 		# instead of building up frame by frame.
@@ -294,6 +325,7 @@ func cancel_forced_movement() -> void:
 
 func recover_from_fall(point: Vector3) -> void:
 	cancel_forced_movement()
+	current_trapped = false
 	_external_impulse = Vector3.ZERO
 	_external_impulse_left = 0.0
 	velocity = Vector3.ZERO
@@ -317,6 +349,12 @@ func _process(delta: float) -> void:
 	var recovery := _kick_left / maxf(weapon.data.camera_return_time, 0.001)
 	_visual_kick = _kick_origin * recovery * recovery
 	_apply_look()
+	if current_trapped or _current_sink > 0.0:
+		var depth := CURRENT_SINK_DEPTH if current_trapped else 0.0
+		var rate := CURRENT_SINK_SPEED if current_trapped else CURRENT_RISE_SPEED
+		_current_sink = move_toward(_current_sink, depth, rate * delta)
+		# The rig moves the weapon, hands and shared eye together.
+		_shadow_body.position.y = -_current_sink
 	_update_view_camera(delta)
 
 
@@ -393,6 +431,7 @@ func view_is_shaking() -> bool:
 
 
 func _on_died(_source: Node) -> void:
+	current_trapped = false
 	melee.deactivate()
 	dash.cancel()
 	dash.set_physics_process(false)

@@ -1,4 +1,4 @@
-class_name SorrowMonolith
+﻿class_name SorrowMonolith
 extends SorrowRealmEnemy
 ## Grief does not stand and trade. The slab of black crystal sinks under the
 ## mirror to reappear on your blind side, drags you back into the shallows it
@@ -214,7 +214,7 @@ func _release_rain() -> void:
 	_pull_into_water()
 
 func _drop_tear(from: Vector3) -> void:
-	var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Color(0.1,0.65,0.88))
+	var bullet := Projectile.spawn(get_parent(),from,Vector3.DOWN,self,8*realm_damage_scale,13,_hitbox_rids.duplicate(),Projectile.realm_tint(&"sorrow"))
 	bullet.max_distance = 13
 	_owned.append(weakref(bullet))
 	tears_released += 1

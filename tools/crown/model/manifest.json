@@ -1,0 +1,31 @@
+{
+  "file": "assets/models/crown/pride_crown.glb",
+  "source": "tools/crown/model/pride_crown.blend",
+  "design": "A3",
+  "blender_version": "5.2.3 LTS",
+  "glb_triangles": 144,
+  "flat_faces": true,
+  "bounds_game_m": {
+    "min": [
+      -0.07536129653453827,
+      -0.012000000104308128,
+      -0.09276120364665985
+    ],
+    "max": [
+      0.07536129653453827,
+      0.0820000022649765,
+      0.09276120364665985
+    ],
+    "size": [
+      0.15072259306907654,
+      0.09400000236928463,
+      0.1855224072933197
+    ]
+  },
+  "inner_width_m": 0.134,
+  "inner_depth_m": 0.16,
+  "game_forward": "-Z",
+  "game_up": "+Y",
+  "sha256": "392abac47aaa385e86e5c58b0dda4660fc5d6dff10089413669e74dd00e43283",
+  "source_sha256": "b99aa06f136366b7b65ac5da6dc9cd952787859badc4aa184347dfff78b7f6fe"
+}

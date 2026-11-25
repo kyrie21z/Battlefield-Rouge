@@ -1,6 +1,6 @@
 # Epic 1 验收记录
 
-> 验证来源：本目录的 43 场景日志和原生图片保留自完整实现 `85555908f532fa582844de1408d21318fde9f588`。拆分后的 #106 已逐文件确认运行源码与它一致，并另行执行 16 场景和两项原生定向验证，见 [#106 新记录](../issue-106/README.md)。当前 SHA256SUMS 对应集成文件；原始提交清单另存于该记录目录。
+> 验证来源：下文历史验证的 43 场景日志及配套图片保留自完整实现 `85555908f532fa582844de1408d21318fde9f588`。拆分后的 #106 已逐文件确认运行源码与它一致，并另行执行 16 场景和两项原生定向验证，见 [#106 新记录](../issue-106/README.md)。当前 SHA256SUMS 对应集成文件；原始提交清单另存于该记录目录。
 
 范围：[#101](https://github.com/kyrie21z/Battlefield-Rouge/issues/101)–[#106](https://github.com/kyrie21z/Battlefield-Rouge/issues/106)，包含武器 Blender/GLB 纠偏及 #105 最新的完整第一人称身躯要求。叙事依据为 `docs/NARRATIVE_FOUNDATION.md` 8.1/8.2；不扩展后续心魔或赐福系统。
 
@@ -11,7 +11,10 @@
 ```sh
 godot --headless --import --path .
 godot --path . res://tests/combat_bench.tscn
-godot --path . res://tests/epic1_model_proof.tscn
+godot --path . --rendering-method forward_plus res://tests/epic1_model_proof.tscn
+godot --path . --rendering-method forward_plus res://tests/protagonist_body_proof.tscn -- --pistol-only --out=res://docs/proof/epic1/pistol-remodel
+godot --path . --rendering-method forward_plus res://tests/protagonist_body_proof.tscn -- --boon-strips --out=res://docs/proof/epic1/pistol-remodel
+godot --headless --path . res://tests/pistol_boon_strip_test.tscn
 godot --path . res://tests/combat_bench_proof.tscn
 godot --path . res://tests/protagonist_body_proof.tscn
 godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn
@@ -21,16 +24,20 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn
 
 ## 模型与图片
 
-[models.png](models.png) 是 Godot Windows Forward+ 原生渲染的五栏模型展示，包含手枪侧面、四分之三、四块绽放，以及短刃两种视角。Blender 源文件、生成器和逐对象尺寸/面数/原点/SHA-256 在 [模型目录](../../../tools/epic1_models/README.md)。没有下载 SUPERHOT 素材。
+[models.png](models.png) 由 Linux Godot 4.7.2 Forward+ 在 Vulkan llvmpipe 上原生渲染，包含手枪侧面、四分之三、照门近景、四块绽放、退滑露出晶核，以及短刃侧面。Blender 源文件、生成器和逐对象尺寸/面数/原点/SHA-256 在 [模型目录](../../../tools/epic1_models/README.md)。没有下载 SUPERHOT 素材。
 
 尺寸采用最新文字规格，模型按多视角设计稿重建。当前创作要求允许增加必要面数；实际源多边形与导出三角形分别记录于模型 manifest。源多边形均为三角形或四边形，全部 Shade Flat。原人体与预切片保留原始文件，使用原 24 骨动画和主角材质。身体裂缝遵循当前创作要求：沿晶体真实接缝、统一黑色，等级递进不依赖彩色或发光。
 
 | 模型 | 文字规格尺寸 | 源多边形 | 渲染三角形 |
 | --- | --- | --- | --- |
-| 黑晶手枪 | 长 220 × 高 135 × 宽 32mm | 120 | 180 |
+| 黑晶手枪 | 长 200 × 高 142 × 宽 38 mm | 797 | 1254 |
 | 意志短刃 | 长 400 × 刃宽 40 × 厚 15mm | 45 | 70 |
 
-| 原生画面 | 检查内容 |
+灯带对照图由 Linux Godot 4.7.2 Forward+ 渲染。三行依次为四分之三、腰射和 ADS，五列依次为空槽、怠惰、恐惧、暴怒和悲伤。腰射和 ADS 使用生产相机，取证时关闭景深并裁切到枪身附近。[boon-strips.png](pistol-remodel/boon-strips.png)
+
+改模后用生产角色复拍了[腰射](pistol-remodel/hip.png)、[ADS](pistol-remodel/ads.png)、[左侧握持](pistol-remodel/grip-left.png)和[右侧握持](pistol-remodel/grip-right.png)。取证时关闭 ADS 景深，使枪身和手指清晰。腰射和 ADS 的双手接触断言通过。两种姿势下逐点采样手部顶点及三角面中心，前枪身和滑套内均未发现采样点。Linux Godot 4.7.2 的六套回归均报告零失败。入口为 `obsidian_pistol_test`、`obsidian_pistol_feel_test`、`protagonist_body_test`、`weapons_test`、`mind_blade_test` 和 `gun_feel_test`。
+
+| 历史原生画面 | 检查内容 |
 | --- | --- |
 | [基础持枪](body_forward.png)、[ADS](ads.png)、[四块绽放](bloom.png) | 单手视野、切面高光、重组部件 |
 | [低头 Level 0](body_0.png)、[Level 4](body_4.png) | 原胸腹与双腿、真实晶面黑缝 |
@@ -40,7 +47,7 @@ godot --headless --fixed-fps 60 --path . res://tests/fixture_test.tscn
 
 第一人称截图使用生产 Player 和测试台，展示姿态的截图会暂停移动或直接推进武器动画，因此只证明对应画面。伤害、实际输入、弹反、占点与整局流程由独立回归测试验证。截图不替代操作者的视觉和手感验收。
 
-## 验证边界
+## Epic 1 历史验证
 
 Godot **4.7.2.stable.official.ed1daf0bf**，Windows Forward+ / Vulkan，RTX 4060 Laptop GPU。完整回归 **43/43 场景通过**，最终模型更新后复测 8 个受影响场景：`obsidian_pistol`、`weapons`、`mind_blade`、`melee`、`gun_feel`、`combat_bench`、`protagonist_body`、`body_awareness`。逐场退出码、耗时和结果见 [results.json](validation/results.json)，[validation/](validation/) 保留完整日志。最终导入与上述测试日志无 `ERROR`、`WARNING` 或失败断言；并非只凭退出码判断。
 

@@ -1,11 +1,10 @@
 class_name ObsidianPistolView
 extends Node3D
 ## Four flat-shaded Blender mineral meshes, each with its own local pivot.
-## Source: 120 authored triangles/quads; imported GLB: 180 rendering triangles.
 ## The weapon supplies the clock, so snap and magazine completion agree.
 
-const SOURCE_POLYGONS := 120
-const BODY_TRIANGLES := 180
+const SOURCE_POLYGONS := 797
+const BODY_TRIANGLES := 1254
 const BLOOM_END := 0.35 / 0.85
 const FLOAT_END := 0.65 / 0.85
 const OFFSETS := [Vector3(0, 0.07, -0.08), Vector3(0.08, 0.04, 0.02),
@@ -17,6 +16,8 @@ const FIRE_KICK_TIME := 0.09
 const CORE_BASE_ENERGY := 1.5
 const CORE_PULSE_ENERGY := 5.5
 const CORE_PULSE_TIME := 0.10
+const STRIP_BASE_ENERGY := 2.4
+const STRIP_PULSE_ENERGY := 5.4
 const MUZZLE_LIGHT_ENERGY := 2.6
 const MUZZLE_LIGHT_TIME := 0.045
 const MUZZLE_LIGHT_COLOR := Color(0.45, 0.72, 1.0)
@@ -25,6 +26,12 @@ const OBSIDIAN_MATERIAL := preload("res://assets/materials/obsidian_weapon_mater
 var _pieces: Array[Node3D] = []
 var _rest: Array[Transform3D] = []
 var _core_material: StandardMaterial3D
+var _core_default_albedo: Color
+var _core_default_emission: Color
+var _strip_surfaces: Array[Array] = []
+var _strip_material: StandardMaterial3D
+var _boon_active := false
+var _boon_color := Color.BLACK
 var _dust: Array[MeshInstance3D] = []
 var _muzzle_light: OmniLight3D
 var reassembly_progress := 1.0
@@ -38,13 +45,15 @@ func _ready() -> void:
 		var piece := $Model.find_child(piece_name, true, false) as MeshInstance3D
 		piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if piece_name != "core_crystal":
-			piece.material_override = OBSIDIAN_MATERIAL
+			_route_body_surfaces(piece)
 		_pieces.append(piece)
 		_rest.append(piece.transform)
 	var core := $Model.find_child("core_crystal", true, false) as MeshInstance3D
 	_core_material = core.get_active_material(0).duplicate() as StandardMaterial3D
 	core.material_override = _core_material
-	_core_material.emission_energy_multiplier = CORE_BASE_ENERGY
+	_core_default_albedo = _core_material.albedo_color
+	_core_default_emission = _core_material.emission
+	set_boon_accent(_boon_color, _boon_active)
 	var muzzle := get_node_or_null("Muzzle") as Node3D
 	if muzzle != null:
 		_muzzle_light = OmniLight3D.new()
@@ -68,6 +77,36 @@ func _ready() -> void:
 		bit.visible = false
 		add_child(bit)
 		_dust.append(bit)
+
+
+func _route_body_surfaces(piece: MeshInstance3D) -> void:
+	for surface in piece.mesh.get_surface_count():
+		var material := piece.mesh.surface_get_material(surface)
+		if material != null and material.resource_name == "Boon_Strip":
+			_strip_surfaces.append([piece, surface])
+		elif material == null or material.resource_name != "Muzzle_Interior":
+			piece.set_surface_override_material(surface, OBSIDIAN_MATERIAL)
+
+
+func set_boon_accent(color: Color, active: bool) -> void:
+	_boon_active = active
+	_boon_color = color if active else Color.BLACK
+	if _core_material == null:
+		return
+	if _boon_active:
+		if _strip_material == null:
+			_strip_material = StandardMaterial3D.new()
+			_strip_material.roughness = 0.16
+			_strip_material.metallic = 0.15
+			_strip_material.emission_enabled = true
+		_strip_material.albedo_color = _boon_color.darkened(0.35)
+		_strip_material.emission = _boon_color
+	var surface_material: Material = _strip_material if _boon_active else OBSIDIAN_MATERIAL
+	for strip in _strip_surfaces:
+		(strip[0] as MeshInstance3D).set_surface_override_material(strip[1], surface_material)
+	_core_material.albedo_color = _boon_color if _boon_active else _core_default_albedo
+	_core_material.emission = _boon_color if _boon_active else _core_default_emission
+	_apply_core_pulse()
 
 
 func _process(delta: float) -> void:
@@ -120,7 +159,17 @@ func _apply_core_pulse() -> void:
 	if _core_material == null:
 		return
 	var t := _core_pulse_left / CORE_PULSE_TIME
-	_core_material.emission_energy_multiplier = lerpf(CORE_BASE_ENERGY, CORE_PULSE_ENERGY, t)
+	var core_energy := lerpf(CORE_BASE_ENERGY, CORE_PULSE_ENERGY, t)
+	var strip_energy := lerpf(STRIP_BASE_ENERGY, STRIP_PULSE_ENERGY, t)
+	var p := reassembly_progress
+	if p < 1.0:
+		var bloom := _bloom_amount(p)
+		var flicker := sin(p * 160.0)
+		core_energy = CORE_BASE_ENERGY + bloom * (1.5 + 0.4 * flicker)
+		strip_energy = STRIP_BASE_ENERGY + bloom * (1.2 + 0.35 * flicker)
+	_core_material.emission_energy_multiplier = core_energy
+	if _boon_active and _strip_material != null:
+		_strip_material.emission_energy_multiplier = strip_energy
 
 
 func _apply_muzzle_light() -> void:
@@ -130,15 +179,17 @@ func _apply_muzzle_light() -> void:
 	_muzzle_light.visible = _muzzle_light_left > 0.0
 
 
+func _bloom_amount(p: float) -> float:
+	if p > FLOAT_END:
+		var snap := (p - FLOAT_END) / (1.0 - FLOAT_END)
+		return 1.0 - snap * snap * snap
+	return smoothstep(0.0, BLOOM_END, p)
+
+
 func set_reassembly_progress(progress: float) -> void:
 	reassembly_progress = clampf(progress, 0.0, 1.0)
 	var p := reassembly_progress
-	var bloom := smoothstep(0.0, BLOOM_END, p)
-	if p > FLOAT_END:
-		var snap := (p - FLOAT_END) / (1.0 - FLOAT_END)
-		bloom = 1.0 - snap * snap * snap
-	if p >= 1.0:
-		bloom = 0.0
+	var bloom := _bloom_amount(p)
 	for i in _pieces.size():
 		var piece := _pieces[i]
 		piece.transform = _rest[i]
@@ -146,8 +197,7 @@ func set_reassembly_progress(progress: float) -> void:
 		piece.rotation += Vector3(0.07, 0.09, 0.13) * (1.0 if i % 2 == 0 else -1.0) * bloom
 		if i == 3:
 			piece.position.y += sin(p * 160.0) * 0.002 * bloom
-	if _core_material != null:
-		_core_material.emission_energy_multiplier = 1.5 + bloom * (1.5 + 0.4 * sin(p * 160.0))
+	_apply_core_pulse()
 	for i in _dust.size():
 		var bit := _dust[i]
 		bit.visible = p >= BLOOM_END and p < FLOAT_END

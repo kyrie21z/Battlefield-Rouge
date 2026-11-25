@@ -1,5 +1,13 @@
 # 素材登记
 
+## 怠惰悬钟庭院机械与石材（2026-11-25）
+
+钟壳、齿轮、链节、配重、钟楼和浮廊由 `environments/sloth/sloth_clockwork.gd` 构造。地面断齿轮、吊装石梁和断桥由 `environments/sloth/sloth_worksite.gd` 构造。旧金纹样、石材拼缝和铺地刻纹使用项目自身的材质及着色器，云海沿用项目既有程序着色器。取证为 Godot 原生画面，素材沿用仓库许可。[原生画面与验证](proof/sloth-last-tick/README.md)
+
+## 恐惧紫色城堡内殿（2026-11-25）
+
+拱顶、桥下地窖、石阶、彩窗与其他建筑构件均由 `environments/fear/sanctum.gd` 和原创石材、彩窗着色器生成。用户图片用作室内光影和布局参考。取证使用 Godot 4.7.2 正式场景的玩家相机，沿用仓库许可。[实机画面与验证](proof/fear-violet-castle/README.md)
+
 ## 愤怒与悲伤的战场细节（2026-11-23）
 
 岩浆坑、坑缘、裂瓷石柱和镜潭残垣使用项目原创程序化网格，复用已有熔岩、瓷釉和湿石材质，沿用仓库许可。[实机图与验证](proof/arena-floor-details/README.md)
@@ -318,8 +326,9 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 | --- | --- | --- |
 | `weapons/obsidian_pistol/pistol_icon.svg` | 本项目原创 | `e1f55a3c0332ce86b5bffd610152fd05bf4676d4425ad6ac07b3311b2058720e` |
 | `weapons/mind_blade/mind_blade.svg` | 本项目原创 | `5d4a027b1a5afcae43408ff33eb6afd18222d76839e777fe3700b010b2dac684` |
-| `assets/models/weapons/obsidian_pistol.glb` | 本项目原创；`tools/epic1_models/obsidian_pistol.blend` 导出，项目许可 | `db2e57cc1680c8605816581e93c1c72b69b2ac289742b11bb51915cdd86d4401` |
+| `assets/models/weapons/obsidian_pistol.glb` | 本项目原创，含 `Boon_Strip` 灯带。由 `tools/epic1_models/obsidian_pistol.blend` 导出，采用项目许可 | `6b9786b3bfa30837b8b021f31d41e49a4b832db308db0303a35868a1195a9cb8` |
 | `assets/models/weapons/mind_blade.glb` | 本项目原创；`tools/epic1_models/mind_blade.blend` 导出，项目许可 | `dbeb12ce0ae2780b0d5c26be1afc51bb8046a89b5cd8582b7c673c24ec3d295f` |
+| `assets/models/characters/protagonist_hands.glb` | 本项目原创。由 `tools/protagonist_hands/author.py` 生成 S2 双手握姿和短刃左手握姿 | `df874c1f31e5513dea3e9c1c38cb7ed1081c41fcae2a8e35124a26fbec6fbbc3` |
 
 模型源面数、三角化数量、尺寸、轴转换与各部件原点见 [导出记录](../tools/epic1_models/manifest.json)。原始 Blender 文件枪口/刀尖朝 -Y、Z 向上，导出副本旋转并烘焙后符合 Godot -Z 向前、+Y 向上；运行时不用旋转补偿。
 
@@ -357,7 +366,13 @@ SHA-256：`9eefbb752fb862976a6e2433841ffbea6c66ba5aebf86906fe7722f74b8a5840`。�
 
 ## #147 原创皇冠与中文开场语音（2026-11-10）
 
-`actors/crown/crown_model.gd` 是本项目原创参数化 3D 几何：普通中空六尖象牙白冠与克制的暗金边，遵循最新用户纠偏移除眼睛、手与拟人装饰，未提取旧图集或第三方模型。原始白晶人体和手枪仍使用既有登记资源，未修改原件。
+Pride 的 A3 皇冠是项目原创的中空六尖金晶模型，由 Blender 生成 144 个平面着色三角面。金晶材质复用主角的水晶光学着色器。
+生成脚本、可编辑 Blender 源文件、尺寸与导出哈希见 [皇冠建模目录](../tools/crown/model/)。
+
+| 资源 | SHA-256 |
+| --- | --- |
+| `assets/models/crown/pride_crown.glb` | `392abac47aaa385e86e5c58b0dda4660fc5d6dff10089413669e74dd00e43283` |
+| `assets/materials/crown_crystal_material.tres` | `723872b808584029ff5fb1f571468fbf82aa4fb489876dcadb9d5bdf151a523a` |
 
 六段原创项目台词使用官方 [Kokoro-82M-v1.1-zh](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh) 固定版本 `01e7505bd6a7a2ac4975463114c3a7650a9f7218` 离线生成；模型与推理代码均为 Apache-2.0。官方模型卡声明中文专业数据由 LongMaoData 获许可提供。皇冠使用标准女声 `zf_001`，面试声使用标准男声 `zm_010`，不克隆他人身份。只分发24kHz单声道PCM16输出，不分发模型/引擎，不标为CC0。原Windows SAPI输出已替换，旧脚本显式阻止再次生成。
 

@@ -9,9 +9,10 @@ const LENGTH := 5.0
 const THICKNESS := 0.020
 ## Longest path drawn, so a shot into the sky does not chase the horizon.
 const MAX_PATH := 120.0
+## The player's default tracer colour; realm tints come from Projectile.REALM_TINTS.
+const DEFAULT_TINT := Color(1.0, 0.86, 0.55, 0.75)
 
-static var _mesh: BoxMesh
-static var _material: StandardMaterial3D
+static var _meshes := {}
 
 var _from := Vector3.ZERO
 var _direction := Vector3.FORWARD
@@ -19,7 +20,8 @@ var _distance := 0.0
 var _travelled := 0.0
 
 
-static func spawn(parent: Node, from: Vector3, to: Vector3) -> Tracer:
+static func spawn(parent: Node, from: Vector3, to: Vector3,
+		tint: Color = DEFAULT_TINT) -> Tracer:
 	var path := to - from
 	if path.length() < 0.5:
 		return null
@@ -27,7 +29,7 @@ static func spawn(parent: Node, from: Vector3, to: Vector3) -> Tracer:
 	tracer._from = from
 	tracer._direction = path.normalized()
 	tracer._distance = minf(path.length(), MAX_PATH)
-	tracer.mesh = _shared_mesh()
+	tracer.mesh = _shared_mesh(tint)
 	tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(tracer)
 	tracer._place()
@@ -55,14 +57,17 @@ func _place() -> void:
 	global_transform = Transform3D(basis, _from + _direction * (head + tail) * 0.5)
 
 
-static func _shared_mesh() -> BoxMesh:
-	if _mesh == null:
-		_material = StandardMaterial3D.new()
-		_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		_material.albedo_color = Color(1.0, 0.86, 0.55, 0.75)
-		_mesh = BoxMesh.new()
-		_mesh.size = Vector3(THICKNESS, THICKNESS, 1.0)
-		_mesh.material = _material
-	return _mesh
+## One mesh/material per tint, cached so a new colour costs a single allocation.
+static func _shared_mesh(tint: Color) -> BoxMesh:
+	var key := tint.to_html()
+	if not _meshes.has(key):
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		material.albedo_color = tint
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(THICKNESS, THICKNESS, 1.0)
+		mesh.material = material
+		_meshes[key] = mesh
+	return _meshes[key]

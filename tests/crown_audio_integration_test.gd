@@ -52,7 +52,7 @@ func _ready() -> void:
 	check("production final encounter routes dry 3D Crown clip",encounter.voice_dsp == null and encounter.voice.bus == &"Master" and encounter.voice.stream.resource_path.ends_with("crown_breakdown.wav"))
 	encounter.crown.call("set_emission_strength",16.5888)
 	encounter._physics_process(0.0)
-	check("final encounter updates actual Crown emission while keeping dry voice",encounter.voice_dsp == null and is_equal_approx((encounter.crown as CrownModel).gold.emission_energy_multiplier,16.5888))
+	check("final encounter updates actual Crown emission while keeping dry voice",encounter.voice_dsp == null and is_equal_approx(float((encounter.crown as CrownModel).crystal_material.get_shader_parameter("emission_strength")),16.5888))
 	var audio := encounter.get_node("CombatAudio") as RealmAudioDirector
 	check("final boss owns player-only combat audio with no realm ambience",audio.player == player and audio.stage == null and not audio.ambient.playing and audio.get_node_or_null("SorrowBoonAudio") != null)
 	encounter.boss.set_combat_active(true)

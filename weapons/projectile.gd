@@ -6,8 +6,21 @@ extends Node3D
 
 const MASK := CollisionLayers.WORLD | CollisionLayers.HITBOXES | CollisionLayers.PARRY
 ## The tracer is this many seconds of travel long, so it reads at any speed.
-const TRACER_SECONDS := 0.035
+## Visible tracer length is speed x this. 0.025 keeps the "faster rounds read
+## longer" relationship above TRACER_MIN_LENGTH (a 30 m/s round is 0.75 m), while
+## still being far shorter than the old 0.035 that reached back into the gun.
+const TRACER_SECONDS := 0.025
 const TRACER_MIN_LENGTH := 0.7
+## 四个领域的弹体配色。所有弹类都从这里取色，避免有的地方写橙、有的写金。
+const REALM_TINTS := {
+	&"sloth": Color("ffbc4f"),            # 金
+	&"fear": Color(0.66, 0.28, 0.96),     # 紫
+	&"wrath": Color(0.95, 0.16, 0.10),    # 红
+	&"sorrow": Color(0.10, 0.65, 0.88),   # 蓝
+}
+
+static func realm_tint(realm: StringName) -> Color:
+	return REALM_TINTS.get(realm, Color(1.0, 0.55, 0.2))
 
 var speed := 30.0
 var damage := 10.0
@@ -60,6 +73,10 @@ func _ready() -> void:
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# Capsules stand along Y; lay it along -Z, the flight direction.
 	mesh.rotation.x = PI * 0.5
+	# The capsule is centred on the node origin, so half of this tracer would sit
+	# *behind* the spawn point (inside the gun/player). Push it forward by half a
+	# length so the visible round starts exactly at the muzzle.
+	mesh.position.z = -_tracer_length * 0.5
 	add_child(mesh)
 
 	# A camera-facing glow, so the bullet reads clearly even when it flies
@@ -76,17 +93,21 @@ func _ready() -> void:
 	texture.width = 64
 	texture.height = 64
 	glow.texture = texture
-	glow.pixel_size = 0.8 / 64.0
+	glow.pixel_size = 0.5 / 64.0
 	glow.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	glow.shaded = false
 	glow.transparent = true
 	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Sit the glow on the tip of the round, not on the spawn point, so it leaves
+	# the camera's near field instead of washing the screen with tint colour.
+	glow.position.z = -_tracer_length
 	add_child(glow)
 
 	var light := OmniLight3D.new()
 	light.light_color = tint
 	light.light_energy = 1.0
-	light.omni_range = 2.0
+	light.omni_range = 1.4
+	light.position.z = -_tracer_length
 	add_child(light)
 
 

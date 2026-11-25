@@ -13,6 +13,7 @@ var damage_indicator: DamageIndicator
 var inspector: BuildInspector
 var pause_menu: PauseMenu
 var _objective: Label
+var _time_warp: SlumberTimeWarp
 var _ammo: Label
 var _boons: Label
 var _boss_bar: RealmBossBar
@@ -125,6 +126,9 @@ func _ready() -> void:
 	_root.add_child(inspector)
 
 	stage.player.boons.changed.connect(_refresh_boons)
+	# 沉睡共鸣的全屏观感由 UI 层负责：components 只发 activated 信号，
+	# 不反向依赖 ui/（ARCHITECTURE.md 的 ui → zone → actors → components）。
+	stage.player.fragments.activated.connect(_on_fragment_activated)
 	_refresh_boons()
 	_build_exit_and_death_feedback()
 	stage.wave_spawned.connect(_on_wave_spawned)
@@ -611,6 +615,17 @@ func _apply_settings() -> void:
 	KeyBindings.apply(settings.bindings)
 	if _tab_badge != null:
 		_tab_badge.text = KeyHint.of("inspect_build")
+
+
+## 沉睡共鸣（Q）的"子弹时间"观感。components 只发信号，屏幕效果归 UI 层。
+func _on_fragment_activated(realm: int) -> void:
+	if realm != PsycheFragments.SLOTH:
+		return
+	if not is_instance_valid(_time_warp):
+		_time_warp = SlumberTimeWarp.new()
+		_time_warp.name = "SlumberTimeWarp"
+		add_child(_time_warp)
+	_time_warp.play(3.0)
 
 
 func _refresh_boons() -> void:

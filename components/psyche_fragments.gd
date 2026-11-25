@@ -22,6 +22,13 @@ var spite_charge := 0
 var _counter_left := 0.0
 const TENDERNESS_CAPACITY := 40.0
 const TENDERNESS_RECOVERY_DELAY := 6.5
+## 沉睡共鸣的作用半径。原来是写死的 18 米，实战里经常一整片场地都够不到，
+## 技能按下去没反应；现在默认覆盖整个战斗平台（40x48 的对角约 62 米）。
+const RESONANCE_RADIUS := 120.0
+var resonance_radius := RESONANCE_RADIUS
+## 沉睡共鸣的持续时间与冷却。
+const RESONANCE_DURATION := 2.5
+const RESONANCE_COOLDOWN := 15.0
 var barrier := 0.0
 var absorption_total := 0.0
 var brittle_hits := 0
@@ -37,15 +44,15 @@ func _unhandled_input(event: InputEvent) -> void:
 func try_slumber_resonance() -> bool:
 	if not is_instance_valid(player) or player.health.is_dead() or get_tree().paused or not shards.has(SLOTH) or resonance_cooldown > 0.0:
 		return false
-	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,18.0)
+	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,resonance_radius)
 	if targets.is_empty():
 		return false
 	for enemy in targets:
 		if enemy.has_method("receive_slumber_resonance"):
-			enemy.receive_slumber_resonance(3.0,0.25)
+			enemy.receive_slumber_resonance(RESONANCE_DURATION,0.25)
 		else:
-			player.boons.set_status(enemy,&"fragment_slumber",3.0,1.0,0.25)
-	resonance_cooldown = 10.0
+			player.boons.set_status(enemy,&"fragment_slumber",RESONANCE_DURATION,1.0,0.25)
+	resonance_cooldown = RESONANCE_COOLDOWN
 	resonances += 1
 	mark_combat()
 	activated.emit(SLOTH)

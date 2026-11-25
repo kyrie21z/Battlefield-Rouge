@@ -105,7 +105,10 @@ var _feel_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	var window := get_window()
+	if not window.focus_exited.is_connected(GamePointer.release_until_click):
+		window.focus_exited.connect(GamePointer.release_until_click)
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, window)
 	_camera.fov = base_fov
 	_feel_rng.seed = FEEL_SEED
 	view_camera.fov = base_fov
@@ -215,6 +218,11 @@ func _apply_look() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and (
+			event.physical_keycode == KEY_F10 or event.keycode == KEY_F10):
+		GamePointer.release_until_click()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		# Sensitivity tracks the actual interpolated ADS field of view.
 		var look := mouse_sensitivity
@@ -224,9 +232,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_pitch = clampf(_pitch - event.relative.y * look, deg_to_rad(-89.0), deg_to_rad(89.0))
 	elif event.is_action_pressed("pause"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif event.is_action_pressed("fire") and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		get_viewport().set_input_as_handled()
+	elif Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not health.is_dead():
+		var left_click: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
+		if (left_click or event.is_action_pressed("fire")) and GamePointer.capture_from_click(get_window()):
+			weapon.ignore_trigger_until_release()
+			get_viewport().set_input_as_handled()
 
 
 func _physics_process(delta: float) -> void:

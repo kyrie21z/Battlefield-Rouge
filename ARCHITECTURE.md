@@ -108,6 +108,10 @@ Stats 按 `(base + Σadd) × Πmul` 计算。`MeleeWeapon` 读取刀具伤害/�
 
 旧工程在 `../origin/sheji`，只当参考，不修改。迁移顺序和原因见 `docs/adr/0001-rebuild-on-clean-skeleton.md`。
 
+## 游戏窗口鼠标
+
+`GamePointer` 统一判断游戏或菜单恢复时是否可以捕获鼠标。F10 或窗口失焦会释放，等到玩家再次点击游戏画面才接管。恐惧试玩入口和 `--free-mouse` 可带自由鼠标启动。
+
 ## 第一人称完整身躯（#105）
 
 `Player/ShadowBody` 是战斗玩家的 `ProtagonistBody`，复用 `protagonist_body.tscn` 与 24 骨角色。头部仅投影，胸腹、双臂和双腿可见。原待机/跑动剪辑驱动腿部。`BodyPose` 在动画之后处理上身与双臂。腰射和瞄准时，两手各自跟随 `Weapon.grip_transform()` 上的腕部偏移。Blender 制作的双手握姿仍绑定在原手骨上。挥刃期间左手跟随 `MeleeWeapon.grip_transform()` 并切到短刃手型，收刀后手型与手腕一起用 0.14 秒回握。单一角色骨架和武器模型同时提供第一人称和投影。标题页以肖像模式复用同一骨架，使用完整待机动画、可见头部和从档案注入的裂痕等级。

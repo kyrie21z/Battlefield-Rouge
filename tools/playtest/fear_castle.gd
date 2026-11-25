@@ -10,6 +10,7 @@ func _enter_castle() -> void:
 		push_error("Fear Castle playtest needs its separate preview profile.")
 		get_tree().quit(1)
 		return
+	GamePointer.release_until_click()
 	RunDirector.randomize_realm_order = false
 	if not RunDirector.begin_run(-1, false):
 		push_error("Fear Castle playtest could not start a run.")

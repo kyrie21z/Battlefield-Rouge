@@ -153,7 +153,7 @@ func _build() -> void:
 
 func _dismiss() -> void:
 	get_tree().paused = false
-	Input.mouse_mode = _previous_mouse
+	GamePointer.restore(_previous_mouse, get_window())
 	dismissed.emit()
 	queue_free()
 

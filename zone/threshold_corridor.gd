@@ -57,7 +57,7 @@ func _ready()->void:
 	text.modulate=Color("756a55")
 	add_child(text)
 	_setup_pause_menu()
-	Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, get_window())
 
 func _setup_pause_menu()->void:
 	_settings=GameSettings.new()

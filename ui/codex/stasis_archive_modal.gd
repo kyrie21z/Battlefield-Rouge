@@ -125,7 +125,7 @@ func _exit_tree() -> void:
 func _restore_input() -> void:
 	_opened = false
 	get_tree().paused = _was_paused
-	Input.mouse_mode = _mouse_mode
+	GamePointer.restore(_mouse_mode, get_window())
 
 
 func _show_page(index: int) -> void:

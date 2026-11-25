@@ -420,7 +420,7 @@ func _release_control() -> void:
 	subtitle.text = "WASD 移动 · 向前穿过心智之门"
 	subtitle.modulate.a = 1.0
 	_set_control(true)
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, get_window())
 
 func _set_control(enabled: bool) -> void:
 	player.set_process(enabled)

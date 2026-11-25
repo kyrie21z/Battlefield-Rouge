@@ -54,6 +54,7 @@ var moving := false
 var airborne := false
 ## Gameplay can disable the trigger while keeping presentation alive.
 var trigger_enabled := true
+var _ignore_held_trigger := false
 var _cooldown := 0.0
 var _spread := 0.0
 var _reload_left := 0.0
@@ -181,10 +182,18 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("reload"):
 		try_reload()
 		return
+	if _ignore_held_trigger:
+		_ignore_held_trigger = Input.is_action_pressed("fire")
+		return
 	var trigger := Input.is_action_pressed("fire") if data.fire_mode == WeaponData.FireMode.AUTO \
 		else Input.is_action_just_pressed("fire")
 	if trigger and trigger_enabled and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		try_fire()
+
+
+## The click that captures the cursor belongs to the window, even if held.
+func ignore_trigger_until_release() -> void:
+	_ignore_held_trigger = true
 
 
 ## ADS / hip position, plus whatever the shot spring is still doing on top.

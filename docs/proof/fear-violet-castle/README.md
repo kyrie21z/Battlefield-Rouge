@@ -6,7 +6,7 @@
 
 ## 本地试玩
 
-Windows 下双击仓库里的 [恐惧城堡启动器](../../../tools/launch_fear_castle.cmd)。它会调用项目原有的 Godot 4.7.2 资源准备流程，然后直接载入正式战役的恐惧第一关。清场领卡后按 F 依次进入第二关和审判之瞳房。试玩存档独立保存。其他平台可用项目指定的 Godot 运行同一入口。
+Windows 下双击仓库里的 [恐惧城堡启动器](../../../tools/launch_fear_castle.cmd)。它会调用项目原有的 Godot 4.7.2 资源准备流程，然后直接载入正式战役的恐惧第一关。清场领卡后按 F 依次进入第二关和审判之瞳房。试玩存档独立保存。启动时鼠标可自由移动。点击游戏画面接管视角。Esc 暂停，F10 或切出窗口可直接释放鼠标。其他平台可用项目指定的 Godot 运行同一入口。
 
 ```text
 godot --path . res://tools/playtest/fear_castle.tscn -- --meta-test-profile=user://meta_test_fear_castle.json

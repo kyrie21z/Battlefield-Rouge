@@ -211,7 +211,7 @@ func close() -> void:
 	if is_instance_valid(store):
 		store.save()
 	get_tree().paused = _was_paused
-	Input.mouse_mode = _previous_mouse
+	GamePointer.restore(_previous_mouse, get_window())
 	closed.emit()
 	queue_free()
 
@@ -219,4 +219,4 @@ func close() -> void:
 func _exit_tree() -> void:
 	if not _closed and get_tree() != null:
 		get_tree().paused = _was_paused
-		Input.mouse_mode = _previous_mouse
+		GamePointer.restore(_previous_mouse, get_window())

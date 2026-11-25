@@ -125,7 +125,7 @@ func _close(leaving_scene: bool) -> void:
 		if not _was_paused and (_prev_mouse_mode == Input.MOUSE_MODE_CAPTURED
 				or (DisplayServer.get_name() == "headless" and is_instance_valid(_player))):
 			capture_requests += 1
-		Input.mouse_mode = _prev_mouse_mode
+		GamePointer.restore(_prev_mouse_mode, get_window())
 	closed.emit()
 
 

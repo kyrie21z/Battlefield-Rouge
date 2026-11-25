@@ -170,6 +170,6 @@ func _choose(buff: Buff) -> void:
 		button.disabled = true
 	get_viewport().set_input_as_handled()
 	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, get_window())
 	chosen.emit(buff)
 	queue_free()

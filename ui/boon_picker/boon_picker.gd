@@ -443,7 +443,7 @@ func _accept(data: BoonData) -> void:
 	_audio.finished.connect(_audio.queue_free)
 	manager.feedback(manager.player.global_position + Vector3.UP, BoonPresentation.accent(data), 0.7)
 	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, get_window())
 	chosen.emit(data)
 	queue_free()
 
@@ -467,7 +467,7 @@ func _skip_empty() -> void:
 	_selected = true
 	_completed = true
 	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	GamePointer.restore(Input.MOUSE_MODE_CAPTURED, get_window())
 	skipped.emit()
 	queue_free()
 
@@ -503,7 +503,7 @@ func _exit_tree() -> void:
 		if _pending != null and is_instance_valid(manager):
 			manager.confirm_replace(false)
 		get_tree().paused = _previous_pause
-		Input.mouse_mode = _previous_mouse
+		GamePointer.restore(_previous_mouse, get_window())
 
 
 func dismiss_for_transition() -> void:

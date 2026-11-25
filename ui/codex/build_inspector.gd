@@ -178,7 +178,7 @@ func _finish_close() -> void:
 	_release_actions()
 	if not is_instance_valid(player) or not player.health.is_dead():
 		get_tree().paused = false
-		Input.mouse_mode = _mouse_mode
+		GamePointer.restore(_mouse_mode, get_window())
 
 
 func _on_death(_source: Node = null) -> void:
@@ -188,7 +188,7 @@ func _on_death(_source: Node = null) -> void:
 func _exit_tree() -> void:
 	if opened and (not is_instance_valid(player) or not player.health.is_dead()):
 		get_tree().paused = false
-		Input.mouse_mode = _mouse_mode
+		GamePointer.restore(_mouse_mode, get_window())
 
 
 func _release_actions() -> void:

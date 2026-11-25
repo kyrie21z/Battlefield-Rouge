@@ -22,7 +22,7 @@ func _ready()->void:
 	var visited:Array[String]=[]
 	var depth_waves:Array[int]=[0,0,0,0]
 	var depth_elites:Array[int]=[0,0,0,0]
-	for index in 12:
+	for index in 13:
 		await frames(8)
 		var stage:=RunDirector.current_stage as RealmStage
 		if stage==null:
@@ -52,62 +52,79 @@ func _ready()->void:
 				and is_equal_approx(sample.effective_windup_scale(),minf(2.0,windup_cap)/(base_tempo*layer))
 			stage.player.boons.clear_status(sample,&"test_realm_tempo")
 			check("room %d keeps realm tempo orthogonal to boon status"%index,status_ok and is_equal_approx(sample.realm_tempo_scale,base_tempo) and is_equal_approx(sample.effective_attack_scale(),base_tempo*layer) and is_equal_approx(sample.effective_windup_scale(),1.0/(base_tempo*layer)))
-		if not stage.boss_room:
-			check("depth %d room %d authors %d waves" % [stage.depth+1,stage.room_index+1,_wave_total_expectation(stage.depth,stage.room_index).size()],
-				stage.total_waves()==_wave_total_expectation(stage.depth,stage.room_index).size())
-			check("depth %d room %d opens with the authored first density" % [stage.depth+1,stage.room_index+1],
-				stage.enemies.size()==_wave_total_expectation(stage.depth,stage.room_index)[0])
+		if stage.rest_room:
+			check("depth %d sanctuary carries no enemies" % [stage.depth+1],
+				stage.rest_room and stage.enemies.is_empty() and not is_instance_valid(stage.boss))
+			check("depth %d sanctuary opens the boss gate on arrival" % [stage.depth+1],
+				stage.cleared and stage.exit_ready and stage._gate_label.text.contains("首领门扉"))
+			var will_before := RunDirector.earned_will
+			RunDirector._stage_cleared(stage)
+			check("depth %d sanctuary never pays room will" % [stage.depth+1], RunDirector.earned_will==will_before)
+			stage.player.health.health = stage.player.health.max_health * 0.4
+			var altar: Vector3 = stage.geometry.call("rest_position")
+			stage.player.position = altar
+			var healed := stage.request_rest()
+			check("depth %d sanctuary heals to full exactly once" % [stage.depth+1],
+				healed and is_equal_approx(stage.player.health.health,stage.player.health.max_health)
+				and not stage.request_rest())
+			check("depth %d sanctuary unlocks its boss door immediately" % [stage.depth+1], stage.exit_ready and not get_tree().paused)
 		else:
-			var phases:=[0]
-			stage.boss.phase_changed.connect(func(_p:int):phases[0]+=1)
-			stage.boss.health.apply_damage(stage.boss.health.health-stage.boss.health.max_health*0.5,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
-			await frames(2)
-			check("depth %d boss crosses into phase 2 exactly once" % [stage.depth+1],
-				int(stage.boss.get("boss_phase"))==2 and phases[0]==1)
-			check("depth %d campaign boss phase 2 spawns two real escorts" % [stage.depth+1],
-				stage.boss_escorts.size()==2 and stage.boss_escorts.all(func(enemy:Enemy):return not enemy.health.is_dead()))
-		if is_instance_valid(stage.selection):
-			var picker:=stage.selection
-			picker._choose(picker._offered[0])
-			picker.confirm_replacement(true)
-			await frames(2)
-		if stage.boss_room:
-			for enemy in stage.enemies:
-				enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
-			await frames(4)
-			check("depth %d boss death clears the escorts without blocking the shard" % [stage.depth+1],
-				stage.boss_defeated and stage.boss_escorts.is_empty() and stage.living_enemies()==0)
-		else:
-			await _clear_all_waves(stage)
-			var authoring:=_wave_total_expectation(stage.depth,stage.room_index)
-			var total:=0
-			for count in authoring:total+=count
-			check("depth %d room %d spawns every authored reinforcement" % [stage.depth+1,stage.room_index+1],
-				stage.enemies.size()==total and stage.cleared)
-			check("depth %d room %d keeps the authored elite quota" % [stage.depth+1,stage.room_index+1],
-				stage.enemies.filter(func(enemy:Enemy):return enemy.is_elite).size()==_elite_expectation(stage.depth,stage.room_index))
-			depth_waves[stage.depth]+=stage.total_waves()
-			depth_elites[stage.depth]+=stage.enemies.filter(func(enemy:Enemy):return enemy.is_elite).size()
-		if stage.boss_room:
-			check("boss %d records death before pickup"%stage.realm,RunDirector.defeated.has(stage.realm) and not stage.exit_ready)
-			check("boss %d drops actual shard"%stage.realm,is_instance_valid(stage.shard))
-			if is_instance_valid(stage.shard):stage.player.position=stage.shard.position
-			await frames(4)
-			check("boss %d pickup activates independent core"%stage.realm,stage.player.fragments.has_shard(stage.realm) and stage.exit_ready)
-		else:
-			if stage.orb_pending():
-				stage.claim_talent()
-				for _f in 4:
-					await get_tree().physics_frame
-			check("normal room clear opens actual reward choice",is_instance_valid(stage.selection) and get_tree().paused)
+			if not stage.boss_room:
+				check("depth %d room %d authors %d waves" % [stage.depth+1,stage.room_index+1,_wave_total_expectation(stage.depth,stage.room_index).size()],
+					stage.total_waves()==_wave_total_expectation(stage.depth,stage.room_index).size())
+				check("depth %d room %d opens with the authored first density" % [stage.depth+1,stage.room_index+1],
+					stage.enemies.size()==_wave_total_expectation(stage.depth,stage.room_index)[0])
+			else:
+				var phases:=[0]
+				stage.boss.phase_changed.connect(func(_p:int):phases[0]+=1)
+				stage.boss.health.apply_damage(stage.boss.health.health-stage.boss.health.max_health*0.5,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
+				await frames(2)
+				check("depth %d boss crosses into phase 2 exactly once" % [stage.depth+1],
+					int(stage.boss.get("boss_phase"))==2 and phases[0]==1)
+				check("depth %d campaign boss phase 2 spawns two real escorts" % [stage.depth+1],
+					stage.boss_escorts.size()==2 and stage.boss_escorts.all(func(enemy:Enemy):return not enemy.health.is_dead()))
 			if is_instance_valid(stage.selection):
 				var picker:=stage.selection
-				if not picker._offered.is_empty():
-					picker._choose(picker._offered[0])
-					picker.confirm_replacement(true)
-				else:picker._skip_empty()
-			await frames(3)
-		check("room %d unlocks only after completion"%index,stage.exit_ready and not get_tree().paused)
+				picker._choose(picker._offered[0])
+				picker.confirm_replacement(true)
+				await frames(2)
+			if stage.boss_room:
+				for enemy in stage.enemies:
+					enemy.health.apply_damage(100000,Hitbox.BodyPart.BODY,stage.player,{"true_damage":true})
+				await frames(4)
+				check("depth %d boss death clears the escorts without blocking the shard" % [stage.depth+1],
+					stage.boss_defeated and stage.boss_escorts.is_empty() and stage.living_enemies()==0)
+			else:
+				await _clear_all_waves(stage)
+				var authoring:=_wave_total_expectation(stage.depth,stage.room_index)
+				var total:=0
+				for count in authoring:total+=count
+				check("depth %d room %d spawns every authored reinforcement" % [stage.depth+1,stage.room_index+1],
+					stage.enemies.size()==total and stage.cleared)
+				check("depth %d room %d keeps the authored elite quota" % [stage.depth+1,stage.room_index+1],
+					stage.enemies.filter(func(enemy:Enemy):return enemy.is_elite).size()==_elite_expectation(stage.depth,stage.room_index))
+				depth_waves[stage.depth]+=stage.total_waves()
+				depth_elites[stage.depth]+=stage.enemies.filter(func(enemy:Enemy):return enemy.is_elite).size()
+			if stage.boss_room:
+				check("boss %d records death before pickup"%stage.realm,RunDirector.defeated.has(stage.realm) and not stage.exit_ready)
+				check("boss %d drops actual shard"%stage.realm,is_instance_valid(stage.shard))
+				if is_instance_valid(stage.shard):stage.player.position=stage.shard.position
+				await frames(4)
+				check("boss %d pickup activates independent core"%stage.realm,stage.player.fragments.has_shard(stage.realm) and stage.exit_ready)
+			else:
+				if stage.orb_pending():
+					stage.claim_talent()
+					for _f in 4:
+						await get_tree().physics_frame
+				check("normal room clear opens actual reward choice",is_instance_valid(stage.selection) and get_tree().paused)
+				if is_instance_valid(stage.selection):
+					var picker:=stage.selection
+					if not picker._offered.is_empty():
+						picker._choose(picker._offered[0])
+						picker.confirm_replacement(true)
+					else:picker._skip_empty()
+				await frames(3)
+			check("room %d unlocks only after completion"%index,stage.exit_ready and not get_tree().paused)
 		stage.player.position=stage.gate.position+Vector3(0,0.1,1.4)
 		await frames(2)
 		check("room %d physical gate advances"%index,stage.request_exit())
@@ -118,7 +135,13 @@ func _ready()->void:
 		check("room %d loads next scene without duplicate exit"%index,RunDirector.current_stage!=stage)
 	check("deeper floors add reinforcement waves (2/3/4/5)",depth_waves==[2,3,4,5])
 	check("elite quotas escalate with depth (0/1/3/5)",depth_elites==[0,1,3,5])
-	check("all twelve actual rooms visited without repetition",visited.size()==12 and _unique(visited)==12)
+	check("all thirteen actual rooms visited without repetition",visited.size()==13 and _unique(visited)==13)
+	check("the Sloth floor runs combat, combat, sanctuary, boss",
+		visited.slice(0,4)==[
+			"res://maps/realms/sloth_1.tscn","res://maps/realms/sloth_2.tscn",
+			"res://maps/realms/sloth_rest.tscn","res://maps/realms/sloth_boss.tscn"])
+	check("no later realm reopens a sanctuary once Sloth is lost",
+		visited.filter(func(path:String):return path.ends_with("fear_rest.tscn") or path.ends_with("wrath_rest.tscn") or path.ends_with("sorrow_rest.tscn")).is_empty())
 	check("final destination is the real return corridor",RunDirector.current_stage.scene_file_path==RunDirector.THRESHOLD)
 	var final_player:Player=RunDirector.current_stage.player
 	check("final player owns all four cores and losses",final_player.fragments.shards.size()==4 and final_player.fragments.deprivations.size()==4)

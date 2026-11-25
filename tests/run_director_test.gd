@@ -53,8 +53,12 @@ func _ready()->void:
 		check("depth %d health scaling follows its own curve" % (depth+1),is_equal_approx(RunDirector.hp_scale(),hp_curve[depth]) and is_equal_approx(float(profile["hp_scale"]),hp_curve[depth]))
 		check("depth %d damage scaling stays fair" % (depth+1),is_equal_approx(RunDirector.difficulty(),damage_curve[depth]) and is_equal_approx(float(profile["damage_scale"]),damage_curve[depth]))
 		check("depth %d tempo follows the lost Sloth" % (depth+1),is_equal_approx(RunDirector.tempo_scale(),tempo_curve[depth]+haste) and is_equal_approx(float(profile["tempo_scale"]),tempo_curve[depth]+haste))
-		check("first combat room advances to second",RunDirector.advance_room() and RunDirector.room_index==1)
-		check("second combat room advances to boss",RunDirector.advance_room() and RunDirector.room_index==2)
+		check("first combat room advances to second",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_COMBAT_2)
+		if RunDirector.has_rest_room():
+			check("second combat room opens the rest sanctuary",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_REST and RunDirector.is_rest_room())
+			check("the sanctuary advances into the boss slot",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_BOSS)
+		else:
+			check("second combat room skips the lost sanctuary",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_BOSS)
 		check("boss gate blocks before defeat",not RunDirector.advance_room())
 		var realm:=RunDirector.current_realm()
 		check("boss death records one deprivation",RunDirector.defeat_realm(realm) and RunDirector.deprivations.size()==depth+1)
@@ -164,7 +168,7 @@ func _ready()->void:
 	MetaProgression.defiance_consumed = true
 	RunDirector._revived_for_checkpoint(resume_player)
 	check("a spent revival is latched without banking mid-room rewards",bool(MetaProgression.active_run.get("defiance_consumed",false)) and int(MetaProgression.active_run.get("earned_will",-1))==0)
-	check("advancing the room writes the next boundary checkpoint",RunDirector.advance_room() and RunDirector.room_index==2 and int(MetaProgression.active_run.get("room_index",-1))==2)
+	check("advancing the room writes the next boundary checkpoint",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_BOSS and int(MetaProgression.active_run.get("room_index",-1))==RunDirector.ROOM_BOSS)
 	check("room advance stores cleared rewards and clears the rest budget",int(MetaProgression.active_run.get("earned_will",-1))==25 and is_zero_approx(float(MetaProgression.active_run.get("fragment_state",{}).get("room_healed",-1.0))))
 	check("checkpoint stores the spent revival",bool(MetaProgression.active_run.get("defiance_consumed",false)))
 	RunDirector.earned_will += 5
@@ -192,7 +196,7 @@ func _ready()->void:
 	var resumed = load("res://autoload/run_director.gd").new()
 	add_child(resumed)
 	check("resume_run rebuilds the run from the cold snapshot",resumed.resume_run(fake_packed))
-	check("resumed run restores the exact room and realm order",resumed.floor_index==2 and resumed.room_index==2 and resumed.order==RunDirector.order and resumed.run_id==saved_run_id)
+	check("resumed run restores the exact room and realm order",resumed.floor_index==2 and resumed.room_index==RunDirector.ROOM_BOSS and resumed.order==RunDirector.order and resumed.run_id==saved_run_id)
 	check("resumed run restores HP, rerolls and cursed crown",is_equal_approx(resumed.hp,37.0) and resumed.rerolls==1 and is_equal_approx(resumed.crown_strength,0.5*pow(2.4,2)))
 	check("resumed run restores boons, cores and deprivations",resumed.boons.size()==1 and (resumed.boons[0] as BoonData).id==resume_card.id and resumed.shards.size()==2 and resumed.shards.has(RunDirector.order[0]) and resumed.shards.has(RunDirector.order[1]) and resumed.deprivations.size()==2)
 	check("resumed run restores fragment state minus the used rest budget",is_equal_approx(float(resumed.fragment_state.get("barrier",-1.0)),12.0) and is_equal_approx(float(resumed.fragment_state.get("counter",-1.0)),0.7) and is_zero_approx(float(resumed.fragment_state.get("room_healed",-1.0))))
@@ -225,6 +229,28 @@ func _ready()->void:
 	add_child(stale_resume)
 	check("resume refuses to start without a checkpoint",not stale_resume.resume_run(fake_packed))
 	stale_resume.queue_free()
+	# --- Pre-boss sanctuary: four-slot floor, checkpoint and post-Sloth collapse ---
+	RunDirector.begin_run(5150)
+	RunDirector.order.assign([0,1,2,3])
+	RunDirector.prepare_departure()
+	check("a Sloth-alive floor is four rooms long",RunDirector.has_rest_room() and RunDirector.rooms_in_floor()==4)
+	check("four-slot display numbers stay one-based",RunDirector.display_room_number(0)==1 and RunDirector.display_room_number(1)==2 and RunDirector.display_room_number(2)==3 and RunDirector.display_room_number(3)==4)
+	RunDirector.advance_room()
+	check("second combat room leads into the sanctuary",RunDirector.advance_room() and RunDirector.room_index==RunDirector.ROOM_REST and RunDirector.is_rest_room() and RunDirector.scene_path().ends_with("sloth_rest.tscn"))
+	check("the sanctuary checkpoint is written",int(MetaProgression.active_run.get("room_index",-1))==RunDirector.ROOM_REST)
+	var rest_resume = load("res://autoload/run_director.gd").new()
+	add_child(rest_resume)
+	check("resume installs the sanctuary directly",rest_resume.resume_run(fake_packed) and rest_resume.room_index==RunDirector.ROOM_REST and rest_resume.scene_path().ends_with("sloth_rest.tscn"))
+	check("the sanctuary advances into the boss slot",rest_resume.advance_room() and rest_resume.room_index==RunDirector.ROOM_BOSS)
+	rest_resume.floor_index = 1
+	rest_resume.defeated.append(PsycheFragments.SLOTH)
+	rest_resume.deprivations.append(PsycheFragments.SLOTH)
+	check("losing Sloth collapses every later floor to three rooms",not rest_resume.has_rest_room() and rest_resume.rooms_in_floor()==3 and rest_resume.display_room_number(3)==3 and rest_resume.display_room_number(1)==2)
+	rest_resume.room_index = RunDirector.ROOM_COMBAT_2
+	check("post-Sloth second room jumps straight to the boss",rest_resume.advance_room() and rest_resume.room_index==RunDirector.ROOM_BOSS)
+	rest_resume.room_index = RunDirector.ROOM_REST
+	check("the schema refuses a sanctuary checkpoint after Sloth",not MetaProgression.save_active_run(rest_resume._active_run_snapshot()))
+	rest_resume.queue_free()
 	resumed.queue_free()
 	check("a run after death departs cleanly",RunDirector.begin_run(777))
 	RunDirector.prepare_departure()

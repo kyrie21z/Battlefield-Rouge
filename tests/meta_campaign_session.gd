@@ -88,7 +88,7 @@ func _run() -> void:
 	check("ordinary room transition suppresses historical voice repetition",stage.player.get_node("CrownVoiceSystem").played_keys.is_empty())
 	# Enter the actual boss map, then use its real Health death and pickup signals.
 	RunDirector.capture_player(stage.player)
-	RunDirector.room_index=2
+	RunDirector.room_index=RunDirector.ROOM_BOSS
 	RunDirector.install_stage(load(RunDirector.scene_path()))
 	await frames(4)
 	stage=RunDirector.current_stage

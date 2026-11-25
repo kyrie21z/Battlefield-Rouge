@@ -172,13 +172,17 @@ func _ready() -> void:
 	check("banked will makes at least one upgrade affordable",resume_store.settle_run("forge-ready",60,0) and resume_store.has_affordable_upgrade())
 	var snapshot := active_snapshot({"boon_ids":[core_id,trait_id]})
 	check("valid room snapshot is accepted",resume_store.save_active_run(snapshot) and resume_store.has_active_run() and resume_store.active_run_id=="active-run-77")
+	check("a sanctuary checkpoint is valid while Sloth lives",resume_store.save_active_run(active_snapshot({"room_index":2})) and int(resume_store.active_run.get("room_index",-1))==2)
 	check("snapshot with non-positive hp is rejected without touching the stored one",not resume_store.save_active_run(active_snapshot({"hp":0.0})) and is_equal_approx(float(resume_store.active_run.get("hp",0.0)),96.5))
 	var tamper_cases := {
 		"empty run id":{"run_id":""},
 		"already settled run id":{"settled_run":true},
 		"order is not a permutation":{"order":[1,0,2,2]},
 		"floor above the return corridor":{"floor_index":5},
-		"room above the boss room":{"room_index":3},
+		"room above the boss room":{"room_index":4},
+		"rest room after sloth deprivation":{"room_index":2,"defeated":[0],"deprivations":[0],"shards":[0]},
+		"contradictory defeated and deprivations":{"room_index":2,"defeated":[0],"deprivations":[],"shards":[0]},
+		"unknown room schema":{"room_schema":99},
 		"return corridor with a sub-room":{"floor_index":4,"room_index":1},
 		"return corridor without four cores":{"floor_index":4,"room_index":0,"defeated":[0,1,2,3],"deprivations":[0,1,2,3],"shards":[0,1]},
 		"duplicate defeated realm":{"defeated":[1,1]},
@@ -233,6 +237,39 @@ func _ready() -> void:
 	add_child(legacy_fields)
 	check("legacy v1 without new fields infers a completed opening",legacy_fields.load_status=="loaded" and legacy_fields.opening_completed and not legacy_fields.has_active_run())
 	check("legacy v1 keeps its wallet and talents",legacy_fields.will_shards==resume_store.will_shards and legacy_fields.has_profile())
+	var unversioned_rest := active_snapshot({"room_index":2})
+	unversioned_rest.erase("room_schema")
+	check("save_active_run rejects an unversioned sanctuary checkpoint",not resume_store.save_active_run(unversioned_rest))
+	# Legacy v1 boss-room checkpoints (slot 2 without room_schema) migrate to
+	# slot 3 on load both before and after Sloth deprivation.
+	for case_spec in [
+		{"tag":"pre-sloth","floor_index":0,"defeated":[],"deprivations":[],"shards":[]},
+		{"tag":"post-sloth","floor_index":1,"defeated":[0],"deprivations":[0],"shards":[0]},
+	]:
+		var legacy_boss_path := profile+".v1-boss-"+str(case_spec["tag"])
+		files.append(legacy_boss_path)
+		var legacy_boss_data := resume_store._payload()
+		var legacy_run := active_snapshot({
+			"run_id":"legacy-boss-"+str(case_spec["tag"]),
+			"floor_index":case_spec["floor_index"],
+			"room_index":2,
+			"defeated":case_spec["defeated"],
+			"deprivations":case_spec["deprivations"],
+			"shards":case_spec["shards"],
+			"selections":[{"floor":1,"room":2,"realm":1,"boon_id":"dual_slumber_magma"}],
+		})
+		legacy_run.erase("room_schema")
+		legacy_boss_data.active_run = legacy_run
+		write_checksummed(legacy_boss_path,legacy_boss_data)
+		var migrated := MetaProgressionStore.new()
+		migrated.override_path = legacy_boss_path
+		add_child(migrated)
+		check("legacy v1 %s boss checkpoint migrates slot 2 and selections to slot 3" % case_spec["tag"],
+			migrated.load_status=="loaded" and migrated.has_active_run()
+			and int(migrated.active_run.get("room_index",-1))==3
+			and int(migrated.active_run.selections[0].get("room",-1))==3
+			and int(migrated.active_run.get("room_schema",-1))==MetaProgressionStore.ACTIVE_RUN_ROOM_SCHEMA)
+		migrated.queue_free()
 	legacy_fields.queue_free()
 	var blank_fields_data := legacy_fields_data.duplicate(true)
 	blank_fields_data.history = {"run_count":0,"last_depth":0,"death_cause":""}
@@ -305,6 +342,7 @@ func frames(count: int) -> void:
 ## rejection can only come from the field under test.
 func active_snapshot(overrides: Dictionary = {}) -> Dictionary:
 	var value := {
+		"room_schema":MetaProgressionStore.ACTIVE_RUN_ROOM_SCHEMA,
 		"run_id":"active-run-77",
 		"run_seed":91234,
 		"order":[1,0,2,3],

@@ -278,7 +278,7 @@ func _run() -> void:
 	_check("the cold title offers only the saved challenge",
 		_button("Primary").text == "继续当前挑战" and _button("Abandon").visible)
 	_check("the cold summary names the saved room",
-		_title._summary.text == "第 1 层 · 恐惧 房 2/3")
+		_title._summary.text == "第 1 层 · 恐惧 房 2/4")
 	_button("Primary").pressed.emit()
 	if not await _wait_until(func(): return RunDirector.current_stage is RealmStage and RunDirector.active, 900):
 		_check("继续当前挑战 installs the saved room", false)

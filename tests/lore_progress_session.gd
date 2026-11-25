@@ -25,7 +25,7 @@ func _ready() -> void:
 	RunDirector.begin_run(175)
 	RunDirector.order.assign([0,1,2,3])
 	RunDirector.floor_index = 2
-	RunDirector.room_index = 2
+	RunDirector.room_index = RunDirector.ROOM_BOSS
 	RunDirector.install_stage(load(RunDirector.scene_path()))
 	var stage := RunDirector.current_stage as RealmStage
 	stage.boss.health.apply_damage(99999,Hitbox.BodyPart.BODY,stage.player)

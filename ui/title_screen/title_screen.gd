@@ -89,8 +89,7 @@ func refresh_from_store(store: MetaProgressionStore) -> void:
 		_primary_action = Action.RESUME
 		_primary.text = "继续当前挑战"
 		var floor_index: int = checkpoint.floor_index
-		_summary.text = "终局返程回廊" if floor_index == 4 else "第 %d 层 · %s 房 %d/3" % [
-			floor_index + 1, REALM_NAMES[checkpoint.order[floor_index]], int(checkpoint.room_index) + 1]
+		_summary.text = "终局返程回廊" if floor_index == 4 else _checkpoint_summary(checkpoint, floor_index)
 	elif has_profile:
 		_primary_action = Action.HUB
 		_primary.text = "继续游戏"
@@ -102,6 +101,29 @@ func refresh_from_store(store: MetaProgressionStore) -> void:
 		_summary.text = ""
 	_summary.visible = not _summary.text.is_empty()
 	_link_focus()
+
+
+## Resume caption. The sanctuary occupies slot three while Sloth is alive, so
+## the same room index reads 2/3 in a three-room floor and 2/4 in a four-room one.
+func _checkpoint_summary(checkpoint: Dictionary, floor_index: int) -> String:
+	var realm_name: String = REALM_NAMES[checkpoint.order[floor_index]]
+	var room_value := int(checkpoint.room_index)
+	var has_rest := not (checkpoint.deprivations as Array).any(
+		func(value: Variant) -> bool: return int(value) == 0)
+	if has_rest:
+		var kind := "房"
+		var number := room_value + 1
+		if room_value == 2:
+			kind = "休息室"
+		elif room_value == 3:
+			kind = "首领"
+		return "第 %d 层 · %s %s %d/4" % [floor_index + 1, realm_name, kind, number]
+	var number := room_value + 1
+	var kind := "房"
+	if room_value == 3:
+		number = 3
+		kind = "首领"
+	return "第 %d 层 · %s %s %d/3" % [floor_index + 1, realm_name, kind, number]
 
 
 func bust_state() -> Dictionary:

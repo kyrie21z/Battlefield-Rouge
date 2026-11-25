@@ -28,6 +28,7 @@ var _stasis_strength := 0.0
 var _base_sensitivity := 0.0022
 var _root: Control
 var _realm_plaque: HBoxContainer
+var _realm_caption: Label
 var _boon_strip: PanelContainer
 var _slot_badges: Array[Label] = []
 var _trait_count_badge: Label
@@ -132,6 +133,7 @@ func _ready() -> void:
 	_refresh_boons()
 	_build_exit_and_death_feedback()
 	stage.wave_spawned.connect(_on_wave_spawned)
+	stage.rest_healed.connect(_on_rest_healed)
 
 
 func _build_top_left_plaque() -> void:
@@ -169,8 +171,9 @@ func _build_top_left_plaque() -> void:
 	text_col.add_theme_constant_override("separation", 2)
 	info_row.add_child(text_col)
 
-	var realm_caption := "%s  /  %s" % [EditorialStyle.realm_en(stage.realm), RealmStage.TITLES[stage.realm]]
-	text_col.add_child(EditorialStyle.make_label(realm_caption, 12, EditorialStyle.SLATE, 700, true, 1))
+	var realm_caption := "%s  /  %s  ·  %s" % [EditorialStyle.realm_en(stage.realm), RealmStage.TITLES[stage.realm], stage.room_badge_text()]
+	_realm_caption = EditorialStyle.make_label(realm_caption, 12, EditorialStyle.SLATE, 700, true, 1)
+	text_col.add_child(_realm_caption)
 
 	_objective = EditorialStyle.make_label("", 18, EditorialStyle.INK, 700)
 	text_col.add_child(_objective)
@@ -500,6 +503,24 @@ func _update_exit_and_death_feedback() -> void:
 		_exit_hint.add_theme_color_override("font_color", EditorialStyle.PAPER)
 		_exit_hint.text = "[ %s ]  冲刺脱离漩涡" % KeyHint.of("dash")
 		return
+	if stage.rest_altar_pending():
+		if stage.can_interact_rest():
+			var max_health := int(ceil(stage.player.health.max_health))
+			var current := int(ceil(stage.player.health.health))
+			_exit_hint.size = Vector2(460, 92)
+			_exit_hint.position = Vector2(viewport_size.x * 0.5 - 230.0, viewport_size.y * 0.72)
+			_exit_hint.add_theme_stylebox_override("normal", _exit_hint_style_orb)
+			_exit_hint.add_theme_font_size_override("font_size", 24)
+			_exit_hint.add_theme_color_override("font_color", EditorialStyle.INK)
+			if current < max_health:
+				_exit_hint.text = "[ %s ]  静息恢复生命  (%d → %d)" % [KeyHint.of("interact"), current, max_health]
+			else:
+				_exit_hint.text = "[ %s ]  静息片刻  (生命已满)" % KeyHint.of("interact")
+			return
+		# Keep the sanctuary vista unobstructed until the player either rests or approaches the boss gate.
+		if stage.player.global_position.distance_to(stage.gate.global_position) > 5.0:
+			_exit_hint.hide()
+			return
 	var camera := get_viewport().get_camera_3d()
 	if camera == null:
 		return
@@ -528,7 +549,8 @@ func _update_exit_and_death_feedback() -> void:
 	_exit_hint.add_theme_color_override("font_color", EditorialStyle.PAPER)
 	_exit_hint.position = Vector2(clampf(location.x - 150, 24, viewport_size.x - 324), clampf(location.y - 72, 96, viewport_size.y - 180))
 	var distance := stage.player.global_position.distance_to(stage.gate.global_position)
-	_exit_hint.text = "下一关门扉  ·  %.0f 米\n%s" % [distance, "[ %s ] 进入" % KeyHint.of("interact") if distance <= 3.0 else "朝标记方向前进"]
+	var gate_name := "首领门扉" if stage.rest_room else "下一关门扉"
+	_exit_hint.text = "%s  ·  %.0f 米\n%s" % [gate_name, distance, "[ %s ] 进入" % KeyHint.of("interact") if distance <= 3.0 else "朝标记方向前进"]
 
 
 func _label(text_value: String, font_size: int) -> Label:
@@ -567,6 +589,10 @@ func _process(delta: float) -> void:
 		and not stage.transitioning and not stage.exit_ready and not stage.cleared:
 		_objective.text = "第 %d/%d 波 · 剩余 %d" % [stage.current_wave(), stage.total_waves(), stage.remaining_encounter_enemies()]
 	_update_boss_readout()
+	# Live caption: a boss kill grants the deprivation that removes the rest
+	# room from every later floor, and the badge must follow in the same frame.
+	if _realm_caption != null:
+		_realm_caption.text = "%s  /  %s  ·  %s" % [EditorialStyle.realm_en(stage.realm), RealmStage.TITLES[stage.realm], stage.room_badge_text()]
 	_ammo.text = "%d / %d\n%s" % [player.weapon.ammo, player.weapon.magazine_capacity(), "晶体重组…" if player.weapon.is_reloading() else "黑晶手枪"]
 
 	var camera := get_viewport().get_camera_3d()
@@ -604,6 +630,14 @@ func _on_wave_spawned(_stage: RealmStage, wave_index: int, total_waves: int) -> 
 		return
 	_wave_notice.text = "增援抵达 · 第 %d/%d 波" % [wave_index, total_waves]
 	_wave_notice_left = 2.2
+
+
+func _on_rest_healed(_stage: RealmStage, amount: float) -> void:
+	if amount >= 0.5:
+		_wave_notice.text = "静息恢复  ·  +%d 生命" % roundi(amount)
+	else:
+		_wave_notice.text = "心绪已平复  ·  生命已满"
+	_wave_notice_left = 2.6
 
 
 func _apply_settings() -> void:

@@ -8,6 +8,7 @@
 script = ExtResource("1")
 realm = 0
 room_index = 1
+rest_room = false
 boss_room = false
 
 [node name="Geometry" type="Node3D" parent="."]

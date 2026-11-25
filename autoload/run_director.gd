@@ -36,6 +36,12 @@ var _starter_given := false
 var _epoch := 0
 const KILL_WILL := 5
 const ROOM_WILL := 20
+## Room slots inside one realm floor. A rest sanctuary sits between the second
+## combat room and the boss while the Sloth deprivation has not been taken.
+const ROOM_COMBAT_1 := 0
+const ROOM_COMBAT_2 := 1
+const ROOM_REST := 2
+const ROOM_BOSS := 3
 ## Depth scaling is a three-axis vector and never depends on realm identity:
 ## health climbs fastest, damage stays fair, and tempo tightens the enemy
 ## attack cadence. Only the depth and the lost realms may change it.
@@ -167,6 +173,7 @@ func _active_run_snapshot() -> Dictionary:
 		if card is BoonData:
 			boon_ids.append(card.id)
 	return {
+		"room_schema":MetaProgressionStore.ACTIVE_RUN_ROOM_SCHEMA,
 		"run_id":run_id,
 		"run_seed":run_seed,
 		"order":order.duplicate(),
@@ -443,6 +450,9 @@ func _enemy_defeated(stage: Node, actor: Enemy) -> void:
 func _stage_cleared(stage: Node) -> void:
 	if stage != current_stage or not active or _dead or _settled or not bool(stage.get("cleared")):
 		return
+	# The rest sanctuary is a free pause, never a paid room.
+	if bool(stage.get("rest_room")):
+		return
 	var key := "%d:%d" % [floor_index,room_index]
 	if _rewarded_rooms.has(key):
 		return
@@ -480,16 +490,51 @@ func difficulty(depth: int = -1) -> float:
 func current_realm() -> int:
 	return order[floor_index] if floor_index < order.size() else -1
 
+## The pre-boss rest sanctuary exists only until Sloth is deprived; afterwards
+## every later floor drops straight from the second combat room into the boss.
+func has_rest_room(active_deprivations = null) -> bool:
+	var values: Array = deprivations if active_deprivations == null else active_deprivations
+	return not values.has(PsycheFragments.SLOTH)
+
+func rooms_in_floor(active_deprivations = null) -> int:
+	return 4 if has_rest_room(active_deprivations) else 3
+
+## Human-facing 1-based room number. With the sanctuary the slots map straight
+## through; without it the boss keeps the third slot's number.
+func display_room_number(room: int = -1, active_deprivations = null) -> int:
+	var index := room_index if room < 0 else room
+	if has_rest_room(active_deprivations):
+		return index + 1
+	match index:
+		ROOM_COMBAT_1:
+			return 1
+		ROOM_COMBAT_2:
+			return 2
+	return 3
+
+func is_rest_room() -> bool:
+	return floor_index < 4 and room_index == ROOM_REST
+
+func is_boss_room() -> bool:
+	return floor_index < 4 and room_index == ROOM_BOSS
+
 func scene_path() -> String:
 	if floor_index >= 4:
 		return THRESHOLD
 	if order.size() != 4:
 		return ""
-	var suffix := str(room_index+1) if room_index < 2 else "boss"
+	var suffix := "1"
+	match room_index:
+		ROOM_COMBAT_2:
+			suffix = "2"
+		ROOM_REST:
+			suffix = "rest"
+		ROOM_BOSS:
+			suffix = "boss"
 	return "res://maps/realms/%s_%s.tscn" % [REALMS[current_realm()],suffix]
 
 func defeat_realm(realm: int) -> bool:
-	if not active or _dead or room_index != 2 or realm != current_realm() or defeated.has(realm):
+	if not active or _dead or room_index != ROOM_BOSS or realm != current_realm() or defeated.has(realm):
 		return false
 	defeated.append(realm)
 	MetaProgression.record_archive(realm,true)
@@ -641,11 +686,13 @@ func advance_room() -> bool:
 	var old_room := room_index
 	var old_fragment_state := fragment_state.duplicate(true)
 	var old_pending := _pending_checkpoint.duplicate(true)
-	if room_index == 2:
+	if room_index == ROOM_BOSS:
 		if not defeated.has(current_realm()) or not shards.has(current_realm()):
 			return false
 		floor_index += 1
-		room_index = 0
+		room_index = ROOM_COMBAT_1
+	elif room_index == ROOM_COMBAT_2 and not has_rest_room():
+		room_index = ROOM_BOSS
 	else:
 		room_index += 1
 	if not fragment_state.is_empty():

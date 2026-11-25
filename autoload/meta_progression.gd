@@ -5,6 +5,7 @@ signal changed
 signal revived(player: Player)
 const SAVE_PATH := "user://meta_progression.json"
 const VERSION := 1
+const ACTIVE_RUN_ROOM_SCHEMA := 2
 const IDS := ["resolve","reflex","defiance","focus","reroll","first_edge","keepsake_slots"]
 const NAMES := {"resolve":"坚韧心智","reflex":"突触反射","defiance":"不屈意志","focus":"专注容量","reroll":"重构决意","first_edge":"初见锋芒","keepsake_slots":"高阶信物槽"}
 const MAX_LEVEL := {"resolve":5,"reflex":3,"defiance":1,"focus":3,"reroll":2,"first_edge":1,"keepsake_slots":2}
@@ -344,6 +345,16 @@ func _restore(payload: Dictionary) -> void:
 	var inferred_opening := int(history.run_count) > 0 or not settled_runs.is_empty() or not visited_realms.is_empty()
 	opening_completed = bool(payload["opening_completed"]) if payload.has("opening_completed") else inferred_opening
 	active_run = payload.get("active_run",{}).duplicate(true)
+	if not active_run.is_empty() and not active_run.has("room_schema"):
+		# Legacy v1 checkpoints encoded the boss room at slot 2 before the rest
+		# sanctuary took slot 2; migrate boss-room checkpoints to slot 3 on load.
+		if int(active_run.get("floor_index",0)) < 4 and int(active_run.get("room_index",0)) == 2:
+			active_run["room_index"] = 3
+			if active_run.get("selections") is Array:
+				for entry in active_run.selections:
+					if entry is Dictionary and int(entry.get("room",0)) == 2:
+						entry["room"] = 3
+			active_run["room_schema"] = ACTIVE_RUN_ROOM_SCHEMA
 	active_run_id = str(active_run.get("run_id","")) if not active_run.is_empty() else ""
 	if not active_run.is_empty():
 		defiance_consumed = bool(active_run.get("defiance_consumed",defiance_consumed))
@@ -421,7 +432,8 @@ func _read_payload(path: String) -> Dictionary:
 	if data.has("active_run"):
 		if not data.active_run is Dictionary:
 			return {}
-		if not data.active_run.is_empty() and not _valid_active_run(data.active_run,seen):
+		var legacy_rooms: bool = not (data.active_run as Dictionary).has("room_schema")
+		if not data.active_run.is_empty() and not _valid_active_run(data.active_run,seen,legacy_rooms):
 			return {}
 	return data
 
@@ -431,9 +443,11 @@ func _valid_integer(value: Variant,low: int,high: int) -> bool:
 ## Strict room-start snapshot schema. A checkpoint is a replayable claim on the
 ## wallet, so every field that can pay out or skip a room must be well formed
 ## before it is trusted; a settled run id can never be resumed and paid again.
-func _valid_active_run(run: Dictionary,settled: Dictionary) -> bool:
+func _valid_active_run(run: Dictionary,settled: Dictionary,legacy_rooms := false) -> bool:
 	var id: Variant = run.get("run_id")
 	if not id is String or id.is_empty() or id.length() > 128 or settled.has(id):
+		return false
+	if run.has("room_schema") and not _valid_integer(run.get("room_schema"),ACTIVE_RUN_ROOM_SCHEMA,ACTIVE_RUN_ROOM_SCHEMA):
 		return false
 	if run.has("run_seed") and not _valid_integer(run.run_seed,0,9007199254740992):
 		return false
@@ -445,10 +459,13 @@ func _valid_active_run(run: Dictionary,settled: Dictionary) -> bool:
 		if not _valid_integer(realm,0,3) or order_seen.has(int(realm)):
 			return false
 		order_seen[int(realm)] = true
-	if not _valid_integer(run.get("floor_index"),0,4) or not _valid_integer(run.get("room_index"),0,2):
+	var max_room := 2 if legacy_rooms else 3
+	var boss_slot := 2 if legacy_rooms else 3
+	if not _valid_integer(run.get("floor_index"),0,4) or not _valid_integer(run.get("room_index"),0,max_room):
 		return false
 	var floor_value := int(run.floor_index)
 	var room_value := int(run.room_index)
+	var realm_sets := {}
 	for field in ["defeated","deprivations","shards"]:
 		var values: Variant = run.get(field)
 		if not values is Array or values.size() > 4:
@@ -458,10 +475,23 @@ func _valid_active_run(run: Dictionary,settled: Dictionary) -> bool:
 			if not _valid_integer(realm,0,3) or realm_seen.has(int(realm)):
 				return false
 			realm_seen[int(realm)] = true
+		realm_sets[field] = realm_seen
+	# Every defeated realm must carry its corresponding deprivation.
+	for realm in realm_sets["defeated"]:
+		if not realm_sets["deprivations"].has(realm):
+			return false
 	if floor_value == 4:
 		if room_value != 0 or run.defeated.size() != 4 or run.shards.size() != 4:
 			return false
-	if run.defeated.size() > floor_value + (1 if room_value == 2 else 0):
+	# Current-schema checkpoints at or above the sanctuary slot must carry
+	# room_schema explicitly so a reload never misclassifies them as legacy v1.
+	if not legacy_rooms and room_value >= 2 and not run.has("room_schema"):
+		return false
+	# A run cannot resume inside the sanctuary once Sloth has been deprived:
+	# that room no longer exists in the realm flow.
+	if not legacy_rooms and room_value == 2 and (realm_sets["deprivations"].has(0) or realm_sets["defeated"].has(0)):
+		return false
+	if run.defeated.size() > floor_value + (1 if room_value == boss_slot else 0):
 		return false
 	var boon_ids: Variant = run.get("boon_ids")
 	if not boon_ids is Array or boon_ids.size() > 128:
@@ -501,7 +531,9 @@ func _valid_active_run(run: Dictionary,settled: Dictionary) -> bool:
 		for entry in run.selections:
 			if not entry is Dictionary:
 				return false
-			if not _valid_integer(entry.get("floor"),0,5) or not _valid_integer(entry.get("room"),0,2):
+			if not _valid_integer(entry.get("floor"),0,5) or not _valid_integer(entry.get("room"),0,max_room):
+				return false
+			if not legacy_rooms and int(entry.get("room")) >= 2 and not run.has("room_schema"):
 				return false
 			if not _valid_integer(entry.get("realm"),0,3) or not entry.get("boon_id") is String:
 				return false

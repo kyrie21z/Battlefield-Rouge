@@ -451,7 +451,7 @@ func _run_review_edge_guards() -> void:
 		and is_equal_approx(live_reaper.realm_tempo_scale,TEMPO_CURVE[1])
 		and is_equal_approx(live_wisp.realm_tempo_scale,TEMPO_CURVE[1]))
 
-	var wrath_boss := await _install_run_room(2,[0],2)
+	var wrath_boss := await _install_run_room(2,[0],RunDirector.ROOM_BOSS)
 	_guard_player(wrath_boss)
 	var spire := wrath_boss.boss as WrathSpire
 	if spire != null:
@@ -472,7 +472,7 @@ func _run_review_edge_guards() -> void:
 		check("WrathSpire eruption hits in lockstep with 1.4x windup (%d vs %d ticks, spawned=%d)" % [hit_ticks,windup_ticks,spire.spawned_eruptions],
 			spire.spawned_eruptions > 0 and windup_ticks >= 39 and windup_ticks <= 43 and abs(hit_ticks-windup_ticks) <= 2)
 
-	var sloth_boss := await _install_run_room(0,[0],2)
+	var sloth_boss := await _install_run_room(0,[0],RunDirector.ROOM_BOSS)
 	_guard_player(sloth_boss)
 	var colossus := sloth_boss.boss as SlothColossus
 	if colossus != null:

@@ -12,9 +12,12 @@ signal retry_requested(stage: RealmStage)
 signal hub_requested(stage: RealmStage)
 signal title_requested(stage: RealmStage)
 signal wave_spawned(stage: RealmStage, wave_index: int, total_waves: int)
+signal rest_healed(stage: RealmStage, amount: float)
 @export_range(0,3) var realm: int = 0
 @export var room_index: int = 0
 @export var boss_room := false
+## The pre-boss sanctuary: no enemies, an open boss gate and a single full heal.
+@export var rest_room := false
 @export var campaign := false
 ## Damage multiplier. Kept under the historical name so standing callers work.
 @export var difficulty_multiplier := 1.0
@@ -53,6 +56,9 @@ var cleared := false
 var exit_ready := false
 var transitioning := false
 var fallen := false
+var rest_used := false
+var _floor_has_rest := true
+const REST_INTERACT_RANGE := 3.2
 var depth := 0
 var deprivations: Array[int] = []
 var saved_shards: Array[int] = []
@@ -99,6 +105,7 @@ func _init() -> void:
 func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp: float, boons: Array) -> void:
 	depth = maxi(0,value_depth)
 	deprivations.assign(values)
+	_floor_has_rest = rest_room or not deprivations.has(PsycheFragments.SLOTH)
 	saved_shards.assign(shards)
 	saved_hp = hp
 	saved_boons = boons.duplicate()
@@ -106,6 +113,7 @@ func configure_run(value_depth: int, values: Array[int], shards: Array[int], hp:
 		_apply_run()
 
 func _ready() -> void:
+	_floor_has_rest = rest_room or not deprivations.has(PsycheFragments.SLOTH)
 	_legacy_scalar_scaling = is_equal_approx(hp_multiplier,1.0) \
 		and is_equal_approx(tempo_multiplier,1.0) \
 		and not is_equal_approx(difficulty_multiplier,1.0)
@@ -115,6 +123,13 @@ func _ready() -> void:
 	seed(run_seed + realm*100 + room_index + depth*1000)
 	_offer_rng.seed = run_seed + 16338 + realm*100 + room_index + depth*1000
 	geometry = get_node_or_null("Geometry") as Node3D
+	if geometry == null and rest_room:
+		var sanctuary := RestSanctuary.new()
+		sanctuary.name = "Geometry"
+		sanctuary.realm = realm
+		sanctuary.boss_arena = false
+		add_child(sanctuary)
+		geometry = sanctuary
 	if not (geometry and geometry.has_method("provides_stage_lighting") and geometry.call("provides_stage_lighting")):
 		_build_world()
 	if geometry == null:
@@ -141,15 +156,21 @@ func _ready() -> void:
 		(geometry as SorrowRealm).start_whirlpools(run_seed, room_index)
 	_apply_run()
 	player.health.died.connect(_on_player_died)
-	_spawn_encounter()
+	if not rest_room:
+		_spawn_encounter()
 	_build_gate()
+	if rest_room:
+		# A sanctuary is already "cleared": its boss door opens on arrival and
+		# no waves, reward orb or encounter bookkeeping ever starts.
+		cleared = true
+		_unlock_gate("首领门扉\n靠近后按 %s 进入" % KeyHint.of("interact"))
 	hud = RealmHUD.new()
 	hud.name = "RealmHUD"
 	hud.stage = self
 	add_child(hud)
 	get_tree().paused = false
 	_install_audio()
-	if not boss_room:
+	if not boss_room and not rest_room:
 		_prepare_room_rewards()
 	# Opening three-card choice. Deferred on purpose: the run controller restores
 	# the saved loadout right after add_child, and that restore replaces the whole
@@ -669,6 +690,64 @@ func orb_pending() -> bool:
 	return _orb_ready and is_instance_valid(talent_orb)
 
 
+## True while the altar can still be used: the HUD reads it for the prompt.
+func rest_altar_pending() -> bool:
+	return rest_room and not rest_used and not fallen \
+		and geometry != null and geometry.has_method("rest_position")
+
+
+## Shared reach + WORLD line-of-sight guard so HUD prompt and interaction agree.
+func can_interact_rest() -> bool:
+	if not rest_altar_pending() or transitioning or get_tree().paused:
+		return false
+	if not is_instance_valid(player):
+		return false
+	var altar: Vector3 = geometry.to_global(geometry.call("rest_position"))
+	if player.global_position.distance_to(altar) > REST_INTERACT_RANGE:
+		return false
+	var ray := PhysicsRayQueryParameters3D.create(player.eye_position(),altar+Vector3.UP,CollisionLayers.WORLD)
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+
+## Single-use full heal at the sanctuary altar.
+func request_rest() -> bool:
+	if not can_interact_rest():
+		return false
+	var before := player.health.health
+	player.health.health = player.health.max_health
+	var healed := player.health.health - before
+	rest_used = true
+	if geometry.has_method("set_rest_consumed"):
+		geometry.call("set_rest_consumed",true)
+	if geometry.has_method("play_rest_pulse"):
+		geometry.call("play_rest_pulse")
+	rest_healed.emit(self,healed)
+	return true
+
+
+## Read-only HUD captions. Floor room count is latched on floor entry so killing
+## Sloth inside its own boss room never rewrites the current floor from 4 to 3.
+func has_rest_room_in_floor() -> bool:
+	return _floor_has_rest
+
+func total_floor_rooms() -> int:
+	return 4 if has_rest_room_in_floor() else 3
+
+func display_room_number() -> int:
+	if boss_room:
+		return total_floor_rooms()
+	if rest_room:
+		return 3
+	return room_index + 1
+
+func room_badge_text() -> String:
+	if rest_room:
+		return "休息室 3/4"
+	if boss_room:
+		return "首领 %d/%d" % [total_floor_rooms(),total_floor_rooms()]
+	return "房间 %d/%d" % [display_room_number(),total_floor_rooms()]
+
+
 ## Called when the player presses interact next to the orb: swallow the orb, then
 ## open the ordinary three-card offer.
 func claim_talent() -> void:
@@ -832,18 +911,26 @@ func _finish_reward() -> void:
 			_prepared_picker = PICKER.instantiate() as BoonPicker
 			_prepared_picker.prebuild_ui()
 		return
+	_unlock_gate()
+
+## Turns the exit gate green and interactive. The sanctuary supplies its own
+## caption because the next room is always the boss floor.
+func _unlock_gate(label_text := "") -> void:
 	exit_ready = true
 	_gate_material.albedo_color = Color(0.55,0.82,0.77)
 	_gate_material.emission = Color(0.25,0.8,0.66)
 	_portal_material.albedo_color = Color(0.35,0.9,0.75,0.24)
 	_portal_material.emission = Color(0.2,0.8,0.6)
-	_gate_label.text = "下一关\n靠近后按 %s 进入" % KeyHint.of("interact")
+	_gate_label.text = label_text if not label_text.is_empty() else "下一关\n靠近后按 %s 进入" % KeyHint.of("interact")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		# the orb takes priority over the door while it is still unclaimed
 		if _orb_ready and is_instance_valid(talent_orb) and talent_orb.player_in_range(player):
 			claim_talent()
+			get_viewport().set_input_as_handled()
+			return
+		if request_rest():
 			get_viewport().set_input_as_handled()
 			return
 		if request_exit():
@@ -881,11 +968,17 @@ func request_exit() -> bool:
 	return true
 
 func _standalone_next() -> void:
-	var suffix := "2" if room_index == 0 else "boss"
 	var next_realm := realm
-	if boss_room:
-		next_realm = realm+1
-		suffix = "1"
+	var suffix := "1"
+	match room_index:
+		0:
+			suffix = "2"
+		1:
+			suffix = "boss" if deprivations.has(PsycheFragments.SLOTH) else "rest"
+		2:
+			suffix = "boss"
+		_:
+			next_realm = realm+1
 	if next_realm >= REALMS.size():
 		transitioning = false
 		return
@@ -908,6 +1001,8 @@ func _on_player_died(_source: Node) -> void:
 	if fallen:
 		return
 	fallen = true
+	if geometry != null and geometry.has_method("stop_audio"):
+		geometry.call("stop_audio")
 	if is_instance_valid(selection):
 		selection.dismiss_for_transition()
 	get_tree().paused = false
@@ -922,6 +1017,10 @@ func objective_text() -> String:
 		return "心智破碎 · 按 R 重新挑战"
 	if transitioning:
 		return "穿越门扉…"
+	if rest_room:
+		if rest_used:
+			return "心绪已平复 · 前往首领门扉按 %s" % KeyHint.of("interact")
+		return "静息石座 · 靠近后按 %s 恢复生命" % KeyHint.of("interact")
 	if exit_ready:
 		return "前往门扉 · 靠近后按 %s" % KeyHint.of("interact")
 	if boss_defeated and not cleared:

@@ -15,20 +15,24 @@ var clock_ticks := 0
 var _clock_left := 0.0
 var _clock_audio: AudioStreamPlayer3D
 var _industrial_audio: AudioStreamPlayer3D
-var _stone: StandardMaterial3D
-var _amber: StandardMaterial3D
+var _stone: Material
+var _clockwork: SlothClockwork
 var _rest_materials: Array[StandardMaterial3D] = []
 var player: Player
 var void_fall: RealmVoid
 
 func _ready() -> void:
-	_stone = material(Color("e4dfd4"),0.06,0.68)
-	_amber = material(Color(0.80,0.44,0.12),0.25,0.33,0.4)
+	var limestone := ShaderMaterial.new()
+	limestone.shader = preload("res://environments/sloth/stone.gdshader")
+	limestone.set_shader_parameter("stone_color", Color("e4dbca"))
+	limestone.set_shader_parameter("weathered", true)
+	_stone = limestone
 	var dark := material(Color(0.10,0.085,0.06),0.1,0.8)
 	var paving := ShaderMaterial.new()
 	paving.shader = preload("res://environments/sloth/floor.gdshader")
 	paving.set_shader_parameter("stone_color",Color("e2dbcc"))
 	paving.set_shader_parameter("radial_mode",boss_arena)
+	paving.set_shader_parameter("carved_court", true)
 	box(self,Vector3(0,-0.6,0),Vector3(40,1.2,48),paving,true)
 	# Physical edges define the walkable floor. Scenery never enters navigation.
 	for side in [-1.0,1.0]:
@@ -37,14 +41,6 @@ func _ready() -> void:
 		for z in [-17.0,-7.0,5.0,17.0]:
 			var tower := box(self,Vector3(side*17,3.5,z),Vector3(2.5,7,2.7),_stone,true)
 			box(tower,Vector3(0,4.3,0),Vector3(3.6,0.5,3.6),_stone,false)
-		for i in 6:
-			var stair := box(self,Vector3(side*(21.0+i*1.7),1.5+i*0.65,-8+i*2.1),
-				Vector3(2.5,0.35,2),_stone,false)
-			stair.rotation.y = side*0.07*i
-		for i in 5:
-			var block := box(self,Vector3(side*(26+i*4),6+i*2,-22+i*6),
-				Vector3(5+i*0.6,3.5,5),_stone,false)
-			block.rotation = Vector3(0.07*i,0.15*i,0.05*side*i)
 	# The central causeway keeps its original elevation and door distance.
 	if not boss_arena:
 		_build_terraces()
@@ -52,23 +48,12 @@ func _ready() -> void:
 		for side in [-1.0,1.0]:
 			box(self,Vector3(side*10,0.65,-8),Vector3(3.5,1.3,3.5),_stone,true)
 	for side in [-1.0,1.0]:
-		var pivot := Node3D.new()
-		pivot.position = Vector3(side*14,11,-17)
-		add_child(pivot)
-		var ring := torus(pivot,Vector3.ZERO,6.0,0.17,_stone)
-		ring.rotation.x = PI*0.5
-		torus(pivot,Vector3.ZERO,4.7,0.07,_amber).rotation.x = PI*0.5
-		line(pivot,Vector3(0,5.8,0),Vector3(0,-4.8,0),0.055,_amber)
-		box(pivot,Vector3(0,-4.8,0),Vector3(1.2,1.9,0.65),_amber,false).rotation.z = PI*0.25
-		rings.append(pivot)
-	for side in [-1.0,1.0]:
-		for y in [4.0,7.0,10.0]:
-			line(self,Vector3(side*18,y,19),Vector3(side*14,11,-17),0.018,_amber)
-		_build_rest(Vector3(side*13,0,12),dark)
-	var clockwork := SlothClockwork.new()
-	clockwork.name = "SuspendedClockwork"
-	add_child(clockwork)
-	clockwork.build(boss_arena, chamber_style, _stone, _amber)
+		_build_rest(Vector3(side*13,0,12), dark)
+	_clockwork = SlothClockwork.new()
+	_clockwork.name = "SuspendedClockwork"
+	add_child(_clockwork)
+	_clockwork.build(boss_arena, chamber_style)
+	rings.assign(_clockwork.rings)
 	var mist := CPUParticles3D.new()
 	mist.name = "StillAmberMist"
 	mist.amount = 42
@@ -123,6 +108,10 @@ func _build_terraces() -> void:
 		for corner in [-1.0,1.0]:
 			var cover := box(self,Vector3(x + side * 1.9,TERRACE_HEIGHT + 0.75,z + corner * 2.45),Vector3(1.9,1.5,1.55),_stone,true)
 			box(cover,Vector3(0,0.80,0),Vector3(1.96,0.06,1.61),trim,false)
+			box(cover, Vector3(0, -0.54, 0), Vector3(1.93, 0.13, 1.60), trim, false)
+			for face: float in [-1.0, 1.0]:
+				box(cover, Vector3(0, 0.31, face * 0.783), Vector3(1.75, 0.046, 0.025), trim, false)
+				box(cover, Vector3(0, 0.07, face * 0.786), Vector3(0.26, 0.34, 0.035), trim, false)
 		box(self,Vector3(x - side * 3.37,TERRACE_HEIGHT * 0.76,z),Vector3(0.075,0.12,7.6),trim,false)
 	for index in 3:
 		var side := -1.0 if (index + chamber_style) % 2 == 0 else 1.0
@@ -130,6 +119,7 @@ func _build_terraces() -> void:
 		var screen := box(self,Vector3(side*6.0,0.66,z),Vector3(2.15,1.32,1.22),_stone,true)
 		screen.rotation.y = side * 0.16
 		box(screen,Vector3(0,0.695,0),Vector3(2.23,0.06,1.32),trim,false)
+		box(screen, Vector3(0, -0.48, 0), Vector3(2.20, 0.092, 1.30), trim, false)
 
 func _terrace_z(side: float) -> float:
 	if chamber_style == 0:
@@ -167,7 +157,9 @@ func _build_rest(pos: Vector3,dark: Material) -> void:
 	var mat := material(Color(0.92,0.59,0.22),0.1,0.6,0.8)
 	_rest_materials.append(mat)
 	box(area,Vector3(0,0.04,0),Vector3(4,0.08,3.5),mat,false)
-	box(area,Vector3(0,0.45,-0.8),Vector3(3,0.9,0.8),_stone,true)
+	var bench := box(area,Vector3(0,0.45,-0.8),Vector3(3,0.9,0.8),_stone,true)
+	box(bench, Vector3(0, 0.34, 0.408), Vector3(2.68, 0.11, 0.025), dark, false)
+	box(bench, Vector3(0, 0.468, 0), Vector3(3.05, 0.055, 0.85), _stone, false)
 	torus(area,Vector3(0,0.11,0),1.6,0.05,mat)
 	var light := OmniLight3D.new()
 	light.position.y = 1.3
@@ -187,6 +179,8 @@ func set_deprivation(active: bool) -> void:
 	deprived = active
 	rest_enabled = not active
 	clock_bpm = 148.0 if active else 0.0
+	if is_instance_valid(_clockwork):
+		_clockwork.deprived = active
 	for light in rest_lights:
 		light.light_energy = 0.0 if active else 1.8
 	for mat in _rest_materials:
@@ -208,8 +202,6 @@ func _physics_process(delta: float) -> void:
 		_clock_left += 60.0/clock_bpm
 		clock_ticks += 1
 		if not audio_managed: _clock_audio.play()
-	for i in rings.size():
-		rings[i].rotation.z += delta*(1.4 if i==0 else -1.9)
 
 ## 坠落边界：玩家掉出去扣 30 点生命并回到上次稳定平台，敌人掉出去直接死。
 func set_player(value: Player) -> void:

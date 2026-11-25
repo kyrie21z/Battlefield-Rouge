@@ -19,7 +19,7 @@ func _ready() -> void:
 	check("all three actors reuse the 24-bone crystal humanoid",laggard.visual.skeleton.get_bone_count()==24 and anchor.visual.skeleton.get_bone_count()==24 and retreater.visual.skeleton.get_bone_count()==24)
 	check("Laggard moves at specified 2.2m/s",is_equal_approx(laggard.run_speed,2.2))
 	check("Anchor has no locomotion and an eight metre radius",is_zero_approx(anchor.run_speed) and anchor.ANCHOR_RADIUS==8)
-	check("two warm Rest Zones and two frozen clock rings",bench.geometry.rest_zones.size()==2 and bench.geometry.rings.size()==2 and bench.geometry.rest_enabled)
+	check("two warm Rest Zones and two suspended drive rings",bench.geometry.rest_zones.size()==2 and bench.geometry.rings.size()==2 and bench.geometry.rest_enabled)
 	laggard.position = Vector3.ZERO
 	player.position = Vector3(0,0,-8)
 	anchor.position = Vector3(14,0,14)

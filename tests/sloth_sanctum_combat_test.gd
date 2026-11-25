@@ -32,6 +32,8 @@ func load_room(path: String) -> void:
 	room = load(path).instantiate() as RealmStage
 	add_child(room)
 	player = room.player
+	if "--free-mouse" in OS.get_cmdline_user_args():
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	player.set_process_unhandled_input(false)
 	player.set_physics_process(false)
 	for enemy in room.enemies:
@@ -58,6 +60,7 @@ func _ready() -> void:
 	check("the entry-to-gate distance is still 36 metres",is_equal_approx(player.position.z - room.gate.position.z,36.0))
 	player.aim_at(Vector3(0,12,-26))
 	await capture("sloth-clockwork")
+	await verify_clockwork(scenery as SlothClockwork)
 	await verify_anchor_navigation(anchor)
 	await verify_ramp()
 	for index in room.enemies.size():
@@ -73,6 +76,9 @@ func _ready() -> void:
 	check("second room has three staff bearers and seven total opponents",
 		room.living_enemies() == 7 and room.enemies.filter(func(enemy: Enemy) -> bool: return enemy is SlothEnemy and enemy.kind == SlothEnemy.Kind.LINGERER).size() == 3)
 	check("second room shifts both terraces",room.geometry.get_node("EastTerrace").position.z == -5.0 and room.geometry.get_node("WestTerrace").position.z == 3.0)
+	player.position = Vector3(10.2, 1.33, -3.8)
+	player.aim_at(Vector3(0, 8.8, -30))
+	await capture("sloth-belfry-side")
 	room.queue_free()
 	await frames(4)
 	load_room("res://maps/realms/sloth_boss.tscn")
@@ -80,11 +86,39 @@ func _ready() -> void:
 	check("Boss keeps its solo encounter and receives the overhead clock",room.living_enemies() == 1 and room.boss is SlothColossus and room.geometry.has_node("SuspendedClockwork"))
 	player.aim_at(Vector3(0,13,-29))
 	await capture("sloth-colossus-clock")
+	var clockwork := room.geometry.get_node("SuspendedClockwork") as SlothClockwork
+	var angle := clockwork.minute_hand.rotation.z
+	(room.geometry as SlothRealm).set_deprivation(true)
+	await frames(22)
+	check("deprivation sends the same physical-looking mechanism spinning", clockwork.minute_hand.rotation.z < angle - 0.42)
 	room.queue_free()
 	await frames(5)
 	OS.delay_msec(250)
 	print("SLOTH SANCTUM COMBAT: %d checks, %d failed" % [checks,failures])
 	get_tree().quit(1 if failures else 0)
+
+func verify_clockwork(clockwork: SlothClockwork) -> void:
+	check("the dial has the articulated hand, separate pendulum, and two meshing drive assemblies",
+		is_instance_valid(clockwork.minute_hand) and is_instance_valid(clockwork.pendulum)
+		and clockwork.rings.size() == 2 and clockwork.get_node("SuspendedMeridian").find_children("*","MultiMeshInstance3D",true,false).size() > 7)
+	check("the distant belfries and cloud sea are carried by visual nodes",
+		clockwork.get_node("BrokenBelfries").get_child_count() >= 6 and clockwork.has_node("SeaOfClouds")
+		and clockwork.find_children("*","CollisionObject3D",true,false).is_empty())
+	var resting_angle := clockwork.minute_hand.rotation.z
+	var resting_pendulum := clockwork.pendulum.rotation.z
+	await frames(103)
+	var at_stop := clockwork.minute_hand.rotation.z
+	check("its minute hand approaches the last notch but does not cross it",
+		at_stop < resting_angle - 0.10 and at_stop >= SlothClockwork.STOP_HAND_ANGLE - 0.005)
+	check("the pendulum swings through only a few degrees",
+		not is_equal_approx(clockwork.pendulum.rotation.z, resting_pendulum) and absf(clockwork.pendulum.rotation.z) <= 0.044)
+	get_tree().paused = true
+	await frames(12)
+	check("pausing holds the minute hand in place", is_equal_approx(clockwork.minute_hand.rotation.z, at_stop))
+	get_tree().paused = false
+	await frames(115)
+	check("the hand slips back toward its original mark", absf(clockwork.minute_hand.rotation.z - resting_angle) < 0.045)
+
 
 func verify_ramp() -> void:
 	player.position = Vector3(12.4,0.08,9.4)

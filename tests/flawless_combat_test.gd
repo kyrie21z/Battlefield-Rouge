@@ -27,7 +27,7 @@ func _run() -> void:
 	player.boons.register_enemy(boss)
 	boss.set_combat_active(true)
 	await frames(3)
-	check("final shell enters with the 2800 HP endgame body",boss.health.max_health==2800.0 and boss.health.health==2800.0)
+	check("final shell enters with the 3600 HP endgame body",boss.health.max_health==3600.0 and boss.health.health==3600.0)
 	check("white humanoid retains 24 bones and real original gun/blade",boss.visual.skeleton.get_bone_count()==24 and boss.visual.gun != null and boss.visual.blade != null)
 	check("final loadout preserves all four ordinary deprivations",player.health.unbuffered and not boss.ordinary_impacts_enabled and not player.realm_effects.warnings_enabled)
 	boss.begin_move(FlawlessDoppelganger.Move.GUN)
@@ -49,15 +49,64 @@ func _run() -> void:
 	await frames(21)
 	check("fast slide physically crosses arena",boss.position.distance_to(start)>4)
 	check("slide commits to direction and permits dodge",boss.locked_direction.is_equal_approx(lock) and boss.slashes==1)
+	var wave: FlawlessBullet
+	for ref in boss._owned:
+		var live := ref.get_ref() as FlawlessBullet
+		if is_instance_valid(live) and live.crescent:
+			wave = live
+	check("dash blade leaves a short parryable crescent",boss.crescents==1 and wave != null
+		and is_equal_approx(wave.damage,16.0) and is_equal_approx(wave.speed,24.0) and is_equal_approx(wave.max_distance,14.0))
 	boss.position = Vector3.ZERO
 	player.position = Vector3(0,0,8)
 	player.fragments.barrier = 0
 	boss.begin_move(FlawlessDoppelganger.Move.DASH_BLADE)
 	hp = player.health.health
 	await frames(60)
-	check("dash blade deals its final 28 damage when not dodged",is_equal_approx(hp-player.health.health,28.0) and boss.slashes==2)
+	check("dash blade and crescent land for 28 + 16 when not dodged",is_equal_approx(hp-player.health.health,44.0) and boss.slashes==2)
 	await frames(35)
 	player.position = boss.position+Vector3(5,0,4)
+
+	boss.position = Vector3(0,0,2)
+	player.position = Vector3(0,0,8)
+	boss.phase = FlawlessDoppelganger.Phase.WINDUP
+	boss.move_kind = FlawlessDoppelganger.Move.GUN
+	boss.phase_left = 10
+	boss.locked_direction = Vector3.BACK
+	boss.health.health = boss.health.max_health
+	player.fragments.barrier = 0
+	var parry_hp := player.health.health
+	var parry_boss_hp := boss.health.health
+	player.melee.swing_now()
+	boss._slash()
+	var crescent: FlawlessBullet
+	for ref in boss._owned:
+		var live := ref.get_ref() as FlawlessBullet
+		if is_instance_valid(live) and live.crescent:
+			crescent = live
+	check("slash launches the parryable crescent round",crescent != null and is_equal_approx(crescent.damage,16.0))
+	await frames(20)
+	check("Mind-Blade parries the crescent and reflects it",player.health.health==parry_hp and boss.health.health<parry_boss_hp and boss.slashes==3)
+
+	boss.position = Vector3(0,0,0)
+	player.position = Vector3(0,0,8)
+	boss.health.health = boss.health.max_health
+	boss.phase = FlawlessDoppelganger.Phase.WINDUP
+	boss.move_kind = FlawlessDoppelganger.Move.GUN
+	boss.phase_left = 5
+	boss._evade_cooldown = 0
+	boss._evade_left = 0
+	player.fragments.barrier = 0
+	await frames(2)
+	var evade_start := boss.position
+	var evade_hp := boss.health.health
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	check("incoming gunfire triggers a mirror side-dash",boss._evade_left>0 and boss._evade_cooldown>4.4
+		and is_equal_approx(boss.phase_left,0.05) and boss.health.health<evade_hp)
+	await frames(14)
+	check("the side-dash physically leaves the firing lane",boss.position.distance_to(evade_start)>2.0)
+	var evade_cd := boss._evade_cooldown
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	check("the mirror dash respects its cooldown",boss._evade_left<=0 and boss._evade_cooldown<=evade_cd and boss._evade_cooldown>0)
 
 	boss.health.health = boss.health.max_health
 	boss._recover()
@@ -87,6 +136,16 @@ func _run() -> void:
 	await frames(10)
 	pressure_clock -= boss.phase_left
 	check("high pressure advances the boss clock at 1.30x",absf(pressure_clock/calm_clock-1.30)<0.02)
+	boss.move_kind = FlawlessDoppelganger.Move.GUN
+	boss.phase = FlawlessDoppelganger.Phase.FIRING
+	boss._burst_left = 1
+	boss._shot_left = 0
+	boss._chained = false
+	var chain_shots := boss.shots
+	await frames(2)
+	check("high pressure chains the fourth round into a dash",boss.move_kind==FlawlessDoppelganger.Move.DASH_BLADE
+		and boss.phase==FlawlessDoppelganger.Phase.WINDUP)
+	check("high pressure fourth round splits into three bullets",boss.shots>=chain_shots+3)
 	boss.health.health = boss.health.max_health
 
 	boss.phase = FlawlessDoppelganger.Phase.GUARD
@@ -115,9 +174,15 @@ func _run() -> void:
 	check("real critical weapon hit exploits exposed shell",boss.health.health<before-60 and boss.critical_weak_hits>0)
 	player.stats.remove_modifier(&"forced_crit_probe")
 	check("Vigilance remains the independent crit modifier",player.stats.get_value(Stats.CRIT_CHANCE)>=0.15 and player.fragments.has_shard(1))
+
 	boss.resonance_left = 0
 	boss.phase = FlawlessDoppelganger.Phase.GUARD
 	boss.phase_left = 20
+	boss.guard_hits_taken = 0
+	for i in 120:
+		if boss._impact_left <= 0 and player.fragments._counter_left <= 0:
+			break
+		await frames(1)
 	boss.position = Vector3(11,0,0)
 	player.position = Vector3(9,0,0)
 	var wall := FlawlessFractureWall.new()
@@ -132,6 +197,26 @@ func _run() -> void:
 	await frames(30)
 	check("Spite drives real WORLD collision and breaks wall",wall.broken and wall.pieces==12 and boss.wall_breaks==1)
 	check("wall impact opens shield without restoring ordinary knockback",boss.phase==FlawlessDoppelganger.Phase.EXPOSED and not boss.ordinary_impacts_enabled)
+
+	boss.position = Vector3(0,0,0)
+	player.position = Vector3(0,0,7)
+	await frames(3)
+	boss.health.health = boss.health.max_health
+	boss.phase = FlawlessDoppelganger.Phase.GUARD
+	boss.phase_left = 10
+	boss.guard_hits_taken = 0
+	boss.guard_blocks = 0
+	player.fragments.barrier = 0
+	player.health.health = player.health.max_health
+	var riposte_hp := player.health.health
+	var guarded_hp := boss.health.health
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	check("first blocked round keeps the perfect guard",boss.health.health==guarded_hp and boss.guard_hits_taken==1 and boss.ripostes==0)
+	player.weapon._shoot_ray(boss.position+Vector3(0,1.15,6),Vector3.FORWARD)
+	check("second blocked round triggers the pride riposte",boss.ripostes==1
+		and boss.phase==FlawlessDoppelganger.Phase.WAIT and boss.move_kind==FlawlessDoppelganger.Move.DASH_BLADE)
+	await frames(16)
+	check("riposte round lands its 18 damage",is_equal_approx(riposte_hp-player.health.health,18.0))
 	var killed := 0
 	boss.defeated.connect(func(): killed+=1)
 	boss.health.apply_damage(99999,Hitbox.BodyPart.BODY,player,{"true_damage":true})

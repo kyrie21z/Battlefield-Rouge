@@ -112,6 +112,17 @@ func _run() -> void:
 	_check("real WORLD wall contact no longer self-destructs",
 		piercer.wall_detonations >= 1 and not piercer.health.is_dead())
 	_check("wall contact stacks one frenzy layer", piercer.frenzy >= 1)
+	# 挨打也叠层：一次命中 +1，0.45 秒内连击不重复叠。
+	var hurt := _enemy(0, Vector3(0, 0, 34))
+	hurt.setup(player, [])
+	await _frames(2)
+	var frenzy_before := hurt.frenzy
+	hurt.health.apply_damage(8.0, Hitbox.BodyPart.BODY, player)
+	_check("taking a hit stacks one frenzy layer", hurt.frenzy == frenzy_before + 1)
+	hurt.health.apply_damage(8.0, Hitbox.BodyPart.BODY, player)
+	_check("frenzy gained from damage is throttled", hurt.frenzy == frenzy_before + 1)
+	hurt.queue_free()
+	await _frames(2)
 	_check("wall detonation launches eight actual ricochets", piercer.emitted_shards == 8)
 	_check("swept piercer body never crosses wall", piercer.global_position.z > -4.9)
 	# 撞墙不再致死：手动打死它，继续验证原有的死亡表现。

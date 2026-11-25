@@ -267,7 +267,8 @@ func test_scatter_schedule() -> void:
 	check("assembly drains the scatter heat to zero", cooled)
 	check("assembly stops stepping pieces once it lands", orb._pieces.is_empty())
 
-	# Custom reveal longer than assemble must not be truncated or pull assembled pieces back.
+	# Custom reveal longer than assemble must not be truncated or pull assembled pieces back;
+	# restarting assemble() while reveal is still running must also complete cleanly.
 	orb.scatter(1.2)
 	orb.reveal_pieces(4.0)
 	orb.assemble(0.10, 0.0)
@@ -277,6 +278,9 @@ func test_scatter_schedule() -> void:
 	check("longer custom reveal keeps fading without snapping assembled pieces back",
 		orb._anim_reveal and not orb._anim_assemble and last_piece.transparency > 0.5
 		and last_piece.transform.origin.is_equal_approx(_shell_targets[last_idx].origin))
+	orb.assemble(0.10, 0.30)
+	check("restarting assemble() clears stale completion state while reveal runs",
+		orb._anim_assemble and not orb._assemble_completed and not orb._pieces.is_empty())
 
 	# Sequential reveal -> then assemble after reveal finishes must still assemble every piece.
 	orb.set_energy(0.4)

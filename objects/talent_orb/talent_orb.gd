@@ -355,6 +355,7 @@ func assemble(duration: float = ASSEMBLE_TIME, start_delay: float = ASSEMBLE_STA
 	_assemble_start = SimClock.now() + start_delay
 	_assemble_duration = maxf(duration, 0.001)
 	_anim_assemble = true
+	_assemble_completed = false
 
 
 ## How long the whole reveal-then-assemble sequence runs. The zone uses it to line
@@ -556,7 +557,7 @@ func _step_pieces(t: float) -> void:
 				if piece != null and is_instance_valid(piece):
 					piece.transparency = fade
 			_set_heat(entry["index"], 0.0)
-	if _assemble_completed and not _anim_reveal and not _pieces.is_empty():
+	if _assemble_completed and not _anim_reveal and not _anim_assemble and not _pieces.is_empty():
 		_pieces.clear()
 
 

@@ -14,6 +14,8 @@ const FRENZY_WINDUP := 0.88
 const FRENZY_SPEED := 1.5
 const FRENZY_CHASE := 0.45
 const FRENZY_STAGGER := 0.75
+## 受伤叠层的节流：连射与多段伤害不会瞬间喂满。
+const FRENZY_HIT_COOLDOWN := 0.45
 const HOMING_RATE := 2.2
 const HOMING_WINDOW := 0.35
 ## 蓄压者：压力不只来自被盾挡下的子弹，打头也会喂它，而且放着不管它自己也会涨。
@@ -21,8 +23,8 @@ const HOMING_WINDOW := 0.35
 const PRESSURE_REGEN := 9.0
 const HEAD_PRESSURE_RATIO := 0.6
 ## 蓄压者释放的冲击波参数（Boss 的地裂仍用 WrathShockwave 的默认值）。
-## 只削弱伤害与速度，覆盖半径保持上游默认的 18 米。
-const ACCUMULATOR_WAVE_DAMAGE := 11.0
+## 半径回到上游的 18 米，只把伤害从 16 收到 13、速度从 15 收到 13。
+const ACCUMULATOR_WAVE_DAMAGE := 13.0
 const ACCUMULATOR_WAVE_RADIUS := 18.0
 const ACCUMULATOR_WAVE_SPEED := 13.0
 @export_enum("Piercer", "Accumulator", "Aggressor", "Reader") var variant := 0
@@ -42,6 +44,7 @@ var paper_torn := false
 ## 穿刺者撞墙后的狂怒层数（0..FRENZY_MAX），其它变体恒为 0。
 var frenzy := 0
 var _rush_elapsed := 0.0
+var _frenzy_hit_left := 0.0
 
 func _enter_tree() -> void:
 	($Model as WrathVisual).kind = variant
@@ -99,6 +102,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if variant == Variant.ACCUMULATOR:
 		_tick_pressure(delta)
+	if _frenzy_hit_left > 0.0:
+		_frenzy_hit_left = maxf(_frenzy_hit_left - delta, 0.0)
 	if attack_phase != Attack.RUSH:
 		_face(flat, delta)
 	var pressure_visual := pressure / 100.0
@@ -313,6 +318,11 @@ func _before_damage(ctx: Dictionary) -> void:
 func _on_damaged(_amount: float, _part: Hitbox.BodyPart, source: Node) -> void:
 	if is_instance_valid(source) and source is Node3D and target == null:
 		_last_known = source.global_position
+	# 挨打也让它更疯：穿刺者每 0.45 秒最多因受伤叠一层，避免连射/多段
+	# 伤害瞬间喂满。撞墙仍走 detonate_at_wall 的独立一份。
+	if variant == Variant.PIERCER and _frenzy_hit_left <= 0.0 and frenzy < FRENZY_MAX:
+		_frenzy_hit_left = FRENZY_HIT_COOLDOWN
+		frenzy += 1
 
 func _on_died(_source: Node) -> void:
 	if state == State.DEAD:

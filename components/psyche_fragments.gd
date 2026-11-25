@@ -22,6 +22,9 @@ var spite_charge := 0
 var _counter_left := 0.0
 const TENDERNESS_CAPACITY := 40.0
 const TENDERNESS_RECOVERY_DELAY := 6.5
+## 沉睡共鸣的默认作用半径；测试台会把它放大到覆盖全场，正式流程保持 18 米。
+const RESONANCE_RADIUS := 18.0
+var resonance_radius := RESONANCE_RADIUS
 var barrier := 0.0
 var absorption_total := 0.0
 var brittle_hits := 0
@@ -29,6 +32,7 @@ var _barrier_recovery := 0.0
 var _glass: AudioStreamPlayer
 var resonance_cooldown := 0.0
 var resonances := 0
+var _time_warp: SlumberTimeWarp
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("psyche_resonance") and not event.is_echo() and try_slumber_resonance():
@@ -37,7 +41,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func try_slumber_resonance() -> bool:
 	if not is_instance_valid(player) or player.health.is_dead() or get_tree().paused or not shards.has(SLOTH) or resonance_cooldown > 0.0:
 		return false
-	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,18.0)
+	var targets := player.boons.targets_in_radius(player.global_position + Vector3.UP,resonance_radius)
 	if targets.is_empty():
 		return false
 	for enemy in targets:
@@ -50,8 +54,23 @@ func try_slumber_resonance() -> bool:
 	mark_combat()
 	activated.emit(SLOTH)
 	player.boons.feedback(player.global_position+Vector3.UP*0.2,Color("e3a23a"),2.0)
+	_play_time_warp(3.0)
 	changed.emit()
 	return true
+
+
+## 沉睡共鸣的"子弹时间"观感：敌人放慢来自 boon_time_scale，这一层只给玩家看。
+func _play_time_warp(seconds: float) -> void:
+	if not is_instance_valid(player):
+		return
+	if not is_instance_valid(_time_warp):
+		_time_warp = SlumberTimeWarp.new()
+		_time_warp.name = "SlumberTimeWarp"
+		var host: Node = player.get_parent()
+		if host == null:
+			host = player
+		host.add_child(_time_warp)
+	_time_warp.play(seconds)
 
 func bind(value: Player) -> void:
 	player = value

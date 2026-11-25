@@ -281,6 +281,22 @@ func _climax_transition() -> void:
 	boss.health.apply_damage(23.0, Hitbox.BodyPart.BODY, player, {"true_damage": true})
 	_check("re-entering combat pops numbers again",
 		numbers.latest_entry() != null and FearCriticalFeedback._overlay_2d_count == 1)
+
+	# Mirror DoppelgangerSpawn._on_boss_defeated(): `died` synchronously hides
+	# the combat HUD before Health emits `after_damage`. The final blow must
+	# still pop a visible kill number and unregister once it fades out.
+	numbers.clear()
+	boss.health.died.connect(func(_src: Node) -> void: hud.set_combat_visible(false), CONNECT_ONE_SHOT)
+	boss.health.apply_damage(99999.0, Hitbox.BodyPart.BODY, player, {"true_damage": true})
+	var lethal_entry := numbers.latest_entry()
+	_check("climax lethal blow still pops a visible kill number after HUD hides",
+		not hud.combat_root.visible and lethal_entry != null and lethal_entry.killed
+		and numbers.is_visible_in_tree())
+	if lethal_entry != null:
+		numbers._process(lethal_entry.lifetime + 0.05)
+	_check("drained climax kill number auto-disables and releases the 2D overlay",
+		numbers.active_count() == 0 and FearCriticalFeedback._overlay_2d_count == 0)
+
 	arena.queue_free()
 	await get_tree().process_frame
 	await get_tree().process_frame

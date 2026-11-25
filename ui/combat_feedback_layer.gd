@@ -137,6 +137,16 @@ func set_enabled(value: bool) -> void:
 		_clear_feedback()
 
 
+## Stops active hitmarkers and combat audio immediately while letting the
+## in-flight lethal damage number appear and fade out naturally.
+func finish_with_kill_numbers() -> void:
+	_enabled = false
+	set_process(false)
+	_clear_feedback(true)
+	if is_instance_valid(damage_numbers):
+		damage_numbers.drain_and_disable()
+
+
 func _can_react() -> bool:
 	return _enabled and not get_tree().paused and is_instance_valid(_player) 		and not _player.health.is_dead()
 
@@ -285,14 +295,14 @@ func _on_player_died(_source: Node) -> void:
 	_clear_feedback()
 
 
-func _clear_feedback() -> void:
+func _clear_feedback(keep_numbers := false) -> void:
 	_clear_heartbeat()
 	for voice: AudioStreamPlayer in [hit_audio, kill_audio, kill_head_audio, tink_audio,
 			blocked_audio, evaded_audio, hurt_audio, hurt_heavy_audio]:
 		voice.stop()
 	if _marker_tween != null:
 		_marker_tween.kill()
-	if is_instance_valid(damage_numbers):
+	if not keep_numbers and is_instance_valid(damage_numbers):
 		damage_numbers.clear()
 	hitmarker.modulate.a = 0.0
 	hitmarker.scale = Vector2.ONE

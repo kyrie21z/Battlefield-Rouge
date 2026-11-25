@@ -47,6 +47,7 @@ class Entry:
 var _player: Player
 var _room: Node
 var _enabled := true
+var _draining := false
 var _configured := false
 var _registered_overlay := false
 var _tracked: Dictionary[int, bool] = {}
@@ -85,10 +86,20 @@ func _enter_tree() -> void:
 
 func set_enabled(value: bool) -> void:
 	_enabled = value
+	_draining = false
 	set_process(value)
 	_set_overlay_registered(value and is_inside_tree())
 	if not value:
 		clear()
+
+
+## Keeps the layer visible long enough to accept an in-flight lethal hit emitted
+## after `died` and let its floating number fade out before disabling itself.
+func drain_and_disable() -> void:
+	if not _enabled:
+		return
+	_draining = true
+	set_process(true)
 
 
 func clear() -> void:
@@ -167,6 +178,8 @@ func _can_show() -> bool:
 
 func _on_after_damage(context: Dictionary) -> void:
 	if not _can_show():
+		return
+	if _draining and not bool(context.get("killed", false)):
 		return
 	var source: Node = context.get("source")
 	if not is_instance_valid(source):
@@ -274,9 +287,11 @@ func spawn_number(world_pos: Vector3, amount: float, headshot := false, critical
 
 
 func _process(delta: float) -> void:
-	if _entries.is_empty():
-		return
 	if not _enabled or get_tree().paused:
+		return
+	if _entries.is_empty():
+		if _draining:
+			set_enabled(false)
 		return
 	for i in range(_entries.size() - 1, -1, -1):
 		var entry := _entries[i]
@@ -288,6 +303,8 @@ func _process(delta: float) -> void:
 		entry.screen_offset += entry.velocity * delta
 		entry.velocity.x *= exp(-2.4 * delta)
 	queue_redraw()
+	if _draining and _entries.is_empty():
+		set_enabled(false)
 
 
 ## Monotonic growth curve so every number visibly expands from small to large

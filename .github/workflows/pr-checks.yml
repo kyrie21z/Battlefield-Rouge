@@ -10,7 +10,7 @@ jobs:
   run_checks:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - name: Checkout PR head with full history
         uses: actions/checkout@v4

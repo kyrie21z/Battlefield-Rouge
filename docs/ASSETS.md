@@ -1,5 +1,9 @@
 # 素材登记
 
+## Ultra-1 雕刻圣殿石与四域天空光学基线（2026-11-28）
+
+`assets/materials/mind_monument_stone.gdshader`、`assets/materials/mind_realm_sky.gdshader` 与 `environments/monument_optics.gd` 为本项目原创程序化 PBR 着色器与共享光学模块：使用 Godot 原生 `FastNoiseLite` 确定性固定种子烘焙 512px 无缝矿石法线/高度/矿脉贴图（无外部图片入库），提供 5 步 POM 视差砖缝、盒面自动凹刻建筑线脚边框、砖缝锚定折线脆裂与微晶闪点；四域与 `StasisHub` 统一至 `AgX` 色调映射、真实天空 IBL、房间级 `ReflectionProbe` 与体积光束。取证为 Godot 4.7.2 原生画面，沿用仓库许可。[原生画面与验证](proof/ultra1-visual-baseline/README.md)
+
 ## 天赋球黑曜石切面壳与切面水晶内芯（2026-11-25）
 
 `objects/talent_orb/orb_shell.glb`（69 件闭合平直切面黑曜石甲片/凹腔/镶嵌条）与 `objects/talent_orb/orb_core.glb`（8 件切面晶核与环绕晶刃）由本项目原创 Blender 5.2 确定性脚本 `tools/talent_orb/generate.py` 生成；`assets/materials/talent_orb_shell.gdshader` 复用 `crystal_optics.gdshaderinc`，内芯、地面八角光环与悬浮晶屑复用项目既有 `psyche_shard_crystal.gdshader`、`psyche_shard_halo.gdshader` 与 `PsycheShardMesh.splinter_mesh()`。取证为 Godot 4.7.2 原生画面，沿用仓库许可。[原生画面与验证](proof/talent-orb/README.md)

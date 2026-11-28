@@ -1032,40 +1032,30 @@ func objective_text() -> String:
 	return "击碎领域守卫 · 剩余 %d" % living_enemies()
 
 func _build_world() -> void:
+	var preset := MonumentOptics.realm_preset(REALMS[realm] if realm >= 0 and realm < REALMS.size() else "sloth")
 	var world := WorldEnvironment.new()
 	world.name = "RealmEnvironment"
 	var environment := preload("res://environments/default_env.tres").duplicate() as Environment
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = [Color("bfb8a6"),Color("969faa"),Color("b9a1a0"),Color("a8b9c7")][realm]
-	if realm == 0:
-		var sky_material := ShaderMaterial.new()
-		sky_material.shader = preload("res://environments/sloth/sanctum_sky.gdshader")
-		var sky := Sky.new()
-		sky.radiance_size = Sky.RADIANCE_SIZE_128
-		sky.sky_material = sky_material
-		environment.background_mode = Environment.BG_SKY
-		environment.sky = sky
-		environment.fog_enabled = true
-		environment.fog_light_color = Color("b8c2c8")
-		environment.fog_density = 0.0022
-		environment.fog_sky_affect = 0.14
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("e1e5ed")
-	environment.ambient_light_energy = 0.48
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.glow_enabled = true
-	environment.glow_intensity = 0.32
+	MonumentOptics.configure_environment(environment, preset["env"])
 	world.environment = environment
 	add_child(world)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-52,-28,0)
-	sun.light_energy = 1.45
-	sun.shadow_enabled = true
-	if realm == 0:
-		sun.light_color = Color("ffeece")
-		sun.light_energy = 1.22
-		sun.directional_shadow_max_distance = 74.0
+	sun.name = "RealmSun"
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"])
 	add_child(sun)
+	MonumentOptics.add_reflection_probe(self)
+	if realm == 0:
+		MonumentOptics.add_volumetric_shaft(
+			self, Vector3(-4.0, 18.0, -18.0), Vector3(0.5, 0.0, 3.0),
+			Color("ffd59c"), 12.5, 4.5, 52.0, 30.0, true
+		)
+		var cool_rim := DirectionalLight3D.new()
+		cool_rim.name = "SkyBounceRim"
+		cool_rim.rotation_degrees = Vector3(-32.0, 142.0, 0.0)
+		cool_rim.light_color = Color("7aa8db")
+		cool_rim.light_energy = 0.36
+		cool_rim.shadow_enabled = false
+		add_child(cool_rim)
 
 func _bake_navigation() -> void:
 	_region = NavigationRegion3D.new()

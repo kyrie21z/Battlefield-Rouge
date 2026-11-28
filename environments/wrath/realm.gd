@@ -70,36 +70,35 @@ func _ready() -> void:
 			for pos in [Vector3(-8, 0.7, 1), Vector3(8, 0.7, -10)]:
 				var cover := _block("BrokenCover", pos, Vector3(3, 1.4, 3), true)
 				cover.rotation.z = 0.12
+	var preset := MonumentOptics.realm_preset("wrath")
+	var wall_mat := MonumentOptics.make_stone_material(preset["wall"], false)
+	var floor_mat := MonumentOptics.make_stone_material(preset["floor"], true)
+	var trim_mat := MonumentOptics.make_trim_material(preset["trim_color"])
+	var dark_mat := MonumentOptics.make_obsidian_material(preset["obsidian_color"])
+	MonumentOptics.apply_monument_override(self, wall_mat, floor_mat, trim_mat, dark_mat)
 	var world := WorldEnvironment.new()
+	world.name = "WrathEnvironment"
 	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
-	world.environment.background_mode = Environment.BG_COLOR
-	world.environment.background_color = Color(0.16, 0.095, 0.085)
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color(0.86, 0.78, 0.72)
-	world.environment.ambient_light_energy = 0.65
-	world.environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	world.environment.glow_enabled = true
-	if cracked_kiln:
-		var kiln_air := ShaderMaterial.new()
-		kiln_air.shader = KILN_SKY
-		var sky := Sky.new()
-		sky.sky_material = kiln_air
-		sky.radiance_size = Sky.RADIANCE_SIZE_64
-		world.environment.sky = sky
-		world.environment.background_mode = Environment.BG_SKY
-		world.environment.ambient_light_color = Color("d5c3c8")
-		world.environment.ambient_light_energy = 0.39
+	MonumentOptics.configure_environment(world.environment, preset["env"])
 	add_child(world)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-58, -28, 0)
-	sun.light_color = Color(1.0, 0.87, 0.76)
-	sun.light_energy = 1.6
-	sun.shadow_enabled = true
-	if cracked_kiln:
-		sun.rotation_degrees = Vector3(-51, -26, 0)
-		sun.light_color = Color("fff0de")
-		sun.light_energy = 1.4
+	sun.name = "KilnSun"
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"])
 	add_child(sun)
+	var lava_bounce := OmniLight3D.new()
+	lava_bounce.name = "LavaForegroundBounce"
+	lava_bounce.position = Vector3(-2.0, 3.0, 9.0)
+	lava_bounce.light_color = Color("ff935c")
+	lava_bounce.light_energy = 4.6
+	lava_bounce.omni_range = 24.0
+	lava_bounce.omni_attenuation = 1.25
+	lava_bounce.shadow_enabled = false
+	add_child(lava_bounce)
+	MonumentOptics.add_volumetric_shaft(
+		self, Vector3(-8.0, 15.0, -14.0), Vector3(1.0, 0.0, 2.0),
+		Color("ffc280"), 14.0, 4.0, 48.0, 36.0, true
+	)
+	MonumentOptics.add_reflection_probe(self)
 	ambience = AudioStreamPlayer3D.new()
 	ambience.stream = _kiln_sound()
 	ambience.position = Vector3(0, 1, -3)

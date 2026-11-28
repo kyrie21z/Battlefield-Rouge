@@ -28,23 +28,18 @@ func _ready() -> void:
 	_register_navigation(self)
 
 func _materials() -> void:
-	for pair in [["ivory","e4e1d6"],["chalk","c6cbd0"],["base","8997a1"],["dark","465966"],["floor","bdc4c4"],["edge","6d818e"]]:
-		var m := ShaderMaterial.new()
-		m.shader = STONE
-		m.set_shader_parameter("stone_color",Color(pair[1]))
-		mats[pair[0]] = m
+	var preset := MonumentOptics.realm_preset("sloth")
+	for pair in [["ivory","cfc9be"],["chalk","c2c6ca"],["base","959ea6"],["dark","495561"],["edge","74828d"]]:
+		var wall_cfg: Dictionary = (preset["wall"] as Dictionary).duplicate()
+		wall_cfg["stone_albedo"] = Color(pair[1])
+		mats[pair[0]] = MonumentOptics.make_stone_material(wall_cfg, false)
 	for key in ["floor", "bridge_floor"]:
-		var m := ShaderMaterial.new()
-		m.shader = preload("res://environments/sloth/floor.gdshader")
-		m.set_shader_parameter("stone_color",Color("bdc4c4") if key=="floor" else Color("e4e1d6"))
-		m.set_shader_parameter("radial_mode",key=="floor")
-		mats[key] = m
-	for pair in [["bronze","94816a"],["ink","344954"],["gold","d5aa66"]]:
-		var m := StandardMaterial3D.new()
-		m.albedo_color = Color(pair[1])
-		m.metallic = 0.48
-		m.roughness = 0.4
-		mats[pair[0]] = m
+		var floor_cfg: Dictionary = (preset["floor"] as Dictionary).duplicate()
+		floor_cfg["stone_albedo"] = Color("9ca4ad") if key == "floor" else Color("b4b8bc")
+		mats[key] = MonumentOptics.make_stone_material(floor_cfg, true)
+	mats["bronze"] = MonumentOptics.make_trim_material(Color("9e8052"), 0.42, 0.84)
+	mats["ink"] = MonumentOptics.make_obsidian_material(Color("19202b"))
+	mats["gold"] = MonumentOptics.make_trim_material(Color("be9854"), 0.36, 0.88)
 	var warm := StandardMaterial3D.new()
 	warm.albedo_color = Color("ffe2a3")
 	warm.emission_enabled = true
@@ -123,43 +118,18 @@ func _rod(a: Vector3, b: Vector3, width: float, material: String, parent: Node3D
 	return r
 
 func _lighting() -> void:
+	var preset := MonumentOptics.realm_preset("sloth")
 	var world := WorldEnvironment.new()
 	world.name = "Atmosphere"
 	environment = preload("res://environments/default_env.tres").duplicate() as Environment
-	environment.background_mode = Environment.BG_SKY
-	var sky := Sky.new()
-	var sm := ShaderMaterial.new()
-	sm.shader = preload("res://environments/sloth/sanctum_sky.gdshader")
-	sky.sky_material = sm
-	sky.radiance_size = Sky.RADIANCE_SIZE_256
-	environment.sky = sky
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("9aafc1")
-	environment.ambient_light_energy = 0.32
-	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
-	environment.tonemap_exposure = 0.85
-	environment.fog_enabled = true
-	environment.fog_light_color = Color("bacbd4")
-	environment.fog_density = 0.00085
-	environment.fog_sky_affect = 0.16
-	environment.fog_aerial_perspective = 0.32
-	environment.glow_enabled = true
-	environment.glow_intensity = 0.36
+	MonumentOptics.configure_environment(environment, preset["env"])
 	world.environment = environment
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.name = "LateMorningSun"
-	sun.rotation_degrees = Vector3(-32,-38,0)
-	sun.light_color = Color("fff0d4")
-	sun.light_energy = 1.05
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 280.0
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
-	sun.shadow_bias = 0.08
-	sun.shadow_normal_bias = 1.5
-	# A fixed PCF shadow avoids the noisy wide PCSS penumbra on pale paving.
-	sun.light_angular_distance = 0.0
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"], 240.0)
 	add_child(sun)
+	MonumentOptics.add_reflection_probe(self)
 
 func _clouds() -> void:
 	var g := _group("CloudSea")

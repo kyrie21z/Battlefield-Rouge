@@ -1,0 +1,180 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS first production room installs
+PASS room 0 has baked traversable geometry
+PASS room 0 injects the three-axis depth vector
+PASS room 0 inherits all previous losses
+PASS room 0 keeps realm tempo orthogonal to boon status
+PASS depth 1 room 1 authors 1 waves
+PASS depth 1 room 1 opens with the authored first density
+PASS depth 1 room 1 spawns every authored reinforcement
+PASS depth 1 room 1 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 0 unlocks only after completion
+PASS room 0 physical gate advances
+PASS room 0 loads next scene without duplicate exit
+PASS room 1 has baked traversable geometry
+PASS room 1 injects the three-axis depth vector
+PASS room 1 inherits all previous losses
+PASS room 1 keeps realm tempo orthogonal to boon status
+PASS depth 1 room 2 authors 1 waves
+PASS depth 1 room 2 opens with the authored first density
+PASS depth 1 room 2 spawns every authored reinforcement
+PASS depth 1 room 2 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 1 unlocks only after completion
+PASS room 1 physical gate advances
+PASS room 1 loads next scene without duplicate exit
+PASS room 2 has baked traversable geometry
+PASS room 2 injects the three-axis depth vector
+PASS room 2 inherits all previous losses
+PASS depth 1 sanctuary carries no enemies
+PASS depth 1 sanctuary opens the boss gate on arrival
+PASS depth 1 sanctuary never pays room will
+PASS depth 1 sanctuary heals to full exactly once
+PASS depth 1 sanctuary unlocks its boss door immediately
+PASS room 2 physical gate advances
+PASS room 2 loads next scene without duplicate exit
+PASS room 3 has baked traversable geometry
+PASS room 3 injects the three-axis depth vector
+PASS room 3 inherits all previous losses
+PASS room 3 keeps realm tempo orthogonal to boon status
+PASS depth 1 boss crosses into phase 2 exactly once
+PASS depth 1 campaign boss phase 2 spawns two real escorts
+PASS depth 1 boss death clears the escorts without blocking the shard
+PASS boss 0 records death before pickup
+PASS boss 0 drops actual shard
+PASS boss 0 pickup activates independent core
+PASS room 3 unlocks only after completion
+PASS room 3 physical gate advances
+PASS room 3 loads next scene without duplicate exit
+PASS room 4 has baked traversable geometry
+PASS room 4 injects the three-axis depth vector
+PASS room 4 inherits all previous losses
+PASS room 4 keeps the lost-Sloth global haste
+PASS room 4 keeps realm tempo orthogonal to boon status
+PASS depth 2 room 1 authors 1 waves
+PASS depth 2 room 1 opens with the authored first density
+PASS depth 2 room 1 spawns every authored reinforcement
+PASS depth 2 room 1 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 4 unlocks only after completion
+PASS room 4 physical gate advances
+PASS room 4 loads next scene without duplicate exit
+PASS room 5 has baked traversable geometry
+PASS room 5 injects the three-axis depth vector
+PASS room 5 inherits all previous losses
+PASS room 5 keeps the lost-Sloth global haste
+PASS room 5 keeps realm tempo orthogonal to boon status
+PASS depth 2 room 2 authors 2 waves
+PASS depth 2 room 2 opens with the authored first density
+PASS depth 2 room 2 spawns every authored reinforcement
+PASS depth 2 room 2 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 5 unlocks only after completion
+PASS room 5 physical gate advances
+PASS room 5 loads next scene without duplicate exit
+PASS room 6 has baked traversable geometry
+PASS room 6 injects the three-axis depth vector
+PASS room 6 inherits all previous losses
+PASS room 6 keeps the lost-Sloth global haste
+PASS room 6 keeps realm tempo orthogonal to boon status
+PASS depth 2 boss crosses into phase 2 exactly once
+PASS depth 2 campaign boss phase 2 spawns two real escorts
+PASS depth 2 boss death clears the escorts without blocking the shard
+PASS boss 1 records death before pickup
+PASS boss 1 drops actual shard
+PASS boss 1 pickup activates independent core
+PASS room 6 unlocks only after completion
+PASS room 6 physical gate advances
+PASS room 6 loads next scene without duplicate exit
+PASS room 7 has baked traversable geometry
+PASS room 7 injects the three-axis depth vector
+PASS room 7 inherits all previous losses
+PASS room 7 keeps the lost-Sloth global haste
+PASS room 7 keeps realm tempo orthogonal to boon status
+PASS depth 3 room 1 authors 2 waves
+PASS depth 3 room 1 opens with the authored first density
+PASS depth 3 room 1 spawns every authored reinforcement
+PASS depth 3 room 1 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 7 unlocks only after completion
+PASS room 7 physical gate advances
+PASS room 7 loads next scene without duplicate exit
+PASS room 8 has baked traversable geometry
+PASS room 8 injects the three-axis depth vector
+PASS room 8 inherits all previous losses
+PASS room 8 keeps the lost-Sloth global haste
+PASS room 8 keeps realm tempo orthogonal to boon status
+PASS depth 3 room 2 authors 2 waves
+PASS depth 3 room 2 opens with the authored first density
+PASS depth 3 room 2 spawns every authored reinforcement
+PASS depth 3 room 2 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 8 unlocks only after completion
+PASS room 8 physical gate advances
+PASS room 8 loads next scene without duplicate exit
+PASS room 9 has baked traversable geometry
+PASS room 9 injects the three-axis depth vector
+PASS room 9 inherits all previous losses
+PASS room 9 keeps the lost-Sloth global haste
+PASS room 9 keeps realm tempo orthogonal to boon status
+PASS depth 3 boss crosses into phase 2 exactly once
+PASS depth 3 campaign boss phase 2 spawns two real escorts
+PASS depth 3 boss death clears the escorts without blocking the shard
+PASS boss 2 records death before pickup
+PASS boss 2 drops actual shard
+PASS boss 2 pickup activates independent core
+PASS room 9 unlocks only after completion
+PASS room 9 physical gate advances
+PASS room 9 loads next scene without duplicate exit
+PASS room 10 has baked traversable geometry
+PASS room 10 injects the three-axis depth vector
+PASS room 10 inherits all previous losses
+PASS room 10 keeps the lost-Sloth global haste
+PASS room 10 keeps realm tempo orthogonal to boon status
+PASS depth 4 room 1 authors 2 waves
+PASS depth 4 room 1 opens with the authored first density
+PASS depth 4 room 1 spawns every authored reinforcement
+PASS depth 4 room 1 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 10 unlocks only after completion
+PASS room 10 physical gate advances
+PASS room 10 loads next scene without duplicate exit
+PASS room 11 has baked traversable geometry
+PASS room 11 injects the three-axis depth vector
+PASS room 11 inherits all previous losses
+PASS room 11 keeps the lost-Sloth global haste
+PASS room 11 keeps realm tempo orthogonal to boon status
+PASS depth 4 room 2 authors 3 waves
+PASS depth 4 room 2 opens with the authored first density
+PASS depth 4 room 2 spawns every authored reinforcement
+PASS depth 4 room 2 keeps the authored elite quota
+PASS normal room clear opens actual reward choice
+PASS room 11 unlocks only after completion
+PASS room 11 physical gate advances
+PASS room 11 loads next scene without duplicate exit
+PASS room 12 has baked traversable geometry
+PASS room 12 injects the three-axis depth vector
+PASS room 12 inherits all previous losses
+PASS room 12 keeps the lost-Sloth global haste
+PASS room 12 keeps realm tempo orthogonal to boon status
+PASS depth 4 boss crosses into phase 2 exactly once
+PASS depth 4 campaign boss phase 2 spawns two real escorts
+PASS depth 4 boss death clears the escorts without blocking the shard
+PASS boss 3 records death before pickup
+PASS boss 3 drops actual shard
+PASS boss 3 pickup activates independent core
+PASS room 12 unlocks only after completion
+PASS room 12 physical gate advances
+PASS room 12 loads next scene without duplicate exit
+PASS deeper floors add reinforcement waves (2/3/4/5)
+PASS elite quotas escalate with depth (0/1/3/5)
+PASS all thirteen actual rooms visited without repetition
+PASS the Sloth floor runs combat, combat, sanctuary, boss
+PASS no later realm reopens a sanctuary once Sloth is lost
+PASS final destination is the real return corridor
+PASS final player owns all four cores and losses
+PASS threshold keeps equipped combat boons
+PASS final body has actual fourth fracture level
+ALL PASSED (177 checks)

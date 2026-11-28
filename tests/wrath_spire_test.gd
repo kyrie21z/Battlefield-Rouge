@@ -34,11 +34,10 @@ func _run() -> void:
 	await _frames(3)
 	_check("boss exposes production Enemy and Health contract", boss.is_boss and boss.health.max_health == WrathSpire.BASE_HEALTH and boss.health.max_health == 1450.0 and boss.health.team == 1)
 	var visual := boss.visual as WrathSpireVisual
-	_check("storm has three rotating layers of original humanoid parts", visual.storm_rings.size() == 3 and visual.storm_rings[0].get_child_count() == 8)
-	var rotation_before := visual.storm_rings[0].rotation.y
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_check("crystal limbs actually rotate", visual.storm_rings[0].rotation.y != rotation_before)
+	_check("spired waist has six hinged plates, six teeth and four concealed guns",
+		visual._plates.size() == 6 and visual._teeth.size() == 6 and visual._pods.size() == 4
+		and visual._pods.all(func(pod): return not pod.aim.visible))
+	await _verify_volley(visual)
 	boss.attack_phase = WrathRealmEnemy.Attack.APPROACH
 	boss.attack_left = 6.0
 	var gap_before := boss.global_position.distance_to(player.global_position)
@@ -128,8 +127,13 @@ func _run() -> void:
 	while boss.attack_phase != WrathRealmEnemy.Attack.RUSH and dash_wait < 90:
 		await get_tree().physics_frame
 		dash_wait += 1
+	var waist_before := visual._waist.rotation.y
 	var dash_start := boss.global_position
 	await _frames(10)
+	_check("vortex closes plates, extends teeth, spins the waist and tilts into the charge",
+		visual._charge >= 0.99 and visual._teeth.all(func(tooth): return tooth.visible)
+		and visual._waist.rotation.y != waist_before and visual._hull.global_basis.y.dot(boss.locked_direction) > 0.09
+		and visual.deployment == 0.0)
 	_check("vortex dash closes the gap at charge speed", boss.global_position.distance_to(dash_start) > 1.5)
 	boss.boon_time_scale = 0
 	var freeze_pos := boss.global_position
@@ -196,6 +200,67 @@ func _run() -> void:
 	player.position = Vector3(5,0,8)
 	player.health.apply_damage(2,Hitbox.BodyPart.BODY,guard)
 	_check("Spite can move armored Wrath actor independently",guard._impact_left > 0 and not guard.ordinary_impacts_enabled)
+
+
+func _verify_volley(visual: WrathSpireVisual) -> void:
+	var observed_origins: Array[int] = []
+	var observe := func(projectile: Node) -> void:
+		var round := projectile as WrathRicochet
+		if round == null or round.source != boss:
+			return
+		for i in visual._pods.size():
+			var pod := visual._pods[i]
+			if round.global_position.is_equal_approx(pod.muzzle.global_position):
+				if pod.flash.visible and pod.recoil > 0.0 and (-round.global_basis.z).is_equal_approx(-pod.muzzle.global_basis.z):
+					observed_origins.append(i)
+					return
+		observed_origins.append(-1)
+	Events.projectile_registered.connect(observe)
+	var hp_before := player.health.health
+	var shots_before := boss.spawned_bullets
+	boss.begin_move(WrathSpire.Move.VOLLEY)
+	await _frames(47)
+	_check("guns stay tucked during the early aim warning", visual.deployment == 0.0 and observed_origins.is_empty())
+	await _frames(13)
+	_check("four hatches flick open and their guns slide out before the first round",
+		boss.attack_phase == WrathRealmEnemy.Attack.WINDUP and observed_origins.is_empty()
+		and visual.deployment > 0.15 and visual._pods.all(func(pod): return pod.hatch.rotation.x > 0.0 and pod.aim.visible))
+	var pose_before := visual.deployment
+	boss.boon_time_scale = 0.0
+	await _frames(5)
+	_check("time stop freezes hatch deployment and firing", visual.deployment == pose_before and observed_origins.is_empty())
+	boss.boon_time_scale = 1.0
+	await _frames(55)
+	_check("three volleys fire all fifteen real ricochets from alternating recoiling muzzles",
+		boss.spawned_bullets - shots_before == 15 and observed_origins.size() == 15
+		and not observed_origins.has(-1) and observed_origins[0] != observed_origins[1])
+	_check("the aimed volley can still damage the player", player.health.health < hp_before)
+	await _frames(15)
+	_check("gun bays retract and close during recovery", visual.deployment == 0.0
+		and visual._pods.all(func(pod): return not pod.aim.visible and pod.hatch.rotation.x == 0.0))
+	Events.projectile_registered.disconnect(observe)
+	boss._clear_bullets()
+
+	var wall := StaticBody3D.new()
+	wall.collision_layer = CollisionLayers.WORLD
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(10, 5, 0.18)
+	collision.shape = shape
+	wall.add_child(collision)
+	wall.position = Vector3(0, 2.5, 1.46)
+	add_child(wall)
+	await _frames(2)
+	shots_before = boss.spawned_bullets
+	boss.begin_move(WrathSpire.Move.VOLLEY)
+	await _frames(110)
+	var projectile_beyond_wall := get_children().any(func(node: Node) -> bool:
+		var round := node as WrathRicochet
+		return round != null and round.global_position.z > 1.55)
+	_check("a WORLD obstacle between the boss and muzzle blocks spawning through cover",
+		boss.spawned_bullets - shots_before < 15 and not projectile_beyond_wall)
+	wall.queue_free()
+	boss._clear_bullets()
 
 
 func _frames(count: int) -> void:

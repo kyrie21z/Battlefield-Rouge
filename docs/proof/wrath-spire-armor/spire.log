@@ -1,0 +1,43 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS boss exposes production Enemy and Health contract
+PASS spired waist has six hinged plates, six teeth and four concealed guns
+PASS guns stay tucked during the early aim warning
+PASS four hatches flick open and their guns slide out before the first round
+PASS time stop freezes hatch deployment and firing
+PASS three volleys fire all fifteen real ricochets from alternating recoiling muzzles
+PASS the aimed volley can still damage the player
+PASS gun bays retract and close during recovery
+PASS a WORLD obstacle between the boss and muzzle blocks spawning through cover
+PASS approach relentlessly closes the gap instead of standing still
+PASS fissure stays in telegraph before release
+PASS pause preserves attack deadline
+PASS fissure releases three actual directed wave fans
+PASS locked ground fan damages a grounded player
+PASS two shrapnel bursts launch 24 real projectiles
+PASS launched ricochets remain actual moving objects
+PASS absorbing real player damage banks rage
+PASS rage and missing life spin the storm and heat its glow
+PASS full rage primes telegraphed windup before releasing shockwave
+PASS full rage unleashes one 360-degree rage shockwave after telegraph
+PASS rage shockwave uses jumpable radius and speed
+PASS rage burst fires eight radial ricochets
+PASS rage burst launches straight into a vortex dash
+PASS vortex initiates from inside its longer charge range
+PASS vortex closes plates, extends teeth, spins the waist and tilts into the charge
+PASS vortex dash closes the gap at charge speed
+PASS local time stop freezes boss attacks and physics
+PASS vortex slam into a WORLD wall bursts six ricochets once
+PASS real gun ray damages boss in punish window
+PASS a live rage wave and its shrapnel exist before death
+PASS actual boss death emits one Wrath clear event
+PASS boss death extinguishes local furnace and ambience
+PASS boss death scatters original 56 rigid crystal parts
+PASS boss death cancels bullets, waves and pending eruptions
+PASS dead boss never starts later attacks
+PASS boss rigid fragments clean up after two seconds
+PASS duplicate damage cannot duplicate clear event
+PASS post-boss ordinary force remains disabled
+PASS physical Spite pickup activates independent shard
+PASS Spite can move armored Wrath actor independently
+WRATH SPIRE: 40 checks, 0 failed

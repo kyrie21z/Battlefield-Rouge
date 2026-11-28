@@ -26,6 +26,13 @@ static var _height_ref: WeakRef
 static var _vein_ref: WeakRef
 
 static func _shared_textures() -> Dictionary:
+	if DisplayServer.get_name() == "headless":
+		var stub: Texture2D = _normal_ref.get_ref() if _normal_ref != null else null
+		if stub == null:
+			stub = ImageTexture.create_from_image(Image.create(2, 2, false, Image.FORMAT_RGBA8))
+			_normal_ref = weakref(stub)
+		return {"normal": stub, "height": stub, "vein": stub}
+
 	var tex_normal: NoiseTexture2D = _normal_ref.get_ref() if _normal_ref != null else null
 	if tex_normal == null:
 		var n_stone := FastNoiseLite.new()

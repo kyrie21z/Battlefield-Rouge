@@ -27,6 +27,7 @@ var _pillar_caps: Array[MeshInstance3D] = []
 var _pillar_inlays: Array[Node3D] = []
 var _white: Material
 var _stone: Material
+var _pillar_white: StandardMaterial3D = CrownModel.material(WHITE, 0.0, 0.85)
 var _elapsed := 0.0
 var _departing := false
 var _prompt: PanelContainer
@@ -129,11 +130,11 @@ func _build_archive() -> void:
 		pillar.name = "Pillar%d" % realm
 		pillar.position = Vector3((realm - 1.5) * 1.02, 0, -1.19)
 		_stele.add_child(pillar)
-		var body := _facet(pillar, Vector3(0, 1.38, 0), 0.33, 0.33, 2.65, 4, _white)
+		var body := _facet(pillar, Vector3(0, 1.38, 0), 0.33, 0.33, 2.65, 4, _pillar_white)
 		body.name = "Crystal"
 		body.rotation.y = PI / 4.0
 		_pillar_bodies.append(body)
-		var cap := _facet(pillar, Vector3(0, 2.78, 0), 0.11, 0.33, 0.15, 4, _white)
+		var cap := _facet(pillar, Vector3(0, 2.78, 0), 0.11, 0.33, 0.15, 4, _pillar_white)
 		cap.name = "Trim"
 		cap.rotation.y = body.rotation.y
 		_pillar_caps.append(cap)
@@ -219,9 +220,9 @@ func _refresh_progression() -> void:
 	for realm in REALM_NAMES.size():
 		var accent := EditorialStyle.realm_accent(realm)
 		_pillar_caps[realm].material_override = CrownModel.material(accent, 0.0, 0.52) \
-			if archive.visited_realms.has(realm) else _white
+			if archive.visited_realms.has(realm) else _pillar_white
 		_pillar_bodies[realm].material_override = CrownModel.material(WHITE.lerp(accent, 0.66), 0.0, 0.62) \
-			if archive.defeated_realms.has(realm) else _white
+			if archive.defeated_realms.has(realm) else _pillar_white
 		_pillar_inlays[realm].visible = archive.reconciled
 
 

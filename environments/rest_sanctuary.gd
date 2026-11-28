@@ -37,7 +37,8 @@ var altar_light: OmniLight3D
 var altar_ring: MeshInstance3D
 var altar_ring_material: StandardMaterial3D
 var altar_label: Label3D
-var _stone: StandardMaterial3D
+var _stone: Material
+var _floor_stone: Material
 var _accent_material: StandardMaterial3D
 var _motes: Array[MeshInstance3D] = []
 var _mote_base: Array[Vector3] = []
@@ -147,10 +148,16 @@ func _exit_tree() -> void:
 
 
 func _build_materials() -> void:
-	_stone = StandardMaterial3D.new()
-	_stone.albedo_color = Color("f2ede3")
-	_stone.roughness = 0.92
-	_stone.metallic = 0.0
+	var realm_keys := ["sloth", "fear", "wrath", "sorrow"]
+	var rid: String = realm_keys[clampi(realm, 0, realm_keys.size() - 1)]
+	var preset := MonumentOptics.realm_preset(rid)
+	var wall_cfg: Dictionary = (preset["wall"] as Dictionary).duplicate()
+	wall_cfg["crack_density"] = 0.16
+	var floor_cfg: Dictionary = (preset["floor"] as Dictionary).duplicate()
+	floor_cfg["crack_density"] = 0.22
+	floor_cfg["court_inlay_enabled"] = true
+	_stone = MonumentOptics.make_stone_material(wall_cfg, false)
+	_floor_stone = MonumentOptics.make_stone_material(floor_cfg, true)
 	_accent_material = StandardMaterial3D.new()
 	_accent_material.albedo_color = ACCENT_COLORS[realm]
 	_accent_material.roughness = 0.35
@@ -161,35 +168,24 @@ func _build_materials() -> void:
 
 
 func _build_environment() -> void:
+	var realm_keys := ["sloth", "fear", "wrath", "sorrow"]
+	var rid: String = realm_keys[clampi(realm, 0, realm_keys.size() - 1)]
+	var preset := MonumentOptics.realm_preset(rid)
 	var world := WorldEnvironment.new()
 	world.name = "SanctuaryEnvironment"
 	var environment := preload("res://environments/default_env.tres").duplicate() as Environment
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = SKY_COLORS[realm]
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = AMBIENT_COLORS[realm]
-	environment.ambient_light_energy = 0.56
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.glow_enabled = true
-	environment.glow_intensity = 0.34
-	environment.fog_enabled = true
-	environment.fog_light_color = SKY_COLORS[realm]
-	environment.fog_density = 0.004
-	environment.fog_sky_affect = 0.2
+	MonumentOptics.configure_environment(environment, preset["env"])
 	world.environment = environment
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.name = "SanctuarySun"
-	sun.rotation_degrees = Vector3(-54, -26, 0)
-	sun.light_color = LIGHT_COLORS[realm]
-	sun.light_energy = 1.18
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 60.0
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"] * 0.9, 80.0)
 	add_child(sun)
+	MonumentOptics.add_reflection_probe(self, Vector3(34.0, 18.0, 42.0), Vector3(0.0, 5.5, 0.0), 0.96)
 
 
 func _build_floor() -> void:
-	_solid("Floor", Vector3(0, -0.3, 0), FLOOR_SIZE, _stone)
+	_solid("Floor", Vector3(0, -0.3, 0), FLOOR_SIZE, _floor_stone)
 
 
 ## Low parapets and the two end walls keep the player inside; the end openings

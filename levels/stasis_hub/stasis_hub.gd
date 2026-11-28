@@ -25,8 +25,8 @@ var _forge_light: OmniLight3D
 var _pillar_bodies: Array[MeshInstance3D] = []
 var _pillar_caps: Array[MeshInstance3D] = []
 var _pillar_inlays: Array[Node3D] = []
-var _white := CrownModel.material(WHITE, 0.0, 0.85)
-var _stone := CrownModel.material(Color("d7d9db"), 0.0, 0.72)
+var _white: Material
+var _stone: Material
 var _elapsed := 0.0
 var _departing := false
 var _prompt: PanelContainer
@@ -67,21 +67,24 @@ func _announce_history() -> void:
 
 
 func _build_architecture() -> void:
+	var preset := MonumentOptics.realm_preset("stasis_hub")
+	_white = MonumentOptics.make_stone_material(preset["wall"], false)
+	_stone = MonumentOptics.make_stone_material(preset["floor"], true)
 	var world := WorldEnvironment.new()
+	world.name = "HubEnvironment"
 	var environment := DEFAULT_ENV.duplicate() as Environment
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("e4e7e9")
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("e5e8f0")
-	environment.ambient_light_energy = 0.5
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	MonumentOptics.configure_environment(environment, preset["env"])
 	world.environment = environment
 	add_child(world)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-52, -32, 0)
-	sun.light_energy = 1.1
-	sun.shadow_enabled = true
+	sun.name = "HubSun"
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"], 90.0)
 	add_child(sun)
+	MonumentOptics.add_volumetric_shaft(
+		_architecture, Vector3(-5.0, 12.0, -14.0), Vector3(0.0, 0.5, 1.0),
+		Color("ffe2b5"), 9.5, 3.2, 36.0, 34.0, true
+	)
+	MonumentOptics.add_reflection_probe(_architecture, Vector3(26.0, 16.0, 30.0), Vector3(0.0, 4.5, -2.0), 1.0)
 
 	_slab(_architecture, Vector3(0, -0.35, -2), Vector3(16, 0.7, 22), _stone, true)
 	_slab(_architecture, Vector3(0, 3, 8.9), Vector3(16, 6, 0.2), _white)

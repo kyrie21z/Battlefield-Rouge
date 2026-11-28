@@ -103,47 +103,27 @@ func _ready() -> void:
 	splash.volume_db = SorrowSoundBank.MOTION_VOLUME_DB
 	splash.max_distance = 25
 	add_child(splash)
+	var preset := MonumentOptics.realm_preset("sorrow")
+	var wall_mat := MonumentOptics.make_stone_material(preset["wall"], false)
+	var floor_mat := MonumentOptics.make_stone_material(preset["floor"], true)
+	var trim_mat := MonumentOptics.make_trim_material(preset["trim_color"])
+	var dark_mat := MonumentOptics.make_obsidian_material(preset["obsidian_color"])
+	MonumentOptics.apply_monument_override(self, wall_mat, floor_mat, trim_mat, dark_mat)
 	var world := WorldEnvironment.new()
+	world.name = "SorrowEnvironment"
 	world.environment = preload("res://environments/default_env.tres").duplicate() as Environment
 	mirror_environment = world.environment
-	world.environment.background_mode = Environment.BG_COLOR
-	world.environment.background_color = Color(0.035,0.075,0.105)
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color(0.62,0.80,0.92)
-	world.environment.ambient_light_energy = 0.75
-	world.environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	world.environment.glow_enabled = true
-	world.environment.ssr_enabled = true
-	world.environment.ssr_max_steps = 128
-	world.environment.ssr_fade_in = 0.1
-	world.environment.ssr_fade_out = 4.0
-	world.environment.ssr_depth_tolerance = 0.25
-	if is_instance_valid(_court):
-		var overcast := ShaderMaterial.new()
-		overcast.shader = FLOODED_SKY
-		var sky := Sky.new()
-		sky.radiance_size = Sky.RADIANCE_SIZE_128
-		sky.sky_material = overcast
-		world.environment.background_mode = Environment.BG_SKY
-		world.environment.sky = sky
-		world.environment.ambient_light_color = Color("b3cde0")
-		world.environment.ambient_light_energy = 0.63
-		world.environment.fog_enabled = true
-		world.environment.fog_light_color = Color("6c899d")
-		world.environment.fog_density = 0.0042
-		world.environment.fog_sky_affect = 0.13
+	MonumentOptics.configure_environment(world.environment, preset["env"])
 	add_child(world)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-60,-25,0)
-	sun.light_color = Color(0.76,0.87,1)
-	sun.light_energy = 1.5
-	sun.shadow_enabled = true
-	if is_instance_valid(_court):
-		sun.rotation_degrees = Vector3(-36, 46, 0)
-		sun.light_color = Color("d5e5ed")
-		sun.light_energy = 1.62
-		sun.directional_shadow_max_distance = 74.0
+	sun.name = "SorrowOvercastSun"
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"])
 	add_child(sun)
+	MonumentOptics.add_volumetric_shaft(
+		self, Vector3(-7.0, 16.0, -15.0), Vector3(1.0, 0.0, 2.0),
+		Color("c2e5f5"), 10.5, 3.8, 48.0, 36.0, true
+	)
+	MonumentOptics.add_reflection_probe(self)
 	Events.enemy_registered.connect(_register_walker)
 	Events.gunshot.connect(_on_gunshot)
 	get_tree().node_added.connect(_on_node_added)

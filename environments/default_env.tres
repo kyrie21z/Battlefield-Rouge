@@ -1,17 +1,18 @@
 [gd_resource type="Environment" format=3]
 
 [resource]
-tonemap_exposure = 0.85
+tonemap_mode = 4
+tonemap_exposure = 0.96
 ssao_enabled = true
-ssao_radius = 1.25
-ssao_intensity = 1.1
-ssao_power = 1.2
-ssao_detail = 0.6
+ssao_radius = 1.5
+ssao_intensity = 1.48
+ssao_power = 1.32
+ssao_detail = 0.85
 ssao_horizon = 0.08
 ssao_sharpness = 0.8
-ssao_light_affect = 0.12
+ssao_light_affect = 0.2
 ssil_enabled = true
-ssil_radius = 3.5
-ssil_intensity = 0.65
+ssil_radius = 4.6
+ssil_intensity = 0.9
 ssil_sharpness = 0.8
 ssil_normal_rejection = 0.9

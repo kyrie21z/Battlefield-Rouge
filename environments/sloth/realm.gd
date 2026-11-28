@@ -23,18 +23,11 @@ var player: Player
 var void_fall: RealmVoid
 
 func _ready() -> void:
-	var limestone := ShaderMaterial.new()
-	limestone.shader = preload("res://environments/sloth/stone.gdshader")
-	limestone.set_shader_parameter("stone_color", Color("e4dbca"))
-	limestone.set_shader_parameter("weathered", true)
-	_stone = limestone
-	var dark := material(Color(0.10,0.085,0.06),0.1,0.8)
-	var paving := ShaderMaterial.new()
-	paving.shader = preload("res://environments/sloth/floor.gdshader")
-	paving.set_shader_parameter("stone_color",Color("e2dbcc"))
-	paving.set_shader_parameter("radial_mode",boss_arena)
-	paving.set_shader_parameter("carved_court", true)
-	paving.set_shader_parameter("repair_tracks", not boss_arena)
+	var preset := MonumentOptics.realm_preset("sloth")
+	_stone = MonumentOptics.make_stone_material(preset["wall"], false)
+	var dark := MonumentOptics.make_obsidian_material(preset["obsidian_color"])
+	var paving := MonumentOptics.make_stone_material(preset["floor"], true)
+	var trim := MonumentOptics.make_trim_material(preset["trim_color"])
 	box(self,Vector3(0,-0.6,0),Vector3(40,1.2,48),paving,true)
 	# Physical edges define the walkable floor. Scenery never enters navigation.
 	for side in [-1.0,1.0]:
@@ -60,6 +53,8 @@ func _ready() -> void:
 	add_child(_clockwork)
 	_clockwork.build(boss_arena, chamber_style)
 	rings.assign(_clockwork.rings)
+	MonumentOptics.apply_monument_override(_worksite, _stone, paving, trim, dark)
+	MonumentOptics.apply_monument_override(_clockwork, _stone, paving, trim, dark)
 	var mist := CPUParticles3D.new()
 	mist.name = "StillAmberMist"
 	mist.amount = 42

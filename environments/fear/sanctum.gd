@@ -29,12 +29,15 @@ var _flame: StandardMaterial3D
 var _rim: StandardMaterial3D
 
 func _ready() -> void:
-	_wall = _stone(Color("322838"), Vector2(2.25, 1.12), 0.036)
-	_ashlar = _stone(Color("504158"), Vector2(1.05, 0.64), 0.024)
-	walk_stone = _stone(Color("685a73"), Vector2(1.35, 1.35), 0.025)
-	_frame = _material(Color("5e5168"), 0.68)
-	_metal = _material(Color("352444"), 0.40)
-	_brass = _material(Color("a38a7e"), 0.48)
+	var preset := MonumentOptics.realm_preset("fear")
+	var wall_cfg: Dictionary = (preset["wall"] as Dictionary).duplicate()
+	wall_cfg["stone_albedo"] = Color("6b6380")
+	_wall = MonumentOptics.make_stone_material(wall_cfg, false)
+	_ashlar = MonumentOptics.make_stone_material(preset["wall"], false)
+	walk_stone = MonumentOptics.make_stone_material(preset["floor"], true)
+	_frame = MonumentOptics.make_obsidian_material(Color("221a33"))
+	_metal = MonumentOptics.make_obsidian_material(preset["obsidian_color"])
+	_brass = MonumentOptics.make_trim_material(preset["trim_color"])
 	_flame = _material(Color("efad79"), 0.62, 1.15)
 	_rim = _material(Color("ad8cc7"), 0.71, 0.40)
 	_glass = ShaderMaterial.new()
@@ -78,24 +81,33 @@ func _material(color: Color, roughness: float, glow := 0.0) -> StandardMaterial3
 	return mat
 
 func _build_environment() -> void:
+	var preset := MonumentOptics.realm_preset("fear")
 	environment = preload("res://environments/default_env.tres").duplicate() as Environment
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("140d21")
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("c5b3da")
-	environment.ambient_light_energy = 0.43
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.tonemap_exposure = 0.97
-	environment.glow_enabled = true
-	environment.glow_intensity = 0.26
-	environment.fog_enabled = true
-	environment.fog_light_color = Color("3b254c")
-	environment.fog_density = 0.007
-	environment.fog_height = -6.0
-	environment.fog_height_density = 0.145
+	MonumentOptics.configure_environment(environment, preset["env"])
 	var world := WorldEnvironment.new()
+	world.name = "FearEnvironment"
 	world.environment = environment
 	add_child(world)
+	var sun := DirectionalLight3D.new()
+	sun.name = "MoonKeyLight"
+	MonumentOptics.configure_sun(sun, preset["sun_rot"], preset["sun_color"], preset["sun_energy"])
+	add_child(sun)
+	for z_pos: float in [10.0, -2.0, -14.0]:
+		var nave_light := OmniLight3D.new()
+		nave_light.name = "NaveLight_%d" % int(z_pos)
+		nave_light.position = Vector3(0.0, 7.2, z_pos)
+		nave_light.light_color = Color("d0c2ff")
+		nave_light.light_energy = 4.2
+		nave_light.omni_range = 24.0
+		nave_light.omni_attenuation = 1.3
+		nave_light.shadow_enabled = (z_pos == -2.0)
+		add_child(nave_light)
+	for side: float in [-1.0, 1.0]:
+		MonumentOptics.add_volumetric_shaft(
+			self, Vector3(side * 12.8, 7.6, 3.5), Vector3(-side * 1.5, 0.0, 1.0),
+			Color("c2abff"), 11.5, 3.6, 30.0, 44.0, true
+		)
+	MonumentOptics.add_reflection_probe(self, Vector3(44.0, 26.0, 62.0), Vector3(0.0, 7.0, -2.0), 1.0)
 
 func _box(point: Vector3, size: Vector3, mat: Material, orientation := Basis.IDENTITY) -> void:
 	if not _batches.has(mat):

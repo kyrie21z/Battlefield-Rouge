@@ -26,6 +26,12 @@ const VORTEX_SPEED_PHASE2 := 16.5
 const VORTEX_DASH_TIME := 1.8
 const VORTEX_PHASE2_DASHES := 2
 const VOLLEY_TRACK_BLEND := 0.55
+const VOLLEY_DEPLOY_SECONDS := 0.20
+const VOLLEY_WAVE_SECONDS := 0.28
+const VOLLEY_ROUND_SECONDS := 0.05
+const VOLLEY_WAVES := 3
+const VOLLEY_SPREAD := [-0.32, -0.16, 0.0, 0.16, 0.32]
+const VOLLEY_HEIGHT := Vector3.UP * 1.9
 const WALL_SHARD_SPREAD := [-0.45, -0.27, -0.09, 0.09, 0.27, 0.45]
 const NEAR_MOVES: Array[int] = [Move.VORTEX, Move.SHRAPNEL, Move.ERUPTION]
 const FAR_MOVES: Array[int] = [Move.VOLLEY, Move.FISSURE, Move.ERUPTION]
@@ -40,7 +46,8 @@ var _pulse_left := 0.0
 var _burst_done := false
 var _owned_bullets: Array[WeakRef] = []
 var spawned_eruptions := 0
-var _volley_count := 0
+var _volley_round := 0
+var _locked_range := 1.0
 var _locked_aim := Vector3.FORWARD
 var _aim_tell: MeshInstance3D
 var _rage_tell: MeshInstance3D
@@ -65,6 +72,9 @@ func _ready() -> void:
 	health.headshot_multiplier = 1.3
 	attack_phase = Attack.APPROACH
 	attack_left = APPROACH_DELAY
+	_audio.stream = ProceduralAudio.generate("enemy_shot")
+	_audio.volume_db = -13.0
+	_audio.max_polyphony = 3
 	_base_run_speed = BASE_RUN_SPEED
 	_refresh_tempo_speed()
 	health.after_damage.connect(_on_phase_damage)
@@ -101,7 +111,9 @@ func _physics_process(delta: float) -> void:
 	delta *= boon_time_scale
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+	var model := visual as WrathSpireVisual
 	if not _has_live_target():
+		model.drive_combat_pose(delta, 0.0, false, Vector3.ZERO, 0.0, Vector3.ZERO)
 		_stop()
 		_clear_bullets()
 		_boon_move_and_slide()
@@ -114,10 +126,10 @@ func _physics_process(delta: float) -> void:
 		_boon_move_and_slide()
 		return
 	var flat := (target.global_position - global_position) * Vector3(1, 0, 1)
-	phase_elapsed += delta * effective_attack_scale()
-	attack_left -= delta * effective_attack_scale()
+	var attack_delta := delta * effective_attack_scale()
+	phase_elapsed += attack_delta
+	attack_left -= attack_delta
 	_pulse_left -= delta
-	var model := visual as WrathSpireVisual
 	var missing := 1.0 - clampf(health.health / maxf(health.max_health, 1.0), 0.0, 1.0)
 	model.speed_factor = 1.0 + rage / RAGE_MAX * 2.4 + missing * 2.0 + (6.0 if attack_phase == Attack.RUSH else 0.0)
 	model.molten = clampf(rage / RAGE_MAX * 0.65 + missing * 0.55, 0.0, 1.0)
@@ -163,8 +175,6 @@ func _physics_process(delta: float) -> void:
 						spawned_waves += 1
 				elif move_kind == Move.SHRAPNEL:
 					_fire_radial(0.0)
-				elif move_kind == Move.VOLLEY:
-					_fire_volley()
 	elif attack_phase == Attack.RUSH:
 		if move_kind == Move.VORTEX:
 			var dash_speed := VORTEX_SPEED_PHASE2 if boss_phase >= 2 else VORTEX_SPEED
@@ -185,14 +195,12 @@ func _physics_process(delta: float) -> void:
 					_enter_recover()
 		else:
 			_stop()
-			while move_kind == Move.VOLLEY and _volley_count < 3 and phase_elapsed >= _volley_count*0.28:
-				if _volley_count >= 1:
-					_track_volley()
-				_fire_volley()
 			if move_kind == Move.SHRAPNEL and phase_elapsed >= 0.35 and not _burst_done:
 				_burst_done = true
 				_fire_radial(PI / 12.0)
 			if attack_left <= 0:
+				if move_kind == Move.VOLLEY:
+					_fire_due_volley_rounds(model)
 				_enter_recover()
 	else:
 		_stop()
@@ -205,8 +213,20 @@ func _physics_process(delta: float) -> void:
 				attack_phase = Attack.APPROACH
 				attack_left = APPROACH_DELAY
 	_boon_move_and_slide()
-	if attack_phase == Attack.RUSH and move_kind == Move.VORTEX:
+	var vortex := move_kind == Move.VORTEX
+	var rushing := attack_phase == Attack.RUSH
+	var winding := attack_phase == Attack.WINDUP
+	var charge := 0.0
+	if vortex and (winding or rushing):
+		charge = 1.0 if rushing else smoothstep(0.0, 0.40, 0.40 - attack_left)
+	var guns := 0.0
+	if move_kind == Move.VOLLEY and (winding or rushing):
+		guns = 1.0 if rushing else smoothstep(0.0, VOLLEY_DEPLOY_SECONDS, VOLLEY_DEPLOY_SECONDS - attack_left)
+	model.drive_combat_pose(delta, charge, vortex and rushing, locked_direction, guns, _volley_aim_point())
+	if vortex and rushing:
 		_check_wall_slam()
+	elif move_kind == Move.VOLLEY and rushing:
+		_fire_due_volley_rounds(model)
 
 func _pursue_target(delta: float, flat: Vector3) -> void:
 	_face(flat, delta)
@@ -246,16 +266,20 @@ func begin_move(kind: int) -> void:
 	var distance := target.global_position.distance_to(global_position)
 	move_kind = Move.VOLLEY if kind == Move.VORTEX and distance > VORTEX_RANGE else kind
 	locked_direction = ((target.global_position - global_position) * Vector3(1, 0, 1)).normalized()
-	_locked_aim = (target.global_position+Vector3.UP*1.0-(global_position+Vector3.UP*1.9)).normalized()
+	var aim_offset := target.global_position + Vector3.UP - (global_position + VOLLEY_HEIGHT)
+	_locked_aim = aim_offset.normalized()
+	_locked_range = maxf(aim_offset.length(), 3.2)
 	attack_phase = Attack.WINDUP
 	attack_left = (0.95 if move_kind == Move.ERUPTION else 1.1) * boon_windup_scale
 	phase_elapsed = 0
-	_volley_count = 0
+	_volley_round = 0
 	_dashes_left = 0
 	_wall_burst_ready = false
 	_clear_aim_tell()
-	if move_kind == Move.VOLLEY and warnings_enabled:
-		_show_aim_tell()
+	if move_kind == Move.VOLLEY:
+		_face(locked_direction, 1.0)
+		if warnings_enabled:
+			_show_aim_tell()
 	elif move_kind == Move.ERUPTION:
 		_spawn_eruptions()
 
@@ -265,19 +289,37 @@ func _has_live_target() -> bool:
 	var hp := target.get_node_or_null("Health") as Health
 	return hp == null or not hp.is_dead()
 
-func _fire_volley() -> void:
-	_volley_count += 1
-	for angle in [-0.32,-0.16,0.0,0.16,0.32]:
-		var direction := _locked_aim.rotated(Vector3.UP,angle)
-		var bullet := WrathRicochet.launch(get_parent(),global_position+Vector3.UP*1.9+direction*1.6,direction,self,10.0*realm_damage_scale,24.0)
+func _fire_due_volley_rounds(model: WrathSpireVisual) -> void:
+	var spread_count := VOLLEY_SPREAD.size()
+	while _volley_round < VOLLEY_WAVES * spread_count:
+		@warning_ignore("integer_division")
+		var wave := _volley_round / spread_count
+		var round_in_wave := _volley_round % spread_count
+		if phase_elapsed < wave * VOLLEY_WAVE_SECONDS + round_in_wave * VOLLEY_ROUND_SECONDS:
+			return
+		if wave > 0 and round_in_wave == 0:
+			var offset := target.global_position + Vector3.UP - (global_position + VOLLEY_HEIGHT)
+			_locked_aim = _locked_aim.slerp(offset.normalized(), VOLLEY_TRACK_BLEND).normalized()
+			_locked_range = maxf(offset.length(), 3.2)
+		var point := _volley_aim_point(VOLLEY_SPREAD[round_in_wave])
+		var pod := model.aim_volley_gun(_locked_aim, point, _volley_round)
+		_volley_round += 1
+		var muzzle := pod.muzzle.global_position
+		var direction := -pod.muzzle.global_basis.z
+		model.fire_gun(pod)
+		_audio.global_position = muzzle
+		_audio.play()
+		# A long barrel beside a pillar must not place the bullet behind cover.
+		var bore := PhysicsRayQueryParameters3D.create(global_position + VOLLEY_HEIGHT, muzzle, CollisionLayers.WORLD)
+		bore.hit_from_inside = true
+		if not get_world_3d().direct_space_state.intersect_ray(bore).is_empty():
+			continue
+		var bullet := WrathRicochet.launch(get_parent(), muzzle, direction, self, 10.0 * realm_damage_scale, 24.0)
 		_owned_bullets.append(weakref(bullet))
 		spawned_bullets += 1
 
-func _track_volley() -> void:
-	if not _has_live_target():
-		return
-	var desired := (target.global_position+Vector3.UP*1.0-(global_position+Vector3.UP*1.9)).normalized()
-	_locked_aim = _locked_aim.slerp(desired, VOLLEY_TRACK_BLEND).normalized()
+func _volley_aim_point(angle := 0.0) -> Vector3:
+	return global_position + VOLLEY_HEIGHT + _locked_aim.rotated(Vector3.UP, angle) * _locked_range
 
 func _spawn_eruptions() -> void:
 	var center := target.global_position
@@ -415,6 +457,7 @@ func _on_died(source: Node) -> void:
 		return
 	super._on_died(source)
 	_clear_bullets()
+	_audio.stop()
 	rage = 0.0
 	_rage_primed = false
 	_dashes_left = 0

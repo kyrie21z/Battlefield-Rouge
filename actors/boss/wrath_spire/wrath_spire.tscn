@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://actors/boss/wrath_spire/wrath_spire.gd" id="1"]
 [ext_resource type="Script" path="res://actors/boss/wrath_spire/wrath_spire_visual.gd" id="2"]
@@ -7,13 +7,16 @@
 [sub_resource type="CapsuleShape3D" id="Body"]
 radius = 1.3
 height = 5.0
-[sub_resource type="CapsuleShape3D" id="Torso"]
-radius = 1.1
-height = 4.4
-[sub_resource type="SphereShape3D" id="Head"]
-radius = 0.23
+[sub_resource type="CylinderShape3D" id="Torso"]
+radius = 1.78
+height = 1.08
+[sub_resource type="ConvexPolygonShape3D" id="Spindle"]
+points = PackedVector3Array(0, 0.14, 0, 0, 1.76, -1.39, 0.98, 1.76, -0.98, 1.39, 1.76, 0, 0.98, 1.76, 0.98, 0, 1.76, 1.39, -0.98, 1.76, 0.98, -1.39, 1.76, 0, -0.98, 1.76, -0.98)
+[sub_resource type="CapsuleShape3D" id="Head"]
+radius = 0.40
+height = 1.45
 [sub_resource type="SphereShape3D" id="Core"]
-radius = 0.16
+radius = 0.35
 [sub_resource type="AnimationLibrary" id="EmptyLibrary"]
 
 [node name="WrathSpire" type="CharacterBody3D" groups=["enemy"]]
@@ -30,18 +33,22 @@ script = ExtResource("2")
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Model"]
 libraries = {&"": SubResource("EmptyLibrary")}
 [node name="TorsoHitbox" type="StaticBody3D" parent="."]
-position = Vector3(0, 2.3, 0)
+position = Vector3(0, 2.15, 0)
 script = ExtResource("4")
 [node name="Shape" type="CollisionShape3D" parent="TorsoHitbox"]
 shape = SubResource("Torso")
+[node name="SpindleHitbox" type="StaticBody3D" parent="."]
+script = ExtResource("4")
+[node name="Shape" type="CollisionShape3D" parent="SpindleHitbox"]
+shape = SubResource("Spindle")
 [node name="HeadHitbox" type="StaticBody3D" parent="."]
-position = Vector3(0, 4.6, 0)
+position = Vector3(-0.18, 3.89, -0.22)
 script = ExtResource("4")
 body_part = 0
 [node name="Shape" type="CollisionShape3D" parent="HeadHitbox"]
 shape = SubResource("Head")
 [node name="CoreHitbox" type="StaticBody3D" parent="."]
-position = Vector3(0, 2.3, -1.1)
+position = Vector3(0, 2.87, 0.16)
 script = ExtResource("4")
 body_part = 0
 [node name="Shape" type="CollisionShape3D" parent="CoreHitbox"]
